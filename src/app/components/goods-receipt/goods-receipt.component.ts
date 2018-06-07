@@ -1,0 +1,464 @@
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router, ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+
+
+@Component({
+    selector: 'app-goods-receipt',
+    templateUrl: './goods-receipt.component.html',
+    styleUrls: ['./goods-receipt.component.css']
+})
+export class GoodsReceiptComponent implements OnInit {
+    checked: boolean = false;
+    indeterminate: boolean = false;
+    goodsReceiptMessages: any;
+    goodsReceiptForm: FormGroup;
+    title: any;
+    checkedObjects: any;
+    createGRItems: any;
+    orderType: any;
+    fromPage: any;
+    dlvNum: any;
+    orgId: any;
+    bpId: any;
+    accessObjectId: any;
+    errorList: any;
+    grListdata: any;
+    errorFlag: boolean = false;
+    saveBtn; boolean = false;
+    grListPayload: any;
+    grBoundDelPayload: any;
+    deliveryList: any;
+    itemNumbers: any;
+    soNumsList: any;
+    createGRForm: FormGroup;
+    totalQty: any;
+    customerData:string;
+    constructor(private http: Http, private formBuilder: FormBuilder,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private dateAdapter: DateAdapter<Date>, private activatedRoute: ActivatedRoute,
+        private environment: EnvConfigurationService) {
+        this.app.isActive = true;
+        this.dateAdapter.setLocale('en-gb');
+        this.goodsReceiptForm = formBuilder.group({
+            'dlNUm': ['', Validators.required],
+            'docDate': ['', Validators.required],
+            'posDate': ['', Validators.required],
+            'dlNote': ['', Validators.required],
+            'dlText': ['', Validators.required]
+        });
+        this.checked = false;
+        this.indeterminate = false;
+        this.goodsReceiptMessages = this.messagesService.goods_receipt_details_msg;
+        this.checkedObjects = [];
+        this.createGRItems = [];
+        this.orderType = "";
+        this.dlvNum = "";
+        this.fromPage = "";
+        this.orgId = localStorage.getItem("orgId");
+        this.bpId = localStorage.getItem("bpId");
+        this.accessObjectId = localStorage.getItem("Goods Receipt");
+        this.errorList = [];
+        this.grListdata = [];
+        this.grListPayload = {};
+        this.grBoundDelPayload = {};
+        this.deliveryList = {};
+        this.itemNumbers = [];
+        this.soNumsList = [];
+        this.createGRForm = formBuilder.group({
+            'docType': ['', Validators.required],
+            'dlvNumber': ['', Validators.required]
+        })
+        this.totalQty = 0;
+        this.customerData="";
+    }
+    calculateTotals() {
+        let totalQty: any = 0;
+        let count: any = 0;
+        this.grListdata.forEach(currentItem => {
+            if (currentItem.matnr != '' && currentItem.lfimg != '' && currentItem.batchNum != '') {
+                totalQty = parseFloat(totalQty) + parseFloat(currentItem.lfimg);
+            }
+            if (this.grListdata.length - 1 == count) {
+                this.totalQty = totalQty;
+            }
+
+            count++;
+        });
+    }
+    ngOnInit() {
+        this.title = "Goods Receipt / New";
+        
+        this.activatedRoute.queryParams.subscribe(params => {
+            console.log(this.router.url);
+            $("#gs-GSTR2").attr("style", "background:#036963;color:#fff");
+            this.orderType = params['orderType'];
+            this.dlvNum = params["dlvNumber"];
+            this.fromPage = params["frompage"];
+            this.getGRDetails();
+        });
+    }
+    getGRDetails() {
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        let url = this.environment.getRequiredApi('get_sales_delivery_display') + "?delv_num=" + this.dlvNum + "&org_id=" + this.orgId + "&bp_id=" + this.bpId + "&";
+        this.commonService.getData(url, 'GET', "", this.accessObjectId)
+            .subscribe((response) => {
+                if (response.status == 0) {
+                    this.deliveryList = {};
+                    this.deliveryList = response["data"];
+                    this.deliveryList['ch_delivery_tables'] = {};
+                    this.deliveryList['ch_delivery_tables'].likp = [];
+                    this.deliveryList['ch_delivery_tables'].likp.push(response["data"].ex_header_details);
+                    var docDate=response["data"].ex_header_details.bldat;
+                    setTimeout(() => {
+                        $('.datepicker-init-sale').datetimepicker({
+
+                            widgetPositioning: {
+                                horizontal: 'left'
+                            },
+                            icons: {
+                                time: "fa fa-clock-o",
+                                date: "fa fa-calendar",
+                                up: "fa fa-arrow-up",
+                                down: "fa fa-arrow-down",
+                                previous: 'fa fa-arrow-left',
+                                next: 'fa fa-arrow-right'
+                            },
+                            minDate:docDate,
+                            defaultDate: new Date(),
+                            format: 'DD/MM/YYYY',
+
+                        });
+                    }, 500);
+                    this.deliveryList['ch_delivery_tables'].lips = [];
+                    if (response["data"].hasOwnProperty('ex_item_details')) {
+                        this.deliveryList['ch_delivery_tables'].lips = response["data"].ex_item_details;
+                    }
+                    this.deliveryList['ch_batch_mat_stock'] = [];
+                    if (response["data"].hasOwnProperty('ex_batch_mat_stock')) {
+                        this.deliveryList['ch_batch_mat_stock'] = response["data"]['ex_batch_mat_stock'];
+                    }
+                    if (this.deliveryList.hasOwnProperty('ch_delivery_tables')) {
+                        let itemList: any = "";
+                        if (this.deliveryList['ch_delivery_tables'].hasOwnProperty('lips')) {
+                            if (this.deliveryList['ch_delivery_tables'].lips.length > 0) {
+                                this.deliveryList['ch_delivery_tables']["lips"].forEach(currentItem => {
+                                    currentItem.updateFlag = "U";
+                                    currentItem.displayRow = true;
+                                    if (!currentItem.hasOwnProperty('charg')) {
+                                        currentItem.batchNum = ""
+                                        this.itemNumbers.push(currentItem);
+                                    }
+                                });
+
+                                for (let index of this.deliveryList['ch_delivery_tables']["lips"]) {
+                                    if (index.hasOwnProperty("charg")) {
+                                        if (this.deliveryList.hasOwnProperty('ch_batch_mat_stock')) {
+                                            this.deliveryList['ch_batch_mat_stock'].forEach(currentItem => {
+                                                if (currentItem.hasOwnProperty("charg")) {
+                                                    if (index.charg == currentItem.charg && index.matnr == currentItem.matnr) {
+                                                        index.clabs = currentItem.clabs;
+                                                        index.lfimg = Math.round(parseFloat(index.lfimg));
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                                if (this.itemNumbers.length > 0) {
+                                    for (let index of this.itemNumbers) {
+                                        index.state = '';
+                                        this.grListdata.push(index);
+                                        this.deliveryList['ch_delivery_tables']["lips"].forEach(currentItem => {
+                                            if (index.posnr == currentItem.uecha) {
+                                                currentItem.batchNum = index.posnr;
+                                                currentItem.state = '';
+                                                currentItem.qty = Math.round(parseFloat(currentItem.qty));
+                                                currentItem.lfimg = Math.round(parseFloat(currentItem.lfimg));
+                                                this.grListdata.push(currentItem);
+                                            }
+                                        });
+                                        if (this.soNumsList.length == 0) {
+                                            this.soNumsList.push(index.vgbel);
+                                        } else {
+                                            if (this.soNumsList.indexOf(index.vgbel) == -1) {
+                                                this.soNumsList.push(index.vgbel);
+                                            }
+                                        }
+                                    }
+                                }
+                                if (this.itemNumbers.length == 0) {
+                                    this.deliveryList['ch_delivery_tables']["lips"].forEach(currentItem => {
+                                        currentItem.batchNum = currentItem.posnr;
+                                        currentItem.state = 'returns';
+                                        currentItem.qty = Math.round(parseFloat(currentItem.qty));
+                                        this.grListdata.push(currentItem);
+                                        if (this.soNumsList.length == 0) {
+                                            this.soNumsList.push(currentItem.vgbel);
+                                        } else {
+                                            if (this.soNumsList.indexOf(currentItem.vgbel) == -1) {
+                                                this.soNumsList.push(currentItem.vgbel);
+                                            }
+                                        }
+                                    });
+                                }
+                                this.deliveryList['ch_open_quantity'] = [];
+                                if (response["data"].hasOwnProperty('ex_open_quantity')) {
+                                    this.deliveryList['ch_open_quantity'] = response["data"].ex_open_quantity;
+                                }
+
+                                let count: any = 0;
+                                if (this.deliveryList.hasOwnProperty('ch_open_quantity')) {
+                                    for (let item of this.itemNumbers) {
+                                        this.deliveryList['ch_open_quantity'].forEach(currentItem => {
+                                            if (currentItem.posnr == item.vgpos
+                                                && currentItem.vbeln == item.vgbel) {
+                                                item['vmeng'] = currentItem.vmeng;
+                                            }
+                                            count++;
+                                        });
+                                    }
+
+                                }
+                                //this.grListdata=this.deliveryList['ch_delivery_tables']["lips"];
+                                let vgPos: any = null;
+                                let delvQty: any = null;
+                                let batchLength: any = 0;
+                                let countItm: any = 0;
+                                for (let index of this.itemNumbers) {
+                                    this.grListdata.forEach(currentItem => {
+                                        if (index.vgbel == currentItem.vgbel && currentItem.batchNum != "" && index.posnr == currentItem.batchNum) {
+                                            if (delvQty == null) {
+                                                delvQty = parseFloat(currentItem.lfimg);
+                                            } else {
+                                                delvQty = delvQty + parseFloat(currentItem.lfimg);
+                                            }
+                                            this.grListdata[countItm].lfimg = delvQty;
+                                            this.grListdata[countItm].vmeng = index.vmeng;
+                                            batchLength++;
+                                        }
+                                    });
+                                    let batchCount: any = countItm + batchLength;
+                                    this.grListdata[batchCount].batchLength = batchLength;
+                                    countItm++;
+                                    countItm = countItm + batchLength;
+                                    batchLength = 0;
+                                    delvQty = null;
+                                }
+
+                            }
+                        }
+
+                    }
+                    if (response["data"].hasOwnProperty('ex_return')) {
+                        if (response["data"]['ex_return'].length > 0) {
+                            this.errorList = response["data"]['ex_return'];
+                            for (let elist of response["data"]['ex_return']) {
+                                if (elist.type == 'E') {
+                                    this.errorFlag = true;
+                                    this.saveBtn=true;
+                                    $('#loadingIcon').hide();
+                                    $("#black-overlay").hide();
+                                    $("#displayErrorsModal").modal("show");
+                                    setTimeout(() => {
+                                        var width = $("#mainContent").css("width");
+                                        $(".outbound-footer").css("width", width);
+                                        $(".outbound-footer").show();
+                                    }, 50);
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                    if(response.data.hasOwnProperty("ex_cust_details")){
+                         if(response.data['ex_cust_details'].hasOwnProperty("cust_name"))
+                            this.customerData=response.data['ex_cust_details'].cust_id+"-"+response.data['ex_cust_details'].cust_name;
+                    }
+                    this.saveBtn=false;
+                    this.calculateTotals();
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                } else {
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                    this.commonService.responseMessages("", response.message, "warning");
+                }
+            });
+        setTimeout(() => {
+            var width = $("#mainContent").css("width");
+            $(".outbound-footer").css("width", width);
+            $(".outbound-footer").show();
+        }, 50);
+    }
+    saveGRDetails() {
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        this.grListPayload['bp_id'] = this.bpId;
+        this.grListPayload['org_id'] = this.orgId;
+        this.grListPayload['im_delivery_no'] = this.dlvNum;
+        let grDate:any=$("#grDocDate").val();
+        if(grDate.includes('-')){
+            grDate=grDate.split("-");
+        }else{
+            grDate=grDate.split("/");
+        }
+        this.grListPayload['im_gr_date']=grDate[2]+""+grDate[1]+""+grDate[0];
+        this.grListPayload['action'] = 'CRETPGR';
+        this.grListPayload['im_header_text'] = $("#header_text").val();
+        let url: any = this.environment.getRequiredApi("get_simulate_GR_details") + "?";
+        this.commonService.getData(url, "POST", this.grListPayload, this.accessObjectId).subscribe(response => {
+            if (response.status == 0) {
+                let grListTempData = response['data'];
+                let GRNum: any;
+                if (grListTempData.hasOwnProperty("ex_return")) {
+                    if (grListTempData['ex_return'].length > 0) {
+                        this.errorList = grListTempData['ex_return'];
+                        for (let elist of grListTempData['ex_return']) {
+                            if (elist.type == 'E') {
+                                this.errorFlag = true;
+                                this.saveBtn = true;
+                                $('#loadingIcon').hide();
+                                $("#black-overlay").hide();
+                                $("#displayErrorsModal").modal("show");
+                                return false;
+                            } else {
+                                if (elist.type == 'I') {
+                                    GRNum = elist.message_v1;
+                                }
+                            }
+
+                        }
+                    }
+                }
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                this.commonService.responseMessages("", "Goods Receipt (" + GRNum + ") created successfully", "success");
+                const path: any = "goodsreceipt/editGR";
+                this.router.navigate([path], { queryParams: { "grNumber": GRNum, "action": "DIS", frompage: "GR" } });
+
+            } else {
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                this.commonService.responseMessages("", response.message, "warning");
+            }
+        });
+    }
+    selectAll(event, checkAll, tableId) {
+        setTimeout(() => {
+            if ($("#" + checkAll).is(":checked")) {
+                this.commonService.selectAllCheckBoxes(checkAll, tableId);
+                let count: any = 0;
+                this.createGRItems.forEach(response => {
+                    if (response.displayRow) {
+                        this.checkedObjects.push(count);
+                    }
+                    count++;
+                });
+            } else {
+                this.commonService.selectAllCheckBoxes(checkAll, tableId);
+                this.checkedObjects = [];
+            }
+
+
+        }, 300);
+
+    }
+    getReportList(event, tableId, i) {
+        setTimeout(() => {
+            let flag: boolean = this.commonService.checkAction(tableId);
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = true;
+            } else {
+                this.indeterminate = true;
+            }
+        }, 400);
+        setTimeout(() => {
+            if ($("#checkbox-" + i + "-input").is(":checked")) {
+                this.checkedObjects.push(i);
+            } else {
+                if (this.checkedObjects.length > 0) {
+                    let count: any = 0;
+                    for (let index of this.checkedObjects) {
+                        if (index == i) {
+                            delete this.checkedObjects[count];
+                        }
+                        count++;
+                    }
+                }
+                setTimeout(() => {
+                    let flag: boolean = this.commonService.continueAction(tableId);
+                    if (flag) {
+                        this.indeterminate = false;
+                        this.checked = false;
+                    } else {
+                        this.indeterminate = true;
+                    }
+                }, 200);
+            }
+
+        }, 300);
+    }
+    removeLineSelectedItems() {
+        if (this.checkedObjects.length > 0) {
+            for (let index of this.checkedObjects) {
+                if (index != undefined && index != null) {
+                    this.createGRItems[index].displayRow = false;
+                }
+            }
+            this.checkedObjects = [];
+        } else {
+            this.commonService.responseMessages("", "Please select atleast one item", "warning");
+        }
+        setTimeout(() => {
+            let flag: boolean = this.commonService.continueAction("outbound-delivery-table");
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = false;
+            } else {
+                this.indeterminate = true;
+            }
+            if ($("#outbound-delivery-table").find('tbody').find('tr').length == 0) {
+                this.indeterminate = false;
+                this.checked = false;
+            }
+
+        }, 200);
+    }
+    redirectGRList() {
+        if(this.fromPage!="PO"){
+            const path: any = 'goodsreceipt';
+            this.router.navigate([path]);
+       }else{
+           const path: any = 'purchaseorder';
+            this.router.navigate([path]); 
+        }
+    }
+    closeModal(id) {
+        this.createGRForm.reset();
+        this.createGRForm.controls['docType'].setValue("");
+        $("#" + id).modal("hide");
+    }
+    createGoodsReceipt(id) {
+        $("#" + id).modal('show');
+    }
+    createGRSubmit(id) {
+        this.commonService.saleType = 'Create';
+        let orderType: any = $("#orderTypes").val();
+        let dlvNumber: any = $("#refNumber").val();
+        const path: any = "goodsreceipt/createGR";
+        $("#createGRModal").modal('hide');
+        this.router.navigate([path], { queryParams: { "orderType": orderType, "dlvNumber": dlvNumber, "action": "C", frompage: "GR" } });
+    }
+}

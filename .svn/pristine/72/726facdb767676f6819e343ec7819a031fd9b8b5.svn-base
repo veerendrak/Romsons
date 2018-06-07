@@ -1,0 +1,282 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Sales Order</strong>
+		</span>
+	</div>
+	<div class="card-block db-block" style="padding:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+				<div class="outbound-content col-md-12 mb-5 mt-2" style="display:none;">
+					<form [formGroup]="filterSalesOrderForm">
+					 <div class="delivery-form-block col-md-12 row">
+					 <div class="col-md-3 text-align-sales">
+						<label>Customer Name</label>
+						<input type="text" list="customerNamesList" class="form-control" (keyup)="extractData('cust-name','spinner-search','ajaxList')" id="cust-name"
+									formControlName="custName"  validateOnBlur [validateFormControl]="filterSalesOrderForm.controls['custName']"
+											 placeholder="Customer Name" />
+						<i class="fa fa-spinner fa-spin spinner-icon" id="spinner-search" style="display:none"></i>
+						<input type="hidden" name="customerId" id="filterCustomerId" value=""/>
+						<div class="ajax-searchlist" style="display:none;" id="ajaxList">
+							<datalist id="customerNamesList">
+								<ng-container *ngIf="customerNames.length>0">
+								<option *ngFor="let cstList of customerNames; let i = index;"
+								[value]="cstList.cust_name">
+									{{cstList.cust_id}}
+								</option>
+								</ng-container>
+							</datalist>
+						</div>
+						<span
+							*ngIf="filterSalesOrderForm.controls['custName'].touched && filterSalesOrderForm.controls['custName'].invalid && filterSalesOrderForm.controls['custName'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterSalesOrderForm.controls['custName'].errors.required">
+								{{saleOrderMessages.cust_req}}</small>
+						</span>
+						
+						</div>
+					 <div class="col-md-2 text-align-sales" >
+						<label>From Date</label>
+						<input type="text" class="form-control datepicker-init-sale" id="from-date"
+						formControlName="fromDate"  validateOnBlur [validateFormControl]="filterSalesOrderForm.controls['fromDate']">
+						
+						<span
+							*ngIf="filterSalesOrderForm.controls['fromDate'].touched && filterSalesOrderForm.controls['fromDate'].invalid && filterSalesOrderForm.controls['fromDate'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterSalesOrderForm.controls['fromDate'].errors.required">
+								{{saleOrderMessages.filter_from_date}}</small>
+						</span>
+						
+						</div>
+					 <div class="col-md-2 text-align-sales" >
+						
+						<label>To Date</label>
+						<input type="text" class="form-control datepicker-init-sale" id="to-date"
+						formControlName="toDate"  validateOnBlur [validateFormControl]="filterSalesOrderForm.controls['toDate']">
+						
+						<span
+							*ngIf="filterSalesOrderForm.controls['toDate'].touched && filterSalesOrderForm.controls['toDate'].invalid && filterSalesOrderForm.controls['toDate'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterSalesOrderForm.controls['toDate'].errors.required">
+								{{saleOrderMessages.filter_to_date}}</small>
+						</span>
+						</div>
+					  <div class="col-md-2 text-align-sales">
+						<label>Status</label>
+						<select class="form-control create-edit-pop-txt-box"
+										formControlName="status"  validateOnBlur [validateFormControl]="filterSalesOrderForm.controls['status']"
+										>
+											<option value="">Select Status</option>
+											<option value="A">Pending</option>
+											<option value="D">Billed</option>
+											<option value="C">Delivered</option>
+											<option value="B">Partially delivered</option>
+										</select>
+						<span
+							*ngIf="filterSalesOrderForm.controls['status'].touched && filterSalesOrderForm.controls['status'].invalid && filterSalesOrderForm.controls['status'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterSalesOrderForm.controls['status'].errors.required">
+								{{saleOrderMessages.filter_sales_status}}</small>
+						</span>
+						
+						</div>
+					  <div class="col-md-2 text-align-sales">
+						<button type="submit" (click)="getFilterData()"  class="login-button-export" style="position:relative;top:27px;">
+							<i class="fa submit-icon" style="margin-right:4px;padding-right:4px;">
+							<div class="icon-text" style="right:-4px;">Submit</div>
+							</i>
+						</button>					  
+						</div>
+						</div>						 
+					</form>
+					</div>
+					<!-- new changes -->
+					<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table" id="sales-table">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="sales-order-table">
+								<thead>
+									<tr>
+										<th class="no-sort"  style="min-width:50px !important;text-align:center;">
+											<mat-checkbox class="example-margin" 
+											[(ngModel)]="checked"
+											[checked]="checked"
+											[(indeterminate)]="indeterminate" id="checkbox-all"
+											 (click)="selectAll($event,'checkbox-all-input','sales-order-table')"></mat-checkbox>
+											 </th>
+										<th style="min-width:100px !important;">SO No.</th>
+										<th style="min-width:110px !important;">Order Date</th>
+										<th style="min-width:110px !important;">Req Del date</th>
+										<th style="min-width:110px !important;">PO Number</th>
+										<th style="min-width:90px !important;">PO date</th>
+										<th style="min-width:130px !important;">Customer Name</th>
+										<th style="min-width:110px !important;">Ship to Party</th>
+										<th>Total Amount</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									<ng-container *ngIf="salesOrderDetailsList.length>0">
+										<tr *ngFor="let sld of salesOrderDetailsList; let i=index;">
+										<td align="center">
+											<mat-checkbox class="example-margin" id="checkbox-{{i}}"  (click)="getReportList(sld,'sales-order-table',i)"
+											 ></mat-checkbox>
+										</td>
+											<td>
+												<a class="link-order" (click)="displayDetails(sld.sales_doc)" href="javascript:void(0)">{{sld.sales_doc}}</a>
+											</td>
+											<td>{{sld.doc_date | date :'dd-MM-yyyy'}}</td>
+											<td>{{sld.req_del_date | date :'dd-MM-yyyy'}}</td>
+											<td>{{sld.po_num}}</td>
+											<td><span *ngIf="sld.po_date!='0000-00-00'">{{sld.po_date | date :'dd-MM-yyyy'}}</span></td>
+											<td><div class="text-name-elipsis" title="{{sld.sold_to_name}}">{{sld.sold_to_name}}</div></td>
+											<td><div class="text-name-elipsis" title="{{sld.ship_to_name}}">{{sld.ship_to_name}}</div></td>
+											<td align="right">&#8377; {{sld.total_amt | PriceInd}}</td>
+											<td>{{sld.status}}</td>
+										</tr>
+									</ng-container>
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+<div class="outbound-footer mt-3">
+		<div class="left-block">
+		<!-- <div class="pull-left" style="max-width:47%">
+			<button class="btn login-button">
+			<i class="fa fa-plus" style="margin-right:4px;"></i> Add Lines</button>
+		</div>
+		<div class="pull-left" style="max-width:50%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Remove Line</button>
+			</div> -->
+		</div>
+		<div class="right-block">
+			
+
+			<div class="pull-left">
+			<button class="login-button-export">
+			<i class="fa excel-icon" style="margin-right:4px;">
+				<div class="icon-text">Export Excel</div>
+			</i>
+			</button>
+			</div>
+			<div class="pull-left">
+				<button class="login-button-export" (click)="createDelievry('sales-order-table')">
+				<i class="fa delivery-icon" style="margin-right:4px;">
+				<div class="icon-text" >Create Delivery</div>
+			</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export" (click)="editSalesOrder('sales-order-table')">
+				<i class="fa edit-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Edit</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export" (click)="createSalesOrder('sales-order-table')">
+				<i class="fa create-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Create</div>
+				</i>
+			</button>
+			</div>
+		</div>
+	</div>
+</section>
+<!--create sales order -->
+
+					<div class="modal fade modal-size-medium" id="createSalesModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									Create Sales Order
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('createSalesModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body-block" style="padding: 6px 6px !important;">
+								<form [formGroup]="createSalesOrderForm" autocomplete="off">
+									<div class="col-md-12 row">
+									<div class="col-md-6">
+										<label>Order Type<sup class="asterick">*</sup>
+										</label> <select class="form-control create-edit-pop-txt-box" style="width: 225px !important;"
+										formControlName="orderType" id="orderTypes" validateOnBlur [validateFormControl]="createSalesOrderForm.controls['orderType']"
+										>
+											<option value="" >Please Select</option>
+											<ng-container *ngFor="let odTypes of orderTypes; let i= index;">
+												<option [value]="odTypes.id">{{odTypes.value}}</option>
+											</ng-container>
+										</select>
+											 <span
+											*ngIf="createSalesOrderForm.controls['orderType'].touched && createSalesOrderForm.controls['orderType'].invalid && createSalesOrderForm.controls['orderType'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createSalesOrderForm.controls['orderType'].errors.required">
+												{{saleOrderMessages.order_type_req}} </small>
+										</span>
+									</div>
+									<div class="col-md-6">
+									<label>Customer<sup class="asterick">*</sup></label>
+									<input type="text" list="customerNamesBlock" class="form-control" (keyup)="extractData('modal-name','spinner-search-modal','ajaxListBlock')" id="modal-name"
+									formControlName="customer" validateOnBlur [validateFormControl]="createSalesOrderForm.controls['customer']"
+											 placeholder="Customer" style="width: 231px !important;padding:5px !important;"  />
+									<i class="fa fa-spinner fa-spin spinner-icon" id="spinner-search-modal" style="display:none;margin-right:-7%;margin-top:-9%;"></i>
+									<input type="hidden" name="customerId" value="" id="modal-searchInput">
+									<div class="ajax-searchlist" style="display:none;" id="ajaxListBlock">
+										<datalist id="customerNamesBlock">
+											<ng-container *ngIf="customerNames.length>0">
+											<option *ngFor="let cstList of customerNames; let i = index;" (click)="selectedItem(cstList,'modal-searchInput')"
+											[value]="cstList.cust_name">
+												{{cstList.cust_id}}
+											</option>
+											</ng-container>
+										</datalist>
+									</div>
+										 <span
+											*ngIf="createSalesOrderForm.controls['customer'].touched && createSalesOrderForm.controls['customer'].invalid && createSalesOrderForm.controls['customer'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createSalesOrderForm.controls['customer'].errors.required">
+												{{saleOrderMessages.cust_req}}</small>
+										</span>
+							</div>
+									
+									</div>
+									</form>
+								</div>
+
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<button (click)="createSalesForm('createSalesModal')"  [disabled]="createSalesOrderForm.invalid"
+											 [ngClass]="{'login-button':true ,'forgotOk':true,'btn-disabled':createSalesOrderForm.invalid }"
+											>Ok</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+</div>
+
+					<!-- End of create sales order-->

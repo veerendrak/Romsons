@@ -1,0 +1,124 @@
+﻿import '../polyfills';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule} from '@angular/platform-browser/animations'
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'
+import { HttpModule } from '@angular/http';
+import { AppComponent } from './app.component';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import { routing } from './app.routing';
+import { TopBarComponent} from './components/top-bar/top-bar.component';
+import { MenuLeftComponent } from './components/menu-left/menu-left.component';
+import { MenuRightComponent } from './components/menu-right/menu-right.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { LoginComponent } from './components/login/login.component';
+import { UserManagementComponent } from './components/user-management/user-management.component';
+import {CdkTableModule} from '@angular/cdk/table';
+import {
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatDatepickerModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatGridListModule,
+    MatIconModule,
+    MatInputModule,
+    MatListModule,
+    MatMenuModule,
+    MatNativeDateModule,
+    MatPaginatorModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    MatRadioModule,
+    MatRippleModule,
+    MatSelectModule,
+    MatSidenavModule,
+    MatSliderModule,
+    MatSlideToggleModule,
+    MatSnackBarModule,
+    MatSortModule,
+    MatStepperModule,
+    MatTableModule,
+    MatTabsModule,
+    MatToolbarModule,
+    MatTooltipModule,
+  } from '@angular/material';
+  import { DashboardComponent } from './components/dashboard/dashboard.component';
+  import { StockBalanceComponent } from './components/stock-balance/stock-balance.component';
+  import { StockDetailsComponent } from './components/stock-details/stock-details.component';
+  import { SalesOrderComponent } from './components/sales-order/sales-order.component';
+  import { OutboundDeliveryComponent } from './components/outbound-delivery/outbound-delivery.component';
+  import { SalesOrderDetailsComponent } from './components/sales-order-details/sales-order-details.component';
+  import {CommonService} from './services/common.service';
+  import { BillingComponent } from './components/billing/billing.component';
+  import { BillingDetailsComponent } from './components/billing-details/billing-details.component';
+  import { OutboundDeliveryDetailsComponent } from './components/outbound-delivery-details/outbound-delivery-details.component';
+@NgModule({
+  declarations: [
+    AppComponent,
+    TopBarComponent,
+    MenuLeftComponent,
+    MenuRightComponent,
+    FooterComponent,
+    LoginComponent,
+    UserManagementComponent,
+    DashboardComponent,
+    StockBalanceComponent,
+    StockDetailsComponent,
+    SalesOrderComponent,
+    OutboundDeliveryComponent,
+    SalesOrderDetailsComponent,
+    BillingComponent,
+    BillingDetailsComponent,
+    OutboundDeliveryDetailsComponent
+  ],
+  imports: [
+    BrowserModule, BrowserAnimationsModule, FormsModule, ReactiveFormsModule,
+    CdkTableModule,
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatStepperModule,
+    MatDatepickerModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatGridListModule,
+    MatIconModule,
+    MatInputModule,
+    MatListModule,
+    MatMenuModule,
+    MatNativeDateModule,
+    MatPaginatorModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    MatRadioModule,
+    MatRippleModule,
+    MatSelectModule,
+    MatSidenavModule,
+    MatSliderModule,
+    MatSlideToggleModule,
+    MatSnackBarModule,
+    MatSortModule,
+    MatTableModule,
+    MatTabsModule,
+    MatToolbarModule,
+    MatTooltipModule,
+    RouterModule,
+    HttpModule,
+    routing, 
+    NgbModule.forRoot()
+  ],
+  providers: [CommonService],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }

@@ -1,0 +1,133 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+
+	<div class="card-header card-header-adjustments">
+			<div class="cat__core__title stock-header-block-w">
+			 <strong class="page-title" style="margin-left: 10px;">Stock Details</strong>
+			</div>
+	
+		
+	</div>
+	
+	<div style="clear:both"></div>
+	
+		
+	<div class="card-block db-block" style="padding-left:0px; padding-right:0px;">
+		<div class="row">
+			
+		
+		
+			<div class="col-lg-12">
+				<div class="row">
+				
+				<div class="col-md-12 mt-2" >
+				
+					 <form [formGroup]="inventoryStockForm">
+					 <div class="delivery-form-block col-md-12 row filter-align-box">
+								<div class="col-md-3 text-align-sales">
+									<label><b>From Date</b></label> 
+									<input type="text"
+										style="padding: 5px !important;" placeholder="From Date" id="frmDate"
+										class="form-control datepicker-init" formControlName="frmDate" validateOnBlur (blur)="changeTodatePicker()"
+										[validateFormControl]="inventoryStockForm.controls['frmDate']" />
+
+									<span
+										*ngIf="inventoryStockForm.controls['frmDate'].touched && inventoryStockForm.controls['frmDate'].invalid && inventoryStockForm.controls['frmDate'].dirty"
+										class="error"> <small class="custom-error-class"
+										*ngIf="inventoryStockForm.controls['frmDate'].errors.required">
+											message </small>
+									</span>
+
+								</div>
+
+								<div class="col-md-3 text-align-sales toDatepic">
+									<label><b>To Date</b></label>
+									 <input type="text"
+										style="padding: 5px !important;" 
+										placeholder="To Date" class="form-control datepicker-init2" id="toDate"
+										formControlName="toDate" validateOnBlur (blur)="removeStyles()"
+										[validateFormControl]="inventoryStockForm.controls['toDate']" />
+									<span
+										*ngIf="inventoryStockForm.controls['toDate'].touched && inventoryStockForm.controls['toDate'].invalid && inventoryStockForm.controls['toDate'].dirty"
+										class="error"> <small class="custom-error-class"
+										*ngIf="inventoryStockForm.controls['toDate'].errors.required">
+											message </small>
+									</span>
+
+								</div>
+
+								<div class="col-md-2 text-align-sales">
+									<button type="submit" class="login-button-export" [disabled]="inventoryStockForm.invalid"
+									(click) = "getInvStockMbDetails();"
+										style="position: relative; top: 28px;">
+										<i class="fa submit-icon"
+											style="margin-right: 4px; padding-right: 4px;">
+											<span class="icon-text" style="right: -4px;"
+												>Submit</span>
+
+										</i>
+									</button>
+								</div>
+							</div>						 
+					</form> 
+					</div>
+					
+					
+					
+					
+					<!-- new changes -->
+					<div class="col-lg-12"  >
+						<div class="col-md-12">
+							<div class="stock-table" style="margin-top: 40px;">
+								<table class="inv-stock-table table table-hover nowrap editable-table checkBoxTable"
+								width="100%" >
+								<thead>
+									<tr>
+										<th>Plant Id</th>
+										<th>Material Code</th>
+										<th>UOM</th>
+										<th>From Date</th>
+										<th>To Date</th>
+										<th>Opening Stock</th>
+										<th>Total Receipt Quantities</th>
+										<th>Total Issue Quantities</th>
+										<th>Closing Stock</th>
+										
+									</tr>
+								</thead>
+							
+								<tbody>
+
+										<tr *ngFor="let sList of inventoryStockList">
+											<td>{{sList.werks}}</td>
+											<td>{{sList.matnr}}</td>
+											<td>{{sList.meins}}</td>
+											<td>{{sList.frdat}}</td>
+											<td>{{sList.todat}}</td>
+											<td>{{sList.opstk}}</td>
+											<td>{{sList.rcqty}}</td>
+											<td>{{sList.isqty}}</td>
+											<td>{{sList.clstk}}</td>
+											
+
+										</tr>
+
+									</tbody>
+								</table>
+							</div>						
+						</div>
+					</div>
+					
+					
+				
+					
+					
+					
+					
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	
+
+</section>

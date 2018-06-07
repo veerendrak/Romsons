@@ -1,0 +1,139 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router,ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+declare var XLSX:any;
+declare var XLS:any;
+@Component({
+  selector: 'app-edit-outbound-delivery',
+  templateUrl: './edit-outbound-delivery.component.html',
+  styleUrls: ['./edit-outbound-delivery.component.css']
+})
+export class EditOutboundDeliveryComponent implements OnInit {
+        
+     deliveryForm: FormGroup;
+    outboundDeliveryMsg:any;
+    title:any;
+    deliveryNum:any;
+    
+    outBoundDelPayload:any={};
+    
+    docDate:any;
+    giDate:any;
+    delDate;
+    disableFlag:boolean;
+    outBoundDeliveryFormObject:any=[];  
+    bpId:any;
+    orgId:any;
+   
+  constructor(private http: Http, private formBuilder: FormBuilder,private messagesService:MessagePropertiesService,private environment:EnvConfigurationService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private commonService:CommonService,private activatedRoute:ActivatedRoute) { 
+      this.app.isActive=true;
+      this.deliveryForm = formBuilder.group({
+        
+          'shippingPoint': ['', Validators.required],
+          'date': ['', Validators.required],
+          'orderNum': ['', Validators.required],
+          'DocDate': ['', Validators.required],
+          'GiDate': ['', Validators.required],
+          'NoPackage': ['', Validators.required],
+          'totWeight': ['', Validators.required],
+        });
+      this.outboundDeliveryMsg = messagesService.outbound_delivery_msg;
+      this.disableFlag=true;
+       this.bpId=localStorage.getItem("bpId");
+        this.orgId=localStorage.getItem("orgId");
+  }
+
+  ngOnInit() {
+      
+      this.activatedRoute.queryParams.subscribe(params => {
+      if(this.router.url.includes("obd")){
+        
+      
+        this.deliveryNum=  params['deliveryNum'];
+        this.getSalesOutboundDeliveryList();
+      
+      }
+  });
+      
+      setTimeout(()=>{
+      
+          if(this.deliveryForm.value["orderNum"].length == 0){
+              $( '.datepicker-init' ).datetimepicker( {
+
+                widgetPositioning: {
+                    horizontal: 'left'
+                },
+                icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down",
+                    previous: 'fa fa-arrow-left',
+                    next: 'fa fa-arrow-right'
+                },
+                format: 'LL',
+                
+            } );
+          }
+          
+      },500);
+      setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },50);
+      
+     
+      
+  }
+
+     getSalesOutboundDeliveryList(){
+         
+          this.outBoundDelPayload["bp_id"]=this.bpId;
+          this.outBoundDelPayload["org_id"]=this.orgId;
+         this.outBoundDelPayload["del_num"]=this.deliveryNum;
+         
+         let url = this.environment.getRequiredApi( 'get_sales_outbound_delivery_list' )+"?";
+      
+        this.commonService.getData( url, 'POST', this.outBoundDelPayload,localStorage.getItem( 'Outbound Delivery' ))
+            .subscribe(( response ) => {
+              
+                this.outBoundDeliveryFormObject = response.data.ex_delivery_list[0];
+                
+                  this.deliveryForm.setValue(
+                      {
+                          shippingPoint: this.outBoundDeliveryFormObject.ship_to,
+                          date: this.outBoundDeliveryFormObject.del_date,
+                          orderNum: this.outBoundDeliveryFormObject.del_num,
+                          DocDate: this.outBoundDeliveryFormObject.doc_date,
+                          GiDate: this.outBoundDeliveryFormObject.gi_date,
+                          NoPackage: this.outBoundDeliveryFormObject.num_pkg,
+                          totWeight: this.outBoundDeliveryFormObject.total_weight,
+
+                      });
+                  this.docDate = this.outBoundDeliveryFormObject.doc_date
+                  this.giDate = this.outBoundDeliveryFormObject.gi_date;
+                  this.delDate = this.outBoundDeliveryFormObject.del_date
+               
+            }, err => {
+                  
+                    console.log(err)   
+                
+               
+                //this.reqdata.responseMessages(err, err.status, 'danger');
+            } );
+    
+    }
+    
+ 
+
+}

@@ -1,0 +1,56 @@
+<div class="cat__pages__login test-class">
+
+	<div class="cat__pages__login__block cat__pages__reg__block">
+		<div class="row">
+			<div class="col-xl-12 login_reg_block">
+				<div class="cat__pages__login__block__inner reg_log">
+					<div style="text-align:center" class="text-info">
+						<h2>Romsons</h2>
+					</div>
+					<div class="cat__pages__login__block__form " id="login_page"
+						style="display: block">
+
+						<h4 class="text-capitalize">
+							<strong>Please Login</strong>
+						</h4>
+						<form [formGroup]="loginForm" novalidate>
+							<div class="form-group form-group-custom">
+								<label class="form-label">Email ID</label> 
+								<input class="form-control" formControlName="username" id="username"
+									type="email"
+									placeholder="Email" #username>
+
+							</div>
+							<div class="form-group  form-group-custom"
+								style="margin-top: 10px !important;">
+								<label class="form-label">Password</label> <input 
+									class="form-control" formControlName="password" type="password"
+									validateOnBlur 
+									id="signInPassword" placeholder="Password" #password>
+
+							</div>
+							<div class="form-actions">
+								<button type="submit" [disabled]="!loginForm.valid"
+									class="btn btn-primary mr-2 btn-primary-custom "
+									>Sign in</button>
+								<button type="submit"
+									class="btn btn-primary mr-2 btn-primary-custom "
+									data-toggle="modal" data-target="#registrationPopup"
+									>Sign up</button>
+								<span class="register-link"
+									[routerLinkActive]="['cat__menu-left__item--active']"
+									style="margin-left: 6px important;"> <a
+									
+									class="cat__core__link--blue cat__core__link--underlined cursor-hand-custom">Forgot
+										password?</a>
+
+								</span>
+							</div>
+
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

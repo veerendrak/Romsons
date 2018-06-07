@@ -1,0 +1,180 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-sales-order',
+  templateUrl: './sales-order.component.html',
+  styleUrls: ['./sales-order.component.css']
+})
+export class SalesOrderComponent implements OnInit {
+    salesOrderForm:FormGroup;
+    @Output()
+    @Input() salesSeries:any=""; 
+    title:any;
+    createSalesBlock:boolean=true;
+    outboundDeliberyBlock:boolean=false;
+    billingBlock:boolean=false;
+    postGoodsBlock:boolean=false;
+    showOrderType:boolean;  
+    salesOrderMessage:any;
+    formResetFlag:boolean=false;
+    
+    
+    
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private dateAdapter: DateAdapter<Date>) {
+      this.app.isActive=true;
+      this.dateAdapter.setLocale('en-gb');
+      this.salesOrderForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+          'soldToParty' : ['', Validators.required]
+        });
+      this.createSalesBlock=true;
+      this.showOrderType =commonService.showOrderType;
+      this.salesOrderMessage = messagesService.sales_order_details_msg
+      if(this.router.url=='/billing'){
+          this.commonService.saleType='Create';
+          this.navigatePath("billing");
+      }
+      if(this.router.url=='/outbounddelivery'){
+          this.commonService.saleType='Create';
+          this.navigatePath("outbounddelivery");
+      }
+       
+  }
+
+  ngOnInit() {
+      if(this.commonService.saleType=='Create'){
+          this.title="Sales Order / New";
+      }else{
+          this.title="Sales Order / Edit";
+      }
+      this.applyDataTableAndPicker();
+      if($('body').hasClass('cat__menu-left--visible')){
+          $(".ell-spa").removeAttr("style");
+      }else{
+          $(".ell-spa").attr("style","width:340px");
+      }
+      setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },100);
+      
+  }
+  navigatePath(path){
+      if(path=='billing'){
+          this.createSalesBlock=false;
+          this.outboundDeliberyBlock=false;
+          this.postGoodsBlock=false;
+          this.billingBlock=true;
+          this.formResetFlag = true;
+      }
+      if(path=='outbounddelivery'){
+          this.createSalesBlock=false;
+          this.outboundDeliberyBlock=true;
+          this.postGoodsBlock=false;
+          this.billingBlock=false;
+          this.formResetFlag = true;
+      }
+      if(path=='createsalesorder'){
+          this.createSalesBlock=true;
+          this.outboundDeliberyBlock=false;
+          this.postGoodsBlock=false;
+          this.billingBlock=false;
+          this.applyDataTableAndPicker();
+          this.formResetFlag = true;
+          setTimeout(()=>{
+              var width=$("#mainContent").css("width");
+              $(".outbound-footer").css("width",width);
+          },50);
+          
+      }
+      if(path=='postgoodsissue'){
+          this.createSalesBlock=false;
+          this.outboundDeliberyBlock=false;
+          this.postGoodsBlock=true;
+          this.billingBlock=false;
+          this.formResetFlag = true;
+      }
+      if(this.formResetFlag){
+      this.salesOrderForm.reset();    
+      }
+  }
+  applyDataTableAndPicker(){
+      setTimeout(()=>{
+          //
+         
+          $("#outbound-delivery-table").DataTable().destroy();
+         
+          $("#outbound-delivery-table").DataTable({
+            bSort:false,
+          "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+          lengthMenu: [
+                    [ 5, 10,15,25,50, -1 ],
+                    [ '5', '10', '15', '25', '50','Show all' ]
+                ],
+           "fnDrawCallback": function( oSettings ) {
+                        if ( 5 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                            
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                            
+                           
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                          
+                        }
+                    },
+           "columnDefs": [ {
+                "targets"  : 'no-sort',
+                "orderable": false,
+               } ]
+          
+      });
+      $("#outbound-delivery-table").closest('table').children('thead').children('tr:first').children('th').removeClass("sorting_asc");
+          
+            setTimeout(() => {
+            
+            $( '.datepicker-init-sale' ).datetimepicker( {
+
+                widgetPositioning: {
+                    horizontal: 'left'
+                },
+                icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down",
+                    previous: 'fa fa-arrow-left',
+                    next: 'fa fa-arrow-right'
+                },
+                format: 'LL',
+                
+            } );
+}, 500);
+          
+      },400);
+  }
+    
+   
+       
+}

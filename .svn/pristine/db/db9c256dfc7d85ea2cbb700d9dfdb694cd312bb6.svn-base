@@ -1,0 +1,149 @@
+import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
+
+@Injectable()
+export class EnvConfigurationService {
+
+    result: Object;
+    url: string = ''
+    constructor() { }
+
+    getEnvironment() {
+        let host: string = window.location.hostname;
+        let envConfig: any;
+        if (host.includes("192.168.0.113")) {
+            envConfig = environment.dev;
+        }
+        else if (host.includes("ssdemo.romsons.com")) {
+            envConfig = environment.qas;
+        }
+        else if (host.includes("prism.romsons.com")) {
+            envConfig = environment.prd;
+        }
+        else {
+            envConfig = environment.dev;
+        }
+        return envConfig;
+    }
+
+    getConfigurations() {
+        this.result = this.getEnvironment();
+        this.url = this.result['protocol'] + "://" + this.result['ip_address'];
+        return this.url + '/';
+    }
+
+    getRequiredApi(apiKey: string) {
+        let apiUrls: any = {
+            "find_by_user": "/user/status/{logon_id}",
+            "get_left_side_menu": "/gd/access/objs",
+            "dropdown_list": "/gd/list/{obj_name}",
+            "dropdown_list_byid": "/gd/list/{obj_name}/{obj_id}",
+            "logout_user": "/oauth/revoke-token",
+            "oauth_Token": "/oauth/token",
+            "fwd_password": "/user/reset/link",
+            "om_get_org_roles": "/org/roles",
+            "om_get_org_roles_id": "/org/roles/{role_id}",
+            "om_post_role_create": "/org/roles",
+            "om_put_role_update": "/org/roles",
+            "om_put_role_rename": "/org/roles/{role_id}",
+            "om_delete_role": "/org/roles/{role_id}",
+            "get_Bussiness_Partners": "/user/bp/{user_id}",
+            "get_user_details": "/user",
+            "download_stock_excl": "/inventory/download/stock/bal",
+            "get_stock_balance_details": "/inventory/stock/bal/{bp_id}",
+            "upload_stock_balance_file": "/inventory/upload/stock/bal",
+            "lock_stock_balance": "/inventory/stock/status",
+            "reset_pwd_resetKey": "/user/resetpwd/{resetKey}",
+            "um_put_user_restpwd": "/user/resetpwd",
+            "get_sales_order_list": "/sales/order",
+            "um_get_user_details": "/org/users/{org_id}",
+            "add_user_bp": "/org/bp/users",
+            "check_user_status": "/user/status",
+            "get_bps_list": "/org/bps/{org_id}",
+            "edit_bp_list": "/org/bp/{bp_id}",
+            "add_bp_org": "/org/{org_id}/bp",
+            "find_customers": "/customers/find",
+            "delete_user": "/org/users/{bp_id}",
+            "get_settings": "/setting/{setting_type}/{ref_obj_id}",
+            "post_settings": "/setting",
+            "get_org_bp": "/org/bps/{org_id}",
+            "get_customer_details": "/customers",
+            "get_pay_inco_terms": "/sales/payinco/terms",
+            "find_matnr_num": "/sales/matnr/find",
+            "sales_order_manage": "/sales/order/manage",
+            "get_sales_outbound_delivery_list": "/sales/outbound/delivery",
+            "get_inventory_stock": "/inventory/stock",
+            "get_sales_display": "/sales/display",
+            "get_billing_details": "/sales/bill",
+            "get_simulation_dlvr_details": "/sales/delivery/manage",
+            "get_billing_details_billid": "/sales/bill/display",
+            "manage_bill_details": "/sales/bill/manage",
+            "print_sale_order": "/print/sales/order",
+            "post_goods_issue": "/sales/pgsi",
+            "customer_manage": "/customers/manage",
+            "header_dropdown": "/gd/config/values",
+            "salesgroup_pricelist": "/customers/sgrps/prices",
+            "get_sales_delivery_display": "/sales/delivery/display",
+            "print_billing_list": "/print/billing",
+            "cancel_sales_order": "/sales/cancel",
+            "post_incoming_payment": "/sales/payment",
+            "print_delivery_list": "/print/sales/delivery",
+            "get_purchase_order_list": "/purchase/order",
+            "get_incoming_payment_list": "/sales/payment",
+            "find_vendors": "/vendors/find",
+            "purchase_order_manage": "/purchase/order/manage",
+            "get_inv_stock_md": "/inventory/stock/mb5b",
+            "get_sales_doc_flow": "/sales/document/flow",
+            "get_purchase_order_display": "/purchase/display",
+            "get_goodsrecp_details": "/purchase/pgr",
+            "get_plant_details": "/purchase/plant",
+            "get_vendor_details": "/vendors/{vendor_id}",
+            "get_pur_invoices": "/purchase/invoices",
+            "get_simulate_GR_details": "/purchase/pgr/manage",
+            "get_sales_EBills": "/sales/ewbs",
+            "get_vendor_schemes": "/vendors/schemes",
+            "release_purchase_order": "/purchase/release",
+            "find_by_mat_grp": "/sales/matrgrps/find",
+            "pur_invoice_dis": "/purchase/invoices/display",
+            "get_closing_stock_report": "/report/closing/stock",
+            "dnld_closing_stock_report": "/report/download/closing/stock",
+            "config_grp_list": "/gd/config/group",
+            "print_purchase_order": "/print/purchase/order",
+            "mcta_qty_report": "/report/cust/qtys",
+            "mcta_value_report": "/report/cust/orders",
+            "config_value_list": "/gd/config/values",
+            "cancel_pur_inv": "/purchase/invoice/cancel",
+            "get_pgr_details": "/purchase/pgr/display",
+            "manage_invoice_details": "/purchase/invoice/manage",
+            "get_gstr1_details": "/report/gstr1",
+            "get_billing_report": "/report/billing",
+            "get_me2n_details": "/report/me2n",
+            "get_poreport_details": "/report/po",
+            "get_pireport_details": "/report/pi",
+            "get_grreport_details": "/report/gr",
+            "get_delarwise_sales_rpt": "/report/dealer/sales",
+            "get_delivery_report": "/report/delivery",
+            "get_vl10c_report": "/report/delivery/sales",
+            "get_deliveryreport_details": "/report/delivery",
+            "get_customer_ledger": "/report/cust/ledger",
+            "get_vendor_ledger": "/report/vendor/ledger",
+            "hsn_summary_report": "/report/hsn",
+            "mcta_salesgroup_report": "/report/mcta/sgrps",
+            "get_sales_group_persons": "/report/sales/persons",
+            "get_gstr2_details": "/report/gstr2",
+            "get_outgoing_payment_list": "/purchase/payment",
+            "post_outgoing_payment": "/purchase/payment",
+            "get_nil_summary_report": "/report/nill",
+            "unlock_user": "/user/{action}/status"
+
+        }
+        let hostContextPath: string = this.getConfigurations();
+        if (hostContextPath.includes("core.asptax.com")) {
+            return hostContextPath + "v1" + apiUrls[apiKey];
+        }
+        else {
+            return hostContextPath + "romsons_core/v1" + apiUrls[apiKey];
+        }
+    }
+
+}

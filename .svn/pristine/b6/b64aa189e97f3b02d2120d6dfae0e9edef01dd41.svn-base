@@ -1,0 +1,823 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">{{title}}</strong>
+			</span>
+		</div>
+<!-- Wizard start -->
+<div class="card-block db-block" id="wizard-block" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="mb-1">
+							<div class="cat__wizard wizard clearfix row">
+								<div  class="steps clearfix col-md-12">
+									<ul id="steps-wizard">
+										<li class="start" class="disabled"><a 
+											href="javascript:void(0)"> 
+											<i
+												class="fa  cat__wizard__steps__icon"
+												id="gs-GSTR1"><span class="font-number">1</span></i> 
+											<i
+												class="fa fa-check cat__wizard__steps__icon" id="icon-GSTR1"
+												style="display: none;"></i>
+												<div class="cat_wizard_steps_title ell-spa" *ngIf="orderType=='ZCC' || orderType==null || orderType==''">
+													Purchase Order<span  class="" id="GSTR1"></span>
+												</div>
+												<div class="cat_wizard_steps_title ell-spa" *ngIf="orderType=='ZRN'">
+													Purchase Return<span  class="" id="GSTR1"></span>
+												</div>
+										</a></li>
+
+										<li style="cursor: text" class="disabled">
+										<a
+											href="javascript:void(0)"> 
+											<i
+												class="fa  cat__wizard__steps__icon"
+												id="gs-GSTR2"><span class="font-number">2</span></i> <i
+												class="fa fa-check cat__wizard__steps__icon" id="icon-GSTR2"
+												style="display: none;"></i>
+												<div class="cat_wizard_steps_title ell-spa">
+													Goods Reciept<span class="" id="GSTR2"></span>
+												</div>
+										</a></li>
+
+										<li style="cursor: text" class="last disabled">
+										<a
+											 href="javascript:void(0)"> 
+											 <i
+												class="fa  cat__wizard__steps__icon"
+												id="gs-GSTR1A"><span class="font-number">3</span></i> 
+												<i
+												class="fa fa-check cat__wizard__steps__icon"
+												id="icon-GSTR1A" style="display: none;"></i>
+												<div class="cat_wizard_steps_title ell-spa">
+													Purchase Invoice
+													<span class="" id="GSTR1A"></span>
+												</div>
+										</a></li>
+									</ul>
+
+								</div>
+							</div>
+						</div>
+					</div>
+			</div>
+	</div>
+<!-- wizard end -->
+	</div>
+	<div class="">
+		<div class="card-block db-block mb-1"
+			style="padding: 0px; padding-left: 15px; padding-right: 15px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="createSalesBlock">
+						<div class="row">
+							<!-- new changes -->
+							<div class="outbound-content col-md-12">
+								<form [formGroup]="purchaseOrderForm" autocomplete="off">
+									<div class="delivery-form-block col-md-12 row mt-3">
+										<div class="col-md-3 text-align-sales">
+											<label>Vendor Name</label> <input type="text"
+												class="form-control" formControlName="vendorName"
+												disabled="disabled" value="{{plId}} {{plantName}}">
+											<div class="delivery-form-block col-md-12 pt-1">
+												<label style="margin-bottom: 0px;">Vendor Address</label>
+												<div class="txt-msg-block">
+													<ng-container *ngIf="purchaseDlvAddress!=''">
+													<span *ngIf="purchaseDlvAddress.addrnumber!=''">Address:</span>
+													<span *ngIf="purchaseDlvAddress.house_num!=''">House
+														Num: {{purchaseDlvAddress.house_num}} , </span> <span
+														*ngIf="purchaseDlvAddress.street!=' '">{{purchaseDlvAddress.street}}
+														,</span> <span *ngIf="purchaseDlvAddress.city!=' '">{{purchaseDlvAddress.city}}
+														,</span> <span *ngIf="purchaseDlvAddress.postal_code!=' '">{{purchaseDlvAddress.postal_code}}
+														,</span> <span *ngIf="purchaseDlvAddress.phone_num!=' '">{{purchaseDlvAddress.phone_num}}
+														,</span> <span *ngIf="purchaseDlvAddress.country!=' '">{{purchaseDlvAddress.country}}
+														,</span> <span *ngIf="purchaseDlvAddress.email_id!=' '">{{purchaseDlvAddress.email_id}}</span>
+													</ng-container>
+												</div>
+											</div>
+
+										</div>
+										<div class="col-md-3 text-align-sales">
+
+											<label>PO Date </label> <input type="text"
+												class="form-control datepicker-init-sale"
+												formControlName="docDate" validateOnBlur id="docDate"
+												[validateFormControl]="purchaseOrderForm.controls['docDate']"
+												(blur)="removeStyles('docDate')"> <span
+												*ngIf="purchaseOrderForm.controls['docDate'].touched && purchaseOrderForm.controls['docDate'].invalid && purchaseOrderForm.controls['docDate'].dirty"
+												class="error"> <small class="custom-error-class"
+												*ngIf="purchaseOrderForm.controls['docDate'].errors.required">
+													{{purchaseOrderMessage.docDate_req}} </small>
+											</span>
+											<div class="delivery-form-block col-md-12 pt-1">
+												<label style="margin-bottom: 3px;">Delivery Address</label>
+												<div class="txt-msg-block">
+													<ng-container *ngIf="plantDlvAddress!=''"> <span
+														*ngIf="plantDlvAddress.plant_id!=''">Address:
+														{{plantDlvAddress.plant_id}} - <span
+														*ngIf="plantDlvAddress.plant_name!=''">{{plantDlvAddress.plant_name}}</span>
+													</span> <span *ngIf="plantDlvAddress.full_address!=''">Address:
+														{{plantDlvAddress.full_address}} ,</span> <span
+														*ngIf="plantDlvAddress.street!=' '">{{plantDlvAddress.street}}
+														,</span> <span *ngIf="plantDlvAddress.city!=' '">{{plantDlvAddress.city}}
+														,</span> <span *ngIf="plantDlvAddress.postal_code!=' '">{{purchaseDlvAddress.postal_code}}</span>
+													</ng-container>
+												</div>
+											</div>
+										</div>
+										<!-- <div class="col-md-6 text-align-sales">
+											<div class="col-md-6 text-align-sales" style="height:80px;">
+											
+											</div>
+											<div class="delivery-form-block col-md-12 pt-1">
+											<label style="margin-bottom: 3px;margin-right:15px"><strong>Total Price: </strong>{{totalPrice | PriceInd}}</label>
+											<label style="margin-bottom: 3px;margin-right:15px"><strong>Total IGST: </strong>{{totalIgstVal | PriceInd}}</label>
+											<label style="margin-bottom: 3px;margin-right:15px"><strong>Total CGST: </strong>{{totalCgstVal | PriceInd}}</label>
+											<label style="margin-bottom: 3px;margin-right:15px"><strong>Total SGST: </strong>{{totalSgstVal | PriceInd}}</label>
+											<label style="margin-bottom: 3px;margin-right:15px"><strong>Total Value: </strong>{{totalGrossVal | PriceInd}}</label>
+											</div>
+										
+										</div> -->
+										<div class="col-md-3 text-align-sales" *ngIf="!rolekaduser">
+											<label>Hospital Name<sup class="asterick">*</sup></label> <input
+												type="text" list="customerNamesBlock"
+												class="form-control ajax-list"
+												(keyup)="extract_customerData('modal-name','spinner-search-modal','ajaxListBlock',$event)"
+												id="modal-name" formControlName="customer" validateOnBlur
+												[validateFormControl]="purchaseOrderForm.controls['customer']"
+												placeholder="Hospital Name"
+												style="width: 311px !important; padding: 5px !important;" />
+											<i class="fa fa-spinner fa-spin spinner-icon"
+												id="spinner-search-modal"
+												style="display: none; margin-right: -7%; margin-top: -9%;"></i>
+											<input type="hidden" name="customerId" value=""
+												id="modal-searchInput">
+											<div class="ajax-searchlist"
+												style="display: none; width: 100%;" id="ajaxListBlock">
+												<ul id="customerNamesBlock" class="custmore-list ajax-list">
+													<ng-container *ngIf="customerNames.length>0">
+													<li *ngFor="let cstList of customerNames; let i = index;"
+														class="ajax-list"
+														(click)="selected_customerItem(cstList,'ajaxListBlock','modal-name','modal-searchInput')"><span
+														class="pull-left custName" title="{{cstList.cust_name}}"
+														style="font-weight: 600;">{{cstList.cust_name}}</span> <span
+														class="pull-right"> {{cstList.cust_id}}</span></li>
+													</ng-container>
+													<ng-container *ngIf="customerNames.length==0">
+													<li>Customers are not found</li>
+													</ng-container>
+												</ul>
+											</div>
+											<span
+												*ngIf="purchaseOrderForm.controls['customer'].touched && purchaseOrderForm.controls['customer'].invalid && purchaseOrderForm.controls['customer'].dirty"
+												class="error"> <small class="custom-error-class"
+												*ngIf="purchaseOrderForm.controls['customer'].errors.required">
+													Select hospital name</small>
+											</span>
+										</div>
+										
+										<div class="col-md-12 text-align-sales pb-0 mt-13">
+										<table
+											class="table table-hover nowrap editable-table totalTable"
+											style="display: inline-table; margin-bottom: 0px;">
+											<tbody>
+												<tr>
+													<td style="background: #e4e9f0;">Total Amounts :</td>
+
+
+													<td>
+														<div class="pull-left">IGST:</div>
+														<div class="pull-right">{{totalIgstVal | PriceInd}}</div>
+													</td>
+													<td>
+														<div class="pull-left">S/UGST :</div>
+														<div class="pull-right">{{totalSgstVal | PriceInd}}</div>
+													</td>
+
+													<td>
+														<div class="pull-left">CGST:</div>
+														<div class="pull-right">{{totalCgstVal | PriceInd}}</div>
+													</td>
+													<td>
+														<div class="pull-left">Total Value :</div>
+														<div class="pull-right">{{totalGrossVal | PriceInd}}</div>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+
+									</div>
+									</div>
+									<div class="clear-fix"></div>
+								</form>
+							</div>
+							<div class="col-md-12 mt-1 mb-3">
+								<div class="stock-table table-responsive">
+									<table
+										class="table table-hover nowrap editable-table checkBoxTable"
+										width="100%" id="purchase-order-table">
+										<thead>
+											<tr>
+												<th rowspan="2"
+													style="min-width: 50px !important;; text-align: center;"><mat-checkbox
+														class="example-margin" id="checkbox-all"
+														[(ngModel)]="checked" [checked]="checked"
+														[(indeterminate)]="indeterminate"
+														(click)="selectAll($event,'checkbox-all-input','purchase-order-table')"></mat-checkbox></th>
+												<th rowspan="2" style="min-width: 90px !important;">Material</th>
+												<th rowspan="2" style="min-width: 80px !important;">Qty</th>
+												<th rowspan="2" style="min-width: 130px !important;">Description</th>
+												<th rowspan="2" style="min-width: 60px !important;">UOM</th>
+												<th rowspan="2" style="min-width: 60px !important;">BOX
+													Size</th>
+												<!-- <th rowspan="2" style="min-width: 60px !important;">Plant</th>
+												<th rowspan="2" style="min-width: 60px !important;">Stor
+													Loc</th> -->
+												<th rowspan="2" style="min-width: 60px !important;">Del
+													Date</th>
+												<th rowspan="2" style="min-width: 60px !important;">Price</th>
+												<th colspan="2" class="align-center">S/UGST</th>
+												<th colspan="2" class="align-center">CGST</th>
+												<th colspan="2" class="align-center">IGST</th>
+												<th rowspan="2" style="min-width: 80px !important;">Total
+													Val</th>
+											</tr>
+											<tr>
+												<th style="min-width: 50px !important;">Rate</th>
+												<th style="min-width: 80px !important;">Value</th>
+												<th style="min-width: 50px !important;">Rate</th>
+												<th style="min-width: 80px !important;">Value</th>
+												<th style="min-width: 50px !important;">Rate</th>
+												<th style="min-width: 80px !important;">Value</th>
+											</tr>
+										</thead>
+										<tbody>
+											<ng-container
+												*ngFor="let items of createpurchaseOrderItems; let i =index;">
+											<tr id="sales-row-{{i}}" *ngIf="items.displayRow"
+												class="error-{{items.errorFlagBox}}">
+												<td style="min-width: 50px !important; text-align: center;">
+													<div class="scheme-icon-{{items.schemesFlag}}"
+														title="Available Schemes"
+														(mouseover)="displaySchemeByMtrl(i,items)"
+														(mouseout)="hideSchemeByMtrl(i,items)"></div> <mat-checkbox
+														class="example-margin" id="checkbox-{{i}}"
+														(click)="getReportList($event,'purchase-order-table',i)">
+													</mat-checkbox> <ng-container *ngIf="items.schemesFlag">
+													<div class="schemes-popup-div-bulkerror" id="schemes-{{i}}"
+														style="display: none">
+														<div class="help-scheme-arrow-bulk"></div>
+														<table
+															class="table table-hover nowrap editable-table checkBoxTable"
+															width="100%" id="schemesTable"
+															style="display: inline-table; margin-bottom: 0px;">
+
+															<tbody *ngIf="vendorschemes.length>0">
+																<ng-container
+																	*ngFor="let schList of vendorschemes; let i=index">
+																<input type="hidden"
+																	value="{{schList['schemes'].length+1}}" #rowlength>
+																<ng-container *ngIf="schList.mat_id==items.mat_num">
+																<tr>
+																	<th [attr.rowspan]="rowlength.value">{{schList.mat_id}}
+																		- {{schList.mat_desc}}</th>
+																	<th>Min Qty</th>
+																	<th>Max Qty</th>
+																	<th>Discount %</th>
+																	<th>Discount Val</th>
+																</tr>
+
+																<ng-container
+																	*ngFor="let mSch of schList.schemes; let j=index;">
+																<tr>
+																	<!-- <td>{{mSch.qty | customround}}</td> -->
+																	<td>{{mSch.min_quan | customround}}</td>
+																	<td>{{mSch.max_quan | customround}}</td>
+																	<td>{{mSch.rate}} %</td>
+																	<td>&#8377; {{mSch.rate_value}}</td>
+																</tr>
+																</ng-container> </ng-container> </ng-container>
+															</tbody>
+														</table>
+													</div>
+													</ng-container>
+												</td>
+												<td><input type="text" autocomplete="off"
+													[attr.disabled]="disableBtns ?  'disabled' : null"
+													name="materialNum" placeholder="Material no."
+													(keyup)="findMaterialDetails(materialNum,items,'spinner-search-mat',i,'matnumajaxListBlock',$event)"
+													class="form-control matNum ajax-list"
+													[value]="items.mat_num" [(ngModel)]="items.mat_num"
+													(change)="populateFileds(items,matnrDetails,'matNum')"
+													id="matNum-{{i}}" list="materialNumlist" #materialNum /> <i
+													class="fa fa-spinner fa-spin spinner-icon"
+													id="spinner-search-mat-{{i}}"
+													style="display: none; margin-top: -16%; margin-right: 2%;"></i>
+													<div class="ajax-searchlist"
+														style="display: none; width: 15%;"
+														id="matnumajaxListBlock-{{i}}">
+														<ul id="customerNamesBlock"
+															class="custmore-list ajax-list">
+															<li *ngFor="let matList of matnrDetails;"
+																class="ajax-list" style="width: 100%"
+																(click)="selectedMatrItem(matList,'matnumajaxListBlock','matNum',i,items)"><span
+																class="pull-left" style="font-weight: 600;">{{matList.mat_num}}</span>
+																<span class="pull-right"> {{matList.mat_name}}</span></li>
+														</ul>
+													</div></td>
+												<td><input type="text"
+													(change)="changeQtyCalculations(items,i)" name="qty"
+													placeholder="Qty"
+													class="form-control matNum numbersOnly qty"
+													[attr.disabled]="disableBtns ?  'disabled' : null"
+													[value]="items.qty" id="qty-{{i}}" [(ngModel)]="items.qty"
+													maxlength="5" /></td>	
+												<td><input type="text" autocomplete="off"
+													disabled
+													name="desc" placeholder="Description"
+													class="form-control matNum ajax-list"
+													(keyup)="findMaterialDetails(desc,items,'spinner-search-desc',i,'matajaxListBlock',$event)"
+													[value]="items.desc" [(ngModel)]="items.desc"
+													(change)="populateFileds(items,matnrDetails,'desc')"
+													id="desc-{{i}}" list="desclist" #desc /> <i
+													class="fa fa-spinner fa-spin spinner-icon"
+													id="spinner-search-desc-{{i}}"
+													style="display: none; margin-top: -15%; margin-right: 2%;"></i>
+													<!-- <datalist id="desclist">
+													<ng-container *ngFor="let matList of matnrDetails;">
+													<option [value]="ccc">{{matList.mat_num}}</option>
+													</ng-container>
+												</datalist> -->
+													<div class="ajax-searchlist"
+														style="display: none; width: 15%;"
+														id="matajaxListBlock-{{i}}">
+														<ul id="customerNamesBlock"
+															class="custmore-list ajax-list">
+															<li *ngFor="let matList of matnrDetails;"
+																class="ajax-list" style="width: 100%"
+																(click)="selectedMatrItem(matList,'matajaxListBlock','desc',i,items)"><span
+																class="pull-left" style="font-weight: 600;">{{matList.mat_name}}</span>
+																<span class="pull-right"> {{matList.mat_num}}</span></li>
+														</ul>
+													</div></td>
+												
+												<td>{{items.uom}}</td>
+												<td>{{items.boxSize}}</td>
+												<!-- <td><input type="text" name="plant" placeholder="Plant"
+													class="form-control matNum"
+													[value]="items.plant" [(ngModel)]="items.plant" /></td>
+												<td><input type="text" name="storloc"
+													placeholder="Stor. loc"
+													class="form-control matNum"
+													[value]="items.storloc" [(ngModel)]="items.storloc" /></td> -->
+												<td><input type="text" name="deldate"
+													placeholder="Del. Date" class="form-control matNum"
+													id="date-{{i}}" [value]="items.deldate"
+													(blur)="selectedDate(i,items)" [(ngModel)]="items.deldate" /></td>
+												<td>{{items.price | PriceInd}} <!-- <input type="text" name="price" placeholder="Price"
+													class="form-control matNum numbersOnly"
+													[value]="items.price" [(ngModel)]="items.price" /> --></td>
+												<td>{{items.sgst_rt}}</td>
+												<td align="right">{{items.sgst_val | PriceInd}}</td>
+												<td>{{items.cgst_rt}}</td>
+												<td align="right">{{items.cgst_val | PriceInd}}</td>
+												<td>{{items.igst_rt}}</td>
+												<td align="right">{{items.igst_val | PriceInd}}</td>
+												<td align="right">{{items.grossValue | PriceInd}}</td>
+											</tr>
+											</ng-container>
+										</tbody>
+										<!-- <tfoot>
+											<tr>
+											<td colspan="7">Total </td>
+											<td align="right">{{totalPrice | PriceInd}}</td>
+											<td></td>
+											<td align="right">{{totalSgstVal  | PriceInd}}</td>
+											<td></td>
+											<td align="right">{{totalCgstVal | PriceInd}}</td>
+											<td></td>
+											<td align="right">{{totalIgstVal | PriceInd}}</td>
+											<td align="right">{{totalGrossVal | PriceInd}}</td>
+											</tr>
+										</tfoot> -->
+									</table>
+								</div>
+							</div>
+							<!-- end chnges -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="outbound-footer mt-3">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="redirectPurchaseOrder()">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+			<div class="left-block">
+				<div class="pull-left" style="max-width: 47%">
+					<button class="login-button" (click)="AddMoreLinesOfItems()">
+						<i class="fa fa-plus" style="margin-right: 4px; font-size: 16px"></i>
+						Add Lines
+					</button>
+				</div>
+				<div class="pull-left">
+					<button class="cancel-button-export" style="padding-left: 0px;"
+						(click)="removeLineSelectedItems()">
+						<i class="fa cancel-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Remove Line</div>
+						</i>
+					</button>
+				</div>
+				<div class="pull-left">
+					<button title="Create New Purchase order"
+						class="login-button-export" (click)="createNewPO()">
+						<i class="fa create-icon"
+							style="margin-right: 4px; padding-right: 4px; width: 23px; height: 24px;">
+						</i>
+					</button>
+				</div>
+			</div>
+			<div class="right-block">
+				<div class="pull-left">
+					<button title="Display Schemes"
+						class="login-button-export Btn-margin" (click)="displaySchemes()">
+						<i class="fa scheme-icon"
+							style="margin-right: 4px; padding-right: 4px; width: 23px; height: 24px;">
+						</i>
+					</button>
+				</div>
+				<!-- <div class="pull-left">
+					<button class="login-button-export" style="padding-left: 8px;"
+						title="Print / Preview">
+						<i class="fa print-icon"
+							style="margin-right: 2px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div> -->
+				<div class="pull-left">
+					<button class="login-button-export" (click)="calculatePrice()"
+						[attr.disabled]="calcBtn ?  'disabled' : null"
+						style="padding-left: 8px;" title="Calculate Total">
+						<i class="fa calc-icon"
+							style="margin-right: 4px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div>
+				<div class="pull-left">
+					<input type="file" name="file" id="uploadExcel"
+						style="display: none;">
+					<button class="login-button-export Btn-margin"
+						style="display: none;" id="mergeItemList"
+						(click)="mergeItemsList()"></button>
+					<button class="login-button-export" (click)="uploadExcel()"
+						style="padding-left: 8px;" title="Upload Excel">
+						<i class="fa upexcel-icon"
+							style="margin-right: 4px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div>
+				<div class="pull-left">
+					<button class="save-icon-btn" (click)="savePurchaseOrderItems()"
+						[attr.disabled]="saveBtn ?  'disabled' : null">
+						<i class="fa save-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Save</div>
+						</i>
+					</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+<!-- <div class="grBlock" *ngIf="goodsRecieptBlock">
+	<app-goods-receipt></app-goods-receipt>
+</div>
+<div class="piBlock" *ngIf="purchaseInvoiceBlock">
+	<app-create-invoice></app-create-invoice>
+</div> -->
+</section>
+<!--Error display modal -->
+
+<div class="modal fade modal-size-medium" id="displayErrorsModal"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Display Errors</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('displayErrorsModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body" style="padding: 6px 6px !important;">
+				<div class="col-md-12 row">
+					<table
+						class="table table-hover nowrap editable-table checkBoxTable"
+						width="100%" id="errorTable" style="display: inline-table;">
+						<thead>
+							<tr>
+								<th>Error Code</th>
+								<th>Error Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ng-container *ngFor="let erList of errorList; let i=index">
+							<tr *ngIf="erList.type=='E'">
+								<td>{{erList.id}}</td>
+								<td>{{erList.message}}</td>
+							</tr>
+							</ng-container>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="row new_row">
+					<div class="pull-right new_right act_foot">
+						<div class="pull-right new_right act_foot closePopUpOk">
+							<!-- <button (click)="closeModal('displayErrorsModal')"
+											 Class="login-button forgotOk"
+											>Ok</button> -->
+							<button (click)="closeModal('displayErrorsModal')"
+								Class="cancel-button forgotOk">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--create purchase order -->
+
+<div class="modal fade modal-size-medium" id="createPurchaseModal"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog" role="document" style="max-width: 622px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Create Purchase Order</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('createPurchaseModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+
+
+			</div>
+			<div class="modal-body-block" style="padding: 6px 6px !important;">
+				<form [formGroup]="createPurchaseOrderForm" autocomplete="off">
+					<div class="col-md-12 row">
+						<div class="col-md-6">
+							<!-- <label>Doc Type<sup class="asterick">*</sup>
+							</label> <select class="form-control create-edit-pop-txt-box"
+								style="width: 225px !important;" formControlName="docType"
+								validateOnBlur
+								[validateFormControl]="createPurchaseOrderForm.controls['docType']">
+								<option value="">Please Select</option>
+								<ng-container *ngFor="let odTypes of orderTypes; let i= index;">
+								<option [value]="odTypes.key">{{odTypes.value}}</option>
+								</ng-container>
+							</select> -->
+							<label>Order Type<sup class="asterick">*</sup>
+							</label> <select class="form-control create-edit-pop-txt-box"
+								style="width: 100% !important;" formControlName="docType"
+								id="orderTypes" validateOnBlur
+								[validateFormControl]="createPurchaseOrderForm.controls['docType']">
+								<option value="">Please Select</option>
+								<ng-container *ngFor="let odTypes of orderTypes; let i= index;">
+								<option [value]="odTypes.key">{{odTypes.value}}</option>
+								</ng-container>
+							</select> <span
+								*ngIf="createPurchaseOrderForm.controls['docType'].touched && createPurchaseOrderForm.controls['docType'].invalid && createPurchaseOrderForm.controls['docType'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="createPurchaseOrderForm.controls['docType'].errors.required">
+									{{purchaseOrderMessages.purchase_type_req}} </small>
+							</span>
+						</div>
+						<div class="col-md-6">
+							<label>Vendor Name<sup class="asterick">*</sup></label>
+							<select class="form-control create-edit-pop-txt-box"
+								style="width: 100% !important;" formControlName="vendorName"
+								id="modal-searchInput" validateOnBlur
+								[validateFormControl]="createPurchaseOrderForm.controls['vendorName']">
+								<option value="">Please Select</option>
+								<ng-container *ngFor="let vndTypes of vendorTypes; let i= index;">
+								<option [value]="vndTypes.key">{{vndTypes.value}}</option>
+								</ng-container>
+							</select>
+							 <!-- <input
+								type="text" class="form-control create-edit-pop-txt-box"
+								(keyup)="extractData('modal-name','spinner-search-modal','ajaxListBlock',$event)"
+								id="modal-name" formControlName="vendorName" validateOnBlur
+								[validateFormControl]="createPurchaseOrderForm.controls['vendorName']"
+								placeholder="Vendor Name" style="width: 300px !important;"> -->
+							<!-- <i class="fa fa-spinner fa-spin spinner-icon"
+								id="spinner-search-modal"
+								style="display: none; margin-right: -7%; margin-top: -9%;"></i> -->
+							<!-- <input type="hidden" name="customerId" value=""
+								id="modal-searchInput"> -->
+							<!-- <div class="ajax-searchlist" style="display: none; width: 400px;"
+								id="ajaxListBlock">
+								<ul id="customerNamesBlock" class="custmore-list ajax-list">
+									<ng-container *ngIf="vendorNames.length>0">
+									<li *ngFor="let cstList of vendorNames; let i = index;"
+										class="ajax-list"
+										(click)="selectedItem(cstList,'ajaxListBlock','modal-name','modal-searchInput')"><span
+										class="pull-left" id="list-{{i}}"
+										title="{{cstList.vendor_name}}" style="font-weight: 600;">{{cstList.vendor_name}}</span>
+										<span class="pull-right"> {{cstList.vendor_id}}</span></li>
+									</ng-container>
+									<ng-container *ngIf="vendorNames.length==0">
+									<li>Vendors are not found</li>
+									</ng-container>
+								</ul>
+							</div> -->
+							<span
+								*ngIf="createPurchaseOrderForm.controls['vendorName'].touched && createPurchaseOrderForm.controls['vendorName'].invalid && createPurchaseOrderForm.controls['vendorName'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="createPurchaseOrderForm.controls['vendorName'].errors.required">
+									{{purchaseOrderMessages.vendor_req}}</small>
+							</span>
+						</div>
+
+					</div>
+				</form>
+			</div>
+
+			<div class="modal-footer">
+				<div class="row new_row">
+					<div class="pull-right new_right act_foot">
+						<div class="pull-right new_right act_foot closePopUpOk">
+							<button (click)="createPurchaseForm('createPurchaseModal')"
+								[disabled]="createPurchaseOrderForm.invalid"
+								[ngClass]="{'login-button':true ,'forgotOk':true,'btn-disabled':createPurchaseOrderForm.invalid }">Ok</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- End of create purchase order-->
+
+<!--create schemes modal -->
+<div class="modal fade modal-size-medium sales-d-scheme"
+	id="displaySchemesModal" data-backdrop="static" data-keyboard="false"
+	tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document"
+		style="max-width: 800px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Trade Scheme</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModalId('displaySchemesModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body" style="max-height: 250px !important;">
+				<div class="col-md-12 row">
+					<table
+						class="table table-hover nowrap editable-table checkBoxTable"
+						width="100%" id="schemesTable" style="display: inline-table;">
+						<thead>
+							<tr>
+								<th>Material</th>
+								<!-- <th width="80px">Qty</th> -->
+								<th width="80px">Min Qty</th>
+								<th width="80px">Max Qty</th>
+								<th width=80px;>UOM</th>
+								<th>Discount Per</th>
+								<th>Discount Val</th>
+
+							</tr>
+						</thead>
+						<tbody *ngIf="vendorschemes.length>0">
+							<ng-container *ngFor="let schList of vendorschemes; let i=index">
+							<input type="hidden" [value]="schList['schemes'].length"
+								#rowlength>
+							<tr>
+								<td [attr.rowspan]="schList['schemes'].length">{{schList.mat_id}}
+									- {{schList.mat_desc}}</td>
+								<ng-container *ngFor="let mSch of schList.schemes; let j=index;">
+								<ng-container *ngIf="j==0"> <!-- <td>{{mSch.qty | customround}}</td> -->
+								<td>{{mSch.min_quan | customround}}</td>
+								<td>{{mSch.max_quan | customround}}</td>
+								<td>{{mSch.uom}}</td>
+								<td>{{mSch.rate}} %</td>
+								<td>&#8377; {{mSch.rate_value}}</td>
+
+								</ng-container> </ng-container>
+							</tr>
+							<ng-container *ngFor="let mSch of schList.schemes; let j=index;">
+							<ng-container *ngIf="j>0">
+							<tr>
+								<!-- <td>{{mSch.qty | customround}}</td> -->
+								<td>{{mSch.min_quan | customround}}</td>
+								<td>{{mSch.max_quan | customround}}</td>
+								<td>{{mSch.uom }}</td>
+								<td>{{mSch.rate}} %</td>
+								<td>&#8377; {{mSch.rate_value}}</td>
+							</tr>
+							</ng-container> </ng-container> </ng-container>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="row new_row">
+					<div class="pull-right new_right act_foot">
+						<div class="pull-right new_right act_foot closePopUpOk">
+							<button (click)="closeModalId('displaySchemesModal')"
+								Class="login-button forgotOk">Ok</button>
+							<button (click)="closeModalId('displaySchemesModal')"
+								Class="cancel-button forgotOk">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Error display modal -->
+
+<!--Error display modal in Excel-->
+<div class="modal fade modal-size-medium" id="displayExcelErrorsModal"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Display Errors</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('displayExcelErrorsModal')"
+							aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body" style="padding: 6px 6px !important;">
+				<div class="col-md-12 row">
+					<table
+						class="table table-hover nowrap editable-table checkBoxTable"
+						width="100%" id="errorExcelTable" style="display: inline-table;">
+						<thead>
+							<tr>
+								<th>Error Description</th>
+							</tr>
+						</thead>
+						<tbody>
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="row new_row">
+					<div class="pull-right new_right act_foot">
+						<div class="pull-right new_right act_foot closePopUpOk">
+							<!-- <button (click)="closeModal('displayExcelErrorsModal')"
+											 Class="login-button forgotOk"
+											>Ok</button> -->
+							<button (click)="closeModal('displayExcelErrorsModal')"
+								Class="cancel-button forgotOk">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,351 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+import { ExcelService } from '../../services/excel.service';
+
+declare var $: any;
+declare var jQuery: any;
+
+@Component({
+    selector: 'app-inventory-stock-mb',
+    templateUrl: './inventory-stock-mb.component.html',
+    styleUrls: ['./inventory-stock-mb.component.css']
+})
+export class InventoryStockMbComponent implements OnInit {
+    public inventoryStockForm: FormGroup;
+    public bpId: string;
+    public orgId: string;
+    public accessObjId: string;
+    public inventoryStockList: any = [];
+    material: any;
+    ajaxDropdown = false;
+    public footerPgFlag = false;
+    tot_open_qty: any;
+    tot_open_val: any;
+    tot_rec_qty: any;
+    tot_rec_val: any;
+    tot_issue_qty: any;
+    tot_issue_val: any;
+    tot_close_qty: any;
+    tot_close_val: any;
+    constructor(private http: Http, private formBuilder: FormBuilder, private environment: EnvConfigurationService,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private excelService: ExcelService) {
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjId = localStorage.getItem("Reports Gallery")
+        this.inventoryStockForm = new FormBuilder().group(
+            {
+                'frmDate': ['', Validators.required],
+                'toDate': ['', Validators.required]
+            }
+        );
+    }
+
+    ngOnInit() {
+        this.footerPgFlag = this.commonService.reportFlag;
+        if (this.footerPgFlag) {
+            this.commonService.reportFlag = !this.footerPgFlag;
+        }
+        $('.datepicker-init').datetimepicker({
+            widgetPositioning: {
+                horizontal: 'left'
+            },
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down",
+                previous: 'fa fa-arrow-left',
+                next: 'fa fa-arrow-right'
+            },
+            format: 'DD-MM-YYYY',
+
+        });
+        this.applyDataTable();
+    }
+
+    getInvStockMbDetails() {
+
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        this.compareDates();
+        let stockMbPayload = {};
+        let fromDate, toDate;
+        let stockMbArray = [];
+        let matNrArray = [];
+        let splittedFromDate = $("#frmDate").val().split("-");
+        fromDate = splittedFromDate[2] + splittedFromDate[1] + splittedFromDate[0];
+        let splittedToDate = $("#toDate").val().split("-");
+        toDate = splittedToDate[2] + splittedToDate[1] + splittedToDate[0];
+        //stockMbArray[0] = fromDate + "," + toDate;
+        stockMbArray.push(fromDate);
+        stockMbArray.push(toDate);
+        stockMbPayload["budat"] = stockMbArray;
+        stockMbPayload["bp_id"] = this.bpId;
+        stockMbPayload["org_id"] = this.orgId;
+        let mat_nr = $("#material-code").val();
+        if (mat_nr.length != 0) {
+            matNrArray[0] = mat_nr;
+            stockMbPayload["matnr"] = matNrArray;
+        }
+        this.tot_open_qty = 0
+        this.tot_open_val = 0.0;
+
+        this.tot_rec_qty = 0;
+        this.tot_rec_val = 0.0;
+        this.tot_issue_qty = 0;
+        this.tot_issue_val = 0.0;
+
+        this.tot_close_qty = 0;
+        this.tot_close_val = 0.0;
+        let url = this.environment.getRequiredApi('get_inv_stock_md') + "?";
+        this.commonService.getData(url, 'POST', stockMbPayload, this.accessObjId)
+            .subscribe((response) => {
+                console.log(response);
+                if (response.status == '1') {
+                    this.inventoryStockList = [];
+                    this.commonService.responseMessages('', response.message, 'warning');
+                } else {
+                    this.inventoryStockList = response.data.ex_t_mb5bdata;
+                    this.inventoryStockList.forEach((list) => {
+                        list.isqty = Math.abs(list.isqty);
+                        list.isqty_price = Math.abs(list.isqty_price);
+
+                    })
+                    for (let total of this.inventoryStockList) {
+                        this.tot_open_qty = this.tot_open_qty + Math.abs(total.opstk);
+                        this.tot_open_val = this.tot_open_val + Math.abs(total.opstk_price);
+
+                        this.tot_rec_qty = this.tot_rec_qty + Math.abs(total.rcqty);
+                        this.tot_rec_val = this.tot_rec_val + Math.abs(total.rcqty_price);
+
+                        this.tot_issue_qty = this.tot_issue_qty + Math.abs(total.isqty);
+                        this.tot_issue_val = this.tot_issue_val + Math.abs(total.isqty_price);
+
+                        this.tot_close_qty = this.tot_close_qty + Math.abs(total.clstk);
+                        this.tot_close_val = this.tot_close_val + Math.abs(total.clstk_price);
+                    }
+                }
+                $("#purchase-order-table").DataTable().destroy();
+                this.applyDataTable();
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+
+
+
+            }, err => {
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                console.log(err)
+
+            });
+
+
+
+    }
+    changeTodatePicker() {
+        var maxFromDate = this.convertDate($("#frmDate").val());
+        var minFromDate = this.convertDate($("#frmDate").val());
+        var date = maxFromDate.getDate() + 30;
+        maxFromDate.setDate(date);
+
+        if ($("#toDate").val() != "") {
+            $(".datepicker-init2").datetimepicker("destroy");
+        }
+        $('.datepicker-init2').datetimepicker({
+
+            widgetPositioning: {
+                horizontal: 'left'
+            },
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down",
+                previous: 'fa fa-arrow-left',
+                next: 'fa fa-arrow-right'
+            },
+            format: 'DD-MM-YYYY',
+            maxDate: maxFromDate,
+            minDate: minFromDate
+        });
+        this.inventoryStockForm.controls['frmDate'].setValue($("#frmDate").val());
+        this.inventoryStockForm.controls['toDate'].setValue($("#toDate").val());
+    }
+    removeStyles() {
+        this.inventoryStockForm.controls['frmDate'].setValue($("#frmDate").val());
+        this.inventoryStockForm.controls['toDate'].setValue($("#toDate").val());
+    }
+    applyDataTable() {
+        setTimeout(() => {
+
+            $("#purchase-order-table").DataTable({
+                retrieve: true,
+                paging: false,
+                "info": false,
+                fixedHeader: {
+                    header: true,
+                    footer: true
+                },
+                /*  scrollY: "300px",
+                  scrollX: true,
+                  scrollCollapse: true,
+                  fixedColumns: {
+                      leftColumns: 3
+                  },*/
+                "order": [0],
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)"
+                },
+                "fnDrawCallback": function(oSettings) {
+                    if (5 >= oSettings.fnRecordsDisplay()) {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+
+                        $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                    } else {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_length').show();
+
+                    }
+                },
+                "columnDefs": [{
+                    "targets": 'no-sort',
+                    "orderable": false,
+                }]
+            });
+            // $("#purchase-order-table").css("display", "table !important")
+        }, 500);
+
+        setTimeout(() => {
+            $(".dataTables_scrollHeadInner").css({ "width": "100%" });
+            $(".table ").css({ "width": "100%" });
+            //$("#cust-info-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+        }, 1100);
+    }
+
+    public compareDates() {
+        let frmDate = this.inventoryStockForm.controls['frmDate'].value;
+        let toDate = this.inventoryStockForm.controls['toDate'].value;
+
+        frmDate = this.convertDate(frmDate);
+        toDate = this.convertDate(toDate);
+        let one_day = 1000 * 60 * 60 * 24;
+        let difference = frmDate.getTime() - toDate.getTime()
+        console.log(Math.round(difference / one_day))
+        return Math.round(difference / one_day);
+
+    }
+
+    public convertDate(date) {
+        let dateArry = date.split("-");
+        return new Date(dateArry[2], dateArry[1] - 1, dateArry[0]);
+    }
+
+    extractData(id, spinnerId, ajaxDropdown) {
+        let term: any = $("#" + id).val();
+        if (term.length == 2) {
+            $("#" + spinnerId).show();
+            let url: any = this.environment.getRequiredApi("find_matnr_num") + "?org_id=" + this.orgId + "&bp_id=" + this.bpId + "&material=" + term + "&";
+            this.commonService.getData(url, "GET", "", this.accessObjId).subscribe(response => {
+                if (response.status == 0) {
+                    this.material = response["data"].ex_mat_list;
+                    $("#" + spinnerId).hide();
+                    $("#" + ajaxDropdown).show();
+                    this.ajaxDropdown = true;
+                } else {
+                    $("#" + spinnerId).hide(); $("#" + ajaxDropdown).show();
+                    this.ajaxDropdown = false;
+                }
+
+            });
+        } else {
+            if (term == "") {
+                this.material = [];
+                $("#" + spinnerId).hide();
+            } else {
+                var searchText = term;
+                searchText = searchText.toUpperCase();
+                $("#" + ajaxDropdown).find('ul > li').each(function() {
+                    var currentLiText = $(this).text();
+                    currentLiText = currentLiText.toUpperCase();
+                    var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                    $(this).toggle(showCurrentLi);
+                });
+            }
+        }
+    }
+
+    selectedItem(response, modalBlock, textInput, hiddenInput) {
+        $("#" + textInput).val(response.mat_num);
+        $("#" + hiddenInput).val(response.mat_num);
+        $("#" + modalBlock).hide();
+
+    }
+
+    navigateToRepGallery() {
+        const path: any = "rptsgallery";
+        this.router.navigate([path]);
+    }
+    exportExcel() {
+        let jsonArrrayData: any = [];
+        console.log(this.inventoryStockList);
+        if (this.inventoryStockList.length != 0) {
+            for (let index of this.inventoryStockList) {
+                if (!index.hasOwnProperty('werks')) {
+                    index.werks = "  "
+                }
+                if (!index.hasOwnProperty('matnr')) {
+                    index.matnr = "  "
+                }
+                if (!index.hasOwnProperty('maktx')) {
+                    index.maktx = ' ';
+                }
+                if (!index.hasOwnProperty('meins')) {
+                    index.meins = ' ';
+                }
+                if (!index.hasOwnProperty('opstk')) {
+                    index.opstk = " ";
+                }
+                if (!index.hasOwnProperty('opstk_price')) {
+                    index.opstk_price = " ";
+                }
+                if (!index.hasOwnProperty('rcqty')) {
+                    index.rcqty = " ";
+                }
+                if (!index.hasOwnProperty('rcqty_price')) {
+                    index.rcqty_price = " ";
+                }
+                if (!index.hasOwnProperty('isqty')) {
+                    index.isqty = " ";
+                }
+                if (!index.hasOwnProperty('isqty_price')) {
+                    index.isqty_price = " ";
+                }
+                if (!index.hasOwnProperty('clstk')) {
+                    index.clstk = " ";
+                }
+                if (!index.hasOwnProperty('clstk_price')) {
+                    index.clstk_price = " ";
+                }
+                jsonArrrayData.push(index);
+            }
+            let columns: any = ['werks', 'matnr', 'maktx', 'meins', 'opstk', 'opstk_price', 'rcqty', 'rcqty_price', 'isqty', 'isqty_price', 'clstk', 'clstk_price']
+            let columnHeaders: any = ['Plant', 'Material Code', 'Material Description', 'UOM', 'Opening Stock', 'Opening Value', 'Receipt Qty', 'Receipt Value', 'Issued Qty', 'Issued Value', 'Closing Qty', 'Closing Value']
+            let jsonData: any = JSON.stringify(jsonArrrayData);
+            this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "MB5B report", columns, columnHeaders, 'MB5B report');
+        } else {
+            this.commonService.responseMessages("", "Please select atleast one payments to export", "warning")
+        }
+
+    }
+}

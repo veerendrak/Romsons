@@ -1,0 +1,104 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-billing-details',
+  templateUrl: './billing-details.component.html',
+  styleUrls: ['./billing-details.component.css']
+})
+export class BillingDetailsComponent implements OnInit {
+    createBillingForm:FormGroup;
+    billingDetMsg:any;
+    
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService) {
+      this.app.isActive=true;
+      this.createBillingForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+          'docNumber': ['', Validators.required],
+          'billingDate':['', Validators.required],
+        });
+      this.billingDetMsg = messagesService.billing_det_msg;
+  }
+
+  ngOnInit() {
+      $("#billing-order-table").DataTable({
+          "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+           "fnDrawCallback": function( oSettings ) {
+                        if ( 10 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                           // $(oSettings.nTableWrapper).find('.dataTables_filter').hide();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                            //$(oSettings.nTableWrapper).find('.dataTables_length').hide();
+                            
+                           
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                            $(oSettings.nTableWrapper).find('.sorting_asc').show();
+                        }
+                    },
+      });
+        $( '.datepicker-init' ).datetimepicker( {
+                debug: true,
+                widgetPositioning: {
+                    horizontal: 'left'
+                },
+                icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down",
+                    previous: 'fa fa-arrow-left',
+                    next: 'fa fa-arrow-right'
+                },
+                format: 'LL',
+                
+            } );
+      
+       //$( '.datepicker-init' ).find('.bootstrap-datetimepicker-widget').css('z-index', 9999);
+      
+      
+      
+  }
+  editBillingOrder(){
+      this.commonService.saleType='Edit';
+      $("#billingSalesModal").modal("show");  
+  }
+  createBillingOrder(){
+      this.commonService.saleType='Create';
+      $("#billingSalesModal").modal("show");
+  }
+  closeModal(id){
+      $("#"+id).modal("hide");
+      this.createBillingForm.reset();
+  }
+  createBillingSubmit(id){
+      $("#"+id).modal("hide"); 
+      const path:any="createsalesorder";
+      this.router.navigate([path]);
+  }
+  editSalesOrder(){
+      this.commonService.saleType='Edit';
+      $("#billingSalesModal").modal("show");
+  }
+
+
+}

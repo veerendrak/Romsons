@@ -1,0 +1,275 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+import { CommonService } from '../../services/common.service';
+
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+
+import { AppComponent } from '../../app.component';
+
+@Component({
+  selector: 'app-user-management',
+  templateUrl: './user-management.component.html',
+  styleUrls: ['./user-management.component.css']
+})
+export class UserManagementComponent implements OnInit {
+
+    opendiv:boolean;
+    public orgUsers: any;
+    public userRole:string;
+     public addUserForm: FormGroup;
+    public isAddUser:boolean;
+    public orgRoles=[];
+    public isBranchUser=false;
+    public url:string;
+    public reqmethod:string;
+    public payload:any;
+    public bpId:string;
+    public alreadyExisted:string;
+    public assignBpartner:string;
+    
+    public addUserToBpartner:any;
+    public moduleName:string;
+    
+    // user details
+    public orgId:string;
+     
+  constructor(private http: Http, private formBuilder: FormBuilder,private environment:EnvConfigurationService,private commonService:CommonService,
+			 private router: Router,private ref: ChangeDetectorRef,private app:AppComponent) {
+    this.app.isActive=true;
+      this.opendiv= false;
+     this.bpId= localStorage.getItem("bpId");
+      
+      this.addUserForm = new FormBuilder().group(
+            {
+
+                'email': ['', [Validators.required, Validators.pattern( '^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$' )]],
+                'firstName': ['', Validators.required],
+                'lastName': ['', Validators.required],
+                'mobile': ['', [Validators.required, Validators.pattern( '^[789]{1}[0-9]{9}$' )]],
+                'roleId': ['', Validators.required],
+                'logonId': [''],
+                'role': [''],
+                'userId': [''],
+                'bpId': [this.bpId],
+                'bpLegalName': [''],
+                'userType': [''],
+                'bpType':[''],
+                'userTypeId':['']
+            }
+        );
+      
+  }
+
+  ngOnInit() { 
+  
+      this.isAddUser=true;
+      this.orgId = localStorage.getItem("orgId");
+      
+      this.getUser();
+      this.getUserRole();
+     
+  }
+    
+     applyDataTable(){
+         
+     
+          setTimeout(()=>{  
+          $("#userListTable").DataTable({
+           "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+           "fnDrawCallback": function( oSettings ) {
+                        if ( 5 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                            
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                            
+                           
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                          
+                        }
+                    },
+          
+      });
+         },400);  
+     
+  }
+    openModal(){
+        $( '#addUser' ).modal( 'show' );
+        this.moduleName ="newUser";
+         this.addUserForm.reset();
+    }
+    
+    resetPassword(userId){
+        
+    }
+    
+    edituserDetails(obj,modName){
+    this.moduleName ="editUser";
+       this.payload=obj;
+        this.addUserForm.setValue( obj );
+    }
+    deleteUser(obj){
+        
+    }
+    
+    submituserDetails(){
+       
+        if(this.moduleName == "newUser"){
+        this.addUserForm.value.logonId=this.addUserForm.value.email;
+        this.payload = this.addUserForm.value;
+        this.payload["bpType"]= localStorage.getItem("bpType");
+            this.payload["bpId"]=  this.bpId;
+        /* for (let key in this.payload) {
+            if(this.payload[key].length == 0){
+                 this.payload[key] = null;
+            }
+            
+            
+        }*/
+            
+        }
+        if(this.moduleName == "editUser"){
+                 this.payload = this.addUserForm.value;
+            }
+       
+        console.log( this.payload);
+        this.url = this.environment.getRequiredApi( 'add_user_bp' )+"?org_id="+ this.orgId +"&";
+         this.commonService.getData( this.url, "POST", this.payload ,localStorage.getItem( 'Manage Users' ))
+            .subscribe(( response ) => {
+                console.log(response);
+                 this.commonService.responseMessages("",response.message, "success");
+                this.reset();
+            } );
+        
+      
+        
+    }
+    
+    finduserStatus(email){
+        console.log(email);
+        
+         this.url = this.environment.getRequiredApi( 'check_user_status' )+ "?logon_id="+email+"&bp_id="+ this.bpId+"&";
+         this.commonService.getData( this.url, "GET", '',localStorage.getItem( 'Manage Users' ))
+            .subscribe(( response ) => {
+                console.log(response);
+                if(response.data.assigned && response.data.existed && response.data.status=="Active"){
+                    this.isBranchUser=true;
+                    this.alreadyExisted="User is already assigned for same Business Partner";
+                    this.reset();
+                    // $( "#popover-next" ).show();
+                    
+                   this.commonService.responseMessages("",   this.alreadyExisted, "warning"); 
+                    return false;
+                }
+                
+                if(response.data.assigned && response.data.existed && response.data.status !="Active"){
+                    this.reset();
+                    this.commonService.responseMessages("","User is Inactive.Please contact Administrator", "success");
+                    return false;
+                }
+                
+                if(response.data.existed && !response.data.assigned && response.data.status =="Active"){
+                   
+                    //get user details
+                     
+                    let userUrl:any=this.environment.getRequiredApi("get_user_details")+"?logon_id="+email+"&";
+                     this.commonService.getData( userUrl, "GET", '',localStorage.getItem( 'Manage Users' ))
+                       .subscribe(( result ) => {
+                            $( "#popover-next" ).show();
+                           this.isBranchUser=false;
+                           this.assignBpartner="User already existed.You can add to this Business Partner";
+                           this.addUserToBpartner = result.data;
+                       console.log(this.addUserToBpartner)
+                       });
+                    
+                   // this.opendiv = true;
+                }
+                
+                
+                if(! response.data.existed && !response.data.assigned ){
+                    this.opendiv = true;
+                 }
+                
+            } );
+     
+       
+    }
+    reset(){
+         $( '#addUser' ).modal( 'hide' );
+        this.opendiv = false;
+        this.addUserForm.reset();
+    }
+    
+   
+     public getUser() {
+        /*var bpId = $( '#business_place_add' ).val();
+        var bpLegalName = $( "#business_place_add option:selected" ).text();*/
+
+        
+        this.url = this.environment.getRequiredApi( 'um_get_user_details' ).replace( '{org_id}', this.orgId  ) + "?action=ORG&";//'http://104.237.3.222:9090/igasp-core/user/'+ this.userId;
+        this.reqmethod = 'GET';
+         // 
+        this.commonService.getData( this.url, this.reqmethod, '',localStorage.getItem( 'Manage Users' ))
+            .subscribe(( response ) => {
+               
+                this.orgUsers = response.data.users;
+                 this.applyDataTable();
+              
+            //    this.edituserDetails( this.result,'adduser');
+            } );
+        $( "#popover-next" ).hide();
+    }
+
+    public getUserRole(){
+       
+         this.url = this.environment.getRequiredApi( 'dropdown_list').replace("{obj_name}","orgRoles")+"?";
+        this.reqmethod = 'GET';
+        
+        this.commonService.getData( this.url, this.reqmethod, '', "")
+            .subscribe(( response ) => {
+                console.log(response);
+                this.orgRoles =response.data.objs; 
+               
+            } );
+    }
+    
+    cancelPopup(id){
+         $( "#" + id ).hide();
+        $( "#addUser" ).modal( 'hide' );
+    }
+    
+    public existedUserToOtherBpartner(data){
+        $("#popover-next").hide();
+        this.opendiv = true;
+       this.moduleName ="assigningUser";
+        console.log(data);
+        data.roleId=this.addUserForm.value.roleId;
+        data.role=this.addUserForm.value.role;
+         data.bpId=this.bpId;
+        data.bpLegalName = null;
+        data.bpType = localStorage.getItem("bpType");
+        this.addUserForm.setValue( data );
+        
+        
+         this.payload = this.addUserForm.value;
+         this.payload.bpId = this.bpId;
+        this.payload.userId=data.userId;
+        this.payload.userType =data.userType;
+        this.payload.userTypeId =data.userTypeId;
+         console.log(this.payload);
+        
+         
+    }
+}

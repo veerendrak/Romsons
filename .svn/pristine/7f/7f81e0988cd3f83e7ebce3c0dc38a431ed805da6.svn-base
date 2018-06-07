@@ -1,0 +1,17 @@
+<div id="close" *ngIf="routeUrlTest">
+ <!--<cat-menu-right></cat-menu-right>-->
+<ng-container *ngIf="bussinessPartner">
+	<cat-menu-left></cat-menu-left>
+</ng-container>
+<cat-top-bar></cat-top-bar>
+<cat-footer></cat-footer>
+</div>
+<div [ngClass]="{'cat__content':isActive}"> 
+<div class="black-overlay" id="black-overlay"></div>
+<div class="cat__app-loader" id="loadingIcon" style="display:none;">
+		<div>
+			<mat-spinner style="width:50px; height:50px"></mat-spinner>
+		</div>
+</div>
+<router-outlet></router-outlet> 
+</div>

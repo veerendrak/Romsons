@@ -1,0 +1,467 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router,ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-sales-order',
+  templateUrl: './sales-order.component.html',
+  styleUrls: ['./sales-order.component.css']
+})
+export class SalesOrderComponent implements OnInit {
+    salesOrderForm:FormGroup;
+    @Output()
+    @Input() salesSeries:any=""; 
+    title:any;
+    createSalesBlock:boolean=true;
+    outboundDeliberyBlock:boolean=false;
+    billingBlock:boolean=false;
+    postGoodsBlock:boolean=false;
+    showOrderType:boolean;  
+    salesOrderMessage:any;
+    formResetFlag:boolean=false;
+    orderType:any;
+    customerId:any;
+    bpId:any;
+    orgId:any;
+    accessObjectId:any;
+    payload:any;
+    customerList:any;
+    payIncoTermsList:any;
+    dsFlag:boolean=true;
+    customerShiptoParty:any;
+    customerNames:any;
+    customerListLength:any;
+    customerShiptoPartyLenth:any;
+    payIncoTermsListLength:any;
+    createSalesOrderItems:any;
+    indeterminate:boolean=false;
+    checked:boolean=false;
+    checkedObjects:any;
+    matnrDetails:any;
+    incoTermVal:any;
+    payTermVal:any;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private dateAdapter: DateAdapter<Date>,private activatedRoute:ActivatedRoute,
+          private environment:EnvConfigurationService) {
+      this.app.isActive=true;
+      this.dateAdapter.setLocale('en-gb');
+      this.salesOrderForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+          'soldToParty' : ['', Validators.required]
+        });
+      this.createSalesBlock=true;
+      this.showOrderType =commonService.showOrderType;
+      this.salesOrderMessage = messagesService.sales_order_details_msg;
+      this.bpId=localStorage.getItem("bpId");
+      this.orgId=localStorage.getItem("orgId");
+      this.accessObjectId=localStorage.getItem("Sales Order");
+      this.customerNames=[];
+      this.customerList={};
+      this.customerListLength=0;
+      this.customerShiptoParty={};
+      this.customerShiptoPartyLenth=0;
+      this.payIncoTermsListLength=0;
+      this.payload={};
+      this.createSalesOrderItems=[];
+      this.checkedObjects=[];
+      this.matnrDetails=[];
+      this.incoTermVal="";
+      this.payTermVal="";
+      if(this.router.url=='/billing'){
+          this.commonService.saleType='Create';
+          this.navigatePath("billing");
+      }
+      if(this.router.url=='/outbounddelivery'){
+          this.commonService.saleType='Create';
+          this.navigatePath("outbounddelivery");
+      }
+       
+  }
+
+  ngOnInit() {
+      this.createSalesOrderItems=[
+                                  {
+                                      "mat_num":"",
+                                      "qty":"",
+                                      "UOM":"",
+                                      "desc":"",
+                                      "price":"",
+                                      "fix_sch":"",
+                                      "sch_val":"",
+                                      "add_dis":"",
+                                      "dis_per_val":"",
+                                      "dis_amt":"",
+                                      "net_val":"",
+                                      "sgst_rt":"",
+                                      "sgst_val":"",
+                                      "cgst_rt":"",
+                                      "cgst_val":"",
+                                      "igst_rt":"",
+                                      "igst_val":""
+                                  },
+                                  {
+                                      "mat_num":"",
+                                      "qty":"",
+                                      "UOM":"",
+                                      "desc":"",
+                                      "price":"",
+                                      "fix_sch":"",
+                                      "sch_val":"",
+                                      "add_dis":"",
+                                      "dis_per_val":"",
+                                      "dis_amt":"",
+                                      "net_val":"",
+                                      "sgst_rt":"",
+                                      "sgst_val":"",
+                                      "cgst_rt":"",
+                                      "cgst_val":"",
+                                      "igst_rt":"",
+                                      "igst_val":""
+                                  },
+                                  {
+                                      "mat_num":"",
+                                      "qty":"",
+                                      "UOM":"",
+                                      "desc":"",
+                                      "price":"",
+                                      "fix_sch":"",
+                                      "sch_val":"",
+                                      "add_dis":"",
+                                      "dis_per_val":"",
+                                      "dis_amt":"",
+                                      "net_val":"",
+                                      "sgst_rt":"",
+                                      "sgst_val":"",
+                                      "cgst_rt":"",
+                                      "cgst_val":"",
+                                      "igst_rt":"",
+                                      "igst_val":""
+                                  },
+                                  {
+                                      "mat_num":"",
+                                      "qty":"",
+                                      "UOM":"",
+                                      "desc":"",
+                                      "price":"",
+                                      "fix_sch":"",
+                                      "sch_val":"",
+                                      "add_dis":"",
+                                      "dis_per_val":"",
+                                      "dis_amt":"",
+                                      "net_val":"",
+                                      "sgst_rt":"",
+                                      "sgst_val":"",
+                                      "cgst_rt":"",
+                                      "cgst_val":"",
+                                      "igst_rt":"",
+                                      "igst_val":""
+                                  },
+                                  {
+                                      "mat_num":"",
+                                      "qty":"",
+                                      "UOM":"",
+                                      "desc":"",
+                                      "price":"",
+                                      "fix_sch":"",
+                                      "sch_val":"",
+                                      "add_dis":"",
+                                      "dis_per_val":"",
+                                      "dis_amt":"",
+                                      "net_val":"",
+                                      "sgst_rt":"",
+                                      "sgst_val":"",
+                                      "cgst_rt":"",
+                                      "cgst_val":"",
+                                      "igst_rt":"",
+                                      "igst_val":""
+                                  }
+                                  ]
+      this.payload["address"]=true;
+      this.payload["bp_id"]=this.bpId;
+      this.payload["compliance"]=true;
+      this.payload["incoterms"]=true;
+      this.payload["org_id"]=this.orgId;
+      this.payload["promotion"]=true;
+      $(()=>{
+          $('.datepicker-init-sale').datetimepicker({
+              widgetPositioning: {
+                  horizontal: 'left'
+              },
+              icons: {
+                  time: "fa fa-clock-o",
+                  date: "fa fa-calendar",
+                  up: "fa fa-arrow-up",
+                  down: "fa fa-arrow-down",
+                  previous: 'fa fa-arrow-left',
+                  next: 'fa fa-arrow-right'
+              },
+              format: 'DD/MM/YYYY',
+          });  
+      });
+      $(()=>{
+          $('#shiptoparty').change(function(){
+              var value=$('#addressList option[value="'+$("#cust-name").val()+'"]').text().trim();
+              $("#shiptoCustomerId").val(value);
+              $("#addressBtn").click();
+          });
+      });
+      this.activatedRoute.queryParams.subscribe(params => {
+          if(params['action']=="C"){
+              this.title="Sales Order / New";
+          }else{
+              this.title="Sales Order / Edit";
+          }
+          this.orderType=params["orderType"];
+          this.customerId=params["custId"];
+          this.payload["cust_id"]=this.customerId;
+          this.getCustomerDetails();
+      });
+      
+      if($('body').hasClass('cat__menu-left--visible')){
+          $(".ell-spa").removeAttr("style");
+      }else{
+          $(".ell-spa").attr("style","width:340px");
+      }
+      setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },100);
+      this.getPayIncoTerms()
+  }
+  navigatePath(path){
+      if(path=='billing'){
+          this.createSalesBlock=false;
+          this.outboundDeliberyBlock=false;
+          this.postGoodsBlock=false;
+          this.billingBlock=true;
+          this.formResetFlag = true;
+      }
+      if(path=='outbounddelivery'){
+          this.createSalesBlock=false;
+          this.outboundDeliberyBlock=true;
+          this.postGoodsBlock=false;
+          this.billingBlock=false;
+          this.formResetFlag = true;
+      }
+      if(path=='createsalesorder'){
+          this.createSalesBlock=true;
+          this.outboundDeliberyBlock=false;
+          this.postGoodsBlock=false;
+          this.billingBlock=false;
+          this.formResetFlag = true;
+          setTimeout(()=>{
+              var width=$("#mainContent").css("width");
+              $(".outbound-footer").css("width",width);
+          },50);
+          
+      }
+      if(path=='postgoodsissue'){
+          this.createSalesBlock=false;
+          this.outboundDeliberyBlock=false;
+          this.postGoodsBlock=true;
+          this.billingBlock=false;
+          this.formResetFlag = true;
+      }
+      if(this.formResetFlag){
+      this.salesOrderForm.reset();    
+      }
+  }
+  getCustomerDetails(){
+      $('#loadingIcon').show();
+      $("#black-overlay").show();
+      let url:any=this.environment.getRequiredApi("get_customer_details")+"?";
+      this.commonService.getData(url, "POST", this.payload, this.accessObjectId).subscribe(response=>{
+          if(response.status==0){
+             this.customerList=response["data"];
+             this.customerListLength=Object.keys(this.customerList).length;
+             if(this.customerList['ex_incoterms'].length>0){
+                 this.incoTermVal=this.customerList['ex_incoterms'].inco_term;
+                 this.payTermVal=this.customerList['ex_incoterms'].pay_term;
+             }
+             
+             this.customerShiptoParty=response["data"];
+             this.customerShiptoPartyLenth=Object.keys(this.customerShiptoParty).length;
+          }else{
+              this.commonService.responseMessages("", response.message, "warning");
+          }
+          $('#loadingIcon').hide();
+          $("#black-overlay").hide();
+      })
+  }
+  getcustomerListById(){
+      let response:any={}
+          response["address"]=true;
+          response["bp_id"]=this.bpId;
+          response["compliance"]=false;
+          response["incoterms"]=false;
+          response["org_id"]=this.orgId;
+          response["promotion"]=false;
+          response["cust_id"]=$("#shiptoCustomerId").val();
+          let url:any=this.environment.getRequiredApi("get_customer_details")+"?";
+          this.commonService.getData(url, "POST", this.payload, this.accessObjectId).subscribe(response=>{
+              if(response.status==0){
+                 this.customerShiptoParty=response["data"];
+              }else{
+                  this.commonService.responseMessages("", response.message, "warning");
+              }
+          })
+  }
+  getPayIncoTerms(){
+      let url:any=this.environment.getRequiredApi("get_pay_inco_terms")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&";
+      this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+         if(response.status==0){
+            this.payIncoTermsList=response["data"]; 
+            this.payIncoTermsListLength=Object.keys(this.payIncoTermsList).length;
+         } 
+      });
+  }
+  extractData(id,spinnerId,ajaxDropdown){
+      let term:any=$("#"+id).val();
+      if(term.length ==3){
+          $("#"+spinnerId).show();
+          let url:any=this.environment.getRequiredApi("find_customers")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&cust_name="+term+"&";
+      this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+          if(response.status==0){
+              this.customerNames=response["data"].ex_cust_list;
+              $("#"+spinnerId).hide();
+              $("#"+ajaxDropdown).show();
+          }else{
+              $("#"+spinnerId).hide();
+              $("#"+ajaxDropdown).show();
+          }
+         
+      });
+      }else{
+         if(term==""){
+             this.customerNames=[];
+             $("#"+spinnerId).hide();
+         } 
+      }
+  }    
+AddMoreLinesOfItems(){
+    let newItem:any={
+            "mat_num":"",
+            "qty":"",
+            "UOM":"",
+            "desc":"",
+            "price":"",
+            "fix_sch":"",
+            "sch_val":"",
+            "add_dis":"",
+            "dis_per_val":"",
+            "dis_amt":"",
+            "net_val":"",
+            "sgst_rt":"",
+            "sgst_val":"",
+            "cgst_rt":"",
+            "cgst_val":"",
+            "igst_rt":"",
+            "igst_val":""
+        }
+    for(let i:any=0; i<5; i++){
+        this.createSalesOrderItems.push(newItem);
+    }
+} 
+selectAll(event,checkAll,tableId){
+    setTimeout(()=>{
+        this.commonService.selectAllCheckBoxes(checkAll,tableId);
+        $("#"+tableId).find("tbody").find("tr").each((i)=>{
+            this.checkedObjects.push(i);
+        });
+    },300);
+    
+}
+getReportList(event,tableId,i){
+    setTimeout(()=>{let flag:boolean=this.commonService.checkAction(tableId);
+    if(flag){
+        this.indeterminate=false;
+        this.checked=true;
+    }else{
+        this.indeterminate=true;
+    }
+    },400);
+   setTimeout(()=>{
+       if($("#checkbox-"+i+"-input").is(":checked")){
+           this.checkedObjects.push(i);
+       }else{
+           if(this.checkedObjects.length>0){
+           for(let index of this.checkedObjects){
+               if(this.checkedObjects[index]==i){
+                   delete this.checkedObjects[i];
+               }
+           }
+           }
+       }
+   },300); 
+}
+removeLineSelectedItems(){
+    if(this.checkedObjects.length>0){
+        for(let index of this.checkedObjects){
+            $("#sales-row-"+this.checkedObjects[index]).remove();
+        }
+        this.checkedObjects=[];
+    }else{
+        this.commonService.responseMessages("", "Please select atleast one item", "warning");
+    }
+  }
+findMaterialDetails(matnr){
+    if(matnr.value.length>3){
+        let url:any=this.environment.getRequiredApi("find_matnr_num")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&material="+matnr.value+"&";
+        this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+            if(response.status==0){
+              this.matnrDetails=response["data"].ex_mat_list;  
+            }
+        })
+    }
+}
+expandCollapseBlock(wizardBlock,headerBlock){
+    $("#"+wizardBlock).slideToggle("slow");
+    $("#"+headerBlock).slideToggle("slow");
+}
+closeModal(id){
+    $("#"+id).modal("hide");
+}
+displaySchemeList(){
+    $("#schemesTable").DataTable(
+            {
+                "order": [[1,'asc']],
+                retrieve:true,
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)",
+                    "searchPlaceholder" : "Search..."
+                  },
+                columnDefs: [ {
+                             "targets": 'no-sort',
+                              "orderable": false
+                        } ],
+                "fnDrawCallback": function(oSettings) {
+                    if (10 >= oSettings.fnRecordsDisplay()) {
+                      $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+                 //     $(oSettings.nTableWrapper).find('.dataTables_filter').hide();
+                      $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                      //$(oSettings.nTableWrapper).find('.dataTables_length').hide();
+                    } else {
+                  $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                //    $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                    $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                      //  $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                    }
+                  },
+                      });
+    $("#displaySchemesModal").modal("show");
+}
+}

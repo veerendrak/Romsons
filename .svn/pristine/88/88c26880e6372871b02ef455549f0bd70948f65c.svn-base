@@ -1,0 +1,125 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+
+@Component({
+  selector: 'app-goods-receipt',
+  templateUrl: './goods-receipt.component.html',
+  styleUrls: ['./goods-receipt.component.css']
+})
+export class GoodsReceiptComponent implements OnInit {
+    checked:boolean=false;
+    indeterminate:boolean=false;
+    goodsReceiptMessages:any;
+    goodsReceiptForm:FormGroup;
+    title:any;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private dateAdapter: DateAdapter<Date>) {
+      this.app.isActive=true;
+      this.dateAdapter.setLocale('en-gb');
+      this.goodsReceiptForm = formBuilder.group({
+          'dlNUm' : ['', Validators.required],
+          'docDate' : ['', Validators.required],
+          'posDate' : ['', Validators.required],
+          'dlNote' : ['', Validators.required],
+          'dlText' : ['', Validators.required]
+        });
+      this.checked=false;
+      this.indeterminate=false;
+      this.goodsReceiptMessages = this.messagesService.goods_receipt_details_msg;
+  }
+
+  ngOnInit() {
+      if(this.commonService.saleType=='Create'){
+          this.title="Goods Receipt / New";
+      }else{
+          this.title="Goods Receipt / Edit";
+      }
+      $("#goods-order-table").DataTable({
+          // bSort:false,
+         //  bPaginate:false,
+           "order": [0],
+           "language": {
+               "emptyTable": "No data available",
+               "info": "Showing page _PAGE_ of _PAGES_",
+               "infoFiltered": "(filtered from _MAX_ total records)"
+             },
+          //  "bInfo":false,
+          //  "bFilter":false,
+            "fnDrawCallback": function( oSettings ) {
+                         if ( 10 >= oSettings.fnRecordsDisplay() ) {
+                             $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                              
+                             $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                         } else {
+                             $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                               $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                             $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                               $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                         }
+                     },
+            "columnDefs": [ {
+                 "targets"  : 'no-sort',
+                 "orderable": false,
+                } ]
+       });
+       setTimeout(() =>{
+           $(".dataTables_scrollHeadInner").css({"width":"100%"});
+           $(".table ").css({"width":"100%"});
+           $("#goods-order-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+           },1100);
+       setTimeout(() => {
+           
+           $( '.datepicker-init-sale' ).datetimepicker( {
+
+               widgetPositioning: {
+                   horizontal: 'left'
+               },
+               icons: {
+                   time: "fa fa-clock-o",
+                   date: "fa fa-calendar",
+                   up: "fa fa-arrow-up",
+                   down: "fa fa-arrow-down",
+                   previous: 'fa fa-arrow-left',
+                   next: 'fa fa-arrow-right'
+               },
+               format: 'LL',
+               
+           } );
+}, 500);
+       setTimeout(()=>{
+           var width=$("#mainContent").css("width");
+           $(".outbound-footer").css("width",width);
+       },50);
+  }
+  selectAll(event,checkAll,tableId){
+      setTimeout(()=>{
+          this.commonService.selectAllCheckBoxes(checkAll,tableId)
+      },300);
+  }
+  getReportList(event,tableId){
+      setTimeout(()=>{let flag:boolean=this.commonService.checkAction(tableId);
+      if(flag){
+          this.indeterminate=false;
+          this.checked=true;
+      }else{
+          this.indeterminate=true;
+      }
+      },400);
+      
+  }
+
+editGoodsOrderById(){}
+
+}

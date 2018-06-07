@@ -1,0 +1,31 @@
+import { Injectable } from '@angular/core';
+
+@Injectable()
+export class MessagePropertiesService {
+
+  constructor() { }
+    
+     //login messages 
+  login = {
+          "login_valid_email":"Please enter a valid Email ID",
+          "EMAIL_ERR_MSG":"Please enter your Email ID",
+          "PWD_ERR_MSG":"Please enter your Password",
+          "login_cred":"Please enter valid credentials",
+          "session_invalid":"Your session has become invalid. Please login again.",
+          "reg_first_name":"Please enter first name",
+          "reg_last_name":"Please enter last name",
+          "otp":"OTP will be send to your mobile number",
+          "enter_ph_num":"Please enter mobile number",
+          "invalid_ph_num":"Please enter a valid mobile number",
+          "cnf_pwd":"Please enter confirm password",
+          "pwd_match":"Password and Confirm Password do not match",
+          "err_login_pwd":"Please verify your password and try again",
+          "reg_invalid_token":"You were already registered using this link. Please login..",
+          "in_memory_token":"Already registered using this link",
+          "pwd_policy":"* Password must contain at least one upper case letter ([A-Z]),one lower case letter([a-z]),one digit([0-9]) and one special character([#?!@$%^&*-])",
+          "pwd_min_length":"* Password must be min of  6 characters",
+          "pwd_max_length":"* Password must be max of  15 characters",
+          
+  }
+
+}

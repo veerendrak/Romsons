@@ -1,0 +1,323 @@
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router, ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+    selector: 'app-edit-invoice',
+    templateUrl: './edit-invoice.component.html',
+    styleUrls: ['./edit-invoice.component.css']
+})
+export class EditInvoiceComponent implements OnInit {
+    checked: boolean = false;
+    indeterminate: boolean = false;
+    invoiceMessages: any;
+    createInvoiceForm: FormGroup;
+    title: any;
+    taxChecked: boolean;
+    bpId: any;
+    orgId: any;
+    accessObjectId: any;
+    purchaseId: string;
+    actionType: string;
+    headerObject: any;
+    itemDataArray: any;
+    itemDetailsArray;
+    displayFlag: boolean;
+    fiscalYear: any;
+    cancelArray: any;
+    errorLogs: any;
+    totalPrice: any;
+    totalIgstVal: any;
+    totalCgstVal: any;
+    totalSgstVal: any;
+    totalGrossVal: any;
+    pricediff: any;
+    delnumber: any;
+    fromPage: any;
+    customerData: any;
+    rolekaduser: any;
+    purchaseDlvAddress: any;
+    plantDlvAddress: any;
+    plId: any;
+    vendorNames: any;
+    plantName: any;
+    plantNameId: any;
+    constructor(private http: Http, private formBuilder: FormBuilder, private messagesService: MessagePropertiesService, private environment: EnvConfigurationService,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private commonService: CommonService, private activatedRoute: ActivatedRoute) {
+
+        this.app.isActive = true;
+        //this.dateAdapter.setLocale('en-gb');
+        this.createInvoiceForm = formBuilder.group({
+            'invRef': ['', Validators.required],
+            'invDate': ['', Validators.required],
+            'posDate': ['', Validators.required],
+            'invAmt': ['', Validators.required],
+            'bslineDate': ['', Validators.required],
+            'remarks': [''],
+            'diff_inv': []
+
+        });
+        this.checked = false;
+        this.indeterminate = false;
+        this.taxChecked = true;
+        this.invoiceMessages = this.messagesService.invoice_details_msgs;
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjectId = localStorage.getItem("Purchase Invoice");
+        this.headerObject = { "inv_doc_no": "", "doc_date": "", "pstng_date": "", "bline_date": "", "gross_amnt": "" };
+        this.itemDataArray = [];
+        this.itemDetailsArray = [];
+        this.displayFlag = true;
+        this.cancelArray = [];
+        this.errorLogs = [];
+        this.totalPrice = 0;
+        this.totalIgstVal = 0;
+        this.totalCgstVal = 0;
+        this.totalSgstVal = 0;
+        this.totalGrossVal = 0;
+        this.pricediff = 0;
+        this.fromPage = "";
+        this.customerData = "";
+        this.rolekaduser = true;
+        this.purchaseDlvAddress = "";
+        this.plantDlvAddress = "";
+        this.plantName = "";
+        this.plantNameId = "";
+        this.plId = "";
+    }
+
+    ngOnInit() {
+        if (localStorage.getItem("roleName") == "KAD User") {
+            this.rolekaduser = false;
+        }
+        else {
+            this.rolekaduser = true;
+        }
+        if (this.commonService.saleType == 'Create') {
+            this.title = "Invoice / New";
+        } else {
+            this.title = "Invoice / Edit";
+        }
+        setTimeout(() => {
+            var width = $("#mainContent").css("width");
+            $(".outbound-footer").css("width", width);
+        }, 50);
+        this.activatedRoute.queryParams.subscribe(params => {
+            if (this.router.url.includes("invoicedetails")) {
+                this.purchaseId = params['po_inv_num'];
+                this.delnumber = params['del_number'];
+                this.actionType = params['action'];
+                this.fiscalYear = params['fiscal']
+                this.fromPage = params['frompage'];
+                if (this.actionType == "U") {
+                    this.displayFlag = false;
+                    this.title = "Invoice / Edit (" + this.purchaseId + ")";
+                    // $(".mat-checkbox-inner-container").find("input:checkbox").css("disabled",false);
+                    // this.createInvoiceForm.controls['calculateTax'].disable();
+                } else {
+                    this.title = "Invoice / Display (" + this.purchaseId + ")";
+                    //   this.createInvoiceForm.controls['calculateTax'].enable();
+                    //   $(".mat-checkbox-inner-container").find("input:checkbox").css("disabled",true);
+                }
+                this.getPurchaseInvoice(this.purchaseId, this.delnumber);
+            }
+        });
+        $(() => {
+            $('.datepicker-init-sale').datetimepicker({
+                debug: false,
+                widgetPositioning: {
+                    horizontal: 'left'
+                },
+                icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down",
+                    previous: 'fa fa-arrow-left',
+                    next: 'fa fa-arrow-right'
+                },
+                format: 'DD-MM-YYYY',
+            });
+        });
+    }
+    selectAll(event, checkAll, tableId) {
+        setTimeout(() => {
+            this.commonService.selectAllCheckBoxes(checkAll, tableId)
+        }, 300);
+    }
+    getReportList(event, tableId) {
+        setTimeout(() => {
+            let flag: boolean = this.commonService.checkAction(tableId);
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = true;
+            } else {
+                this.indeterminate = true;
+            }
+        }, 400);
+    }
+    redirectToListView() {
+        if (this.fromPage != "PO") {
+            const path: any = 'invoicedetails';
+            this.router.navigate([path]);
+        } else {
+            const path: any = 'purchaseorder';
+            this.router.navigate([path]);
+        }
+    }
+
+    getPurchaseInvoice(purchaseId, deliverynumber) {
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        let url = this.environment.getRequiredApi('pur_invoice_dis') + "?po_inv_num=" + purchaseId + "&del_num=" + deliverynumber + "&org_id=" + this.orgId + "&bp_id=" + this.bpId + "&";
+        this.commonService.getData(url, 'GET', '', this.accessObjectId)
+            .subscribe((response) => {
+                if (response.status == 0) {
+                    response = response.data;
+                    if (response.hasOwnProperty("ex_headerdata")) {
+                        this.headerObject = response.ex_headerdata;
+                        if (response.hasOwnProperty('fisc_year')) {
+                            this.fiscalYear = response.fisc_year;
+                        }
+                    }
+                    if (response.hasOwnProperty("ex_itemdata")) {
+                        this.itemDataArray = response.ex_itemdata;
+                    }
+                    if (response.hasOwnProperty("ex_price_difference")) {
+                        this.pricediff = response.ex_price_difference;
+                    }
+                    if (response.hasOwnProperty("ex_item_details")) {
+                        this.itemDetailsArray = response.ex_item_details;
+                        for (let element of this.itemDetailsArray) {
+                            this.headerObject["inv_doc_no"] = element.del_note;
+                            break;
+                        }
+                        for (let list of this.itemDetailsArray) {
+                            list.discount = Math.abs(list.discount);
+                        }
+                    }
+                    if (response.hasOwnProperty('ex_vendor_details')) {
+                        this.purchaseDlvAddress = response.ex_vendor_details;
+                        this.plantName = this.purchaseDlvAddress.vendor_name;
+                        this.plantNameId = this.purchaseDlvAddress.vendor_code;
+                        if (this.plantNameId != undefined) {
+                            this.plId = this.plantNameId.replace(/\b(0(?!\b))+/g, "");
+                        }
+                    }
+                    if (response.hasOwnProperty('ex_cust_details') && !this.rolekaduser) {
+                        if (response.ex_cust_details.hasOwnProperty("cust_name"))
+                            this.customerData = response.ex_cust_details.cust_id + "-" + response.ex_cust_details.cust_name;
+                    }
+                    this.calculateTotals()
+                } else {
+
+                    this.commonService.responseMessages("", response.message, "warning");
+                }
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                setTimeout(() => {
+                    var width = $("#mainContent").css("width");
+                    $(".outbound-footer").css("width", width);
+                    $(".outbound-footer").show();
+                }, 50);
+            }, err => {
+                console.log(err)
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+            });
+    }
+    navigateToEditPurchase() {
+        const path: any = "invoicedetails/editInvoice";
+        this.router.navigate([path], { queryParams: { "po_inv_num": this.purchaseId, "action": "U" } });
+    }
+    cancelPurchaseInvoice() {
+        swal({
+            title: "Do you want to cancel the purchase invoice ?",
+            //type: "warning",
+            showCancelButton: true,
+            confirmButtonClass: "btn-default btn-primary-custom login-button-export",
+            cancelButtonClass: "btn-danger btn-danger-custom ",
+            confirmButtonText: "Ok",
+            closeOnConfirm: true
+        },
+            () => {
+                let cancelObject = {};
+                cancelObject['invoice_num'] = this.purchaseId;
+                cancelObject['reason_rev'] = "03";
+                cancelObject['fiscal_year'] = this.fiscalYear;
+                this.cancelArray.push(cancelObject);
+                let cancelPayload = {};
+                cancelPayload["im_invoice_dets"] = this.cancelArray;
+                cancelPayload["bp_id"] = this.bpId;
+                cancelPayload["org_id"] = this.orgId;
+                cancelPayload["action"] = "CANINV";
+                let url: any = this.environment.getRequiredApi("manage_invoice_details") + "?";
+                this.commonService.getData(url, "POST", cancelPayload, this.accessObjectId).subscribe(response => {
+                    console.log(response);
+                    this.errorLogs = [];
+                    if (response.status == 0) {
+                        if (response.data.hasOwnProperty("ex_return")) {
+                            for (let index of response.data["ex_return"]) {
+                                if (index.type == "E") {
+                                    this.errorLogs.push(index);
+                                }
+                            }
+                        }
+                        if (this.errorLogs.length == 0) {
+                            this.commonService.responseMessages("", "Purchase Invoice is cancelled", "success");
+                            this.indeterminate = false;
+                            this.checked = false;
+                        } else {
+                            $("#displayErrorsModal").modal("show");
+                        }
+                    } else {
+                        this.commonService.responseMessages("", response.message, "warning");
+                    }
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                });
+            });
+    }
+
+    closeModal(id) {
+        $("#" + id).modal("hide");
+    }
+    calculateTotals() {
+        let totalPrice: any = 0;
+        let totalIgstTaxVal: any = 0;
+        let totalCgstTaxVal: any = 0;
+        let totalSgstTaxVal: any = 0;
+        let totalVal: any = 0;
+        let count: any = 0;
+        this.itemDetailsArray.forEach(currentItem => {
+            if (currentItem.mat_num != '' && currentItem.qty != '') {
+                // totalPrice = parseFloat(totalPrice) + parseFloat(currentItem.price);
+                totalIgstTaxVal = parseFloat(totalIgstTaxVal) + parseFloat(currentItem.igst_value);
+                totalCgstTaxVal = parseFloat(totalCgstTaxVal) + parseFloat(currentItem.cgst_value);
+                totalSgstTaxVal = parseFloat(totalSgstTaxVal) + parseFloat(currentItem.sgst_value);
+                totalVal = parseFloat(totalVal) + parseFloat(currentItem.tot_price);
+            }
+            if (this.itemDetailsArray.length - 1 == count) {
+                this.totalPrice = totalPrice;
+                this.totalIgstVal = totalIgstTaxVal;
+                this.totalCgstVal = totalCgstTaxVal;
+                this.totalSgstVal = totalSgstTaxVal;
+                this.totalGrossVal = totalVal;
+             }
+            count++;
+        });
+    }
+    PurchaseInvoicePrint() {
+        let url: any = this.environment.getRequiredApi("print_billing_list") + "?org_id=" + this.orgId + "&bp_id=" + this.bpId + "&im_v_vbeln=" + this.purchaseId + "&access_obj_id=" + this.accessObjectId + "&access_token=" + localStorage.getItem("token") + "&action=P";
+        window.open(url, '_blank');
+    }
+}

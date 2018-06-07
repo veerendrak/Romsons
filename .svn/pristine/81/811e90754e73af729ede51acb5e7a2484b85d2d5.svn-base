@@ -1,0 +1,172 @@
+<div class="cat__pages__login test-class">
+
+	<div class="cat__pages__login__block cat__pages__reg__block">
+		<div class="row"> 
+			<div class="col-xl-12 login_reg_block">
+			<div class="form-group " id="errorMessage" style="display: none;text-align: center !important;background: #fff; border-radius: 7px;margin-bottom: 7px !important;margin-left:0%;border: 1px solid #e8ecee;">{{loginMessages.login_cred}}</div>
+						<div class="form-group " id="user_locked" style="display: none;text-align: center !important;background: #fff;border-radius: 7px;margin-bottom: 7px !important;margin-left:0%;border: 1px solid #e8ecee;"></div>
+						<div class="form-group " id="resetPwdmsg" style="display: none;text-align: center !important; background: #fff;border-radius: 7px;color: red;margin-bottom: 7px !important;margin-left:0%;border: 1px solid #e8ecee;">{{resetPwdMessage}}</div>
+						
+				<div class="cat__pages__login__block__inner reg_log col-md-12 row">
+					<div class="pull-left {{logClass}} col-md-5"> 
+						<img src="assets/modules/dummy-assets/common/img/logo.png"
+							style="display: block;">
+					</div>
+					<div class="pull-left rightside-login-block col-md-7"  id="sign-in" *ngIf="loginBlock">
+						<form [formGroup]="loginForm">
+						<div class="login-header">
+							<h4>Sign in</h4>
+							</div>
+						<div class="main-content">
+						
+						
+						
+						<div class="example-container login-form-block">
+							<div class="form-group form-group-custom">
+								<label class="form-label">Email Id</label> 
+								<i class="fa envelope-icon login-icon-email"></i>
+								<input type="text" class="form-control login-text" formControlName ="email"
+									validateOnBlur [validateFormControl]="loginForm.controls['email']"
+									>
+									<span
+								*ngIf="loginForm.controls['email'].touched && loginForm.controls['email'].invalid && loginForm.controls['email'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="loginForm.controls['email'].errors.required">
+									{{loginMessages.EMAIL_ERR_MSG}} </small> <small class="custom-error-class"
+								*ngIf="loginForm.controls['email'].errors.pattern">
+									{{loginMessages.login_valid_email}} </small>
+							</span>
+								</div>
+								
+							<div class="form-group form-group-custom">
+								<label class="form-label">Password</label> 
+								<i class="fa password-icon login-icon-password"></i>
+								<input type="password" id="pwd" class="form-control login-text" formControlName="password"  validateOnBlur [validateFormControl]="loginForm.controls['password']"
+										>
+								<span
+								*ngIf="loginForm.controls['password'].touched && loginForm.controls['password'].invalid && loginForm.controls['password'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="loginForm.controls['password'].errors.required">
+									{{loginMessages.PWD_ERR_MSG}} </small>
+							</span>
+								</div>
+								
+								</div>
+
+							
+						</div>
+						<div class="login-bottom"> 
+						<button class="login-button-export"  type="submit" [disabled]="!loginForm.valid" (click)="signIn()">
+							<i class="fa login-icon" style="margin-right:4px;padding-right:4px;">
+							<div class="icon-text" style="right:-4px;">Login</div>
+							</i>
+						</button>
+							
+							<a href="javascript:void(0)" class="forgot-link" (click)="showForgotBlock()"> <span>Forgot
+									password ?</span></a>
+						</div>
+						</form>
+					</div>
+					<div class="pull-left rightside-login-block col-md-7" id="forgotPassword" *ngIf="forgotBlock">
+						<div class="login-header">
+							<h4>Forgot Password?</h4>
+							<!-- <div style="color: red">{{responsesMessage}}</div> -->
+						</div>
+						<form [formGroup]="fPasswordForm">
+						<div class="main-content">
+							
+								<div class="example-container login-form-block">
+								<div class="form-group form-group-custom">
+								<label class="form-label">Email Id</label> 
+								<i class="fa envelope-icon login-icon-email"></i>
+								<input type="text" class="form-control login-text" formControlName ="email"
+									  validateOnBlur [validateFormControl]="fPasswordForm.controls['email']" >
+										<div style="color: red">
+										<small class="custom-error-class">
+										{{responsesMessage}}
+										</small>
+										</div>
+								<span
+								*ngIf="fPasswordForm.controls['email'].touched && fPasswordForm.controls['email'].invalid && fPasswordForm.controls['email'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="fPasswordForm.controls['email'].errors.required">
+									{{loginMessages.EMAIL_ERR_MSG}} </small> <small class="custom-error-class"
+								*ngIf="fPasswordForm.controls['email'].errors.pattern">
+									{{loginMessages.login_valid_email}} </small>
+							</span>
+								</div>
+									
+								</div>
+							
+						</div>
+						
+						<div class="login-bottom">
+							
+						
+						<button type="submit"  class="login-button-export" (click)="submitPassword()">
+							<i class="fa submit-icon" style="margin-right:4px;padding-right:4px;">
+							<div class="icon-text" style="right:-4px;">Submit</div>
+							</i>
+						</button>
+						<button type="submit" class="login-button" style="position:relative;top:3px;"
+							(click)="backtoLogin()">
+								<i class="fa fa-angle-left" style="margin-right: 5px; font-weight:bold;font-size:16px;"></i> Back
+							</button>
+							
+						</div>
+						</form>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Forgot password mail modal -->
+
+					<div class="modal fade modal-size-medium" id="forgotPasswordModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true" >
+						<div class="modal-dialog" role="document">
+							<div class="modal-content" style="top:-117px;">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									Forgot password?
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('forgotPasswordModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;">
+									<div class="card-block" >
+										<div id="forgotPwdMessage"></div>
+									</div>
+								</div>
+
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<button (click)="closeModal('forgotPasswordModal')"
+											class="login-button forgotOk"
+											>Ok</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+</div>
+
+					<!-- End of  Forgot password mail-->

@@ -1,0 +1,104 @@
+
+.outbound-content{
+	padding:0px 24px 10px 17px;
+}
+.mat-placeholder-required{
+	color:red;
+}
+.mat-form-field{
+	width:100%;
+}
+.delivery-form-block{
+	padding-left:0px;
+	border-bottom: 2px dashed #ccc;
+	margin:2px;
+	padding-right:0px;
+	margin-bottom:6px;
+}
+
+.add-qty{
+	color: #004f4b;
+    font-size: 20px;
+}
+.left-block{
+	max-width: 80%;
+    float: left;
+}
+.right-block{
+	margin-right: 0%;
+    float: right;
+    text-align: right;
+    max-width: 100%;
+}
+.asterick{
+	
+    color: red;
+    font-size: 15px;
+	top: 0 !important;
+}
+
+.text-align-sales{
+    padding-bottom: 10px;
+} 
+.cat__wizard{
+	width:100% !important;
+	margin: 0 6%;
+    margin-left:1% !important;
+    margin-top:-0.5%;
+}
+.delivery-form-block input{
+	padding:5px 5px 5px 5px !important;
+}
+
+.ell-spa {
+	width:288px;
+}
+.start{
+	margin-left:4px !important;
+}
+.cat__wizard .steps ul{
+	padding-left:4%;
+	padding-right:10%;
+}
+@media only screen and (max-width: 1300px){
+	.ell-spa {
+	width:130px;
+}
+.left-block{
+	max-width: 80%;
+    float: left;
+    min-width:35%;
+    margin-bottom:12px;
+    
+}
+.start{
+	margin-left:0px !important;
+}
+
+	}
+@media only screen and (max-width: 767px){
+	.ell-spa {
+	width:100px;
+}
+.left-block{
+	max-width: 80%;
+    float: left;
+    min-width:35%;
+    margin-bottom:12px;
+    
+}
+
+	}
+	.createBlok{
+		padding-bottom:10%;
+	}
+	.left-padding{
+	padding-left:0px;
+	}
+	.right-padding{
+	padding-right:0px;
+	}
+	.weight-bottom{
+	padding-bottom:22px;
+	}
+	

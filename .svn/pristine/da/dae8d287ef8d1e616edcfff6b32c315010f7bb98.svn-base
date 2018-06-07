@@ -1,0 +1,82 @@
+import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
+
+@Injectable()
+export class EnvConfigurationService {
+
+    result: Object;
+    url: string = ''
+  constructor() { }
+
+  getEnvironment() {
+      let host: string = window.location.hostname;
+      let envConfig: any;
+      if ( host.includes("192.168.0.113") ) {
+          envConfig = environment.dev;
+      }
+      else {
+          envConfig = environment.dev;
+      }
+      return envConfig;
+  }
+  
+  getConfigurations() {
+      this.result = this.getEnvironment();
+      this.url = this.result['protocol'] + "://" + this.result['ip_address'];
+      return this.url + '/';
+  }
+  
+  getRequiredApi(apiKey:string){
+      let apiUrls:any={
+          "find_by_user":"/user/status/{logon_id}",
+          "get_left_side_menu":"/gd/access/objs",
+          "dropdown_list":"/gd/list/{obj_name}",
+          "dropdown_list_byid":"/gd/list/{obj_name}/{obj_id}",
+          "logout_user":"/oauth/revoke-token",
+          "oauth_Token":"/oauth/token",
+          "fwd_password": "/user/reset/link",
+          "om_get_org_roles": "/org/roles",
+          "om_get_org_roles_id": "/org/roles/{role_id}",
+          "om_post_role_create": "/org/roles",
+          "om_put_role_update": "/org/roles",
+          "om_put_role_rename": "/org/roles/{role_id}",
+          "om_delete_role": "/org/roles/{role_id}",
+          "get_Bussiness_Partners":"/user/bp/{user_id}",
+          "get_user_details":"/user",
+          "download_stock_excl":"/inventory/download/stock/bal",
+          "get_stock_balance_details":"/inventory/stock/bal/{bp_id}",
+          "upload_stock_balance_file":"/inventory/upload/stock/bal",
+          "lock_stock_balance":"/inventory/stock/status",          
+          "reset_pwd_resetKey": "/user/resetpwd/{resetKey}",
+          "um_put_user_restpwd": "/user/resetpwd",
+          "get_sales_order_list":"/sales/order",
+          "um_get_user_details":"/org/users/{org_id}",
+          "add_user_bp":"/org/bp/users",
+          "check_user_status":"/user/status",
+          "get_bps_list":"/org/bps/{org_id}",
+          "edit_bp_list":"/org/bp/{bp_id}",
+          "add_bp_org":"/org/{org_id}/bp",
+          "find_customers":"/customers/find",
+           "delete_user":"/org/users/{bp_id}",
+          "get_settings":"/setting/{setting_type}/{ref_obj_id}",
+          "post_settings":"/setting",
+          "get_org_bp":"/org/bps/{org_id}",
+          "get_customer_details":"/customers",
+          "get_pay_inco_terms":"/sales/payinco/terms",
+          "find_matnr_num":"/sales/matnr/find",
+          "sales_order_manage":"/sales/order/manage",
+          "get_sales_outbound_delivery_list":"/sales/outbound/delivery",
+          "get_inventory_stock":"/inventory/stock",
+          "get_billing_details":"/sales/billings"
+          
+      }
+      let hostContextPath:string=this.getConfigurations();
+      if ( hostContextPath.includes( "core.asptax.com" ) ) {
+          return hostContextPath + "v1" + apiUrls[apiKey];
+      }
+      else {
+          return hostContextPath + "romsons_core/v1" + apiUrls[apiKey];
+      }
+  }
+  
+}

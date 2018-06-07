@@ -1,0 +1,183 @@
+import { Component, OnInit, Input } from '@angular/core';
+import { Http } from '@angular/http';
+import { AppComponent } from '../../app.component';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Observable } from "rxjs/Observable";
+import {CommonService} from '../../services/common.service';
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+
+declare var $: any;
+declare var jQuery: any;
+
+@Component( {
+    selector: 'cat-top-bar',
+    templateUrl: './top-bar.component.html',
+    providers: []
+} )
+export class TopBarComponent implements OnInit {
+    logoFlag:boolean=true;
+    usersList:any;
+    rFlag:any;
+    mFlag:boolean=false;
+     public settingInterval: any;
+    public refreshInterval: any;
+    rolename:any;
+    
+    constructor( private router: Router, private http: Http, private app: AppComponent,private environment:EnvConfigurationService,
+            private commonService:CommonService
+    ) {
+        this.logoFlag=this.app.bussinessPartner;
+        this.usersList={};
+    }
+    ngOnInit() {
+        if(localStorage.getItem( "token" )!=  null){
+        this.getUserDetailsList();
+        this.logoFlag=this.app.bussinessPartner;
+        this.rolename=localStorage.getItem("roleName");
+        console.log(this.logoFlag);
+        if ( $( ".cat__menu-left" ).is( ":visible" ) && $( 'body' ).hasClass( 'cat__menu-left--visible' ) ) {
+            $( "#bpTitle" ).removeAttr( 'style' );
+            $( "#bpTitle" ).toggleClass( 'cat_top_bar_title-left-visible' );
+        } else {
+            $( "#bpTitle" ).attr( 'style', 'margin-left:5%' );
+
+        }
+        $(document).on('click', function (e)  {
+            if (!$(e.target).hasClass('bellNot')) {
+                $(".not_box").hide();
+                
+            }
+        });
+        
+        /*
+        
+        Revoke token
+        
+        */
+
+        
+            
+             this.settingInterval = setInterval(() => {
+
+            localStorage.removeItem( "token" );
+            this.callToRefreshAccessToken( localStorage.getItem( 'refreshToken' ) );
+           
+        }, parseInt( localStorage.getItem( "expiresIn" ) ) * 1000 );
+
+        localStorage.setItem( "IntervalSetup", this.settingInterval );
+        this.refreshInterval = setInterval(() => {
+
+            this.checkForRefreshToken( localStorage.getItem( 'refreshToken' ) );
+            
+        }, 5000 );
+        localStorage.setItem( "RefreshSetup", this.refreshInterval );
+        }else{
+            const path: string = '/login';
+             this.router.navigate( [path] );
+        }
+       
+        
+        
+        
+    }
+    toggleProfile(){
+        this.rolename=localStorage.getItem("roleName");
+        if(this.router.url=='/delarshipdetails'){
+            this.mFlag=false;
+        }else{
+            this.mFlag=true;
+        }
+        this.rFlag=localStorage.getItem("rmsFlag"); 
+        console.log('-----'+this.rFlag);
+        var x = document.getElementById( "not_box" );
+        if ( x.style.display === "none" ) {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+    logout() {
+        $( '#loadingIcon' ).show(); $( "#black-overlay" ).show();
+        const path: string = '/login';
+        this.commonService.invalidateLoginSession().subscribe(( data ) => {
+            if ( data == 200 || data.status == 200 ) {
+                clearInterval( parseInt( localStorage.getItem( "IntervalSetup" ) ) );
+                clearInterval( parseInt( localStorage.getItem( "RefreshSetup" ) ) );
+                localStorage.removeItem( 'token' );
+                localStorage.removeItem( 'refreshToken' );
+                localStorage.clear();
+                localStorage.setItem( 'LMflag', 'false' );
+                $( '#loadingIcon' ).hide(); $( "#black-overlay" ).hide();
+                this.router.navigate( [path] );
+            }
+            $( '#loadingIcon' ).hide(); $( "#black-overlay" ).hide();
+        } );
+
+    }
+    getUserDetailsList(){
+        this.commonService.getUserDetails().subscribe(response=>{
+            if(response.status==0){
+               this.usersList=response.data;
+            }
+        });
+    }
+    
+    checkForRefreshToken( refreshToken: string ) {
+        const path: string = '/login';
+       
+        if ( refreshToken == null ) {
+             clearInterval( parseInt( localStorage.getItem( "IntervalSetup" ) ) );
+                clearInterval( parseInt( localStorage.getItem( "RefreshSetup" ) ) );
+                localStorage.removeItem( 'token' );
+                localStorage.removeItem( 'refreshToken' );
+                localStorage.clear();
+             $( '#loadingIcon' ).hide(); $( "#black-overlay" ).hide();
+            const path: string = '/login';
+            this.router.navigate( [path] );
+            
+        }
+    }
+    
+    callToRefreshAccessToken( refreshToken: string ) {
+       
+        var REFRESH_ENDPOINT = this.environment.getRequiredApi( 'oauth_Token' ).replace( "/v1", "" ) + "?grant_type=refresh_token&refresh_token=" + refreshToken;
+        $( function() {
+
+
+            var CLIENT_ID = "incresol";
+            var CLIENT_SECRET = "password";
+
+
+            $.ajax( {
+                url: REFRESH_ENDPOINT,
+                type: 'POST',
+                contentType: "application/json",
+                beforeSend: function( xhrObj ) {
+                    xhrObj.setRequestHeader( "Authorization", "Basic " + btoa( 'incresol:passw0rd' ) );
+                    xhrObj.setRequestHeader( "Content-Type", "application/json" );
+                },
+                success: function( response ) {
+                    if ( localStorage.getItem( "token" ) == null ) {
+                        localStorage.setItem( "token", response.access_token );
+                        localStorage.removeItem( "expiresIn" );
+                        localStorage.setItem( "expiresIn", response.expires_in );
+                    }
+
+                    if ( response.refresh_token == null ) {
+                        //START: invalidate the login session
+                        localStorage.removeItem( 'token' );
+                        localStorage.removeItem( 'refreshToken' );
+                        //END: invalidate the login session
+                    }
+                },
+                error: function( error ) {
+                    //START: invalidate the login session
+                    localStorage.removeItem( 'token' );
+                    localStorage.removeItem( 'refreshToken' );
+                    //END: invalidate the login session
+                }
+            } );
+        } );
+
+    }
+}

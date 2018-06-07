@@ -1,0 +1,243 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Config
+					Values</strong>
+			</span>
+
+		</div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+
+					<!-- configGrpList -->
+					<div class="outbound-content col-md-12 mt-2">
+
+						<form [formGroup]="configValueForm">
+							<div class="delivery-form-block col-md-12 row">
+
+								<!-- [attr.disabled]="cnfGrpDrpDwnDisable ?  'disabled' :null" -->
+								<div class="col-md-2 text-align-sales">
+									<label>Config Group </label> <select
+										style="padding: 5px !important;" #confGrp class="form-control"
+										formControlName="group" id="confg_grps_id" validateOnBlur
+										(change)="setParentList(confGrp.value,'')"
+										[validateFormControl]="configValueForm.controls['group']">
+										<ng-container>
+										<option [value]="undefined" disabled>Please Select
+											Type</option>
+										</ng-container>
+										<ng-container *ngFor="let types of configGrpList">
+										<!-- configGroupId -->
+										<option [value]="types.parent_id">{{types.group_name}}
+										</option>
+										</ng-container>
+
+									</select>
+
+
+								</div>
+
+								<div class="col-md-2 text-align-sales">
+									<label>Business Partner </label> <select
+										style="padding: 5px !important;" class="form-control"
+										formControlName="bp_id" id="cust_type" validateOnBlur
+										[validateFormControl]="configValueForm.controls['bp_id']">
+										<option [value]="undefined" disabled>Please Select
+											Business Partner</option>
+										<ng-container *ngFor="let types of bPartners">
+										<option value={{types.bpId}}>{{types.bpLegalName}}</option>
+										</ng-container>
+
+									</select>
+
+
+								</div>
+
+							</div>
+						</form>
+					</div>
+
+					<!-- configGrpList -->
+
+					<div class="row ">
+
+
+
+
+						<!-- new changes -->
+						<div class="col-md-12 mt-rem mb-1" style="margin-top: 5px">
+							<div class="stock-table">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable"
+									width="100%" id="conf-grp-table">
+									<thead>
+										<tr>
+											<th rowspan="2" class="no-sort"
+												style="width: 50px; text-align: center;"><mat-checkbox
+													class="example-margin" [(ngModel)]="checked"
+													[checked]="checked" [(indeterminate)]="indeterminate"
+													(click)="selectAll($event,'mat-checkbox-1-input','conf-grp-table')"></mat-checkbox>
+
+											</th>
+
+
+											<th rowspan="2" style="min-width: 131px;">Conf Val</th>
+											<th rowspan="2">Key</th>
+											<th rowspan="2">Value</th>
+											<th colspan="10" style="text-align: center">Additional
+												Fields</th>
+										</tr>
+										<tr>
+
+											<th>1</th>
+											<th>2</th>
+											<th>3</th>
+											<th>4</th>
+											<th>5</th>
+											<th>6</th>
+											<th>7</th>
+											<th>8</th>
+											<th>9</th>
+											<th>10</th>
+										</tr>
+									</thead>
+
+
+
+									<tbody>
+										<ng-container
+											*ngFor="let list of configValSampleList; let i =index;">
+										<tr *ngIf="list.displayRow">
+											<td align="center"><mat-checkbox id="checkbox-{{i}}"
+													(click)="getReportList('conf-grp-table',i,list)"></mat-checkbox>
+
+											</td>
+											<td><select style="padding: 5px !important;"
+												id="conf-grp-list-{{i}}" class="form-control" #ref
+												(change)="assignToObject(ref.value,i);">
+													<option value="">Please Select</option>
+													<ng-container *ngFor="let types of configChildList">
+
+													<option [selected]="types.configValId==list.parentValId"
+														value={{types.configValId}}>{{types.value}}</option>
+													</ng-container>
+
+											</select></td>
+											<td><input type="text" placeholder="Key"
+												class="form-control matNum" [(ngModel)]="list.key"
+												[value]="list.key == undefined ? '': list.key "
+												id="key-{{i}}" /></td>
+											<td><input type="text" [(ngModel)]="list.value"
+												placeholder="Value" class="form-control matNum"
+												[value]="list.value == undefined ? '': list.value"
+												id="value-{{i}}" /></td>
+											<td><input type="text" class="form-control matNum"
+												[(ngModel)]="list.addField1"
+												[value]="list.addField1  == undefined ? '': list.addField1"
+												id="addField1-{{i}}" /></td>
+											<td><input type="text" class="form-control matNum"
+												[(ngModel)]="list.addField2"
+												[value]="list.addField2 == undefined ? '': list.addField2"
+												id="addField2-{{i}}" /></td>
+											<td><input type="text" class="form-control matNum"
+												[(ngModel)]="list.addField3"
+												[value]="list.addField3 == undefined ? '': list.addField3"
+												id="addField3-{{i}}" /></td>
+											<td><input type="text" class="form-control matNum"
+												[(ngModel)]="list.addField4"
+												[value]="list.addField4 == undefined ? '': list.addField4"
+												id="addField4-{{i}}" /></td>
+											<td><input type="text" class="form-control matNum"
+												[(ngModel)]="list.addField5"
+												[value]="list.addField5 == undefined ? '': list.addField5"
+												id="addField5-{{i}}" /></td>
+											<td><input type="text" class="form-control matNum"
+												[(ngModel)]="list.addField6"
+												[value]="list.addField6 == undefined ? '': list.addField6"
+												id="addField6-{{i}}" /></td>
+											<td><input type="text" class="form-control matNum"
+												[(ngModel)]="list.addField7"
+												[value]="list.addField7 == undefined ? '': list.addField7"
+												id="addField7-{{i}}" /></td>
+											<td><input type="text" class="form-control matNum"
+												[(ngModel)]="list.addField8"
+												[value]="list.addField8 == undefined ? '': list.addField8"
+												id="addField8-{{i}}" /></td>
+											<td><input type="text" class="form-control matNum"
+												[(ngModel)]="list.addField9"
+												[value]="list.addField9 == undefined ? '': list.addField9"
+												id="addField9-{{i}}" /></td>
+											<td><input type="text" class="form-control matNum"
+												[(ngModel)]="list.addField10"
+												[value]="list.addField10 == undefined ? '': list.addField10"
+												id="addField10-{{i}}" /></td>
+										</tr>
+										</ng-container>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- end chnges -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="outbound-footer mt-3" style="width: 1332.5px;">
+
+
+
+
+
+			<div class="left-block">
+				<!-- <div class="pull-left">
+					<button class="cancel-button-export" style="padding-left: 0px;"
+						(click)="navigateBack();">
+						<i class="fa back-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Back</div>
+						</i>
+					</button>
+				</div> -->
+
+
+				<div class="pull-left" style="max-width: 47%">
+					<button class="login-button" (click)="AddMoreLinesOfItems();">
+						<i class="fa fa-plus" style="margin-right: 4px; font-size: 16px"></i>
+						Add Lines
+					</button>
+				</div>
+				<div class="pull-left">
+					<button class="cancel-button-export" style="padding-left: 0px;"
+						(click)="removeLineSelectedItems();">
+						<i class="fa cancel-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Remove Line</div>
+						</i>
+					</button>
+				</div>
+			</div>
+
+			<div class="right-block">
+
+
+				<div class="pull-left">
+					<button class="save-icon-btn" (click)="saveConfigValues();">
+						<i class="fa save-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Save</div>
+						</i>
+					</button>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+
+</section>
+
+

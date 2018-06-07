@@ -1,0 +1,93 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Incoming Payment</strong>
+		</span>
+	</div>
+	<div class="card-block db-block mb-5" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+			
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					<form [formGroup]="incommingPayemnt">
+					 <div class="delivery-form-block col-md-12 row pb-5">
+						<div class="col-md-3 text-align-sales">
+							<label>Customer Account<sup class="asterick">*</sup></label>
+                            <input type="text" class="form-control" required="required">
+						</div>
+						<div class="col-md-3 text-align-sales">
+							   <label>Posting Date<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+							  
+						</div>
+						<div class="col-md-3 text-align-sales">
+							     <label>Doc Date<sup class="asterick">*</sup></label>
+                                 <input type="text" class="form-control">
+							
+						</div>
+						<div class="col-md-3 text-align-sales">
+							     <label>Doc Type<sup class="asterick">*</sup></label>
+                                 <input type="text" class="form-control">
+							 
+						</div>
+						<div class="clear-fix"></div>
+						<div class="col-md-3 text-align-sales">
+						<label>Company Code<sup class="asterick">*</sup></label>
+                        <input type="text" class="form-control">
+						</div>
+						<div class="col-md-3 text-align-sales">
+							<label>Payment Mode<sup class="asterick">*</sup></label>
+                            <input type="text" class="form-control">
+							  
+						</div>
+						<div class="col-md-3 text-align-sales">
+							<label>Reference no<sup class="asterick">*</sup></label>
+                            <input type="text" class="form-control">			 
+						</div>
+						<div class="col-md-3 text-align-sales">
+							     <label>Profit Center<sup class="asterick">*</sup></label>
+                                 <input type="text" class="form-control"> 
+						</div>
+						<div class="clear-fix"></div>
+						<div class="col-md-3 text-align-sales">
+							 <label>Business Place<sup class="asterick">*</sup></label>
+                             <input type="text" class="form-control"> 				  
+						</div>
+						<div class="col-md-3 text-align-sales">
+							 <label>Business Area<sup class="asterick">*</sup></label>
+                             <input type="text" class="form-control"> 
+						</div>
+						<div class="col-md-3 text-align-sales">
+						 <label>Amount<sup class="asterick">*</sup></label>
+                         <input type="text" class="form-control"> 
+						</div>
+						<div class="col-md-3 text-align-sales" >
+							      <label>GL Account<sup class="asterick">*</sup></label>
+                                  <input type="text" class="form-control"> 
+						</div>
+					</div>
+					</form>
+					</div>
+					<!-- end chnges -->
+				
+				
+		</div>
+		<div class="outbound-footer mt-1">
+		 <div class="right-block"> 
+			<div class="pull-left" style="max-width:46.4%">
+			<button class="btn login-button">
+			<i class="fa fa-save" style="margin-right:4px;"></i>Save</button>
+			</div>
+			<div class="pull-left" style="max-width:12.4%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Cancel</button>
+			</div>
+			</div>
+		 </div> 
+	</div>
+	
+	</div>
+	
+</div>
+</section>

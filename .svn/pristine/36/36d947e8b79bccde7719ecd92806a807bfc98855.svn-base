@@ -1,0 +1,360 @@
+import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Http } from '@angular/http';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { AppComponent } from '../../app.component';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+import { CommonService } from '../../services/common.service';
+
+declare var $: any;
+declare var jQuery: any;
+
+@Component({
+  selector: 'app-role-management',
+  templateUrl: './role-management.component.html',
+  styleUrls: ['./role-management.component.css']
+})
+export class RoleManagementComponent implements OnInit {
+
+   public addRoleManagementForm: FormGroup;
+    public updateRoleManagementForm: FormGroup;
+    public disableRoleManagementForm: FormGroup;
+    roleList: any;
+    rolesDeatils: any;
+    roleMessage: any;
+    invalidRolemessage:any;
+    requiredUrl: any;
+    orgId: any;
+    accessObjId: any;
+    flag: any;
+    roleFlag: any
+    counter = [];
+    disableArray:any;
+    orgRoleslst:any;
+    actionPayLoad:any;
+    renameRoleName:any;
+    renameRoleId:any;
+    disableRoleRef:boolean=false;
+    roleRefMsg:any;
+    rolesListLength:any;
+    invalidRoleName:boolean;
+    public data:any;
+    constructor(private http: Http,
+        private formBuilder: FormBuilder, private router: Router,private environment:EnvConfigurationService,
+         private app: AppComponent,private messagesService:MessagePropertiesService,private commonService:CommonService
+    ) {
+       this.data = {"orgId":"35939f46-016a-4bc1-9a3c-d88f6ec5d6bc","roles":[{"roleId":1,"roleName":"Organization Admin","accessObjs":[{"parentObjId":"092f738e-d014-4e7d-9a97-b8e7ba70b101","parentObjName":"E-Way Bill Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"134110d0-004a-11e8-ba89-0ed5f89f718b","objName":"Consolidated Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},
+       {"objId":"1341131e-004a-11e8-ba89-0ed5f89f718b","objName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"dfdaa3a0-0049-11e8-ba89-0ed5f89f718b","objName":"Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"fd390294-0331-11e8-ba89-0ed5f89f718b","objName":"Transporter Master","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"1d7803b9-42db-11e7-b620-0b96d25b5184","parentObjName":"My Account","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"14117719-2e7c-43c9-8f98-f6f43f0e4dfa","objName":"Notifications","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"71914ef7-42dc-11e7-b620-0b96d25b5184","objName":"My Profile","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"c849d406-67ee-4ada-aff8-5acc6b70064d","objName":"Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"30db6013-42db-11e7-b620-0b96d25b5184","parentObjName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"93aed6c2-b96e-4fb2-9434-91a296ae25d6","objName":"Adjust Document Period","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"9d69ff91-42dc-11e7-b620-0b96d25b5184","objName":"CSV Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"b1bab193-42dc-11e7-b620-0b96d25b5184","objName":"Data Load Job Log","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"50ef0156-5282-11e7-b114-b2f933d5fe66","parentObjName":"Quaterly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"50ef0264-5282-11e7-b114-b2f933d5fe66","objName":"GSTR4","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"58db8a0a-54db-11e7-b114-b2f933d5fe66","parentObjName":"Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"5fd5044e-559e-11e7-907b-a6006ad3dba0","objName":"Outward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd509d0-559e-11e7-907b-a6006ad3dba0","objName":"Inward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd50d9a-559e-11e7-907b-a6006ad3dba0","objName":"Financial Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd50f66-559e-11e7-907b-a6006ad3dba0","objName":"Returns & Compliance Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd5122c-559e-11e7-907b-a6006ad3dba0","objName":"Audit Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"844a3c2a-4602-11e7-b620-0b96d25b5184","parentObjName":"Monthly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"0c98e052-5283-11e7-b114-b2f933d5fe66","objName":"GSTR6","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"20f958ba-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR2","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"20f95d42-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR3","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"276e281c-5281-11e7-b114-b2f933d5fe66","objName":"GSTR1A","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"a1b210ea-c4b7-11e7-abc4-cec278b6b50a","objName":"GSTR3B","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"aa3867c5-4602-11e7-b620-0b96d25b5184","objName":"GSTR1","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"a02eb658-57e6-11e7-907b-a6006ad3dba0","parentObjName":"Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"21092a88-0048-11e8-ba89-0ed5f89f718b","objName":"Role Based Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"a02eb9c8-57e6-11e7-907b-a6006ad3dba0","objName":"Business Place Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"a02ebb6c-57e6-11e7-907b-a6006ad3dba0","objName":"Organization Settings Desc Updated","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"b5be5ac8-5804-11e7-907b-a6006ad3dba0","parentObjName":"Support","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"b5be5df2-5804-11e7-907b-a6006ad3dba0","objName":"My Support Tickets","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be5f14-5804-11e7-907b-a6006ad3dba0","objName":"Help Docs","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be648c-5804-11e7-907b-a6006ad3dba0","objName":"ASPTax Community","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be6a86-5804-11e7-907b-a6006ad3dba0","objName":"Contact us","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"c36481a1-4602-11e7-b620-0b96d25b5184","parentObjName":"Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"9b55d237-7696-11e7-b949-000c29038354","objName":"Business Place Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b6fa79ec-408e-4c5c-99eb-58964cfb4631","objName":"Organization","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"cce88c4e-cb65-11e7-abc4-cec278b6b50a","objName":"ISD Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"c88b418a-5281-11e7-b114-b2f933d5fe66","parentObjName":"Annual Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"50eefe54-5282-11e7-b114-b2f933d5fe66","objName":"GSTR9","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"fe88faed-42da-11e7-b620-0b96d25b5184","parentObjName":"Organization Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"1b20ec26-5807-11e7-907b-a6006ad3dba0","objName":"Manage API Keys","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"3967e956-42dc-11e7-b620-0b96d25b5184","objName":"Organization Users","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"437f56d-7288-409b-b2f4-9d43bb9934e8","objName":"Manage OTP","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"4d69ff8c-42dc-11e7-b620-0b96d25b5184","objName":"Organization Roles","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"d5430c71-42db-11e7-b620-0b96d25b5184","objName":"Organization Details","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]}],"roleShortId":"ROLE_ORG_ADMIN"},{"roleId":2,"roleName":"Regular User","accessObjs":[{"parentObjId":"092f738e-d014-4e7d-9a97-b8e7ba70b101","parentObjName":"E-Way Bill Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"134110d0-004a-11e8-ba89-0ed5f89f718b","objName":"Consolidated Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"1341131e-004a-11e8-ba89-0ed5f89f718b","objName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"dfdaa3a0-0049-11e8-ba89-0ed5f89f718b","objName":"Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"fd390294-0331-11e8-ba89-0ed5f89f718b","objName":"Transporter Master","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"1d7803b9-42db-11e7-b620-0b96d25b5184","parentObjName":"My Account","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"14117719-2e7c-43c9-8f98-f6f43f0e4dfa","objName":"Notifications","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"71914ef7-42dc-11e7-b620-0b96d25b5184","objName":"My Profile","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"c849d406-67ee-4ada-aff8-5acc6b70064d","objName":"Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"30db6013-42db-11e7-b620-0b96d25b5184","parentObjName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"93aed6c2-b96e-4fb2-9434-91a296ae25d6","objName":"Adjust Document Period","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"9d69ff91-42dc-11e7-b620-0b96d25b5184","objName":"CSV Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b1bab193-42dc-11e7-b620-0b96d25b5184","objName":"Data Load Job Log","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"50ef0156-5282-11e7-b114-b2f933d5fe66","parentObjName":"Quaterly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"50ef0264-5282-11e7-b114-b2f933d5fe66","objName":"GSTR4","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"58db8a0a-54db-11e7-b114-b2f933d5fe66","parentObjName":"Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"5fd5044e-559e-11e7-907b-a6006ad3dba0","objName":"Outward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd509d0-559e-11e7-907b-a6006ad3dba0","objName":"Inward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd50d9a-559e-11e7-907b-a6006ad3dba0","objName":"Financial Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd50f66-559e-11e7-907b-a6006ad3dba0","objName":"Returns & Compliance Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd5122c-559e-11e7-907b-a6006ad3dba0","objName":"Audit Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"844a3c2a-4602-11e7-b620-0b96d25b5184","parentObjName":"Monthly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"0c98e052-5283-11e7-b114-b2f933d5fe66","objName":"GSTR6","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"20f958ba-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR2","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"20f95d42-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR3","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"276e281c-5281-11e7-b114-b2f933d5fe66","objName":"GSTR1A","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"a1b210ea-c4b7-11e7-abc4-cec278b6b50a","objName":"GSTR3B","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"aa3867c5-4602-11e7-b620-0b96d25b5184","objName":"GSTR1","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"a02eb658-57e6-11e7-907b-a6006ad3dba0","parentObjName":"Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"21092a88-0048-11e8-ba89-0ed5f89f718b","objName":"Role Based Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"a02eb9c8-57e6-11e7-907b-a6006ad3dba0","objName":"Business Place Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"a02ebb6c-57e6-11e7-907b-a6006ad3dba0","objName":"Organization Settings Desc Updated","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"b5be5ac8-5804-11e7-907b-a6006ad3dba0","parentObjName":"Support","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"b5be5df2-5804-11e7-907b-a6006ad3dba0","objName":"My Support Tickets","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be5f14-5804-11e7-907b-a6006ad3dba0","objName":"Help Docs","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be648c-5804-11e7-907b-a6006ad3dba0","objName":"ASPTax Community","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be6a86-5804-11e7-907b-a6006ad3dba0","objName":"Contact us","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"c36481a1-4602-11e7-b620-0b96d25b5184","parentObjName":"Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"9b55d237-7696-11e7-b949-000c29038354","objName":"Business Place Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b6fa79ec-408e-4c5c-99eb-58964cfb4631","objName":"Organization","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"cce88c4e-cb65-11e7-abc4-cec278b6b50a","objName":"ISD Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"c88b418a-5281-11e7-b114-b2f933d5fe66","parentObjName":"Annual Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"50eefe54-5282-11e7-b114-b2f933d5fe66","objName":"GSTR9","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"fe88faed-42da-11e7-b620-0b96d25b5184","parentObjName":"Organization Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"1b20ec26-5807-11e7-907b-a6006ad3dba0","objName":"Manage API Keys","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"3967e956-42dc-11e7-b620-0b96d25b5184","objName":"Organization Users","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"437f56d-7288-409b-b2f4-9d43bb9934e8","objName":"Manage OTP","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"4d69ff8c-42dc-11e7-b620-0b96d25b5184","objName":"Organization Roles","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"d5430c71-42db-11e7-b620-0b96d25b5184","objName":"Organization Details","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]}],"roleShortId":"ROLE_REGULAR_USER"},{"roleId":3,"roleName":"Business Place Admin","accessObjs":[{"parentObjId":"092f738e-d014-4e7d-9a97-b8e7ba70b101","parentObjName":"E-Way Bill Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"134110d0-004a-11e8-ba89-0ed5f89f718b","objName":"Consolidated Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"1341131e-004a-11e8-ba89-0ed5f89f718b","objName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"dfdaa3a0-0049-11e8-ba89-0ed5f89f718b","objName":"Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"fd390294-0331-11e8-ba89-0ed5f89f718b","objName":"Transporter Master","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"1d7803b9-42db-11e7-b620-0b96d25b5184","parentObjName":"My Account","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"14117719-2e7c-43c9-8f98-f6f43f0e4dfa","objName":"Notifications","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"71914ef7-42dc-11e7-b620-0b96d25b5184","objName":"My Profile","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"c849d406-67ee-4ada-aff8-5acc6b70064d","objName":"Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"30db6013-42db-11e7-b620-0b96d25b5184","parentObjName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"93aed6c2-b96e-4fb2-9434-91a296ae25d6","objName":"Adjust Document Period","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"9d69ff91-42dc-11e7-b620-0b96d25b5184","objName":"CSV Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b1bab193-42dc-11e7-b620-0b96d25b5184","objName":"Data Load Job Log","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"50ef0156-5282-11e7-b114-b2f933d5fe66","parentObjName":"Quaterly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"50ef0264-5282-11e7-b114-b2f933d5fe66","objName":"GSTR4","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0}]},{"parentObjId":"58db8a0a-54db-11e7-b114-b2f933d5fe66","parentObjName":"Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"5fd5044e-559e-11e7-907b-a6006ad3dba0","objName":"Outward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd509d0-559e-11e7-907b-a6006ad3dba0","objName":"Inward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd50d9a-559e-11e7-907b-a6006ad3dba0","objName":"Financial Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd50f66-559e-11e7-907b-a6006ad3dba0","objName":"Returns & Compliance Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd5122c-559e-11e7-907b-a6006ad3dba0","objName":"Audit Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0}]},{"parentObjId":"844a3c2a-4602-11e7-b620-0b96d25b5184","parentObjName":"Monthly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"0c98e052-5283-11e7-b114-b2f933d5fe66","objName":"GSTR6","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"20f958ba-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR2","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"20f95d42-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR3","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"276e281c-5281-11e7-b114-b2f933d5fe66","objName":"GSTR1A","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"a1b210ea-c4b7-11e7-abc4-cec278b6b50a","objName":"GSTR3B","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"aa3867c5-4602-11e7-b620-0b96d25b5184","objName":"GSTR1","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"a02eb658-57e6-11e7-907b-a6006ad3dba0","parentObjName":"Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"21092a88-0048-11e8-ba89-0ed5f89f718b","objName":"Role Based Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"a02eb9c8-57e6-11e7-907b-a6006ad3dba0","objName":"Business Place Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"a02ebb6c-57e6-11e7-907b-a6006ad3dba0","objName":"Organization Settings Desc Updated","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"b5be5ac8-5804-11e7-907b-a6006ad3dba0","parentObjName":"Support","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"b5be5df2-5804-11e7-907b-a6006ad3dba0","objName":"My Support Tickets","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be5f14-5804-11e7-907b-a6006ad3dba0","objName":"Help Docs","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be648c-5804-11e7-907b-a6006ad3dba0","objName":"ASPTax Community","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be6a86-5804-11e7-907b-a6006ad3dba0","objName":"Contact us","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"c36481a1-4602-11e7-b620-0b96d25b5184","parentObjName":"Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"9b55d237-7696-11e7-b949-000c29038354","objName":"Business Place Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b6fa79ec-408e-4c5c-99eb-58964cfb4631","objName":"Organization","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"cce88c4e-cb65-11e7-abc4-cec278b6b50a","objName":"ISD Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"c88b418a-5281-11e7-b114-b2f933d5fe66","parentObjName":"Annual Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"50eefe54-5282-11e7-b114-b2f933d5fe66","objName":"GSTR9","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"fe88faed-42da-11e7-b620-0b96d25b5184","parentObjName":"Organization Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"1b20ec26-5807-11e7-907b-a6006ad3dba0","objName":"Manage API Keys","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"3967e956-42dc-11e7-b620-0b96d25b5184","objName":"Organization Users","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"437f56d-7288-409b-b2f4-9d43bb9934e8","objName":"Manage OTP","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"4d69ff8c-42dc-11e7-b620-0b96d25b5184","objName":"Organization Roles","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"d5430c71-42db-11e7-b620-0b96d25b5184","objName":"Organization Details","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0}]}],"roleShortId":"ROLE_BP_USER"},{"roleId":4,"roleName":"Sales Admin","accessObjs":[{"parentObjId":"092f738e-d014-4e7d-9a97-b8e7ba70b101","parentObjName":"E-Way Bill Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"134110d0-004a-11e8-ba89-0ed5f89f718b","objName":"Consolidated Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"1341131e-004a-11e8-ba89-0ed5f89f718b","objName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"dfdaa3a0-0049-11e8-ba89-0ed5f89f718b","objName":"Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"fd390294-0331-11e8-ba89-0ed5f89f718b","objName":"Transporter Master","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"1d7803b9-42db-11e7-b620-0b96d25b5184","parentObjName":"My Account","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"14117719-2e7c-43c9-8f98-f6f43f0e4dfa","objName":"Notifications","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"71914ef7-42dc-11e7-b620-0b96d25b5184","objName":"My Profile","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"c849d406-67ee-4ada-aff8-5acc6b70064d","objName":"Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"30db6013-42db-11e7-b620-0b96d25b5184","parentObjName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"93aed6c2-b96e-4fb2-9434-91a296ae25d6","objName":"Adjust Document Period","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"9d69ff91-42dc-11e7-b620-0b96d25b5184","objName":"CSV Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"b1bab193-42dc-11e7-b620-0b96d25b5184","objName":"Data Load Job Log","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"50ef0156-5282-11e7-b114-b2f933d5fe66","parentObjName":"Quaterly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"50ef0264-5282-11e7-b114-b2f933d5fe66","objName":"GSTR4","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"58db8a0a-54db-11e7-b114-b2f933d5fe66","parentObjName":"Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"5fd5044e-559e-11e7-907b-a6006ad3dba0","objName":"Outward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd509d0-559e-11e7-907b-a6006ad3dba0","objName":"Inward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd50d9a-559e-11e7-907b-a6006ad3dba0","objName":"Financial Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd50f66-559e-11e7-907b-a6006ad3dba0","objName":"Returns & Compliance Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd5122c-559e-11e7-907b-a6006ad3dba0","objName":"Audit Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"844a3c2a-4602-11e7-b620-0b96d25b5184","parentObjName":"Monthly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"0c98e052-5283-11e7-b114-b2f933d5fe66","objName":"GSTR6","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"20f958ba-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR2","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"20f95d42-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR3","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"276e281c-5281-11e7-b114-b2f933d5fe66","objName":"GSTR1A","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"a1b210ea-c4b7-11e7-abc4-cec278b6b50a","objName":"GSTR3B","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"aa3867c5-4602-11e7-b620-0b96d25b5184","objName":"GSTR1","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"a02eb658-57e6-11e7-907b-a6006ad3dba0","parentObjName":"Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"21092a88-0048-11e8-ba89-0ed5f89f718b","objName":"Role Based Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"a02eb9c8-57e6-11e7-907b-a6006ad3dba0","objName":"Business Place Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"a02ebb6c-57e6-11e7-907b-a6006ad3dba0","objName":"Organization Settings Desc Updated","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"b5be5ac8-5804-11e7-907b-a6006ad3dba0","parentObjName":"Support","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"b5be5df2-5804-11e7-907b-a6006ad3dba0","objName":"My Support Tickets","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be5f14-5804-11e7-907b-a6006ad3dba0","objName":"Help Docs","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be648c-5804-11e7-907b-a6006ad3dba0","objName":"ASPTax Community","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be6a86-5804-11e7-907b-a6006ad3dba0","objName":"Contact us","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"c36481a1-4602-11e7-b620-0b96d25b5184","parentObjName":"Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"9b55d237-7696-11e7-b949-000c29038354","objName":"Business Place Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b6fa79ec-408e-4c5c-99eb-58964cfb4631","objName":"Organization","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"cce88c4e-cb65-11e7-abc4-cec278b6b50a","objName":"ISD Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"c88b418a-5281-11e7-b114-b2f933d5fe66","parentObjName":"Annual Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"50eefe54-5282-11e7-b114-b2f933d5fe66","objName":"GSTR9","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"fe88faed-42da-11e7-b620-0b96d25b5184","parentObjName":"Organization Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"1b20ec26-5807-11e7-907b-a6006ad3dba0","objName":"Manage API Keys","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"3967e956-42dc-11e7-b620-0b96d25b5184","objName":"Organization Users","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"437f56d-7288-409b-b2f4-9d43bb9934e8","objName":"Manage OTP","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"4d69ff8c-42dc-11e7-b620-0b96d25b5184","objName":"Organization Roles","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"d5430c71-42db-11e7-b620-0b96d25b5184","objName":"Organization Details","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]}],"roleShortId":"ROLE_SALES_ADMIN"},{"roleId":5,"roleName":"Procurement Admin","accessObjs":[{"parentObjId":"092f738e-d014-4e7d-9a97-b8e7ba70b101","parentObjName":"E-Way Bill Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"134110d0-004a-11e8-ba89-0ed5f89f718b","objName":"Consolidated Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"1341131e-004a-11e8-ba89-0ed5f89f718b","objName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"dfdaa3a0-0049-11e8-ba89-0ed5f89f718b","objName":"Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"fd390294-0331-11e8-ba89-0ed5f89f718b","objName":"Transporter Master","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"1d7803b9-42db-11e7-b620-0b96d25b5184","parentObjName":"My Account","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"14117719-2e7c-43c9-8f98-f6f43f0e4dfa","objName":"Notifications","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"71914ef7-42dc-11e7-b620-0b96d25b5184","objName":"My Profile","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"c849d406-67ee-4ada-aff8-5acc6b70064d","objName":"Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"30db6013-42db-11e7-b620-0b96d25b5184","parentObjName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"93aed6c2-b96e-4fb2-9434-91a296ae25d6","objName":"Adjust Document Period","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"9d69ff91-42dc-11e7-b620-0b96d25b5184","objName":"CSV Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"b1bab193-42dc-11e7-b620-0b96d25b5184","objName":"Data Load Job Log","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"50ef0156-5282-11e7-b114-b2f933d5fe66","parentObjName":"Quaterly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"50ef0264-5282-11e7-b114-b2f933d5fe66","objName":"GSTR4","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"58db8a0a-54db-11e7-b114-b2f933d5fe66","parentObjName":"Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"5fd5044e-559e-11e7-907b-a6006ad3dba0","objName":"Outward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd509d0-559e-11e7-907b-a6006ad3dba0","objName":"Inward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"5fd50d9a-559e-11e7-907b-a6006ad3dba0","objName":"Financial Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd50f66-559e-11e7-907b-a6006ad3dba0","objName":"Returns & Compliance Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd5122c-559e-11e7-907b-a6006ad3dba0","objName":"Audit Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"844a3c2a-4602-11e7-b620-0b96d25b5184","parentObjName":"Monthly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"0c98e052-5283-11e7-b114-b2f933d5fe66","objName":"GSTR6","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"20f958ba-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR2","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"20f95d42-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR3","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"276e281c-5281-11e7-b114-b2f933d5fe66","objName":"GSTR1A","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"a1b210ea-c4b7-11e7-abc4-cec278b6b50a","objName":"GSTR3B","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"aa3867c5-4602-11e7-b620-0b96d25b5184","objName":"GSTR1","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"a02eb658-57e6-11e7-907b-a6006ad3dba0","parentObjName":"Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"21092a88-0048-11e8-ba89-0ed5f89f718b","objName":"Role Based Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"a02eb9c8-57e6-11e7-907b-a6006ad3dba0","objName":"Business Place Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"a02ebb6c-57e6-11e7-907b-a6006ad3dba0","objName":"Organization Settings Desc Updated","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"b5be5ac8-5804-11e7-907b-a6006ad3dba0","parentObjName":"Support","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"b5be5df2-5804-11e7-907b-a6006ad3dba0","objName":"My Support Tickets","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"b5be5f14-5804-11e7-907b-a6006ad3dba0","objName":"Help Docs","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"b5be648c-5804-11e7-907b-a6006ad3dba0","objName":"ASPTax Community","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"b5be6a86-5804-11e7-907b-a6006ad3dba0","objName":"Contact us","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0}]},{"parentObjId":"c36481a1-4602-11e7-b620-0b96d25b5184","parentObjName":"Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"9b55d237-7696-11e7-b949-000c29038354","objName":"Business Place Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"b6fa79ec-408e-4c5c-99eb-58964cfb4631","objName":"Organization","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"cce88c4e-cb65-11e7-abc4-cec278b6b50a","objName":"ISD Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"c88b418a-5281-11e7-b114-b2f933d5fe66","parentObjName":"Annual Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"50eefe54-5282-11e7-b114-b2f933d5fe66","objName":"GSTR9","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"fe88faed-42da-11e7-b620-0b96d25b5184","parentObjName":"Organization Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"1b20ec26-5807-11e7-907b-a6006ad3dba0","objName":"Manage API Keys","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"3967e956-42dc-11e7-b620-0b96d25b5184","objName":"Organization Users","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"437f56d-7288-409b-b2f4-9d43bb9934e8","objName":"Manage OTP","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"4d69ff8c-42dc-11e7-b620-0b96d25b5184","objName":"Organization Roles","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"d5430c71-42db-11e7-b620-0b96d25b5184","objName":"Organization Details","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]}],"roleShortId":"ROLE_PROC_ADMIN"},{"roleId":6,"roleName":"Super Admin One","accessObjs":[{"parentObjId":"092f738e-d014-4e7d-9a97-b8e7ba70b101","parentObjName":"E-Way Bill Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"134110d0-004a-11e8-ba89-0ed5f89f718b","objName":"Consolidated Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"1341131e-004a-11e8-ba89-0ed5f89f718b","objName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"dfdaa3a0-0049-11e8-ba89-0ed5f89f718b","objName":"Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"fd390294-0331-11e8-ba89-0ed5f89f718b","objName":"Transporter Master","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"1d7803b9-42db-11e7-b620-0b96d25b5184","parentObjName":"My Account","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"14117719-2e7c-43c9-8f98-f6f43f0e4dfa","objName":"Notifications","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"71914ef7-42dc-11e7-b620-0b96d25b5184","objName":"My Profile","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"c849d406-67ee-4ada-aff8-5acc6b70064d","objName":"Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"30db6013-42db-11e7-b620-0b96d25b5184","parentObjName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"93aed6c2-b96e-4fb2-9434-91a296ae25d6","objName":"Adjust Document Period","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"9d69ff91-42dc-11e7-b620-0b96d25b5184","objName":"CSV Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b1bab193-42dc-11e7-b620-0b96d25b5184","objName":"Data Load Job Log","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"50ef0156-5282-11e7-b114-b2f933d5fe66","parentObjName":"Quaterly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"50ef0264-5282-11e7-b114-b2f933d5fe66","objName":"GSTR4","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"58db8a0a-54db-11e7-b114-b2f933d5fe66","parentObjName":"Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"5fd5044e-559e-11e7-907b-a6006ad3dba0","objName":"Outward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd509d0-559e-11e7-907b-a6006ad3dba0","objName":"Inward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd50d9a-559e-11e7-907b-a6006ad3dba0","objName":"Financial Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd50f66-559e-11e7-907b-a6006ad3dba0","objName":"Returns & Compliance Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"5fd5122c-559e-11e7-907b-a6006ad3dba0","objName":"Audit Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"844a3c2a-4602-11e7-b620-0b96d25b5184","parentObjName":"Monthly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"0c98e052-5283-11e7-b114-b2f933d5fe66","objName":"GSTR6","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"20f958ba-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR2","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"20f95d42-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR3","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"276e281c-5281-11e7-b114-b2f933d5fe66","objName":"GSTR1A","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"a1b210ea-c4b7-11e7-abc4-cec278b6b50a","objName":"GSTR3B","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"aa3867c5-4602-11e7-b620-0b96d25b5184","objName":"GSTR1","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"a02eb658-57e6-11e7-907b-a6006ad3dba0","parentObjName":"Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"21092a88-0048-11e8-ba89-0ed5f89f718b","objName":"Role Based Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"a02eb9c8-57e6-11e7-907b-a6006ad3dba0","objName":"Business Place Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"a02ebb6c-57e6-11e7-907b-a6006ad3dba0","objName":"Organization Settings Desc Updated","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"b5be5ac8-5804-11e7-907b-a6006ad3dba0","parentObjName":"Support","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"b5be5df2-5804-11e7-907b-a6006ad3dba0","objName":"My Support Tickets","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be5f14-5804-11e7-907b-a6006ad3dba0","objName":"Help Docs","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be648c-5804-11e7-907b-a6006ad3dba0","objName":"ASPTax Community","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b5be6a86-5804-11e7-907b-a6006ad3dba0","objName":"Contact us","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"c36481a1-4602-11e7-b620-0b96d25b5184","parentObjName":"Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"9b55d237-7696-11e7-b949-000c29038354","objName":"Business Place Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"b6fa79ec-408e-4c5c-99eb-58964cfb4631","objName":"Organization","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"cce88c4e-cb65-11e7-abc4-cec278b6b50a","objName":"ISD Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"c88b418a-5281-11e7-b114-b2f933d5fe66","parentObjName":"Annual Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"50eefe54-5282-11e7-b114-b2f933d5fe66","objName":"GSTR9","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]},{"parentObjId":"fe88faed-42da-11e7-b620-0b96d25b5184","parentObjName":"Organization Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1,"childObjs":[{"objId":"1b20ec26-5807-11e7-907b-a6006ad3dba0","objName":"Manage API Keys","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"3967e956-42dc-11e7-b620-0b96d25b5184","objName":"Organization Users","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"437f56d-7288-409b-b2f4-9d43bb9934e8","objName":"Manage OTP","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"4d69ff8c-42dc-11e7-b620-0b96d25b5184","objName":"Organization Roles","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1},{"objId":"d5430c71-42db-11e7-b620-0b96d25b5184","objName":"Organization Details","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":1}]}],"roleShortId":"ROLE_CSR_ADMIN"},{"roleId":11,"roleName":"Test Role","accessObjs":[{"parentObjId":"092f738e-d014-4e7d-9a97-b8e7ba70b101","parentObjName":"E-Way Bill Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"134110d0-004a-11e8-ba89-0ed5f89f718b","objName":"Consolidated Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"1341131e-004a-11e8-ba89-0ed5f89f718b","objName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"dfdaa3a0-0049-11e8-ba89-0ed5f89f718b","objName":"Eway Bill","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"fd390294-0331-11e8-ba89-0ed5f89f718b","objName":"Transporter Master","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0}]},{"parentObjId":"1d7803b9-42db-11e7-b620-0b96d25b5184","parentObjName":"My Account","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"14117719-2e7c-43c9-8f98-f6f43f0e4dfa","objName":"Notifications","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"71914ef7-42dc-11e7-b620-0b96d25b5184","objName":"My Profile","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0},{"objId":"c849d406-67ee-4ada-aff8-5acc6b70064d","objName":"Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0}]},{"parentObjId":"30db6013-42db-11e7-b620-0b96d25b5184","parentObjName":"Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"93aed6c2-b96e-4fb2-9434-91a296ae25d6","objName":"Adjust Document Period","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"9d69ff91-42dc-11e7-b620-0b96d25b5184","objName":"CSV Data Load","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"b1bab193-42dc-11e7-b620-0b96d25b5184","objName":"Data Load Job Log","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"50ef0156-5282-11e7-b114-b2f933d5fe66","parentObjName":"Quaterly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"50ef0264-5282-11e7-b114-b2f933d5fe66","objName":"GSTR4","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"58db8a0a-54db-11e7-b114-b2f933d5fe66","parentObjName":"Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"5fd5044e-559e-11e7-907b-a6006ad3dba0","objName":"Outward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd509d0-559e-11e7-907b-a6006ad3dba0","objName":"Inward Supplies Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd50d9a-559e-11e7-907b-a6006ad3dba0","objName":"Financial Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd50f66-559e-11e7-907b-a6006ad3dba0","objName":"Returns & Compliance Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"5fd5122c-559e-11e7-907b-a6006ad3dba0","objName":"Audit Reports","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"844a3c2a-4602-11e7-b620-0b96d25b5184","parentObjName":"Monthly Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"0c98e052-5283-11e7-b114-b2f933d5fe66","objName":"GSTR6","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"20f958ba-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR2","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"20f95d42-4ab3-11e7-a919-92ebcb67fe33","objName":"GSTR3","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"276e281c-5281-11e7-b114-b2f933d5fe66","objName":"GSTR1A","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"a1b210ea-c4b7-11e7-abc4-cec278b6b50a","objName":"GSTR3B","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"aa3867c5-4602-11e7-b620-0b96d25b5184","objName":"GSTR1","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"a02eb658-57e6-11e7-907b-a6006ad3dba0","parentObjName":"Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"21092a88-0048-11e8-ba89-0ed5f89f718b","objName":"Role Based Preferences","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"a02eb9c8-57e6-11e7-907b-a6006ad3dba0","objName":"Business Place Settings","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"a02ebb6c-57e6-11e7-907b-a6006ad3dba0","objName":"Organization Settings Desc Updated","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"b5be5ac8-5804-11e7-907b-a6006ad3dba0","parentObjName":"Support","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"b5be5df2-5804-11e7-907b-a6006ad3dba0","objName":"My Support Tickets","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"b5be5f14-5804-11e7-907b-a6006ad3dba0","objName":"Help Docs","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"b5be648c-5804-11e7-907b-a6006ad3dba0","objName":"ASPTax Community","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"b5be6a86-5804-11e7-907b-a6006ad3dba0","objName":"Contact us","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"c36481a1-4602-11e7-b620-0b96d25b5184","parentObjName":"Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"9b55d237-7696-11e7-b949-000c29038354","objName":"Business Place Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"b6fa79ec-408e-4c5c-99eb-58964cfb4631","objName":"Organization","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"cce88c4e-cb65-11e7-abc4-cec278b6b50a","objName":"ISD Dashboard","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"c88b418a-5281-11e7-b114-b2f933d5fe66","parentObjName":"Annual Returns","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"50eefe54-5282-11e7-b114-b2f933d5fe66","objName":"GSTR9","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]},{"parentObjId":"fe88faed-42da-11e7-b620-0b96d25b5184","parentObjName":"Organization Management","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":0,"childObjs":[{"objId":"1b20ec26-5807-11e7-907b-a6006ad3dba0","objName":"Manage API Keys","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"3967e956-42dc-11e7-b620-0b96d25b5184","objName":"Organization Users","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"437f56d-7288-409b-b2f4-9d43bb9934e8","objName":"Manage OTP","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"4d69ff8c-42dc-11e7-b620-0b96d25b5184","objName":"Organization Roles","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null},{"objId":"d5430c71-42db-11e7-b620-0b96d25b5184","objName":"Organization Details","menuIcon":null,"seqNum":null,"navLink":null,"permissionLevel":null}]}],"roleShortId":"ROLE_TR_REGULAR_USER"}]};
+         this.app.isActive=true;
+        this.addRoleManagementForm = formBuilder.group(
+                {
+                    'roleName': ['', [Validators.required]],
+                    'roleRef': ['', [Validators.required]]
+                }
+            );
+        this.updateRoleManagementForm = formBuilder.group(
+                {
+                    'roleName': ['', [Validators.required]]
+                }
+            );
+        this.disableRoleManagementForm=formBuilder.group(
+                {
+                    'roleRef': ['', [Validators.required]]
+                }
+            );
+        this.disableArray=['Organization Admin','Regular Accounting User','Regular User','Business Place Admin','Sales Admin','Procurement Admin'];
+        this.rolesListLength=0;
+        this.invalidRoleName=false;
+    }
+    validateRoleName(roleList){
+        this.invalidRoleName=false;
+        if(!this.disableRoleRef){
+        let rlName:any=this.addRoleManagementForm.value['roleName'];
+        rlName=rlName.trim();
+        roleList.forEach(currentItem=>{
+            if(currentItem.roleName.toLowerCase()===rlName.toLowerCase()){
+                this.addRoleManagementForm.controls['roleName'].setErrors( { 'incorrect': false } );
+                this.invalidRoleName=true;
+                return false;
+            }
+        });
+       }else{
+           let rlName:any=this.updateRoleManagementForm.value['roleName'];
+       rlName=rlName.trim();
+       roleList.forEach(currentItem=>{
+           if(currentItem.roleName.toLowerCase()===rlName.toLowerCase()){
+               this.updateRoleManagementForm.controls['roleName'].setErrors( { 'incorrect': false } );
+               this.invalidRoleName=true;
+               return false;
+         }
+       }); 
+       }
+    }
+    onSubmit() {
+        if (this.addRoleManagementForm.valid) {
+          
+            this.addRoleManagementForm.value['orgId']=this.orgId;
+            let url:any = this.environment.getRequiredApi('om_get_org_roles') + "?";
+           
+        }
+
+    }
+    updateRoleRename(){
+        if (this.updateRoleManagementForm.valid) {
+          
+            this.updateRoleManagementForm.value['orgId']=this.orgId;
+            this.updateRoleManagementForm.value['roleRef']="";
+            let url:any = this.environment.getRequiredApi('om_get_org_roles_id')+ "?";
+            url = url.replace('{roleId}',this.renameRoleId);
+            
+        }
+        
+    }
+    disableRoleId(){
+        if (this.disableRoleManagementForm.valid) {
+            
+          
+            let url:any = this.environment.getRequiredApi('om_delete_role')+ "?orgId="+this.orgId+"&";
+            url = url.replace('{roleId}',this.renameRoleId);
+            url = url.replace('{defaultRoleId}',this.disableRoleManagementForm.value['roleRef']);
+            this.commonService.getData(url,"DELETE","",this.accessObjId).subscribe((data) =>{
+                
+                
+            }); 
+        }
+    }
+    ngOnInit() {
+        this.roleList={};
+        if (localStorage.getItem("token") != null) {
+            let orgRolesUrl=this.environment.getRequiredApi('global_dropdown_list')+"?";
+            let requiredDropdownUrl:any=orgRolesUrl.replace("{listObj}","orgRoles");
+            /*this.commonService.getData(requiredDropdownUrl,"GET","",this.accessObjId).subscribe((response) =>{
+                this.orgRoleslst= response.objs 
+            });*/
+            
+            this.rolesListLength=0;
+            
+            if (localStorage.getItem('token') != null) {
+                this.getRoles();
+            } else {
+                const path: string = '/login';
+                this.router.navigate([path]);
+
+            }
+            
+        }
+
+        else {
+            const path: string = '/login';
+            this.router.navigate([path]);
+        }
+
+    }
+getRoles(){
+     if (this.data.roles != 'undefined') {
+                                this.roleList = this.data;
+                                this.rolesListLength=Object.keys(this.roleList).length;
+                            }
+                            this.flag = true;
+                            if (this.roleList.roles != null) {
+                                this.roleList.roles.forEach(element => {
+                                    if(this.disableArray.indexOf(element.roleName)!=-1){
+                                        element.disableFlag=true;
+                                    }else{
+                                        element.disableFlag=false;
+                                    }
+                                    this.rolesDeatils = element;
+                                    element[element.roleName]={};
+                                   this.rolesDeatils.accessObjs.forEach(currentItem=>{
+                                       element[element.roleName][currentItem.parentObjName]=currentItem.permissionLevel;
+                                       currentItem.childObjs.forEach(currentIndex =>{
+                                          element[element.roleName][currentIndex.objName]=currentIndex.permissionLevel;
+                                       });
+                                   }); 
+                                });
+                            }
+                   /* this.requiredUrl = this.environment.getRequiredApi('om_get_org_roles')+ "?orgId=" + this.orgId + "&";
+                    this.commonService.getData(this.requiredUrl, 'GET', '', this.accessObjId)
+                        .subscribe((data) => {
+                            if (data.roles != 'undefined') {
+                                this.roleList = data;
+                                this.rolesListLength=Object.keys(this.roleList).length;
+                            }
+                            this.flag = true;
+                            if (this.roleList.roles != null) {
+                                this.roleList.roles.forEach(element => {
+                                    if(this.disableArray.indexOf(element.roleName)!=-1){
+                                        element.disableFlag=true;
+                                    }else{
+                                        element.disableFlag=false;
+                                    }
+                                    this.rolesDeatils = element;
+                                    element[element.roleName]={};
+                                   this.rolesDeatils.accessObjs.forEach(currentItem=>{
+                                       element[element.roleName][currentItem.parentObjName]=currentItem.permissionLevel;
+                                       currentItem.childObjs.forEach(currentIndex =>{
+                                          element[element.roleName][currentIndex.objName]=currentIndex.permissionLevel;
+                                       });
+                                   }); 
+                                });
+                            }
+                            $( '[data-toggle="tooltip"]' ).tooltip();
+                        }); */ 
+}
+openSlideBlock(arrowId){
+        var arrowBlock=$("#"+arrowId);
+        if (arrowBlock.is(":visible")) {
+            var cls = arrowBlock.attr('class');
+            if (cls == 'fa fa-angle-up exapnd fa-2x') {
+                arrowBlock.attr('class', 'fa fa-angle-down exapnd fa-2x');
+            } else {
+                arrowBlock.attr('class', 'fa fa-angle-up exapnd fa-2x');
+            }
+        var attrValue = arrowBlock.find('input').val();
+        $('.expanddiv').each(function() {
+            var expandValue = $(this).attr('id');
+            if (attrValue == expandValue) {
+                $(this).slideToggle('slow');
+            }
+        });
+       }
+        
+}
+    closeroleDetailsPopup(myModalLabel,popUpId) {
+         $("#"+popUpId).modal('hide');
+        
+    }
+    openActionModal(modalId,icon,e,num){    
+    }
+    closeroleDetailsPopupTop(modalId,popUpId) {
+         $("#"+popUpId).modal('hide');
+    }
+ perFormAction(role,action){
+     this.renameRoleName=role.roleName;
+     this.renameRoleId=role.roleId;
+     $("#example4").modal('show');
+     if(action=='rename'){
+         this.disableRoleRef=true;
+     }else{
+       this.disableRoleRef=false;
+     }
+ }
+ openAddRole(modalId){
+     this.renameRoleName="";
+     this.renameRoleId="";
+     this.disableRoleRef=false;
+     $("#"+modalId).modal('show');
+     $('#'+modalId).find('select').find('option[value=""]').prop('selected', true);  
+ }
+ updateRolePermission(roles,roleId,event,roleName){
+     
+   
+     if(event.target.checked){
+        this.actionPayLoad={};
+        this.actionPayLoad['orgId']=this.orgId;
+        this.actionPayLoad['roles']=[];
+        let rolesObject:any={};
+        rolesObject['roleId']=roleId;
+        rolesObject['roleName']=roleName;
+        rolesObject['accessObjs']=[];
+        let docObject:any={};
+        docObject['parentObjId']=roles.parentObjId;
+        docObject['parentObjName']=roles.parentObjName;
+        docObject['permissionLevel']=1;
+        docObject['childObjs']=[];
+        roles.childObjs.forEach(currentItem=>{
+            let childObjects:any={};
+            childObjects['objId']=currentItem.objId;
+            childObjects['objName']=currentItem.objName;
+            childObjects['permissionLevel']=1;
+            docObject['childObjs'].push(childObjects);
+        });
+         rolesObject['accessObjs'].push(docObject);
+         this.actionPayLoad['roles'].push(rolesObject);
+         this.actionPerform(this.actionPayLoad);
+     }else{
+        this.actionPayLoad={};
+        this.actionPayLoad['orgId']=this.orgId;
+        this.actionPayLoad['roles']=[];
+        let rolesObject:any={};
+        rolesObject['roleId']=roleId;
+        rolesObject['roleName']=roleName;
+        rolesObject['accessObjs']=[];
+        let docObject:any={};
+        docObject['parentObjId']=roles.parentObjId;
+        docObject['parentObjName']=roles.parentObjName;
+        docObject['permissionLevel']=0;
+        docObject['childObjs']=[];
+        roles.childObjs.forEach(currentItem=>{
+            let childObjects:any={};
+            childObjects['objId']=currentItem.objId;
+            childObjects['objName']=currentItem.objName;
+            childObjects['permissionLevel']=0;
+            docObject['childObjs'].push(childObjects);
+        });
+         rolesObject['accessObjs'].push(docObject);
+         this.actionPayLoad['roles'].push(rolesObject);
+         this.actionPerform(this.actionPayLoad);
+     }
+     }
+ updateChildRolePermission(roles,roleId,event,roleName,childObjectlist){
+     
+   
+     if(event.target.checked){
+         this.actionPayLoad={};
+         this.actionPayLoad['orgId']=this.orgId;
+         this.actionPayLoad['roles']=[];
+         let rolesObject:any={};
+         rolesObject['roleId']=roleId;
+         rolesObject['roleName']=roleName;
+         rolesObject['accessObjs']=[];
+         let docObject:any={};
+         docObject['parentObjId']=roles.parentObjId;
+         docObject['parentObjName']=roles.parentObjName;
+         docObject['permissionLevel']=1;
+         docObject['childObjs']=[];
+             let childObjects:any={};
+             childObjects['objId']=childObjectlist.objId;
+             childObjects['objName']=childObjectlist.objName;
+             childObjects['permissionLevel']=1;
+             docObject['childObjs'].push(childObjects);
+          rolesObject['accessObjs'].push(docObject);
+          this.actionPayLoad['roles'].push(rolesObject);
+          this.actionPerform(this.actionPayLoad);
+     }else{
+         this.actionPayLoad={};
+         this.actionPayLoad['orgId']=this.orgId;
+         this.actionPayLoad['roles']=[];
+         let rolesObject:any={};
+         rolesObject['roleId']=roleId;
+         rolesObject['roleName']=roleName;
+         rolesObject['accessObjs']=[];
+         let docObject:any={};
+         docObject['parentObjId']=roles.parentObjId;
+         docObject['parentObjName']=roles.parentObjName;
+         docObject['permissionLevel']=1;
+         docObject['childObjs']=[];
+             let childObjects:any={};
+             childObjects['objId']=childObjectlist.objId;
+             childObjects['objName']=childObjectlist.objName;
+             childObjects['permissionLevel']=0;
+             docObject['childObjs'].push(childObjects);
+          rolesObject['accessObjs'].push(docObject);
+          this.actionPayLoad['roles'].push(rolesObject);
+          this.actionPerform(this.actionPayLoad);
+         
+     }
+ }
+ actionPerform(payloadObject){
+     let url=this.environment.getRequiredApi('om_get_org_roles')+"?";
+     this.commonService.getData(url, 'PUT', payloadObject, this.accessObjId)
+                        .subscribe((data) => {
+                            $( "#loadingIcon" ).hide();
+                            $( "#black-overlay" ).hide();
+                            
+                        });
+ }
+
+}

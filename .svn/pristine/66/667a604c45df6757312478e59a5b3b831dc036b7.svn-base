@@ -1,0 +1,158 @@
+import { Injectable } from '@angular/core';
+
+@Injectable()
+export class MessagePropertiesService {
+
+  constructor() { }
+    
+     //login messages 
+  login = {
+          "login_valid_email":"Please enter a valid Email ID",
+          "EMAIL_ERR_MSG":"Please enter your Email ID",
+          "PWD_ERR_MSG":"Please enter your Password",
+          "login_cred":"Please enter valid credentials",
+          "session_invalid":"Your session has become invalid. Please login again.",
+          "reg_first_name":"Please enter first name",
+          "reg_last_name":"Please enter last name",
+          "otp":"OTP will be send to your mobile number",
+          "enter_ph_num":"Please enter mobile number",
+          "invalid_ph_num":"Please enter a valid mobile number",
+          "cnf_pwd":"Please enter confirm password",
+          "pwd_match":"Password and Confirm Password do not match",
+          "err_login_pwd":"Please verify your password and try again",
+          "reg_invalid_token":"You were already registered using this link. Please login..",
+          "in_memory_token":"Already registered using this link",
+          "pwd_policy":"* Password must contain at least one upper case letter ([A-Z]),one lower case letter([a-z]),one digit([0-9]) and one special character([#?!@$%^&*-])",
+          "pwd_min_length":"* Password must be min of  6 characters",
+          "pwd_max_length":"* Password must be max of  15 characters",
+          "user_locked_msg":"User account is locked.Please try after sometime"
+          
+  };
+    forgot_pwd={
+  "forgot_pwd_success":"A link to reset your password is sent to your registered Email ID",
+  "forgot_pwd_invalid":"If you are registered with us using this email address, you will receive an email to reset your password",
+  "error_forgot_pwd_success":"Your email id is not registered with us"
+  };
+    
+    sales_order_details_msg={
+        "cust_req":"Please enter Customer Name",
+        "order_type_req":"Please select Order Type" ,   
+        "sold_to_party_req" :"Please enter Sold To Party"
+    }
+    billing_det_msg = {
+    "bill_doc_no":"Please enter Document Number",
+    "billing_date":"Please enter Billing Date"    
+    }
+    outbound_delivery_msg = {
+        "out_date_req_msg" : "Please enter Date",
+        "out_order_req_msg": "Please enter order Type",
+        "frm_item_req_msg" : "Please enter From Item ",
+        "to_item_req_msg"  : "Please enter To Item",
+        
+        "out_shippingPoint_req":"Please enter shipping point",
+        "out_order_num_req_msg": "Please enter order Number",
+        "out_doc_date_req_msg" : "Please enter Document Date",
+        "out_gi_date":"Please enter Gi Date ",
+        "out_no_package" : "Please enter Package Count",
+        "out_totWeight"  : "Please enter Total Weight ",
+    }
+    
+    incoming_payments_msg ={
+        "custAccount_req" : "Please enter Customer Account",
+        "docType_req"     : "Please enter Doc Type",
+        "cmpyCode_req"    : "Please enter Company Code",
+        "payment_req"     : "Please enter Payment",
+        "refNo_req"       : "Please enter Reference Number",
+        "bplace_req"      : "Please enter Business Place",
+        "bsnArea_req"     : "Please enter Business Area",
+        "amount_req"      : "Please enter Amount",
+        "glAccount_req"   : "Please enter GL Account",
+        "profitCenter_req"    : "Please enter Profit Center"
+    }
+    outgoing_payments_msg ={
+            "vendAccount_req" : "Please enter Vendor Account",
+            "docType_req"     : "Please enter Doc Type",
+            "paymentDate_req" : "Please enter Payment Date",
+            "docDate_req"     : "Please enter Doc Date",
+            "cmpnCode_req"    : "Please enter Company Code",
+            "payment_req"     : "Please enter Payment",
+            "reference_req"       : "Please enter Reference Number",
+            "currency_req"      : "Please enter currency",
+            "remarks_req"     : "Please enter remarks",
+            "amount_req"      : "Please enter Amount",
+            "glAccount_req"   : "Please enter GL Account",
+            "profitCenter_req"    : "Please enter Profit Center"
+        }
+    customer_details_msg = {
+        "name_req" : "Please enter Name",
+        "mobile_req" : "Please enter Mobile Number",
+        "email_req" : "Please enter Email",
+        "druglicence_req" : "Please enter Drug Licence",
+        "creditLimit_req" : "Please enter Credit Limit",
+        "doorNumber_req" : "Please enter Door Number",
+        "area_req"       : "Please enter Area",
+        "street_req"     : "Please enter Street",
+        "city_req"       : "Please enter City",   
+        "mandal_req"     : "Please enter Mandal",
+        "district_req"   : "Please enter District",
+        "state_req"      :  "Please enter State",
+        "pincode_req"      :  "Please enter Pincode",
+        "registrationType_req"      :  "Please enter Registration Type",
+        "gstNumber_req"   :  "Please enter GST Number",
+        "pan_req"         : "Please enter PAN Number",
+        "bankName_req"    : "Please enter Bank Name",
+        "ifcCode_req"    : "Please enter IFC Code",
+        "accountNumber_req"  : "Please enter Account Number",
+    }
+    purchase_order_details_msg ={
+        "purchase_type_req" :"Please select Purchase Type",
+        "vendor_req"    :   "Please enter Vendor Name",  
+        "docType_req"    :   "Please enter Doc Type",  
+        "vendor_code_req"    :   "Please enter Vendor Code",  
+        "docDate_req"    :   "Please enter Doc Date",  
+    }
+    goods_receipt_details_msg ={
+            "delivery_num" :"Please enter delivery number",
+            "doc_date"    :   "Please select Doc Date",  
+            "pos_date"    :   "Please select Pos Date",  
+            "delivery_note":   "Please enter delivery note",  
+            "header_text"    :   "Please enter header text",  
+        }
+    invoice_details_msgs ={
+            "inv_ref" :"Please enter Invoice reference",
+            "inv_date"    :   "Please select Invoice Date",  
+            "pos_date"    :   "Please select Pos Date",  
+            "inv_Amt":   "Please enter invoice amount",  
+            "bsline_Date"    :   "Please enter baseline date",  
+        }
+    resetPwd={
+  "reset_success":"Your password has been reset successfully",
+    "invalid_token": "Invalid Token",
+    
+     "error_passwords_match": "New and Old Password  does not match ",
+    "error_no_newpassword": "Please enter a Password Passwords did not match",
+    "password_matches": "Congratulations! You have successfully changed your password",
+    "error_no_confirm_new_password": "Please enter a Password Passwords did not match",
+    "error_change_password": "Please enter new password",
+    "error_confirm_password": "Please enter confirm password",
+    
+  }
+    manageRoles={
+          //Role management
+            //add role messages
+
+            "error_role_submit": "Please enter a Role Name",
+            "error_role__ref_submit": "Please select a Role Reference",
+            "role_submit_success": "New Role has been created successfully",
+            "role_clicks_cancel": "Do you really want to cancel?",
+
+            //Edit Role messages
+
+            "role_rename_success": "You have successfully changed the Role Name",
+            "role_delete_success": "Role <Role-Name> has been deleted",
+            "role_permissions_edited": "Access permissions have been altered",
+            "error_invalid_role":"You entered role name is already registered please try different one",
+    }
+    
+
+}

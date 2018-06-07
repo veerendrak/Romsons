@@ -1,0 +1,26 @@
+<section class="card" id="mainContent" style="padding:0px;margin:10px; margin-bottom:0px;">
+<div class="card card-block">
+<div class="bp-conetnt-block">
+	<div class="col-md-12 row">
+		<div class="col-md-4 widget-bps">
+				<div class="pull-left">
+					<h2>Direct</h2>
+					<div class="widget-contentText">Sales Process</div>
+				</div>
+				<div class="pull-right">
+					<img src="assets/modules/dummy-assets/common/img/dashboard-icons/choose-dealership-icon-1.png">
+				</div>
+		</div>
+		<div class="col-md-4 widget-bps">
+				<div class="pull-left">
+					<h2>Hospital</h2>
+					<div class="widget-contentText">Sales Process</div>
+				</div>
+				<div class="pull-right">
+					<img src="assets/modules/dummy-assets/common/img/dashboard-icons/choose-dealership-icon-2.png">
+				</div>
+		</div>
+	</div>
+</div>
+</div>
+</section>

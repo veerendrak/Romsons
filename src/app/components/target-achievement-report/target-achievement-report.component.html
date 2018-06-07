@@ -1,0 +1,192 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Target
+					Vs Achievement Report</strong>
+			</span>
+
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv" id="filter-block">
+							<form [formGroup]="mctadetailsForm" autocomplete="off">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+									<div class="col-md-2 text-align-sales">
+										<label><b>Types</b><sup class="asterick">*</sup></label> <select
+											class="form-control" id="txt_type" #layoutType
+											style="padding: 5px !important;">
+											<option value="sales_group">Sales Group Wise</option>
+											<option value="cummulative_code">Cummulative Summary</option>
+										</select>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<label><b>Target Types</b><sup class="asterick">*</sup></label>
+										<select class="form-control" id="target_type"
+											#layoutTargetType style="padding: 5px !important;">
+											<option value="BS">Bulk Sales</option>
+											<option value="PW">Product Wise</option>
+											<option value="MW">Material Wise</option>
+											<option value="VW">Value Wise</option>
+										</select>
+									</div>
+									<div class="col-md-2 text-align-sales ">
+										<label><b>Sales Group</b><sup class="asterick">*</sup></label>
+										<select class="form-control" id="sales_group_type"
+											style="padding: 5px !important;">
+											<option value="">Please Select Sales Group</option>
+											<!-- 	<option value="all">All Sales Groups</option> -->
+											<ng-container *ngFor="let types of salespersonList">
+											<ng-container
+												*ngIf="types.isGroupAdmin!=true || types.sptype=='FS'">
+											<option value={{types.fscode}}>{{types.fsname}}</option>
+											</ng-container> </ng-container>
+
+										</select>
+									</div>
+
+									<div class="col-md-2 text-align-sales">
+										<label><b>From Period</b><sup class="asterick">*</sup></label>
+										<input type="text" style="padding: 5px !important;"
+											placeholder="From Period" id="frmDate"
+											class="form-control datepicker-init"
+											formControlName="frmDate" validateOnBlur
+											(blur)="changeTodatePicker()"
+											[validateFormControl]="mctadetailsForm.controls['frmDate']" />
+										<span
+											*ngIf="mctadetailsForm.controls['frmDate'].touched && mctadetailsForm.controls['frmDate'].invalid && mctadetailsForm.controls['frmDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="mctadetailsForm.controls['frmDate'].errors.required">
+												Please select From Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales toDatepic">
+										<label><b>To Period</b><sup class="asterick">*</sup></label> <input
+											type="text" style="padding: 5px !important;"
+											placeholder="To Period" class="form-control datepicker-init2"
+											id="toDate" formControlName="toDate" validateOnBlur
+											(blur)="removeStyles()"
+											[validateFormControl]="mctadetailsForm.controls['toDate']" />
+										<span
+											*ngIf="mctadetailsForm.controls['toDate'].touched && mctadetailsForm.controls['toDate'].invalid && mctadetailsForm.controls['toDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="mctadetailsForm.controls['toDate'].errors.required">
+												Please select To Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<button type="submit" class="login-button-export"
+											[disabled]="mctadetailsForm.invalid"
+											(click)="getmctaDetails();"
+											style="position: relative; top: 26px;">
+											<i class="fa submit-icon"
+												style="margin-right: 4px; padding-right: 4px;"> <span
+												class="icon-text" style="right: -4px;">Submit</span>
+											</i>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class="col-md-12 text-align-sales mb-1 mt-3">
+							<div id="head-hsn-table">
+								<div *ngIf="mctadetailsList.length>0">
+									<table
+										class="table table table-hover nowrap editable-table totalTable totalSmry"
+										style="display: inline-table; margin-bottom: 0px;">
+										<tbody>
+											<tr>
+												<td style="background: #e4e9f0;">Totals:</td>
+
+												<td>
+													<div class="pull-left">Sales Qty :</div>
+													<div class="pull-right">{{salesqty | customround}}</div>
+												</td>
+												<td>
+													<div class="pull-left">Sales Value :</div>
+													<div class="pull-right">&#8377; {{salesvalue |
+														PriceInd}}</div>
+												</td>
+
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<!-- new changes -->
+						<div class="col-lg-12" id="sales_group_item_table">
+							<div class="col-md-12 mt-1 mb-5 mt-3">
+								<div class="stock-table " id="">
+									<table
+										class="sales_group_item_table table  table-hover nowrap editable-table checkBoxTable table-responsive table-divs"
+										width="100%" style="overflow-x: auto; overflow-y: hidden;">
+
+										<thead>
+											<tr>
+												<th style="min-width: 130px !important;">Sales Group</th>
+												<th style="min-width: 130px !important;">Material Group</th>
+												<th style="min-width: 160px !important;">Material
+													Description</th>
+												<th style="min-width: 130px !important;">Plan Qty</th>
+												<th style="min-width: 130px !important;">Plan Value</th>
+												<th style="min-width: 130px !important;">Qty Percent</th>
+												<th style="min-width: 130px !important;">Sale Qty</th>
+												<th style="min-width: 130px !important;">Sale Value</th>
+												<th style="min-width: 130px !important;">Value Percent</th>
+											</tr>
+										</thead>
+										<tbody>
+											<ng-container
+												*ngFor="let sList of targetdetailslength; let i=index;">
+											<tr>
+												<td>{{sList.sales_group}}</td>
+												<td>{{sList.material_group}}</td>
+												<td>{{sList.material_descrp}}</td>
+												<td>{{sList.plan_qty}}</td>
+												<td>{{sList.plan_value | PriceInd}}</td>
+												<td>{{sList.qty_percent}}</td>
+												<td>{{sList.sale_qty}}</td>
+												<td>{{sList.sale_value| PriceInd}}</td>
+												<td>{{sList.value_percent}}</td>
+											</tr>
+											</ng-container>
+										</tbody>
+
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3" style="width: 94%;">
+		<!-- <div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div> -->
+
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export" title="Export Excel"
+					style="padding-left: 8px;" (click)="exportExcel()">
+					<i class="fa excel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+</section>

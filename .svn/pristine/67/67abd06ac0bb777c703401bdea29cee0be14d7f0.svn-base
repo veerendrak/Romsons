@@ -1,0 +1,299 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Customer Dealerwise Report</strong>
+		</span>
+		<div class="pull-right">
+		<!-- <div class="row pull-left icon-filter-align">
+					<span class="" (click)="showFilters();" title="Advance Filters">
+					 <i class="fa fa-sliders"> </i>
+					</span>
+			  </div> -->
+		</div>
+	</div>
+	<div class="card-block db-block" style="padding:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+				<!-- filters start -->
+				<div class="outbound-content col-md-12 mb-5 mt-2" id="filter-block">
+					<form [formGroup]="filterDelarwiseReportForm">
+					 <div class="delivery-form-block col-md-12 row">
+					 <div class="col-md-2 text-align-sales" >
+						<label>From Billing Date<sup class="asterick">*</sup></label>
+						<input type="text" class="form-control datepicker-init-sale" id="bill-date"
+						(blur)="changeValidate('bill-date')" placeholder="Billing Date"
+						formControlName="billDate"   validateOnBlur [validateFormControl]="filterDelarwiseReportForm.controls['billDate']">
+						
+						<span
+							*ngIf="filterDelarwiseReportForm.controls['billDate'].touched && filterDelarwiseReportForm.controls['billDate'].invalid && filterDelarwiseReportForm.controls['billDate'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterDelarwiseReportForm.controls['billDate'].errors.required">
+								{{delarWiseReportMessages.billing_date}}</small>
+						</span>
+						
+						</div>
+				     <div class="col-md-2 text-align-sales" >
+						<label>To Billing Date</label>
+						<input type="text" class="form-control datepicker-init-sale" id="bill-to-date"
+						(blur)="changeValidate('bill-to-date')" placeholder="Billing Date"
+						formControlName="billToDate"   validateOnBlur [validateFormControl]="filterDelarwiseReportForm.controls['billToDate']">
+						
+						<span
+							*ngIf="filterDelarwiseReportForm.controls['billToDate'].touched && filterDelarwiseReportForm.controls['billToDate'].invalid && filterDelarwiseReportForm.controls['billToDate'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterDelarwiseReportForm.controls['billToDate'].errors.required">
+								{{delarWiseReportMessages.billing_date}}</small>
+						</span>
+						
+						</div>
+					 
+					
+					 <div class="col-md-3 text-align-sales">
+						<label>From Customer Name</label>
+						<input type="text" autocomplete="off" list="customerNamesList" class="form-control ajax-list" (keyup)="extractData('cust-name','spinner-search','filetrajaxListBlock',$event)" id="cust-name"
+									formControlName="custName" placeholder="customer name"  validateOnBlur [validateFormControl]="filterDelarwiseReportForm.controls['custName']"
+											 placeholder="Customer Name" />
+						<i class="fa fa-spinner fa-spin spinner-icon" id="spinner-search" style="display:none"></i>
+						<input type="hidden" name="customerId" id="filterCustomerId" value=""/>
+						<div class="ajax-searchlist" style="display:none;width:100%;" id="filetrajaxListBlock">
+										<ul id="customerNamesBlock" class="custmore-list ajax-list">
+											<ng-container *ngIf="customerNames.length>0">
+											<li *ngFor="let cstList of customerNames; let i = index;" id="list-{{i}}"
+											value="{{cstList.cust_id}}" class="ajax-list"  (click)="selectedItem(cstList,'filetrajaxListBlock','cust-name','filterCustomerId')"
+											><span class="pull-left" style=";font-weight:600;">{{cstList.cust_name}}</span>
+											<span class="pull-right">{{cstList.cust_id}}</span>
+											</li>
+											</ng-container>
+											<ng-container *ngIf="customerNames.length==0">
+												<li>Customers are not found</li>
+											</ng-container>
+										</ul>
+									</div>
+						<span
+							*ngIf="filterDelarwiseReportForm.controls['custName'].touched && filterDelarwiseReportForm.controls['custName'].invalid && filterDelarwiseReportForm.controls['custName'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterDelarwiseReportForm.controls['custName'].errors.required">
+								{{delarWiseReportMessages.customer_name}}</small>
+						</span>
+						
+						</div>
+						<div class="col-md-3 text-align-sales">
+						<label>To Customer Name</label>
+						<input type="text" autocomplete="off" list="customerNamesList" class="form-control ajax-list" (keyup)="extractData('cust-to-name','spinner-search-1','filetrajaxListBlock-1',$event)" id="cust-to-name"
+									formControlName="custToName" placeholder="customer name"  validateOnBlur [validateFormControl]="filterDelarwiseReportForm.controls['custName']"
+											 placeholder="Customer Name" />
+						<i class="fa fa-spinner fa-spin spinner-icon" id="spinner-search-1" style="display:none"></i>
+						<input type="hidden" name="customerId" id="filterCustomerId-1" value=""/>
+						<div class="ajax-searchlist" style="display:none;width:100%;" id="filetrajaxListBlock-1">
+										<ul id="customerNamesBlock" class="custmore-list ajax-list">
+											<ng-container *ngIf="customerNames.length>0">
+											<li *ngFor="let cstList of customerNames; let i = index;" id="list-{{i}}"
+											value="{{cstList.cust_id}}" class="ajax-list"  (click)="selectedItem(cstList,'filetrajaxListBlock-1','cust-to-name','filterCustomerId-1')"
+											><span class="pull-left" style=";font-weight:600;">{{cstList.cust_name}}</span>
+											<span class="pull-right">{{cstList.cust_id}}</span>
+											</li>
+											</ng-container>
+											<ng-container *ngIf="customerNames.length==0">
+												<li>Customers are not found</li>
+											</ng-container>
+										</ul>
+									</div>
+						<span
+							*ngIf="filterDelarwiseReportForm.controls['custToName'].touched && filterDelarwiseReportForm.controls['custToName'].invalid && filterDelarwiseReportForm.controls['custToName'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterDelarwiseReportForm.controls['custToName'].errors.required">
+								{{delarWiseReportMessages.customer_name}}</small>
+						</span>
+						
+						</div>
+					<div class="col-md-12 mb-3"></div>
+					<div class="col-md-2 text-align-sales" >
+						
+						<label>From Shipping Point</label>
+						<input type="text" class="form-control" id="plant" placeholder="shipping point"
+						formControlName="plant"  validateOnBlur [validateFormControl]="filterDelarwiseReportForm.controls['plant']">
+						
+						<span
+							*ngIf="filterDelarwiseReportForm.controls['plant'].touched && filterDelarwiseReportForm.controls['plant'].invalid && filterDelarwiseReportForm.controls['plant'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterDelarwiseReportForm.controls['plant'].errors.required">
+								{{delarWiseReportMessages.plant}}</small>
+						</span>
+					</div>
+					<div class="col-md-2 text-align-sales" >
+						
+						<label>To Shipping Point</label>
+						<input type="text" class="form-control" id="plantTo" placeholder="shipping point"
+						formControlName="plantTo"  validateOnBlur [validateFormControl]="filterDelarwiseReportForm.controls['plantTo']">
+						
+						<span
+							*ngIf="filterDelarwiseReportForm.controls['plantTo'].touched && filterDelarwiseReportForm.controls['plantTo'].invalid && filterDelarwiseReportForm.controls['plantTo'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterDelarwiseReportForm.controls['plantTo'].errors.required">
+								{{delarWiseReportMessages.plant}}</small>
+						</span>
+						</div>
+					
+					 <div class="col-md-2 text-align-sales" >
+						<label>From Distribution Channel</label>
+						<input type="text" class="form-control" id="dischanel" placeholder="Distribution Channel"
+						formControlName="disChanel"  validateOnBlur [validateFormControl]="filterDelarwiseReportForm.controls['disChanel']">
+						<span
+							*ngIf="filterDelarwiseReportForm.controls['disChanel'].touched && filterDelarwiseReportForm.controls['disChanel'].invalid && filterDelarwiseReportForm.controls['disChanel'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterDelarwiseReportForm.controls['disChanel'].errors.required">
+								{{delarWiseReportMessages.dis_chanel}}</small>
+						</span>
+						</div>
+					 <div class="col-md-2 text-align-sales" >
+						<label>To Distribution Channel</label>
+						<input type="text" class="form-control" id="todischanel" placeholder="Distribution Channel"
+						formControlName="todisChanel"  validateOnBlur [validateFormControl]="filterDelarwiseReportForm.controls['todisChanel']">
+						<span
+							*ngIf="filterDelarwiseReportForm.controls['todisChanel'].touched && filterDelarwiseReportForm.controls['todisChanel'].invalid && filterDelarwiseReportForm.controls['todisChanel'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterDelarwiseReportForm.controls['todisChanel'].errors.required">
+								{{delarWiseReportMessages.dis_chanel}}</small>
+						</span>
+						</div>
+					 <div class="col-md-2 text-align-sales" >
+						<label>Sales Group</label>
+						<input type="text" class="form-control" id="salesgroup" placeholder="Sales Group"
+						formControlName="salesgroup"  validateOnBlur [validateFormControl]="filterDelarwiseReportForm.controls['salesgroup']">
+						<span
+							*ngIf="filterDelarwiseReportForm.controls['salesgroup'].touched && filterDelarwiseReportForm.controls['salesgroup'].invalid && filterDelarwiseReportForm.controls['salesgroup'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterDelarwiseReportForm.controls['salesgroup'].errors.required">
+								{{delarWiseReportMessages.salesgroup}}</small>
+						</span>
+						</div>
+					  <div class="col-md-2 text-align-sales">
+ 						<button type="button" [attr.disabled]="!filterDelarwiseReportForm.valid ?  'disabled' : null" (click)="getFilterData()"  class="login-button-export" style="position:relative;top:27px;">
+							<i class="fa submit-icon" style="margin-right:4px;padding-right:4px;">
+							<div class="icon-text" style="right:-4px;">Submit</div>
+							</i>
+						</button>					  
+						</div>
+						</div>						 
+					</form>
+					</div>
+				<!-- filters end -->
+				<!-- display data start-->
+				<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table" id="dealrwise-table">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="delarwise-report-table">
+								<thead>
+									<tr>
+										<!-- <th>Sales Group</th> -->
+										<th>Sold to party</th>
+										<th style="min-width: 150px !important;">Name</th>
+										<th>Ship to party</th>
+										<th style="min-width: 220px !important;">Ship to party Name(Hospital)</th>
+										<th>City</th>
+										<th>State</th>
+										<th>MDD</th>
+										<th>PCD</th>
+										<th>KAD</th>
+									</tr>
+								</thead>
+								<tbody>
+									<ng-container *ngIf="delarshipRptList.length>0">
+										<tr *ngFor="let delarList of delarshipRptList; let i=index;">
+											<!-- <td>{{delarList.sales_group}}</td> -->
+											<td>{{delarList.sold_to_party}}</td>
+											<td>{{delarList.sold_to_name}}</td>
+											<td>{{delarList.ship_to_party}}</td>
+											<td>{{delarList.ship_to_name}}</td>
+											<td>{{delarList.city}}</td>
+											<td>{{delarList.state}}</td>
+											<td align="right">&#8377; {{delarList.mdd | PriceInd}}</td>
+											<td align="right">&#8377; {{delarList.pcd | PriceInd}}</td>
+											<td align="right">&#8377; {{delarList.kad | PriceInd}}</td>
+										</tr>
+									</ng-container>
+								</tbody>
+								</table>
+							</div>						
+						</div>
+				
+				
+				<!-- display data end-->
+				</div>
+			</div>
+		</div>
+	
+	</div>
+	</div>
+	</section>
+	
+	<!-- Display Errors modal  start -->	
+			<div class="modal fade " id="delarwiseReport-errors" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content" style="width: 100%;">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									Display Errors
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('delarwiseReport-errors')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body-block" style="padding: 6px 6px !important;max-height:250px; overflow-y:auto;">
+								<div class="card-block db-block" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+								 <div style="margin-left: 11px; margin-bottom: 3px;"> </div>
+									<div class="col-lg-12">
+										<div class="row">
+											<!-- new changes -->
+											<div class="col-md-12 mt-1">
+													<div class="stock-table table-responsive">
+													<table class="table table-hover nowrap editable-table checkBoxTable" style="width: 100%;display:inline-table;">
+													<tr>
+													    <th>SO No.</th>
+														<th>Error Code</th>
+														<th>Error Message</th>
+													</tr>
+													<ng-container *ngFor="let erList of errorLogs; let i=index">
+												<tr *ngIf="erList.type=='E'">
+													<td>{{erList.message_v2}}</td>
+													<td>{{erList.id}}</td>
+													<td>{{erList.message}}</td>
+												</tr>
+												</ng-container> 
+													</table>
+													</div>
+												</div>
+											<!-- end chnges -->
+										</div>
+									</div>
+	</div>
+								</div>
+<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+									<button type="button" class="login-button forgotOk" id="topCloseButton"
+								(click)="closeModal('delarwiseReport-errors')"
+										aria-label="Close">Ok
+									</button>
+									</div>
+									</div>
+								</div>
+								</div>
+								
+						</div>
+					</div>
+</div>		
+<!-- Display Errors modal end -->		

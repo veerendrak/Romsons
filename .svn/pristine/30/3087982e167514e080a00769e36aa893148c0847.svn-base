@@ -1,0 +1,11 @@
+<div id="close" *ngIf="routeUrlTest">
+ <!--<cat-menu-right></cat-menu-right>-->
+<cat-menu-left></cat-menu-left>
+<cat-top-bar></cat-top-bar>
+
+</div>
+<div [ngClass]="{'cat__content':isActive}"> 
+<div class="black-overlay" id="black-overlay"></div>
+<router-outlet></router-outlet> 
+</div>
+<cat-footer></cat-footer>

@@ -1,0 +1,269 @@
+<section class="card" id="mainContent">
+	<!-- coming soon block-->
+	<div class="comingsoon-watermark">coming soon</div>
+
+	<!-- coming soon block-->
+
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title pull-left"> <strong
+			class="page-title">Dashboard</strong> <span class="time-text">(Last
+				updated on 12-02-2018, 4:30 pm)</span>
+		</span> <span class="pull-right"> <i class="fa fa-refresh icon-color"></i>
+		</span>
+	</div>
+	<div class="card-block db-block"
+		style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+		<div class="row">
+			<div class="col-lg-12" style="padding-right: 0px;">
+				<div class="row col-md-12" style="padding-right: 0px;">
+					<div class="col-md-3  main-dash">
+						<div class="purchase-content">
+							<div class="purchase-header">
+								<div class="pull-left">
+									<h1 class="price-order">120</h1>
+									<h5 class="db-text">Pending Sales Order</h5>
+								</div>
+								<div class="pull-right dboard-icon">
+									<img
+										src="assets/modules/dummy-assets/common/img/dashboard-icons/excel-icon.png" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3  main-dash sales-block">
+						<div class="purchase-content">
+							<div class="sales-header">
+								<div class="pull-left">
+									<h1 class="price-order">125</h1>
+									<h5 class="db-text">Pending Delivery</h5>
+								</div>
+								<div class="pull-right dboard-icon">
+									<img
+										src="assets/modules/dummy-assets/common/img/dashboard-icons/sales-order-icon.png" />
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-3  main-dash">
+						<div class="purchase-content">
+							<div class="pending-header">
+								<div class="pull-left">
+									<h1 class="price-order">200</h1>
+									<h5 class="db-text">Pending Invoice</h5>
+								</div>
+								<div class="pull-right dboard-icon">
+									<img
+										src="assets/modules/dummy-assets/common/img/dashboard-icons/pending-invoice-db.png" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3  main-dash" style="padding-right: 0px;">
+						<div class="purchase-content">
+							<div class="notifiction-header">
+								<div class="pull-left">
+									<h1 class="price-order">100</h1>
+									<h5 class="db-text">Pending GR</h5>
+								</div>
+								<div class="pull-right dboard-icon">
+									<img
+										src="assets/modules/dummy-assets/common/img/dashboard-icons/pending-gr-db.png" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-12 row"
+					style="padding-right: 0px; margin-right: 0px;">
+					<div class="col-md-6" style="padding-left: 0px;">
+						<div class="graph-block">
+							<h6>Sales</h6>
+							<label style="margin-bottom: 3px; font-size: 18px !important;"><i
+								class="fa fa-rupee rupee-icon" style="margin-right: 10px"></i>4,35,00,400</label>
+							<small style="display: block; margin-bottom: 5px;">This
+								Financial Year Month</small>
+							<canvas baseChart class="canvas-block" [data]="lineChartData"
+								[labels]="lineChartLabels" [options]="lineChartOptions"
+								[colors]="lineChartColors" [chartType]="lineChartType"
+								[legend]="lineChartLegend" width="250" height="100"></canvas>
+						</div>
+					</div>
+					<div class="col-md-6"
+						style="padding-left: 0px; padding-right: 0px;">
+						<div class="graph-block">
+							<h6>Purchase</h6>
+							<label style="margin-bottom: 3px; font-size: 18px !important;"><i
+								class="fa fa-rupee rupee-icon" style="margin-right: 10px"></i>5,05,00,500</label>
+							<small style="display: block; margin-bottom: 5px;">This
+								Financial Year Month</small>
+							<canvas baseChart class="canvas-block" [data]="lineChartData"
+								[labels]="lineChartLabels" [options]="lineChartOptions"
+								[colors]="lineChartColors1" [chartType]="lineChartType"
+								[legend]="lineChartLegend" width="250" height="98"></canvas>
+						</div>
+					</div>
+				</div>
+				<div class="clear-fix"></div>
+				<div class="col-md-12 row mt-3"
+					style="padding-right: 0px; margin-right: 0px;">
+					<div class="col-md-6" style="padding-left: 0px;">
+						<div class="graph-block">
+							<h6>Sales Invoices</h6>
+							<label
+								style="margin-bottom: 3px; border-bottom: 2px solid #ccc; width: 98%;">
+								<i class="fa fa-rupee rupee-icon"
+								style="margin-right: 4px; font-size: 18px;"></i> <span
+								style="font-size: 14px;">5,55,170 Unpaid / 2,00,000 Paid</span>
+							</label>
+							<div class="col-md-12 row" style="padding: 0px;">
+								<div class="col-md-6">
+									<div class="price-sale">1,69,483</div>
+									<div style="margin-bottom: 5px;">Overdue</div>
+								</div>
+								<div class="col-md-6"
+									style="text-align: right; padding-right: 0px;">
+									<div style="font-size: 18px">385,689</div>
+									<div style="margin-bottom: 5px;">Not Due Yet</div>
+								</div>
+							</div>
+							<div class="col-md-12 mb-3" style="padding-left: 0px;">
+								<div class="progress">
+									<div class="progress-bar bg-sales" role="progressbar"
+										id="actSavedLoclCnt" aria-valuenow="15" aria-valuemin="0"
+										aria-valuemax="100" style="width: 120px"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6"
+						style="padding-left: 0px; padding-right: 0px;">
+						<div class="graph-block">
+							<h6>Purchase Invoices</h6>
+							<label
+								style="margin-bottom: 3px; border-bottom: 2px solid #ccc; width: 98%;">
+								<i class="fa fa-rupee rupee-icon"
+								style="margin-right: 4px; font-size: 18px;"></i> <span
+								style="font-size: 14px;">5,55,170 Unpaid / 2,00,000 Paid</span>
+							</label>
+							<div class="col-md-12 row" style="padding: 0px;">
+								<div class="col-md-6">
+									<div class="price-purchase">1,50,000</div>
+									<div style="margin-bottom: 5px;">Overdue</div>
+								</div>
+								<div class="col-md-6"
+									style="text-align: right; padding-right: 0px;">
+									<div class="range-purchase">3,00,000</div>
+									<div style="margin-bottom: 5px;">Not Due Yet</div>
+								</div>
+							</div>
+							<div class="col-md-12 mb-3" style="padding-left: 0px;">
+								<div class="progress pg-progress">
+									<div class="progress-bar bg-purchase" role="progressbar"
+										id="actSavedLoclCnt" aria-valuenow="15" aria-valuemin="0"
+										aria-valuemax="100" style="width: 150px"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-12 row mt-3"
+					style="padding-right: 0px; margin-right: 0px;">
+					<div class="col-md-6" style="padding-left: 0px;">
+						<div class="graph-block col-md-12 row" style="margin: 0px;">
+							<div class="donut-left-block">
+								<h6>Sales</h6>
+								<label style="margin-bottom: 3px; font-size: 18px !important;">
+									<i class="fa fa-rupee rupee-icon"
+									style="margin-right: 10px; font-size: 24px;"></i>80,00,000
+								</label> <small
+									style="display: block; margin-bottom: 5px; font-size: 10px;">This
+									Financial Year Month</small>
+							</div>
+							<div class="donut-graph">
+								<div style="display: block">
+									<canvas baseChart [data]="doughnutChartData"
+										[labels]="doughnutChartLabels" [chartType]="doughnutChartType"
+										[colors]="doghnutChartColors" [legend]="lineChartLegend"></canvas>
+								</div>
+							</div>
+							<div class="donut-right-block">
+								<div class="legendTypes">
+									<div class="step-1">
+										<div class="color-box-sales pull-left"></div>
+										<div class="pull-left color-box-sales-text">
+											<div style="font-weight: 600">4,00,000</div>
+											<div style="font-size: 14px;">Open Sales Order</div>
+										</div>
+									</div>
+									<div class="step-1">
+										<div class="color-box-sales-nb pull-left"></div>
+										<div class="pull-left color-box-sales-text">
+											<div style="font-weight: 600">2,00,000</div>
+											<div style="font-size: 14px;">Not Billed</div>
+										</div>
+									</div>
+									<div class="clear-fix"></div>
+									<div class="step-1">
+										<div class="color-box-sales-b pull-left"></div>
+										<div class="pull-left color-box-sales-text">
+											<div style="font-weight: 600">2,00,000</div>
+											<div style="font-size: 14px;">Billed</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6"
+						style="padding-left: 0px; padding-right: 0px;">
+						<div class="graph-block col-md-12 row" style="margin: 0px;">
+							<div class="donut-left-block">
+								<h6>Purchase</h6>
+								<label style="margin-bottom: 3px; font-size: 18px !important;">
+									<i class="fa fa-rupee rupee-icon"
+									style="margin-right: 10px; font-size: 24px;"></i>10,00,000
+								</label> <small
+									style="display: block; margin-bottom: 5px; font-size: 10px;">This
+									Financial Year Month</small>
+							</div>
+							<div class="donut-graph">
+								<div style="display: block">
+									<canvas baseChart [data]="doughnutChartData"
+										[labels]="doughnutChartLabels" [chartType]="doughnutChartType"
+										[colors]="doghnutChartColors1" [legend]="lineChartLegend"></canvas>
+								</div>
+							</div>
+							<div class="donut-right-block">
+								<div class="legendTypes">
+									<div class="step-1">
+										<div class="color-box-pur pull-left"></div>
+										<div class="pull-left color-box-sales-text">
+											<div style="font-weight: 600">5,00,000</div>
+											<div style="font-size: 14px;">Open Purchase Order</div>
+										</div>
+									</div>
+									<div class="step-1">
+										<div class="color-box-pur-nb pull-left"></div>
+										<div class="pull-left color-box-sales-text">
+											<div style="font-weight: 600">2,00,000</div>
+											<div style="font-size: 14px;">Not Billed</div>
+										</div>
+									</div>
+									<div class="clear-fix"></div>
+									<div class="step-1">
+										<div class="color-box-pur-b pull-left"></div>
+										<div class="pull-left color-box-sales-text">
+											<div style="font-weight: 600">2,00,000</div>
+											<div style="font-size: 14px;">Billed</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,365 @@
+<div>
+	<div class="card-block db-block mb-1" style="padding-left:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+						<div class="billing-details">
+						<!-- <div class="col-md-12">
+							<label>Doc Type :</label><strong style="letter-spacing:1px;font-size:13px;"> Billing</strong>
+						</div> -->
+						<div class="col-md-12">
+							<label>Del Date :</label><strong style="letter-spacing:1px;font-size:13px;"> {{deliveryDate}}</strong>
+						</div>
+						<div class="col-md-12 row">
+							<div class="col-md-3" style="margin-left: -6px;">
+							<label>Sold To Party:</label>
+							 <div class="txt-msg-block">
+							  	<p>{{responseAddress.sold_to_name}} <br>
+							  	{{responseAddress.sold_to_house_num}}{{responseAddress.sold_to_street}}
+							  	{{responseAddress.sold_to_city}}{{responseAddress.sold_post_code1}}</p>
+							  </div>
+							</div>
+							<div class="col-md-3">
+							<label>Ship To Party:</label>
+							 <div class="txt-msg-block">
+							  	
+							  	<p>{{responseAddress.ship_to_name}} <br>
+							  	{{responseAddress.ship_to_house_num}}{{responseAddress.ship_to_street}}
+							  	{{responseAddress.ship_to_city}}{{responseAddress.ship_post_code1}}</p>
+							  	
+							  </div>
+							</div>
+								
+							</div>
+						</div>
+					</div>
+					<div class="col-md-12 mt-1">
+						<div class="row">
+							<div class="col-md-3">
+								<label>Header Text:</label> <select #headerKey style="padding:5px !important"
+									class="form-control" (change)="addTextBox(headerKey.value);"
+									id="header_Text">
+									<option value="">Please Select Header Text</option>
+									<ng-container *ngFor="let header of headerTextList">
+									<option value={{header.key}}>{{header.value}}</option>
+									</ng-container>
+								</select>
+
+
+							</div>
+
+							<ng-container *ngFor="let header of headerTextList">
+							<div class="col-md-3" id="header_{{header.key}}"
+								style="display: none">
+								<label>Enter Text</label> <textarea  type="text"
+									class="form-control create-edit-pop-txt-box"
+									(change)="onChange($event,header.key)"style="height: 60px; width: 266px;"></textarea>
+
+							</div>
+							</ng-container>
+						</div>
+
+					</div>
+					<div class="col-md-12 mt-1">
+							<div class="stock-table table-responsive" style="margin-top: 14px;">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="billing-details">
+								<thead>
+									<tr>
+										<!-- <th class="no-sort" style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></th> -->
+										<th rowspan="2" style="min-width:90px !important;">Material</th>
+										<th rowspan="2" style="min-width:130px !important;">Description</th>
+										<th rowspan="2" style="min-width:60px !important;">UOM</th>
+										<th rowspan="2" style="min-width:60px !important;">QTY</th>
+										
+										
+										
+										<th rowspan="2" style="min-width:80px !important;">Price</th>
+										<th rowspan="2" style="min-width:50px !important;">Fix.Sch.</th>
+										<th rowspan="2" style="min-width:80px !important;">Sch.Val</th>
+										
+										<th rowspan="2" style="min-width:80px !important;">Dis % Val</th>
+										<th rowspan="2" style="min-width:80px !important;">Dis Amt</th>
+										<th rowspan="2" style="min-width:100px !important;">Net Val</th>
+										
+										<th colspan="2" class="align-center">S/U GST</th>
+										<th colspan="2" class="align-center">CGST</th>
+										<th colspan="2" class="align-center">IGST</th>
+										<th rowspan="2" style="min-width:77px !important;">Total Val</th>
+										
+									</tr>
+										<tr>
+										<th style="min-width:50px !important;">Rate</th>
+										<th style="min-width:80px !important;">Value</th>
+										<th style="min-width:50px !important;">Rate</th>
+										<th style="min-width:80px !important;">Value</th>
+										<th style="min-width:50px !important;">Rate</th>
+										<th style="min-width:80px !important;">Value</th>
+										</tr>
+								</thead>
+								
+								<!-- <tfoot>
+						            <tr>
+						                <th colspan="8" style="text-align:left">Total:</th>
+						                <th align="right">{{totPrice | PriceInd}}</th>
+						                <th></th>
+						                <th  align="right">&#8377;{{totPrice | PriceInd}}</th>
+						            </tr>
+						        </tfoot> -->
+						        
+								<tbody>
+									<tr *ngFor="let listItems of genDisplayBillingDetArray">
+										<!-- <td style="text-align:center"><mat-checkbox></mat-checkbox></td> -->
+										<td>{{listItems.material}}</td>
+										<td>{{listItems.mat_desc}}</td>
+										<td>{{listItems.uom}}</td>
+										<td>{{listItems.qty | customround}}</td>
+										
+										
+										<td align="right">{{listItems.price | PriceInd}}</td>
+										<td>{{listItems.fix_sch | customround}}</td>
+										<td>{{listItems.sch_val | customround}}</td>
+										
+										<td align="right"><span *ngIf="listItems.dis_amt !='' ">{{listItems.dis_amt | customround}}</span></td>
+										<td align="right"><span *ngIf="listItems.dis_val !='' ">{{listItems.dis_val | customround}}</span></td>
+										
+										<td align="right"><span *ngIf="listItems.net_val !='' ">{{listItems.net_val | PriceInd}}</span></td>
+										
+											
+											<td>{{listItems.sgst_rate | customround}}</td>
+											<td align="right"><span *ngIf="listItems.sgst_amt !='' "> {{listItems.sgst_amt | PriceInd}}</span></td>
+											<td>{{listItems.cgst_rate | customround}}</td>
+											<td align="right"><span *ngIf="listItems.cgst_amt !='' "> {{listItems.cgst_amt | PriceInd}}</span></td>
+											<td>{{listItems.igst_rate | customround}}</td>
+											<td align="right"><span *ngIf="listItems.igst_amt !='' "> {{listItems.igst_amt | PriceInd}}</span></td>
+											<td align="right">{{listItems.total_amt | PriceInd}}</td>
+											
+									</tr>
+									
+									
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3" style="width:93%;">
+		<div class="left-block">
+		<div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;" (click)="navigateToBillingDetails();">
+				<i class="fa back-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Back</div>
+				</i>
+			</button>
+		</div>
+			<!-- <div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="createBillingOrder();">
+
+					<div class="icon-text" style="right: 0px; padding: 5px;">Create
+						New</div>
+
+
+				</button>
+			</div> -->
+			
+			<div class="pull-left">
+			<button class="login-button-export" (click)="createBillingOrder();">
+				<i class="fa create-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Create New</div>
+				</i>
+			</button>
+		</div>
+
+			<!-- <div class="pull-left" style="max-width:47%">
+			<button class="btn login-button">
+			<i class="fa fa-plus" style="margin-right:4px;"></i> Add Lines</button>
+		</div>
+		<div class="pull-left" style="max-width:50%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Remove Line</button>
+			</div> -->
+		</div>
+		<div class="right-block">
+		
+		<!-- <div class="pull-left">
+			<button class="login-button-export">
+			<i class="fa print-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Print/Preview</div>
+			</i>
+			</button>
+			</div> -->
+			<div class="pull-left">
+			<button class="save-icon-btn" (click)="createBillingDetails();">
+				<i class="fa save-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Save</div>
+				</i>
+			</button>
+			</div>
+			<!-- <div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Cancel</div>
+				</i>
+			</button>
+		</div> -->
+		</div>
+	</div>
+</div>
+
+<!-- Error popup -->
+
+<div class="modal fade modal-size-medium" id="displayErrorsModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>Display Errors
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('displayErrorsModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;">
+									<div class="col-md-12 row">
+										<table class="table table-hover nowrap editable-table checkBoxTable" width="100%" id="errorTable" style="display:inline-table;">
+											<thead>
+												<tr>
+													<th>Error Code</th>
+													<th>Error Description</th>
+												</tr>
+											</thead>
+											<tbody>
+											 <ng-container *ngFor="let erList of errorLogs; let i=index">
+											 	<ng-container *ngIf="createFlag">
+												<tr *ngIf="erList.msgty=='E'">
+													
+													<td>{{erList.msgno}}</td>
+													<td>{{erList.msgv2}}</td>
+												</tr>
+												</ng-container>
+												
+												<ng-container *ngIf="!createFlag">
+												<tr *ngIf="erList.type=='E'">
+													
+													<td>{{erList.message_v1}}</td>
+													<td>{{erList.message}}</td>
+												</tr>
+												</ng-container>
+												
+												
+												</ng-container> 
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<button (click)="closeModal('displayErrorsModal')"
+											 class="login-button forgotOk"
+											>Ok</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+</div>
+
+<!--billing details popup -->
+
+					<div class="modal fade modal-size-medium" id="billingSalesModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4 id="header-text">
+									
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('billingSalesModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;">
+								<form [formGroup]="createBillingForm">
+									<div class="col-md-12 row">
+									<div class="col-md-6">
+									
+									<label>Del Doc No.<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box"
+									formControlName="docNumber"  validateOnBlur [validateFormControl]="createBillingForm.controls['docNumber']"
+									 style="width: 225px !important;">
+									 <span
+											*ngIf="createBillingForm.controls['docNumber'].touched && createBillingForm.controls['docNumber'].invalid && createBillingForm.controls['docNumber'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createBillingForm.controls['docNumber'].errors.required">
+												{{billingDetMsg.bill_doc_no}}</small>
+										</span>
+									
+									</div>
+									<div class="col-md-6">
+									<label>Billing Date.<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box " id="billingDate" (focus)="changePickerPos()" (blur)="removeStyles('billingDate')"
+									formControlName="billingDate"  validateOnBlur [validateFormControl]="createBillingForm.controls['billingDate']"
+									 style="width: 231px !important;">
+									<span
+											*ngIf="createBillingForm.controls['billingDate'].touched && createBillingForm.controls['billingDate'].value == '' "
+											class="error"> <small class="custom-error-class"
+											*ngIf="createBillingForm.controls['billingDate'].errors.required">
+												{{billingDetMsg.billing_date}}</small>
+										</span>
+										
+										<!-- <span id="err-billing-date" style="display: none"							
+											class="error"> <small class="custom-error-class">
+												{{billingDetMsg.billing_date}}</small>
+										</span> -->
+										
+									</div>
+									
+									</div>
+									</form>
+								</div>
+
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk"><!-- [disabled]="!createBillingForm.valid"  ,'btn-disabled':!createBillingForm.valid-->
+										<button (click)="createBillingSubmit('billingSalesModal')" [disabled]="!createBillingForm.valid"
+											 [ngClass]="{'login-button':true ,'forgotOk':true ,'btn-disabled':!createBillingForm.valid}"
+											>Ok</button>
+											<button (click)="closeModal('billingSalesModal')"
+											 Class="cancel-button forgotOk"
+											>Cancel</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+</div>
+

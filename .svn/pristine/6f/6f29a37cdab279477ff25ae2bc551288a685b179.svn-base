@@ -1,0 +1,204 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Billing</strong>
+		</span>
+	</div>
+	<div class="card-block db-block mb-5" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+					<!-- new changes -->
+					<div class="col-md-12 mt-1">
+							<div class="stock-table table-responsive">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="billingordertable">
+								<thead>
+									<tr>
+									<th class="no-sort"  style="min-width:50px !important;text-align:center;">
+											<mat-checkbox class="example-margin" 
+											[(ngModel)]="checked"
+											[checked]="checked"
+											[(indeterminate)]="indeterminate" id="checkbox-all"
+											 (click)="selectAll($event,'checkbox-all-input','billingordertable')"></mat-checkbox>
+									</th>
+									
+										<th>Invoice No.</th>
+										<th>Invoice Date</th>
+										<th>Customer Name</th>
+										<th>Delivery No.</th>
+										<th>Delivery Date</th>
+										<th>IGST</th>
+										<th>CGST</th>
+										<th>SGST</th>
+										<th>CESS</th>
+										<th>Amount</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+								<tr *ngFor="let list of billingListData let i=index;">
+								
+								<td align="center">
+											<mat-checkbox class="example-margin" id="checkbox-{{i}}"  (click)="getReportList(list.bill_doc,list.delv_no,'billingordertable',i)"
+											 ></mat-checkbox>
+										</td>
+								
+								
+								<td><span ><a href="javascript:void(0)" class="sales-num-anchor"  
+								(click)="displayBillingDetails(list.bill_doc,list.delv_no)"  >{{list.bill_doc}}</a> <!-- -->
+									 </span></td>
+								<td><span *ngIf="list.bill_date!='0000-00-00'">{{list.bill_date | date :'dd-MM-yyyy'}}</span></td>
+								<td>{{list.sold_to_name}}</td>
+								<td>{{list.delv_no}}</td>
+								<td><span *ngIf="list.delv_date!='0000-00-00'">{{list.delv_date | date :'dd-MM-yyyy'}} </span></td>
+								
+								<td  align="right">&#8377;{{list.sum_iamt | PriceInd}}</td>
+								<td  align="right">&#8377;{{list.sum_camt | PriceInd}}</td>
+								<td  align="right">&#8377;{{list.sum_samt | PriceInd}}</td>
+								<td  align="right">&#8377;{{list.sum_csamt | PriceInd}}</td>
+								
+								<td  align="right">&#8377;{{list.total_amount | PriceInd}}</td>
+								<td>{{list.status}}</td>
+								</tr>
+									
+									
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+<div class="outbound-footer mt-3" style="display:none;">
+		<!-- <div class="left-block">
+		<div class="pull-left" style="max-width:47%">
+			<button class="btn login-button">
+			<i class="fa fa-plus" style="margin-right:4px;"></i> Add Lines</button>
+		</div>
+		<div class="pull-left" style="max-width:50%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Remove Line</button>
+			</div>
+		</div> -->
+		<div class="right-block">
+			<div class="pull-left">
+			<button class="login-button-export">
+			<i class="fa print-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Print</div>
+			</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export" (click)="editBillingOrder('billingordertable')">
+				<i class="fa edit-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Edit</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export" (click)="createBillingOrder()">
+				<i class="fa create-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Create</div>
+				</i>
+			</button>
+			</div>
+
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="cancelBilling()">
+					<i class="fa cancel-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Cancel</div>
+					</i>
+				</button>
+			</div>
+
+
+		</div>
+	</div>
+</section>
+
+<!--billing details popup -->
+
+					<div class="modal fade modal-size-medium" id="billingSalesModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4 id="header-text">
+									
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('billingSalesModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;">
+								<form [formGroup]="createBillingForm">
+									<div class="col-md-12 row">
+									<div class="col-md-6">
+									
+									<label>Doc No.<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box"
+									formControlName="docNumber"  validateOnBlur [validateFormControl]="createBillingForm.controls['docNumber']"
+									 style="width: 225px !important;">
+									 <span
+											*ngIf="createBillingForm.controls['docNumber'].touched && createBillingForm.controls['docNumber'].invalid && createBillingForm.controls['docNumber'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createBillingForm.controls['docNumber'].errors.required">
+												{{billingDetMsg.bill_doc_no}}</small>
+										</span>
+									
+									</div>
+									<div class="col-md-6">
+									<label>Billing Date.<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box " id="billingDate" (focus)="changePickerPos()" (blur)="removeStyles('billingDate')" 
+									formControlName="billingDate"  validateOnBlur [validateFormControl]="createBillingForm.controls['billingDate']"
+									 style="width: 231px !important;">
+									 <span
+											*ngIf="createBillingForm.controls['billingDate'].touched && createBillingForm.controls['billingDate'].value == '' "
+											class="error"> <small class="custom-error-class"
+											*ngIf="createBillingForm.controls['billingDate'].errors.required">
+												{{billingDetMsg.billing_date}}</small>
+										</span>
+										
+										<!-- <span id="err-billing-date" style="display: none"							
+											class="error"> <small class="custom-error-class">
+												{{billingDetMsg.billing_date}}</small>
+										</span> -->
+										
+									</div>
+									
+									</div>
+									</form>
+								</div>
+
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk"> <!-- [disabled]="!createBillingForm.valid"  ,'btn-disabled':!createBillingForm.valid -->
+										<button (click)="createBillingSubmit('billingSalesModal')" [disabled]="!createBillingForm.valid"
+											 [ngClass]="{'login-button':true ,'forgotOk':true ,'btn-disabled':!createBillingForm.valid}"
+											>Ok</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<!-- End of billing details popup-->

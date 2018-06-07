@@ -1,0 +1,383 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { ExcelService } from '../../services/excel.service';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+ var table ;
+
+@Component({
+  selector: 'app-billing-report',
+  templateUrl: './billing-report.component.html',
+  styleUrls: ['./billing-report.component.css']
+})
+export class BillingReportComponent implements OnInit {
+        
+    filterBillingForm:FormGroup;
+    bpId: string;
+    orgId: string;
+    billingListData:any;
+    
+
+   constructor(private http: Http, private formBuilder: FormBuilder,private environment:EnvConfigurationService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private excelService: ExcelService) {
+      this.app.isActive=true;
+     
+      
+      this.filterBillingForm = formBuilder.group({
+          
+         
+          'from_date':['', Validators.required],
+          'to_date':['', Validators.required],
+         
+        });
+      this.bpId = localStorage.getItem("bpId");
+      this.orgId = localStorage.getItem("orgId");
+      this.billingListData =[];
+  }
+
+  ngOnInit() {
+       
+  $( '#fromDateFilt' ).datetimepicker({
+      debug: true,
+      widgetPositioning: {
+          horizontal: 'left'
+      },
+      icons: {
+          time: "fa fa-clock-o",
+          date: "fa fa-calendar",
+          up: "fa fa-arrow-up",
+          down: "fa fa-arrow-down",
+          previous: 'fa fa-arrow-left',
+          next: 'fa fa-arrow-right'
+      },
+      format: 'DD-MM-YYYY',
+
+  });
+       this.applyDataTable()
+      
+  }
+
+convertDateToSapStructure(date){
+    let dateArray = date.split("-");
+    return dateArray[2].toString()+dateArray[1].toString()+dateArray[0].toString();
+}
+
+ getBillingReport(){
+    let repPayload ={};
+        let frmDate =this.convertDateToSapStructure(this.filterBillingForm.value.from_date);
+        let toDate =this.convertDateToSapStructure(this.filterBillingForm.value.to_date);
+        repPayload["bp_id"]=this.bpId;
+        repPayload["org_id"]=this.orgId;
+        repPayload["from_date"]=frmDate;
+        repPayload["to_date"]=toDate;
+     
+        
+        let url = this.environment.getRequiredApi( 'get_billing_report' )+"?";
+      
+        this.commonService.getData( url, 'POST',repPayload,localStorage.getItem("Billing"))
+            .subscribe(( response ) => {
+               
+                this.billingListData=[];
+               if(response.status == '1'){
+                 this.commonService.responseMessages("", response.message, "warning");
+               }else{
+                  this.billingListData = response.data.ex_bill_list;
+                  
+                  for (let element of this.billingListData) {
+                      for(let item of element.item){
+                          item.fix_sch = Math.abs(item.fix_sch)
+                          item.sch_val = Math.abs(item.sch_val)
+                          item.dis_amt = Math.abs(item.dis_amt)
+                          item.dis_val = Math.abs(item.dis_val)
+                      }
+                      
+                  }
+                   
+               }
+               $("#billingordertable").DataTable().destroy();
+               this.applyDataTable();
+            
+            }, err => {
+                  $('#loadingIcon').hide();
+              $("#black-overlay").hide();
+                    console.log(err)   
+            
+            } );
+    }
+
+
+    applyDataTable(){
+       
+       setTimeout(()=>{  
+          var table =  $("#billingordertable").DataTable({
+             "order": [0],
+           "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+           
+           "fnDrawCallback": function( oSettings ) {
+               
+                        if ( 5 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                            
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                           
+                           
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                          
+                        }
+                    },
+           "columnDefs": [ {
+                "targets"  : 'no-sort',
+                "orderable": false,
+               } ]
+          
+      });
+         },400);  
+          setTimeout(() =>{
+          $(".dataTables_scrollHeadInner").css({"width":"100%"});
+          $(".table ").css({"width":"100%"}); 
+          $("#billing-order-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+          },1100);
+        
+          setTimeout(()=>{
+              var width=$("#mainContent").css("width");
+              $(".outbound-footer").css("width",width);
+              $(".outbound-footer").show();
+          },50); 
+        
+    }
+
+     changeTodatePicker(id) {
+        $(id).datetimepicker("hide");
+        this.filterBillingForm.controls['from_date'].setValue($("#fromDateFilt").val());
+        if ($("#toDateFilt").val() != "") {
+            $("#toDateFilt").datetimepicker("destroy");
+        }
+        var fromDateFilt=new Date();
+        if($("#fromDateFilt").val().length != 0){
+            fromDateFilt = this.convertDate($("#fromDateFilt").val())
+        }
+
+      
+        
+
+
+        $('#toDateFilt').datetimepicker({
+
+            widgetPositioning: {
+                horizontal: 'left'
+            },
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down",
+                previous: 'fa fa-arrow-left',
+                next: 'fa fa-arrow-right'
+            },
+            format: 'DD-MM-YYYY',
+
+            minDate: fromDateFilt
+        });
+    }
+    
+    public convertDate(date){
+        let dateArry = date.split("-");
+        return new Date(dateArry[2],dateArry[1]-1,dateArry[0]);
+    }
+
+    removeStyles(id) {
+
+        if (id == "#fromDateFilt" || id == "#toDateFilt") {
+            this.filterBillingForm.controls['from_date'].setValue($("#fromDateFilt").val());
+            this.filterBillingForm.controls['to_date'].setValue($("#toDateFilt").val());
+        } 
+        $(id).datetimepicker("hide");
+
+        //this.cancelBillingForm.controls['billingDate'].setValue($("#cancelBilling").val());
+    }
+    navigateToRepGallery(){
+    const path: any = "rptsgallery";
+    this.router.navigate([path]);
+    }
+    
+    expandChildRows(itemId,billNum,icon,index){
+    if($("#plus-"+index).is(":visible")){
+        $("#plus-" + index).hide();
+        $("#minus-" + index).show();
+        $("#" + itemId + index + "-" + billNum).show(); 
+        
+    }else{
+        if($("#minus-"+index).is(":visible")){
+            $("#plus-"+index).show();
+            $("#minus-"+index).hide();
+        }
+         $("#"+itemId+index+"-"+billNum).hide();    // item0-9600500004     
+    }
+   
+}
+    
+    
+    exportExcel() {
+        let jsonArrrayData: any = [];
+        
+        if (this.billingListData.length != 0) {
+            for (let index of this.billingListData) {
+                
+                for(let items of index.item){
+                    let listObj:any={};
+                    if (!index.hasOwnProperty('bill_doc')) {
+                        listObj.bill_doc = "  "
+                    }else{
+                        listObj.bill_doc = index.bill_doc;
+                    }
+                    if (!index.hasOwnProperty('status')) {
+                        listObj.status = "  "
+                    }else{
+                        listObj.status = index.status;
+                    }
+                    if (!index.hasOwnProperty('doc_cat')) {
+                        listObj.doc_cat = ' ';
+                    }else{
+                        listObj.doc_cat = index.doc_cat;
+                    }
+                    if (!index.hasOwnProperty('bill_date')) {
+                        listObj.bill_date = ' ';
+                    }else{
+                        listObj.bill_date = index.bill_date;
+                    }
+                    if (!index.hasOwnProperty('sold_to_name')) {
+                        listObj.sold_to_name = " ";
+                    }else{
+                        listObj.sold_to_name = index.sold_to_name;
+                    }
+                    if (!index.hasOwnProperty('delv_no')) {
+                        listObj.delv_no = " ";
+                    }else{
+                        listObj.delv_no = index.delv_no;
+                    }
+                    if (!index.hasOwnProperty('delv_date')) {
+                        listObj.delv_date = " ";
+                    }else{
+                        listObj.delv_date = index.delv_date;
+                    }
+                    if (!items.hasOwnProperty('item_no')) {
+                        listObj.item_no = " ";
+                    }else{
+                        listObj.item_no = items.item_no.toString();
+                    }
+                    if (!items.hasOwnProperty('material')) {
+                        listObj.material = " ";
+                    }else{
+                        listObj.material = items.material;
+                    }
+                    if (!items.hasOwnProperty('mat_desc')) {
+                        listObj.mat_desc = " ";
+                    }else{
+                        listObj.mat_desc = items.mat_desc;
+                    }
+                    if (!items.hasOwnProperty('qty')) {
+                        listObj.qty = " ";
+                    }else{
+                        listObj.qty = items.qty;
+                    }
+                    if (!items.hasOwnProperty('net_val')) {
+                        listObj.net_val = " ";
+                    }else{
+                        listObj.net_val = items.net_val;
+                    }
+                    if (!items.hasOwnProperty('price')) {
+                        listObj.price = " ";
+                    }else{
+                        listObj.price = items.price;
+                    }
+                    if (!items.hasOwnProperty('fix_sch')) {
+                        listObj.fix_sch = " ";
+                    }else{
+                        listObj.fix_sch = items.fix_sch;
+                    }
+                    if (!items.hasOwnProperty('sch_val')) {
+                        listObj.sch_val = " ";
+                    }else{
+                        listObj.sch_val = items.sch_val;
+                    }
+                    if (!items.hasOwnProperty('dis_val')) {
+                        listObj.dis_val = " ";
+                    }else{
+                        listObj.dis_val = items.dis_val;
+                    }
+                     if (!items.hasOwnProperty('dis_amt')) {
+                        listObj.dis_amt = " ";
+                    }else{
+                        listObj.dis_amt = items.dis_amt;
+                    }
+                    if (!items.hasOwnProperty('total_amt')) {
+                        listObj.total_amt = " ";
+                    }else{
+                        listObj.total_amt = items.total_amt;
+                    }
+                    if (!index.hasOwnProperty('sum_iamt')) {
+                        listObj.sum_iamt = " ";
+                    }else{
+                        listObj.sum_iamt = index.sum_iamt;
+                    }
+                     if (!index.hasOwnProperty('sum_camt')) {
+                        listObj.sum_camt = " ";
+                    }else{
+                        listObj.sum_camt = index.sum_camt;
+                    }
+                     if (!index.hasOwnProperty('sum_samt')) {
+                        listObj.sum_samt = " ";
+                    }else{
+                        listObj.sum_samt = index.sum_samt;
+                    }
+                    if (!index.hasOwnProperty('sum_csamt')) {
+                        listObj.sum_csamt = " ";
+                    }else{
+                        listObj.sum_csamt = index.sum_csamt;
+                    }
+                    if (!index.hasOwnProperty('total_amount')) {
+                        listObj.total_amount = " ";
+                    }else{
+                        listObj.total_amount = index.total_amount;
+                    }
+                   
+                    jsonArrrayData.push(listObj);
+                }
+                
+            }
+            let columns: any = 
+        ['bill_doc', 'status', 'doc_cat', 'bill_date', 'sold_to_name', 'delv_no', 'delv_date',
+         'item_no', 'material', 'mat_desc', 'qty', 'net_val', 'price', 'fix_sch', 'sch_val', 'dis_val',
+         'dis_amt', 'total_amt', 'sum_iamt', 'sum_camt', 'sum_samt', 'sum_csamt', 'total_amount',
+         ]
+            let columnHeaders: any = 
+        ['Bill Doc', 'Status', 'Doc Cat', 'Bill Date', 'Sold To Name', 'Delivery No', 'Delivery Date',
+         'Item No', 'Material', 'Material Desc', 'Qty', 'Net val', 'Price', 'Fix Sch', 'Sch val', 'Discount val',
+         'Discount amt', 'Total amt', 'sum iamt', 'sum camt', 'sum samt', 'sum csamt', 'Total amt',
+         ]
+            let jsonData: any = JSON.stringify(jsonArrrayData);
+            this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "Billing Report", columns, columnHeaders, 'Bills_Report');
+
+        } else {
+            this.commonService.responseMessages("", "No Data Available To Export", "warning")
+        }
+    }
+
+}

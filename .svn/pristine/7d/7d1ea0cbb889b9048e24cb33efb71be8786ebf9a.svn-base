@@ -1,0 +1,111 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Stock Balance Report</strong>
+		</span>
+		<!-- <div class="pull-right">
+		<div class="row pull-left icon-filter-align">
+					<span class="" (click)="showFilters();" title="Advance Filters">
+					 <i class="fa fa-sliders"> </i>
+					</span>
+			  </div>
+		</div> -->
+	</div>
+	<div class="card-block db-block" style="padding:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+					<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table" style="overflow:hidden;display:none;padding:5px;" id="stock-table">
+							<div style="position:relative;z-index:1;top:6px;left:-10px;">
+										<div class="pull-left" style=" margin-left: 13px;">
+											<label style="margin-top: 3px;">Show entries</label>
+										</div>
+										<div class="pull-left" style="width: 60px;margin-left: 3px;">
+										<select class="form-control bulk-action-select" name="pageSizes"
+											id="showPageSize" (change)="filterPageSizeRecords()" style="padding:3px !important;">
+											<option value="10">10</option>
+											<option value="20">20</option>
+											<option value="30">30</option>
+											<option value="50">50</option>
+											<option value="100">100</option>
+											<option value="500">500</option>
+										</select>
+									</div>
+									
+									<!-- <div class="pull-left" style="width: 40px; margin-left: 10px;">
+										<label style="margin-top: 3px;">entries</label>
+									</div> -->
+							</div>
+							<input type="hidden" name="filterValue" value="" id="filterSearch">
+							<button type="button" style="display:none" (click)="getClosingStockReport()" id="refeshStockBalance"></button>
+							<table class="table table-hover nowrap editable-table checkBoxTable mb-2 table-divs"
+								width="100%" id="stock-balance-table" style="display:inline-table">
+									<thead>
+										<tr>
+											<th (click)="sortByColumn('omOrgBusinessPartners.erpRefId',0,'erpRef')" id="erpRef-0">Erp Reference Id</th>
+											<th (click)="sortByColumn('omOrgBusinessPartners.bpLegalName',1,'plantCd')" id="plantCd-1">Plant Name</th>
+											<th (click)="sortByColumn('changedTs',2,'lockDt')" id="lockDt-2">Lock Date</th>
+											<th (click)="sortByColumn('status',3,'optBal')" id="optBal-3">Opening Bal Status</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										<ng-container *ngIf="stockBalanceList.length>0">
+											<tr *ngFor="let stk of stockBalanceList; let i=index;">
+												<td>{{stk.erp_ref_id}}</td>
+												<td>{{stk.plant_name}}</td>
+												<td>
+												<span class="hide">{{stk.lock_date | date :'yyyyMMdd'}}</span>
+												<ng-container *ngIf="stk.op_bal_status=='L'">{{stk.lock_date | date :'dd-MM-yyyy'}}</ng-container></td>
+												<td>{{statusDesc[stk.op_bal_status]}}</td>
+												<td style="text-align:center;">
+													<ng-container *ngIf="stk.op_bal_status=='L'">
+													<a href="{{stk.actionUrl}}" target="_blank" title="Download Stock Balance Report">
+														<i class="fa fa-download" style="color:#04756f;"></i>
+													</a>
+													</ng-container>
+												</td>
+											</tr>
+										</ng-container>
+									</tbody>
+								</table>
+								
+															  <div class="row mt-3 mb-4 col-md-12" *ngIf="paginationArray.length>1">
+									<div class="col-md-4">
+										<div class="dataTables_info">Showing page {{pageNum}} of
+											{{paginationArray.length}} </div>
+									</div>
+									<div class="col-md-7">
+										<div class="pagination">
+											<div>
+												<a href="javascript:void(0)" id="previous"
+													class="list-previous" (click)=navigatePreviousPage()>Previous</a>
+											</div>
+											<div *ngFor="let page of paginationArray; let i=index;"
+												class="pageWraper" style="display: none" id="page-{{i}}">
+												<a href="javascript:void(0)" id="next-wrapper"
+													class="list-next" style="display: none"
+													*ngIf="i==totalEndCount">...</a> <a
+													href="javascript:void(0)" class="pageNum" id="{{page}}"
+													(click)=navigateNextPage(page)>{{page}}</a> <a
+													href="javascript:void(0)" id="previous-wrapper"
+													class="list-previous" *ngIf="i==0" style="display: none">...</a>
+											</div>
+
+											<div class="pageWraper">
+												<a href="javascript:void(0)" id="next" class="list-next"
+													(click)=navigatePageNext()>Next</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								</div>
+							</div>
+				</div>
+			</div>
+		 </div>
+		</div>
+
+</div>
+</section>

@@ -1,0 +1,127 @@
+.errors {
+	color: red;
+	font-size: x-large
+}
+
+.error {
+	color: red;
+}
+
+.form-group {
+	margin-bottom: 1px;
+}
+
+.user-select {
+	margin-top: 15px;
+}
+
+#editProfile input, #changePassword input {
+	padding: 0px;
+}
+
+.form-actions {
+	clear: both;
+	border-top: 0px;
+}
+
+
+.add-role-header {
+	border: 0px !important;
+	padding-bottom: 0px !important;
+}
+
+.role-title {
+	color: #5ab7fe !important;
+}
+
+.addrole-body {
+	padding-top: 0px !important;
+}
+
+.addrole-block {
+	padding-left: 0px !important;
+}
+
+.role-buttons {
+	border-top: 0px !important;
+	padding-top: 0px !important;
+	margin: 1.42rem 0 0 !important;
+}
+
+.role-button {
+	background: #003466 !important;
+	width: 160px !important;
+	padding: 5px !important;
+}
+
+.role-cancel {
+	background: #c91312 !important;
+	width: 160px !important;
+	padding: 5px !important;
+}
+.profile-edit-form{
+	margin:10px;
+	padding:10px
+}
+
+  .alter-color{
+   background: white !important;
+    color: black !important;
+    border-color:  #0190fe !important;
+  } 
+  
+  .alter-color:hover{
+   background:  #017fe0 !important;
+    color: white !important;
+    border-color: #0190fe !important;
+  } 
+  
+
+.left-arrow_pol {
+	display: inline-block;
+	position: relative;
+	background: grey;
+	padding: 15px;
+}
+.left-arrow_pol:after {
+	content: '';
+	display: block;  
+	position: absolute;
+	right: 100%;
+	top: 50%;
+	margin-top: -10px;
+	width: 0;
+	height: 0;
+	border-top: 10px solid transparent;
+	border-right: 10px solid grey;
+	border-bottom: 10px solid transparent;
+	border-left: 10px solid transparent;
+}
+
+.bulb_sty{
+	margin-left: 67px;
+    width: 300px;
+    max-height: 100px;
+    margin-top: -9px;
+	
+    
+}
+.pwd_tool_tip{
+	margin-top: -22px;
+    position: absolute;
+    z-index: 9999;
+    margin-left: 83px;
+}
+.p_sty{
+	margin-top: 0 !important;
+    margin-bottom: 0rem !important;
+    font-size: 10px !important;
+    color: white !important;
+}
+.clo_sty{
+	float: right !important;
+    margin-top: -11px !important;
+    color: wheat !important;
+    cursor: pointer !important;
+    margin-right: -2px !important;
+}

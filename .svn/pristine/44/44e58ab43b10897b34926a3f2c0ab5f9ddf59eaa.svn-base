@@ -1,0 +1,559 @@
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import { ExcelService } from '../../services/excel.service';
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-config-values-details',
+  templateUrl: './config-values-details.component.html',
+  styleUrls: ['./config-values-details.component.css']
+})
+export class ConfigValuesDetailsComponent implements OnInit {
+
+ 
+    configGrpList: any;
+    checked: boolean = false;
+    indeterminate: boolean = false;
+    accessObjectId: any;
+    bpId: any;
+    orgId: any;
+    
+    checkboxErrorMsg:any;
+    
+    configValueForm:FormGroup;
+    bPartners:any;
+    configValSampleList:any;
+    configValSampleObj:any;
+    checkedObjects: any;
+    configChildList: any;
+    configValueList:any;
+    
+    conValCkeckArray:any;
+
+  constructor(private http: Http, private formBuilder: FormBuilder,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private environment: EnvConfigurationService, private excelService: ExcelService)  { 
+      this.app.isActive = true;
+      this.checked = false;
+      this.indeterminate = false;
+      this.configGrpList =[];
+      this.configChildList=[];
+      this.checkboxErrorMsg=this.messagesService.check_box_error;
+       this.orgId =localStorage.getItem("orgId");
+      this.conValCkeckArray=[];
+      
+      this.configValueForm = formBuilder.group({
+          
+          'group':[''],
+          'bp_id':[''],
+          
+        });
+      this.configValSampleList=[];
+      this.configValSampleObj={};
+      this.checkedObjects = [];
+  
+  }
+
+  ngOnInit() {
+      this.applyDataTable();
+      this.getConfigValueList();
+      
+      /*
+      
+      Moved to other page
+      
+      this.getConfigGroupList();
+      this.getBusinessPartnerDet();
+      for (let index = 0; index < 5; index++) {
+          this.configValSampleObj = {};
+          this.configValSampleObj["parentValId"] = "";
+          this.configValSampleObj["key"] = "";
+          this.configValSampleObj["value"] = "";
+          this.configValSampleObj["addField1"] = "";
+          this.configValSampleObj["addField2"] = "";
+          this.configValSampleObj["addField3"] = "";
+          this.configValSampleObj["addField4"] = "";
+          this.configValSampleObj["addField5"] = "";
+          this.configValSampleObj["addField6"] = "";
+          this.configValSampleObj["addField7"] = "";
+          this.configValSampleObj["addField8"] = "";
+          this.configValSampleObj["addField9"] = "";
+          this.configValSampleObj["addField10"] = "";
+          this.configValSampleObj["orgId"]=this.orgId;
+          this.configValSampleObj["bpId"]="";
+          this.configValSampleObj["configGroupId"] = "";
+          this.configValSampleObj["configValId"] = "";
+          this.configValSampleObj["displayRow"] = true;
+
+          this.configValSampleList.push(this.configValSampleObj);
+      }
+      */
+      
+      
+  }
+    
+  getConfigValueList() {
+
+      $('#loadingIcon').show();
+      $("#black-overlay").show();
+      let url: any = this.environment.getRequiredApi("config_value_list") + "?";
+      this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe((response) => {
+          
+          if (response.status == 0) {
+              this.configValueList = response.data.configValues;
+
+          } else {
+              this.commonService.responseMessages("", response.message, "warning")
+          }
+
+            $("#conf-grp-table").DataTable().destroy();
+             this.applyDataTable();
+
+          $('#loadingIcon').hide();
+          $("#black-overlay").hide();
+
+
+      });
+
+
+  }
+    
+    navigateConfVals(action){
+        if(action == 'E'){
+            
+            if(this.conValCkeckArray.length ==0){
+                 this.commonService.responseMessages("", this.getWarningErrorMessage('select_atleast_msg'), "warning");
+                 return false;
+            }
+            if(this.conValCkeckArray.length !=1){
+             this.commonService.responseMessages("", this.getWarningErrorMessage('select_msg'), "warning"); 
+                return false;   
+            }
+        }else{
+            this.conValCkeckArray =[];
+        }
+        this.commonService.configGrpArray = this.conValCkeckArray;
+          
+        const path: any = "config/val";
+        this.router.navigate([path],{ queryParams: { "group": this.conValCkeckArray[0].configGroupId} });
+    }
+    
+    
+    
+    
+    
+    
+    
+    getConfigGroupList(){
+
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        let url: any = this.environment.getRequiredApi("config_grp_list") + "?";
+        this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe((response) => {
+
+            $("#conf-grp-table").DataTable().destroy();
+            if (response.status == 0) {
+                if (response.data.hasOwnProperty("configGroups")) {
+                    this.configGrpList = response.data.configGroups;
+
+                }
+
+
+            } else {
+                this.commonService.responseMessages("", response.message, "warning")
+            }
+
+
+            $('#loadingIcon').hide();
+            $("#black-overlay").hide();
+
+
+        });
+    
+    
+    }
+    setParentList(confGrp){
+       //  let group = $( "#cust_type option:selected" ).text();
+        if(confGrp == "" || confGrp.length ==0){
+            this.configValSampleList=[];
+            this.AddMoreLinesOfItems();
+            return false;    
+        }
+         $('#loadingIcon').show();
+        $("#black-overlay").show();
+        let url: any = this.environment.getRequiredApi("config_value_list") + "?group="+confGrp+"&";
+        this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe((response) => {
+            this.configValSampleList=[]; 
+            this.configChildList=[];
+            if(response.status == 0){
+                 
+                this.configChildList = response.data.configValues;
+                if (this.configChildList.length != 0) {
+                    
+                    let configChildArray = $.extend(true, [], this.configChildList);
+                    
+
+                    this.configValSampleList = configChildArray;
+                    
+                    this.configValSampleList.forEach((items) => {
+
+                        items["displayRow"] = true;
+                    })
+
+                } else {
+                    this.AddMoreLinesOfItems();
+                }    
+            
+                
+            }else {
+                this.commonService.responseMessages("", response.message, "warning")
+                 this.AddMoreLinesOfItems();
+            }
+            
+            
+
+            $('#loadingIcon').hide();
+            $("#black-overlay").hide();
+
+
+        });
+       
+    }
+    
+   /* getConfigValuesList(){
+        let group = this.configValueForm.value.group;
+         let url = this.environment.getRequiredApi('config_value_list') + "?group="+group+"&org_id="+this.orgId+"&" ;
+        
+        let bpId = this.configValueForm.value.bp_id;
+        if(bpId.length != 0 ){
+            url = url +"bp_id="+bpId+"&";
+        }
+        
+         
+        
+         $('#loadingIcon').show();
+         $("#black-overlay").show();
+         this.commonService.getData(url, 'GET', '', '')
+             .subscribe((response) => {
+                 console.log(response)
+                 if (response.status == 0) {
+                    //this.commonService.responseMessages("", response.message, "success");
+                 }
+                 if (response.status == 1) {
+                     this.commonService.responseMessages("", response.message, "warning");
+                   
+                 }
+                 console.log(this.configValSampleList)
+                 $('#loadingIcon').hide();
+                 $("#black-overlay").hide();
+
+             }, err => {
+
+                 console.log(err)
+                 $('#loadingIcon').hide();
+                 $("#black-overlay").hide();
+
+             });
+        
+        }*/
+    
+      getBusinessPartnerDet(){
+       
+        
+        let url = this.environment.getRequiredApi( 'get_org_bp' ).replace("{org_id}",localStorage.getItem("orgId"))+"?";
+         this.commonService.getData( url, "GET", '' ,localStorage.getItem( 'Manage Users' ))
+            .subscribe(( response ) => {
+                console.log(response)
+                 this.bPartners = response.data.bps;
+                
+            } );
+    }
+    
+   
+    
+    applyDataTable() {
+        setTimeout(() => {
+            var table = $('#conf-grp-table').DataTable({
+                "order": [[1, 'desc']],
+                
+                retrieve: true,
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)",
+
+                },
+                columnDefs: [{
+                    "targets": 'no-sort',
+                    "orderable": false
+                }],
+                "fnDrawCallback": function(oSettings) {
+                    if (10 >= oSettings.fnRecordsDisplay()) {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+
+                        $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+
+                    } else {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                        //    $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                        //  $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                    }
+                },
+            });
+
+            setTimeout(() => {
+                var width = $("#mainContent").css("width");
+                $(".outbound-footer").css("width", width);
+                $(".outbound-footer").show();
+            }, 50);
+        }, 500);
+        setTimeout(() => {
+            $(".dataTables_scrollHeadInner").css({ "width": "100%" });
+            $(".table ").css({ "width": "100%" });
+        }, 600);
+    }
+    
+
+   
+    
+     AddMoreLinesOfItems() {
+        let length: any = $("#conf-grp-table").find('tbody').find('tr').length;
+        if (length >= 200) {
+            this.commonService.responseMessages("", "Added Data Limit is Exceeded", "warning");
+            return false;
+        }
+        for (let index = 0; index < 5; index++) {
+            this.configValSampleObj = {};
+            this.configValSampleObj["parentValId"] = "";
+            this.configValSampleObj["key"] = "";
+            this.configValSampleObj["value"] = "";
+            this.configValSampleObj["addField1"] = "";
+            this.configValSampleObj["addField2"] = "";
+            this.configValSampleObj["addField3"] = "";
+            this.configValSampleObj["addField4"] = "";
+            this.configValSampleObj["addField5"] = "";
+            this.configValSampleObj["addField6"] = "";
+            this.configValSampleObj["addField7"] = "";
+            this.configValSampleObj["addField8"] = "";
+            this.configValSampleObj["addField9"] = "";
+            this.configValSampleObj["addField10"] = "";
+            this.configValSampleObj["orgId"]=this.orgId;
+            this.configValSampleObj["bpId"]="";
+            this.configValSampleObj["configGroupId"]="";
+            this.configValSampleObj["configValId"]="";
+            
+            this.configValSampleObj["displayRow"] = true;
+
+            this.configValSampleList.push(this.configValSampleObj);
+        }
+    console.log(this.configChildList)
+    }
+    
+    
+     getWarningErrorMessage(messageKey) {
+
+        return this.checkboxErrorMsg[messageKey] + "config group";
+
+    }
+    removeLineSelectedItems() {
+         if (this.checkedObjects.length > 0) {
+            for (let index of this.checkedObjects) {
+                if (index != undefined && index != null) {
+                    this.configValSampleList[index].displayRow = false;
+                }
+            }
+            this.checkedObjects = [];
+        } else {
+            this.commonService.responseMessages("", "Please select atleast one item", "warning");
+        }
+        setTimeout(() => {
+            let flag: boolean = this.commonService.continueAction("purchase-order-table");
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = false;
+            }
+            else {
+                this.indeterminate = true;
+            }
+            if ($("#purchase-order-table").find('tbody').find('tr').length == 0) {
+                this.indeterminate = false;
+                this.checked = false;
+            }
+
+        }, 200);
+    }
+    
+     getReportList(tableId, i,list) {
+        setTimeout(() => {
+            let flag: boolean = this.commonService.checkAction(tableId);
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = true;
+            }
+            else {
+                this.indeterminate = true;
+            }
+        }, 400);
+        setTimeout(() => {
+            if ($("#checkbox-" + i + "-input").is(":checked")) {
+                this.checkedObjects.push(i);
+                 this.conValCkeckArray.push(list);
+            }
+            else {
+                this.conValCkeckArray.forEach((element,index)=>{
+                    if(element.group_name == list.group_name){
+                        this.conValCkeckArray.splice(index, 1);
+                    }
+                })
+                if (this.checkedObjects.length > 0) {
+                    let count: any = 0;
+                    for (let index of this.checkedObjects) {
+                        if (index == i) {
+                            delete this.checkedObjects[count];
+                        }
+                        count++;
+                    }
+                }
+                setTimeout(() => {
+                    let flag: boolean = this.commonService.continueAction(tableId);
+                    if (flag) {
+                        this.indeterminate = false;
+                        this.checked = false;
+                    }
+                    else {
+                        this.indeterminate = true;
+                    }
+                }, 200);
+            }
+
+        }, 300);
+    }
+
+    selectAll(event, checkAll, tableId) {
+        setTimeout(() => {
+            if ($("#" + checkAll).is(":checked")) {
+                this.commonService.selectAllCheckBoxes(checkAll, tableId);
+                let count: any = 0;
+                this.configValSampleList.forEach(response => {
+                    if (response.displayRow) {
+                        this.checkedObjects.push(count);
+                    }
+                    count++;
+                });
+            } else {
+                this.commonService.selectAllCheckBoxes(checkAll, tableId);
+                this.checkedObjects = [];
+            }
+
+
+        }, 300);
+
+    }
+    
+    assignToObject(value,index){
+        
+        this.configValSampleList[index]['parentValId']=value;
+    }
+    saveConfigValues(){
+        
+        let saveArray:any=[];
+        let message:string="Please select parent id";
+        let bflag:boolean=true;
+        
+        
+        
+        for(let items of this.configValSampleList){
+           
+            if(items.displayRow){
+                
+                if(items.hasOwnProperty("configGroupId")){
+                    items["configGroupId"]  = this.configValueForm.value.group;
+                    items["parentValId"]  = items["configValId"];
+                }
+                if(items.hasOwnProperty("bpId")){
+                    items["bpId"]  = this.configValueForm.value.bp_id;
+                    
+                }
+                
+                if(items.configGroupId.length == 0){
+                    this.commonService.responseMessages("", "Please select  config group", "warning");
+                     bflag = false;
+                    break;
+                }
+                
+                if(items.key.length ==0){
+                    continue;
+                }
+                
+               /* if (items.parentValId.length == 0) {
+                    this.commonService.responseMessages("", message, "warning");
+                    bflag = false;
+                    break;
+                }*/
+                saveArray.push(items);    
+            }
+        }
+        if (bflag) {
+            this.configValSampleList = saveArray;
+        }else{
+        return false;    
+        }
+       
+        let payload ={};
+        let payLoadArray=saveArray;
+        
+        payload["configValues"]=payLoadArray;
+        
+        payload["configValues"].forEach((elements)=>{
+            if(elements.hasOwnProperty("displayRow")){
+                delete  elements.displayRow; 
+                delete  elements.configValId; 
+            }
+        })
+        console.log(payload)
+         console.log(this.configValSampleList)
+        this.configValSampleList.forEach((items)=>{
+            items["displayRow"]=true;
+            
+        })
+        
+         let url = this.environment.getRequiredApi('config_value_list') + "?";
+            url ="";
+         $('#loadingIcon').show();
+         $("#black-overlay").show();
+         this.commonService.getData(url, 'POST', payload, '')
+             .subscribe((response) => {
+                 console.log(response)
+                 if (response.status == 0) {
+                    this.commonService.responseMessages("", response.message, "success");
+                 }
+                 if (response.status == 1) {
+                     this.commonService.responseMessages("", response.message, "warning");
+                     console.log(this.configValSampleList)
+                 }
+                 console.log(this.configValSampleList)
+                 $('#loadingIcon').hide();
+                 $("#black-overlay").hide();
+
+             }, err => {
+
+                 console.log(err)
+                 $('#loadingIcon').hide();
+                 $("#black-overlay").hide();
+
+             });        
+        
+        
+    }
+
+}

@@ -1,0 +1,431 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+
+	<div class="createBlok" *ngIf="cdListLength>0">
+		<form [formGroup]="customerDetailsForm">
+
+			<div class="card-block db-block mb-5"
+				style="padding: 0px; padding-left: 15px; padding-right: 15px;">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="createSalesBlock">
+							<div class="row cust-det-title">Customer Details {{title}}</div>
+							<div class="row">
+								<!-- new changes -->
+								<div class="outbound-content col-md-12">
+
+
+									<div class="col-md-12 row pb-1">
+
+										<div class="col-md-3 text-align-sales">
+											<label>Type:<sup class="asterick">*</sup></label> <select
+												class="form-control" formControlName="cust_type"
+												id="cust_type" validateOnBlur
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['cust_type']"
+												[(ngModel)]="cdlist['ex_address'].cust_grp">
+												<option value="">Please Select Type</option>
+												<ng-container *ngFor="let types of customertypeList">
+												<option
+													[selected]="types.key==cdlist['ex_address'].cust_grp"
+													value={{types.key}}>{{types.value}}</option>
+												</ng-container>
+
+											</select> <span
+												*ngIf="customerDetailsForm.controls['cust_type'].touched && !customerDetailsForm.controls['cust_type'].valid && customerDetailsForm.controls['cust_type'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['cust_type'].errors.required">
+													{{customerDetailMsg.customer_type}} </small>
+
+											</span>
+										</div>
+									</div>
+									<div class="cust-form-block  col-md-12 row pb-1">
+										<div class="clear-fix"></div>
+										<div class="col-md-3 text-align-sales">
+											<label>Name<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="cust_name"
+												validateOnBlur
+												[value]="cdlist['ex_address'].cust_name == undefined ? '': cdlist['ex_address'].cust_name"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['cust_name']">
+
+											<span
+												*ngIf="customerDetailsForm.controls['cust_name'].touched && !customerDetailsForm.controls['cust_name'].valid && customerDetailsForm.controls['cust_name'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['cust_name'].errors.required">
+													{{customerDetailMsg.name_req}} </small>
+
+											</span>
+
+										</div>
+
+										<div class="col-md-3 text-align-sales">
+											<label>Mobile<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="telephone"
+												validateOnBlur
+												[value]="cdlist['ex_address'].telefone == undefined ? '': cdlist['ex_address'].telefone"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['telephone']">
+											<span
+												*ngIf="customerDetailsForm.controls['telephone'].touched && !customerDetailsForm.controls['telephone'].valid && customerDetailsForm.controls['telephone'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['telephone'].errors.required">
+													{{customerDetailMsg.mobile_req}}</small> <small
+												*ngIf="customerDetailsForm.controls['telephone'].errors.pattern">
+													{{customerDetailMsg.mobile_err_req}}</small>
+											</span>
+
+										</div>
+
+										<div class="col-md-3 text-align-sales">
+											<label>Email<sup class="asterick">*</sup></label> <input
+												type="email" class="form-control" formControlName="email"
+												validateOnBlur
+												[value]="cdlist['ex_address'].email == undefined ? '': cdlist['ex_address'].email"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['email']">
+
+
+											<span
+												*ngIf="customerDetailsForm.controls['email'].touched && !customerDetailsForm.controls['email'].valid"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['email'].errors.required">
+													{{customerDetailMsg.email_req}} </small> <small
+												*ngIf="customerDetailsForm.controls['email'].errors.pattern">
+													{{customerDetailMsg.email_req_error}} </small>
+											</span>
+
+										</div>
+
+										<!-- 	<div class="col-md-3 text-align-sales">
+							  <label>Drug Licence<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control"> 
+						</div>
+						<div class="col-md-3 text-align-sales" style="padding-top:3%"> 
+				
+							<mat-checkbox  [checked]="true"><mat-label>Security Deposit</mat-label></mat-checkbox>
+							</div> -->
+
+										<div class="col-md-3 text-align-sales">
+											<label>Credit Limit<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control"
+												formControlName="credit_limit" validateOnBlur
+												[value]="cdlist['ex_address'].credit_limit == undefined ? '': cdlist['ex_address'].credit_limit"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['credit_limit']">
+											<span
+												*ngIf="customerDetailsForm.controls['credit_limit'].touched && !customerDetailsForm.controls['credit_limit'].valid && customerDetailsForm.controls['credit_limit'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['credit_limit'].errors.required">
+													{{customerDetailMsg.creditLimit_req}} </small> <small
+												*ngIf="customerDetailsForm.controls['credit_limit'].errors.pattern">
+													{{customerDetailMsg.creditLimit_invalid_error}} </small>
+											</span>
+										</div>
+										<div class="col-md-3 text-align-sales">
+											<label>Status<sup class="asterick">*</sup></label> <select
+												class="form-control" formControlName="status" validateOnBlur
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['status']">
+												<option value="">-- None --</option>
+												<option value="Active"
+													[selected]="cdlist['ex_address'].cust_status">Active</option>
+											</select> <span
+												*ngIf="customerDetailsForm.controls['status'].touched && !customerDetailsForm.controls['status'].valid && customerDetailsForm.controls['status'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['status'].errors.required">
+													{{customerDetailMsg.status_req}} </small>
+											</span>
+
+										</div>
+									</div>
+
+								</div>
+
+								<!-- end changes -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card-block db-block mb-5"
+				style="padding: 0px; padding-left: 15px; padding-right: 15px;">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="createSalesBlock">
+							<div class="row cust-det-title">Address Details</div>
+							<div class="row">
+								<!-- new changes -->
+								<div class="outbound-content col-md-12">
+
+									<div class="cust-form-block col-md-12 row pb-1">
+										<div class="col-md-3 text-align-sales">
+											<label>Door Number<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="dno"
+												validateOnBlur
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['dno']">
+											<span
+												*ngIf="customerDetailsForm.controls['dno'].touched && !customerDetailsForm.controls['dno'].valid && customerDetailsForm.controls['dno'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['dno'].errors.required">
+													{{customerDetailMsg.doorNumber_req}} </small>
+											</span>
+										</div>
+
+
+										<div class="col-md-3 text-align-sales">
+											<label>Street<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="street"
+												validateOnBlur
+												[value]="cdlist['ex_address'].street == undefined ? '': cdlist['ex_address'].street"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['street']">
+											<span
+												*ngIf="customerDetailsForm.controls['street'].touched && !customerDetailsForm.controls['street'].valid && customerDetailsForm.controls['street'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['street'].errors.required">
+													{{customerDetailMsg.street_req}} </small>
+											</span>
+										</div>
+
+										<div class="col-md-3 text-align-sales">
+											<label>City<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="city"
+												validateOnBlur
+												[value]="cdlist['ex_address'].city == undefined ? '': cdlist['ex_address'].city"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['city']">
+											<span
+												*ngIf="customerDetailsForm.controls['city'].touched && !customerDetailsForm.controls['city'].valid && customerDetailsForm.controls['city'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['city'].errors.required">
+													{{customerDetailMsg.city_req}} </small>
+											</span>
+										</div>
+
+
+
+										<div class="col-md-3 text-align-sales">
+											<label>District<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="district"
+												validateOnBlur
+												[value]="cdlist['ex_address'].district == undefined ? '': cdlist['ex_address'].district"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['district']">
+											<span
+												*ngIf="customerDetailsForm.controls['district'].touched && !customerDetailsForm.controls['district'].valid && customerDetailsForm.controls['district'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['district'].errors.required">
+													{{customerDetailMsg.district_req}} </small>
+											</span>
+										</div>
+
+										<div class="col-md-3 text-align-sales">
+											<label>State<sup class="asterick">*</sup></label> <select
+												class="form-control input-width-custom" name="stateId"
+												formControlName="state" validateOnBlur
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['state']"
+												style="margin-top: 1px !important; padding: 5px !important;"
+												id="state_id" [(ngModel)]="cdlist['ex_address'].region">
+
+												<option [ngValue]="null" disabled>Please Select
+													State</option>
+												<option *ngFor="let state of states" [value]="state.id"
+													[selected]="state.id==cdlist['ex_address'].region">
+													{{state.value}}</option>
+											</select>
+										</div>
+
+										<div class="col-md-3 text-align-sales">
+											<label>PIN code<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="pin_code"
+												validateOnBlur
+												[value]="cdlist['ex_address'].post_code == undefined ? '': cdlist['ex_address'].post_code"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['pin_code']">
+											<span
+												*ngIf="customerDetailsForm.controls['pin_code'].touched && !customerDetailsForm.controls['pin_code'].valid && customerDetailsForm.controls['pin_code'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['pin_code'].errors.required">
+													{{customerDetailMsg.pincode_req}} </small> <small
+												*ngIf="customerDetailsForm.controls['pin_code'].errors.pattern">
+													{{customerDetailMsg.pincode_invalid_error}} </small>
+											</span>
+										</div>
+
+									</div>
+								</div>
+
+								<!-- end chnges -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card-block db-block mb-5"
+				style="padding: 0px; padding-left: 15px; padding-right: 15px;">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="createSalesBlock">
+							<div class="row cust-det-title">Compliance Details</div>
+							<div class="row">
+								<!-- new changes -->
+								<div class="outbound-content col-md-12">
+
+									<div class="cust-form-block col-md-12 row pb-1">
+
+
+										<div class="col-md-3 text-align-sales">
+											<label>GST Number<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="gstin"
+												validateOnBlur
+												[value]="cdlist['ex_compliance'].gstin == undefined ? '': cdlist['ex_compliance'].gstin"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['gstin']">
+											<span
+												*ngIf="customerDetailsForm.controls['gstin'].touched && !customerDetailsForm.controls['gstin'].valid && customerDetailsForm.controls['gstin'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['gstin'].errors.required">
+													{{customerDetailMsg.gstNumber_req}} </small>
+											</span>
+										</div>
+
+										<div class="col-md-3 text-align-sales">
+											<label>PAN Number<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="panno"
+												validateOnBlur
+												[value]="cdlist['ex_compliance'].pan_no == undefined ? '': cdlist['ex_compliance'].pan_no"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['panno']">
+											<span
+												*ngIf="customerDetailsForm.controls['panno'].touched && !customerDetailsForm.controls['panno'].valid && customerDetailsForm.controls['panno'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['panno'].errors.required">
+													{{customerDetailMsg.pan_req}} </small> <small
+												*ngIf="customerDetailsForm.controls['panno'].errors.pattern">
+													{{customerDetailMsg.panNum_invalid_error}} </small>
+											</span>
+										</div>
+										<div class="col-md-3 text-align-sales">
+											<label>Drug Licence<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="dl_no"
+												validateOnBlur
+												[value]="cdlist['ex_compliance'].lst_no == undefined ? '': cdlist['ex_compliance'].lst_no"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['dl_no']">
+											<span
+												*ngIf="customerDetailsForm.controls['dl_no'].touched && !customerDetailsForm.controls['dl_no'].valid && customerDetailsForm.controls['dl_no'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['dl_no'].errors.required">
+													{{customerDetailMsg.drugLicence_req}} </small>
+											</span>
+										</div>
+
+
+
+									</div>
+								</div>
+
+								<!-- end chnges -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- <div class="card-block db-block mb-5"
+				style="padding: 0px; padding-left: 15px; padding-right: 15px;">
+			<div class="row">
+					<div class="col-lg-12">
+						<div class="createSalesBlock">
+							<div class="row cust-det-title">Bank Details</div>
+							<div class="row">
+								
+								<div class="outbound-content col-md-12"> 
+
+									<div class=" col-md-12 row pb-1">
+										<div class="col-md-3 text-align-sales">
+											<label>Bank Name<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="bank_name"
+												validateOnBlur
+												[value]="cdlist['bank_details'].bankl== undefined ? '': cdlist['bank_details'].bankl"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												[validateFormControl]="customerDetailsForm.controls['bank_name']">
+											<span
+												*ngIf="customerDetailsForm.controls['bank_name'].touched && !customerDetailsForm.controls['bank_name'].valid && customerDetailsForm.controls['bank_name'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['bank_name'].errors.required">
+													{{customerDetailMsg.bankName_req}} </small>
+											</span>
+										</div>
+
+										<div class="col-md-3 text-align-sales">
+											<label>IFC Code<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="ifsc"
+												validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['ifsc']">
+											<span
+												*ngIf="customerDetailsForm.controls['ifsc'].touched && !customerDetailsForm.controls['ifsc'].valid && customerDetailsForm.controls['ifsc'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['ifsc'].errors.required">
+													{{customerDetailMsg.ifcCode_req}} </small>
+											</span>
+
+										</div>
+
+										<div class="col-md-4 text-align-sales">
+											<label>Account Number<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control"
+												formControlName="account_no" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['account_no']">
+											<span
+												*ngIf="customerDetailsForm.controls['account_no'].touched && !customerDetailsForm.controls['account_no'].valid && customerDetailsForm.controls['account_no'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['account_no'].errors.required">
+													{{customerDetailMsg.accountNum_req}} </small>
+											</span>
+										</div>
+
+
+
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			 </div>-->
+		</form>
+		<div class="outbound-footer mt-1">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="redirectCustomerlist()">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+			<div class="right-block">
+				<div class="pull-left">
+					<button *ngIf="!displayFlag" class="save-icon-btn"
+						[disabled]="!customerDetailsForm.valid"
+						(click)="saveCustomerDetails();">
+						<i class="fa save-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Save</div>
+						</i>
+					</button>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+
+</section>

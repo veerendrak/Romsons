@@ -1,0 +1,421 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+
+	<div class="card-header card-header-adjustments">
+			<div class="cat__core__title stock-header-block-w">
+			 <strong class="page-title">Stock In Hand</strong>
+			</div>
+	
+		    <div class="pull-right"  >
+		       <div class="pull-left stock-header-block-w">
+					<label class="pull-left" style="padding:5px"><b>Layout:</b></label>
+                    <select style="width:125px" #screen class="form-control pull-left input-sm" (change)="selectScreen(screen.value)">
+						    <option value="P">Material wise</option>
+							<option value="T">Batch wise</option>
+					</select> 
+			  </div> 
+    		  <div class="row pull-left icon-filter-align">
+					<span class="" (click)="showFilters();" title="Advance Filters">
+					 <i class="fa fa-sliders " style="font-size: 25px;"> </i>
+					</span>
+			  </div>
+		</div>
+		
+		
+	</div>
+	
+	<div style="clear:both"></div>
+	
+		
+	<div class="card-block db-block" style="padding-left:0px; padding-right:0px;">
+		<div class="row">
+			
+		
+		
+			<div class="col-lg-12">
+				<div class="row">
+				
+				<div class="outbound-content col-md-12 mt-2 toggle-filter" style="display:none;">
+
+						
+
+
+						<form [formGroup]="filterStockDetailsForm">
+					 <div class="delivery-form-block col-md-12 row filter-align-box mt-0">
+					 
+					 			<!-- <div class="col-md-3 text-align-sales mt-10">
+									<label style="padding: 5px;margin-left: -4px;"><b>Layout</b></label> 
+									<select #screen
+										class="form-control pull-left input-sm"
+										(change)="selectScreen(screen.value)">
+										<option value="">Please Select Layout</option>
+										<option value="P">Material wise</option>
+										<option value="T">Batch wise</option>
+									</select>
+									<div class="">
+										<span class="error"> <small class="custom-error-class">
+										</small>
+										</span>
+									</div>
+								</div> -->
+								
+					 
+					 
+								<div class="col-md-3 text-align-sales "  >
+									<label><b>Material Group</b></label> <input type="text" style="padding: 5px !important;" list="materialGrpList"
+										placeholder="Material Group" class="form-control"
+										(keyup)="findByMatGroup('material-grp','spinner-search-grp','ajaxList-grp',$event)" id="material-grp"
+										formControlName="matGrp" />
+										
+										
+										 <i class="fa fa-spinner fa-spin spinner-icon"
+										id="spinner-search-grp" style="display: none"></i> 
+										<input 
+										type="hidden" name="" id="mat-hidden-grp" value="" />
+									<div class="ajax-searchlist" style="display:none;width:93%;"
+										id="ajaxList-grp">
+									
+										<ul id="" class="custmore-list">
+											
+											<li *ngFor="let matgrp of matGrps; let i = index;" style="width:100%" (click)="selectedGrpItem(matgrp,'ajaxList-grp','material-grp','mat-hidden-grp')"
+											><span class="pull-left" style=";font-weight:600;">{{matgrp.mat_group_id}}</span>
+											
+											</li>
+											
+										</ul>
+										
+									</div>
+										
+										
+								</div>
+
+								<div class="col-md-3 text-align-sales"  >
+									<label><b>Material Code</b></label> <input type="text" style="padding: 5px !important;" list="materialCodeList"
+										placeholder="Material Code" class="form-control" (keyup)="extractData('material-code','spinner-search','ajaxList',$event)" id="material-code"
+										formControlName="matCode" autocomplete="off"/>
+								
+								 <i class="fa fa-spinner fa-spin spinner-icon"
+										id="spinner-search" style="display: none"></i> 
+										<input 
+										type="hidden" name="customerId" id="filterCustomerId" value="" />
+									<div class="ajax-searchlist" style="display:none;width:93%;"
+										id="ajaxList">
+									
+										<ul id="" class="custmore-list">
+											
+											<li *ngFor="let matnr of material; let i = index;" style="width:100%" (click)="selectedItem(matnr,'ajaxList','material-code','filterCustomerId')"
+											><span class="pull-left" style=";font-weight:600;">{{matnr.mat_num}}</span>
+											
+											</li>
+											
+										</ul>
+										<!-- <datalist id="materialCodeList">
+											
+											<option *ngFor="let matnr of material; let i = index;"
+												[value]="matnr.mat_num">{{matnr.mat_num}}</option>
+											
+										</datalist> -->
+									</div>
+									
+									
+									
+								</div>
+
+								<div class="col-md-2 text-align-sales">
+									<button type="button" class="login-button-export" (click)="getStockDetailsWithFilters();"
+										style="position: relative; top: 25px;">
+										<i class="fa submit-icon"
+											style="margin-right: 4px; padding-right: 4px;">
+											<span class="icon-text" style="right: -4px;"
+												>Submit</span>
+
+										</i>
+									</button>
+								</div>
+							</div>						 
+					</form> 
+					</div>
+					</div>
+					
+					
+					
+					<!-- new changes -->
+					<div class="row">
+					<div class="col-lg-12" id="batch-wise-table" style="display: none">
+						<div class="col-md-12" style="overflow: auto;">
+							<div class="stock-table" >
+								<table class="sb-batch-wise-table table table-hover nowrap editable-table checkBoxTable "
+								width="100%" style=" overflow-x:auto;overflow-y:hidden;">
+								<thead>
+									<tr>
+										<th style="display:none">Sno.</th>
+										<th  style="min-width:136px !important;text-align:center">Material Group</th>
+										<th style="text-align:center">Description</th>
+										<th    style="min-width: 123px !important;text-align:center">Material Code</th>
+										<th style="text-align:center">Description</th>
+										<th style="min-width: 65px !important;text-align:center">UOM</th>
+										<th style="min-width: 91px !important;text-align:center">Batch No.</th>
+										<th style="min-width: 92px !important;text-align:center">Mfd. Date</th>
+										<th style="min-width: 92px !important;text-align:center">Exp. Date</th>
+										<th style="text-align:center;min-width:57px">Qty</th>
+										<th style="text-align:center;min-width: 65px;">Price</th>
+										<th style="text-align:center;min-width: 65px;">Value</th>
+										
+									</tr>
+								</thead>
+								<tfoot>
+						            <tr>
+						                <th colspan="8" style="text-align:left">Total:</th>
+						                <!--  -->
+						                <th align="right" style="text-align: right;"><span style="text-align:right;margin-left: 48px;"></span></th>
+						                <th></th>
+						                <th  align="right"style="text-align: right;"><span style="text-align:right;float: right !important;"></span></th>
+						                
+						                
+						            </tr>
+						        </tfoot>
+								<tbody>
+								
+								<ng-container *ngFor="let list of stockDetailList; let i=index;trackBy: trackByFn; " >
+									<ng-container *ngFor="let batchList of list.batch_stock; let count=index">
+										<tr>
+										<td style="display:none;padding: 2px;text-align: center"><div class="">
+															<p class="icon_mt">{{list.serialNo}}.{{count}} </p>
+															
+														</div>
+										</td>
+
+											<td >
+												<div class="">
+													<p class="icon_mt">{{list.mat_grp}}</p>
+
+												</div>
+
+											</td>
+											<td >{{list.mat_grp_name}}</td>
+											<td style="width: 150px;" >{{list.mat_no}}</td>
+											<td >{{list.mat_desc}}</td>
+											<td >{{list.uom}}</td>
+											<td >{{batchList.batch_no}}</td>
+											<td><span *ngIf="batchList.mfg_date!='0000-00-00'">{{batchList.mfg_date | date :'dd-MM-yyyy' }}</span></td>
+											<td><span *ngIf="batchList.exp_date!='0000-00-00'">{{batchList.exp_date | date :'dd-MM-yyyy' }}</span></td>
+											<td align="right">{{batchList.batch_tot_qty  | PriceInd}}</td>
+											<td align="right">&#8377;{{batchList.batch_unit_price  | PriceInd}}</td>
+											<td align="right">&#8377;{{batchList.batch_tot_price  | PriceInd}}</td>
+										</tr>
+									</ng-container>
+								</ng-container>
+								
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					</div>
+					</div>
+					
+					<!-- POPUP -->
+					
+					<div class="row">
+					<div class="col-lg-12"  id="popwise-table" style="display: none">
+						<div class="col-md-12" style="overflow: auto;padding-top: 2px;">
+							<div class="stock-table">
+								<table class=" sb-popwise-table table table-hover nowrap editable-table checkBoxTable "
+								width="100%" style="overflow-x:auto;overflow-y:hidden;">
+								<thead>
+									<tr>
+										<th style="min-width:43px !important">Sno.</th>
+										<th style="min-width:133px !important;text-align:center">Material Group</th>
+										<th style="text-align:center;min-width: 180px !important;">Description</th>
+										<th style=" min-width: 122px !important;text-align:center">Material Code</th>
+										<th style="text-align:center">Description</th>
+										<th style="min-width: 66px !important;text-align:center">UOM</th>
+										<th style="text-align:center;min-width:65px;">Qty</th>
+										<th style="text-align:center;min-width: 69px;">Price</th>
+										<th style="text-align:center">Value</th>
+										
+									</tr>
+								</thead>
+								 <tfoot>
+						            <tr>
+						                <th colspan="6" style="text-align:left">Total:</th>
+						                
+						                
+						                <th align="right" style="text-align: right;"><span style="text-align:right;margin-left: 48px;">{{quantity | PriceInd}}</span></th>
+						                <th></th>
+						                <th  align="right"style="text-align: right;"><span style="text-align:right;float: right !important;">&#8377;{{totPrice | PriceInd}}</span></th>
+						                
+						                
+						            </tr>
+						        </tfoot> 
+								<tbody>
+							
+								
+								 <ng-container *ngFor="let list of stockDetailList; let i=index">
+								<tr >
+								
+									<td> <div class="">
+													<p class="icon_mt">{{i+1}} </p>
+													
+												</div></td>
+									<td >
+											<div class="">
+													<p class="icon_mt">{{list.mat_grp}}</p>
+													
+												</div>
+												
+									</td>
+									<td>{{list.mat_grp_name}}</td>
+									<td style="width: 150px;"><p class="icon_mt">{{list.mat_no}} </p>
+												<i class="fa plus-circle-icon  expand pull-right"
+														style="margin-top: -29px;cursor:pointer;" id="icon{{i}}"
+														(click)="expandmodal('showRow','icon',i)">
+												</i>
+									</td>
+									<td><div class="text-name-elipsis">{{list.mat_desc}}</div></td>
+									<td>{{list.uom}}</td>
+									<td align="right">{{list.total_quantity  | PriceInd}}</td>
+									<td align="right">&#8377;{{list.price | PriceInd}}</td>
+									<td align="right">&#8377;{{list.total_price | PriceInd}}</td>
+
+											<div class="modal fade " id="showRow{{i}}"
+												data-backdrop="static" data-keyboard="false" tabindex="-1"
+												role="dialog" aria-labelledby="" aria-hidden="true">
+												<div class="modal-dialog" role="document">
+													<div class="modal-content">
+														<div class="modal-header">
+															<div class="row new_row">
+																<div class="pull-left new_left">
+																	<h4> Batchwise Details</h4>
+																</div>
+																<div class="pull-right new_right">
+																
+																	<button type="button" class="close" id="topCloseButton"
+																		(click)="closeModal('showRow',i)" aria-label="Close">
+																		<i class="fa fa-times fa" aria-hidden="true"></i>
+																	</button>
+																</div>
+															</div>
+
+
+														</div>
+														<div class="modal-body-block"
+															style="padding: 6px 6px !important;">
+															<div class="card-block db-block mb-5"
+																style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+
+																<div style="margin-left: 11px; margin-bottom: 3px;">
+																</div>
+																<div class="col-lg-12">
+																	<div class="row">
+																		
+																		<div class="col-md-12 mt-1">
+																			<div class="stock-table table-responsive">
+																				<table
+																					class="table table-hover nowrap editable-table  stock-balance-inner-table"
+																					width="100%" id="">
+																					<thead>
+																						<tr>
+																							<th class="inner_th_color">Batch No.</th>
+																							<th class="inner_th_color">Mfd. Date</th>
+																							<th class="inner_th_color">Exp. Date</th>
+																							<th class="inner_th_color">Qty</th>
+																							<th class="inner_th_color">Price</th>
+																							<th class="inner_th_color">Value</th>
+																						</tr>
+																					</thead>
+																					<tbody>
+																						<tr
+																							*ngFor="let batchList of list.batch_stock; let i=index">
+																							<td>{{batchList.batch_no}}</td>
+																							<td><span *ngIf="batchList.mfg_date!='0000-00-00'">{{batchList.mfg_date | date :'dd-MM-yyyy' }}</span></td>
+																							<td><span *ngIf="batchList.exp_date!='0000-00-00'">{{batchList.exp_date | date :'dd-MM-yyyy' }}</span></td>
+																							<td align="right">{{batchList.batch_tot_qty  | PriceInd}}</td>
+																							<td align="right">&#8377;{{batchList.batch_unit_price  | PriceInd}}</td>
+																							<td align="right">&#8377;{{batchList.batch_tot_price  | PriceInd}}</td>
+																						</tr>
+
+																					</tbody>
+																				</table>
+
+																			</div>
+																		</div>
+																		
+																	</div>
+																</div>
+															</div>
+														</div>
+
+														<div class="">
+															<div class="row new_row"></div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+										</tr>
+								
+								
+								
+								
+								
+								</ng-container> 
+								
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					</div>
+					
+					
+					
+					
+					
+					<!-- End POPUO -->
+					
+					
+					
+					
+					
+					
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3">
+		<div class="left-block">
+		
+		</div>
+		<div class="right-block">
+			
+			<div class="pull-right">
+			<button class="login-button-export" title="Export to Excel" style="padding-left:8px;" (click)="exportExcel()">
+			<i class="fa excel-icon" style="margin-right:0px;padding-right:4px;height:24px;width:24px;">
+			</i>
+			</button>
+			</div>
+			
+			
+			<!-- <div class="pull-right">
+				<button class="login-button-export">
+					<i class="fa print-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Print</div>
+					</i>
+				</button>
+			</div> -->
+			<div class="left-block" *ngIf="footerPgFlag">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+			
+		</div>
+	</div>
+
+</section>

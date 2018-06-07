@@ -1,0 +1,308 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Pending Sales Order Report</strong>
+		</span>
+		<div class="pull-right">
+		<div class="row pull-left icon-filter-align">
+					<span class="" (click)="showFilters();" title="Advance Filters">
+					 <i class="fa fa-sliders"> </i>
+					</span>
+			  </div>
+		</div>
+	</div>
+	<div class="card-block db-block" style="padding:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+				<!-- filters start -->
+				<div class="outbound-content col-md-12 mb-5 mt-2" id="filter-block">
+					<form [formGroup]="filterVl10cReportForm">
+					 <div class="delivery-form-block col-md-12 row">
+					 <div class="col-md-2 text-align-sales" >
+						<label>Delivery From Date<sup class="asterick">*</sup></label>
+						<input type="text" class="form-control datepicker-init-sale" id="dlv-from-date"
+						(blur)="changeValidate('dlv-from-date')" placeholder="Delivery Date"
+						formControlName="dlvFromDate"   validateOnBlur [validateFormControl]="filterVl10cReportForm.controls['dlvFromDate']">
+						
+						<span
+							*ngIf="filterVl10cReportForm.controls['dlvFromDate'].touched && filterVl10cReportForm.controls['dlvFromDate'].invalid && filterVl10cReportForm.controls['dlvFromDate'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterVl10cReportForm.controls['dlvFromDate'].errors.required">
+								{{pendingReportMessages.dlv_date}}</small>
+						</span>
+						
+						</div>
+					<div class="col-md-2 text-align-sales" >
+						<label>Delivery To Date</label>
+						<input type="text" class="form-control datepicker-init-sale" id="dlv-date"
+						(blur)="changeValidate('dlv-date')" placeholder="Delivery Date"
+						formControlName="dlvDate"   validateOnBlur [validateFormControl]="filterVl10cReportForm.controls['dlvDate']">
+						
+						<span
+							*ngIf="filterVl10cReportForm.controls['dlvDate'].touched && filterVl10cReportForm.controls['dlvDate'].invalid && filterVl10cReportForm.controls['dlvDate'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterVl10cReportForm.controls['dlvDate'].errors.required">
+								{{pendingReportMessages.dlv_date}}</small>
+						</span>
+						
+						</div>
+					 <div class="col-md-3 text-align-sales">
+						<label>Ship to Party</label>
+						<input type="text" autocomplete="off" list="customerNamesList" class="form-control ajax-list" (keyup)="extractData('cust-name','spinner-search','filetrajaxListBlock',$event)" id="cust-name"
+									formControlName="custName" placeholder="customer name"  validateOnBlur [validateFormControl]="filterVl10cReportForm.controls['custName']"
+											 placeholder="Customer Name" />
+						<i class="fa fa-spinner fa-spin spinner-icon" id="spinner-search" style="display:none"></i>
+						<input type="hidden" name="customerId" id="filterCustomerId" value=""/>
+						<div class="ajax-searchlist" style="display:none;width:100%;" id="filetrajaxListBlock">
+										<ul id="customerNamesBlock" class="custmore-list ajax-list">
+											<ng-container *ngIf="customerNames.length>0">
+											<li *ngFor="let cstList of customerNames; let i = index;" id="list-{{i}}"
+											value="{{cstList.cust_id}}" class="ajax-list"  (click)="selectedItem(cstList,'filetrajaxListBlock','cust-name','filterCustomerId')"
+											><span class="pull-left" style=";font-weight:600;">{{cstList.cust_name}}</span>
+											<span class="pull-right">{{cstList.cust_id}}</span>
+											</li>
+											</ng-container>
+											<ng-container *ngIf="customerNames.length==0">
+												<li>Customers are not found</li>
+											</ng-container>
+										</ul>
+									</div>
+						<span
+							*ngIf="filterVl10cReportForm.controls['custName'].touched && filterVl10cReportForm.controls['custName'].invalid && filterVl10cReportForm.controls['custName'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterVl10cReportForm.controls['custName'].errors.required">
+								{{pendingReportMessages.customer_name}}</small>
+						</span>
+						
+						</div>
+					 <div class="col-md-2 text-align-sales" >
+						<label>Sales Order</label>
+						<input type="text" class="form-control" id="sonum" placeholder="Sales order number"
+						formControlName="sonum"  validateOnBlur [validateFormControl]="filterVl10cReportForm.controls['sonum']">
+						<span
+							*ngIf="filterVl10cReportForm.controls['sonum'].touched && filterVl10cReportForm.controls['sonum'].invalid && filterVl10cReportForm.controls['sonum'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterVl10cReportForm.controls['sonum'].errors.required">
+								{{pendingReportMessages.sonum}}</small>
+						</span>
+						</div>
+					<div class="col-md-2 text-align-sales">
+						<label>Material</label>
+						<input type="text" autocomplete="off"  name="materialNum"  placeholder="Material no." 
+							class="form-control matNum ajax-list" 
+							(keyup)="extractData1('matNum','spinner-search-1','filetrajaxListBlock-1',$event)"
+							formControlName="materialNum"  validateOnBlur [validateFormControl]="filterVl10cReportForm.controls['materialNum']"
+							id="matNum" list="materialNumlist"  #materialNum/>
+						<i class="fa fa-spinner fa-spin spinner-icon" id="spinner-search-1" style="display:none"></i>
+						<input type="hidden" name="customerId" id="filterMaterialId" value=""/>
+						<div class="ajax-searchlist" style="display:none;width:100%;" id="filetrajaxListBlock-1">
+								<ul id="customerNamesBlock" class="custmore-list ajax-list">
+											<ng-container *ngIf="materialList.length>0">
+											<li *ngFor="let cstList of materialList; let i = index;" id="list-{{i}}"
+											value="{{cstList.mat_num}}" class="ajax-list"  (click)="selectedItemMatr(cstList,'filetrajaxListBlock-1','matNum','filterMaterialId')"
+											><span class="pull-left" style=";font-weight:600;">{{cstList.mat_num}}</span>
+											<span class="pull-right">{{cstList.mat_name}}</span>
+											</li>
+											</ng-container>
+											<ng-container *ngIf="materialList.length==0">
+												<li>Materials are not found</li>
+											</ng-container>
+										</ul>
+									</div>
+						 <span
+							*ngIf="filterVl10cReportForm.controls['materialNum'].touched && filterVl10cReportForm.controls['materialNum'].invalid && filterVl10cReportForm.controls['materialNum'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterVl10cReportForm.controls['materialNum'].errors.required">
+								{{pendingReportMessages.materialNum}}</small>
+						</span>
+					</div>
+					  
+					  <div class="col-md-1 text-align-sales">
+ 						<button type="button" [attr.disabled]="!filterVl10cReportForm.valid ?  'disabled' : null" (click)="getFilterData()"  class="login-button-export" style="position:relative;top:27px;">
+							<i class="fa submit-icon" style="margin-right:4px;padding-right:4px;">
+							<div class="icon-text" style="right:-4px;">Submit</div>
+							</i>
+						</button>					  
+						</div>
+						</div>						 
+					</form>
+					</div>
+				<!-- filters end -->
+				<!-- display data start-->
+				<div class="col-md-12 text-align-sales mb-1 mt-3" *ngIf="pendingSalesRptList.length>0">
+							<table class="table table-hover nowrap editable-table totalTable totalSmry" style="display:inline-table;margin-bottom:0px;">
+								<tbody>
+									<tr>
+										<td style="background:#e4e9f0;">Totals:</td>
+										<td>
+											<div class="pull-left">Open QTY: </div>
+											<div class="pull-right">&#8377; {{openQty | PriceInd}}</div>
+										</td>
+										<td>
+											<div class="pull-left">Order QTY : </div>
+											<div class="pull-right">&#8377; {{orderQty | PriceInd}}</div>
+										</td>
+										
+										<td>
+											<div class="pull-left">Delivered QTY : </div>
+											<div class="pull-right">&#8377; {{dlvQty | PriceInd}}</div>
+										</td>
+									
+									</tr>
+								</tbody>
+							</table>
+							
+						</div>
+				<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table" id="pending-report-table">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="pendingSalesReport-table">
+								<thead>
+									<tr>
+										<!-- <th>Delivery Date</th> -->
+										<th>Sold to party</th>
+										<th>PO Number</th>
+										<th>Order Number</th>
+										<th>Order Date</th>
+										<th>Item</th>
+										<th>Material</th>
+										<th>Description</th>
+										<th>Order Qty</th>
+										<th>Delivery Qty</th>
+										<th>Open Qty</th>
+									</tr>
+								</thead>
+								<tbody>
+									<ng-container *ngIf="pendingSalesRptList.length>0">
+										<tr *ngFor="let pndSalesList of pendingSalesRptList; let i=index;">
+											<!-- <td>{{pndSalesList.g_date}}</td> -->
+											<td>{{pndSalesList.ship_to}}</td>
+											<td>{{pndSalesList.po_num}}</td>
+											<td><a href="javascript:void(0)" style="text-decoration:underline;color:#08948c;" (click)="navigateToSO(pndSalesList.ord_num)">{{pndSalesList.ord_num}}</a></td>
+											<td>
+											<span class="hide">{{pndSalesList.ord_date | date :'yyyyMMdd'}}</span>
+											{{pndSalesList.ord_date | date :'dd-MM-yyyy'}}</td>
+											<td>{{pndSalesList.item_num}}</td>
+											<td>{{pndSalesList.material}}</td>
+											<td>{{pndSalesList.description}}</td>
+											<td>{{pndSalesList.ord_qty}}</td>
+											<td>{{pndSalesList.dlv_qty}}</td>
+											<td>{{pndSalesList.open_qty}}</td>
+										</tr>
+									</ng-container>
+								</tbody>
+								</table>
+							</div>						
+						</div>
+				
+				
+				<!-- display data end-->
+				</div>
+			</div>
+		</div>
+	
+	</div>
+	</div>
+	<div class="outbound-footer mt-3" style="display:none;">
+
+		<div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+
+		<div class="right-block">
+		
+		
+			<div class="pull-left">
+			<button class="login-button-export" style="padding-left:8px;" title="Export Excel" id="export" (click)="exportExcel()">
+			<i class="fa excel-icon" style="margin-right:0px;width:24px;height:24px;">
+			</i>
+			</button>
+			</div>
+			
+
+			
+
+
+		</div>
+	</div>
+	</section>
+	
+	<!-- Display Errors modal  start -->	
+			<div class="modal fade " id="delarwiseReport-errors" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content" style="width: 100%;">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									Display Errors
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('delarwiseReport-errors')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body-block" style="padding: 6px 6px !important;max-height:250px; overflow-y:auto;">
+								<div class="card-block db-block" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+								
+								 <div style="margin-left: 11px; margin-bottom: 3px;"> </div>
+									<div class="col-lg-12">
+										<div class="row">
+											<!-- new changes -->
+											<div class="col-md-12 mt-1">
+													<div class="stock-table table-responsive">
+													<table class="table table-hover nowrap editable-table checkBoxTable" style="width: 100%;display:inline-table;">
+													<tr>
+													    <th>SO No.</th>
+														<th>Error Code</th>
+														<th>Error Message</th>
+													</tr>
+													<ng-container *ngFor="let erList of errorLogs; let i=index">
+												<tr *ngIf="erList.type=='E'">
+													<td>{{erList.message_v2}}</td>
+													<td>{{erList.id}}</td>
+													<td>{{erList.message}}</td>
+												</tr>
+												</ng-container> 
+													</table>
+													</div>
+												</div>
+											<!-- end chnges -->
+										</div>
+									</div>
+	</div>
+								</div>
+<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+									<button type="button" class="login-button forgotOk" id="topCloseButton"
+								(click)="closeModal('delarwiseReport-errors')"
+										aria-label="Close">Ok
+									</button>
+									</div>
+									</div>
+								</div>
+								</div>
+								
+						</div>
+					</div>
+</div>		
+<!-- Display Errors modal end -->		

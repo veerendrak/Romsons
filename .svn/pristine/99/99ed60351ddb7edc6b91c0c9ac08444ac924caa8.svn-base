@@ -1,0 +1,121 @@
+.cat__wizard .steps ul li{
+	
+	    -webkit-box-flex: 200;
+    -ms-flex-positive: 200;
+    flex-grow: 200;
+    float: none;
+    width: auto;
+    position: relative;
+    list-style-type: none;
+}
+.cat__wizard .steps ul li.disabled:before, .cat__wizard .steps ul li.disabled:after {
+    background: #bfc0c0;
+}
+.cat__wizard .steps ul li.disabled .cat__wizard__steps__icon, .cat__wizard .steps ul li.disabled .number {
+    border-color: #fff;
+    background: #bfc0c0;
+    color: #000;
+}
+.disabled > a > i{
+	color:#000;
+	font-weight:600;	
+}
+/*@media only screen and (min-width: 1200px){
+.cat__wizard .steps ul{
+    width: 1200px;
+    margin-left: 25px;
+}
+}
+
+@media only screen and (max-width: 1024px){
+.cat__wizard .steps ul{
+    width: 1024px;
+    margin-left: 25px;
+}
+}
+*/
+@media only screen and (max-width: 767px){
+.cat__wizard .steps ul li:before, .cat__wizard .steps ul li:after {
+    position: absolute;
+    content: '';
+    display: block;
+    width: 97%;
+    top: 0.7rem;
+    right: 0;
+    height: 0.60rem;
+    background: #006666;
+    z-index: 1;
+}
+.cat__wizard{
+	margin-left:2% !important;
+}
+.cat__wizard .steps ul li.last:after{width:0 !important;}
+.cat__wizard .steps ul li.last:before{width:0 !important;}
+.start{margin-left:0px !important;}
+}
+.start{margin-left:8px !important;}
+.cat_wizard_steps_title {
+    display: block;
+    text-align: left;
+    color:#02615c;
+    font-family: 'Open Sans';
+    font-size: 14px;
+    font-weight:500;
+}
+.cat__wizard .steps ul li{
+	margin-bottom:0px !important;
+}
+.cat__wizard .steps ul{
+	width:100%;
+	margin-bottom:0px;
+}
+.cat__wizard{
+	width:100% !important;
+	margin: 0 6%;
+	padding-left: 4%;
+    padding-right: 3%;
+}
+.showRow{
+	border-top: 1px solid #ccc;
+}
+.div_align{
+	padding: 5px;
+    min-height: 38px;
+}
+.icon_mt{
+	margin-top: 3px;
+}
+.inner_th_color{
+    background: #1baba4 !important;
+        color: #fff;
+}
+.stock-balance-inner-table{
+	border: 2px solid #1baba4 !important
+}
+.stoc-det-title{
+    margin-left: 10px;
+}
+
+.filter-align-box{
+border: 1px solid #ccc;
+    padding: 10px 10px 15px;
+    width: 98%;
+    margin: 0 auto 30px;
+    border-radius: 5px;
+    background: #f7f7f7;    top: 9px;
+
+}
+.icon-filter-align{
+    width: 38px;
+    float: right;
+    display: table;
+    right: 27px;
+    top: 44px;
+    cursor: pointer;
+}
+.table td, .table th {
+    padding: 0px 10px 0px;
+   
+}
+
+.stock-header-block-w{width:200px; display:inline}

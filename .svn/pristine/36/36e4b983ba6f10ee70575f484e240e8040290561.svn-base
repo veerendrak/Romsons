@@ -1,0 +1,13 @@
+.bussiness-form{
+	padding-left:15px;
+	padding-right:15px;
+}
+.bp-form-block{
+	border-bottom: 2px dashed #ccc;
+    margin-bottom: 10px;
+}
+.cust-det-title{
+	font-weight: bold;
+    color: black;
+    margin-left: -1px;
+}

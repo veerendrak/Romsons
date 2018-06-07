@@ -1,0 +1,13 @@
+/* CARDS */
+.card, .card-header, .list-group-item, .card-footer {
+    border-color: #e4e9f0;
+}
+
+.card-header, .card-footer {
+    background:none
+}
+
+.card {
+    margin-bottom: 1.35rem;
+    background:linear-gradient(to top, #EDF3F7 -0%, #fff 60%) !important
+}

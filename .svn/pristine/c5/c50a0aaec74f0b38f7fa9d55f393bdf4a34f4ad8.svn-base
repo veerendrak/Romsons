@@ -1,0 +1,644 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+declare var XLSX:any;
+declare var XLS:any;
+
+@Component({
+  selector: 'app-stock-balance',
+  templateUrl: './stock-balance.component.html',
+  styleUrls: ['./stock-balance.component.css']
+})
+export class StockBalanceComponent implements OnInit {
+
+  bpId:any;
+  orgId:any;
+  accessObjectId:any;
+  downloadUrl:any;
+  pageNum:any;
+  pageSize:any;
+  sortBy:any;
+  stockBalanceList:any;
+  stockBalanceListLength:any;
+  paginationCount:any;
+  paginationArray:any;
+  startIndex:any;
+  endIndex:any;
+  totalEndCount:any;
+  sortOrder:any;
+  stockBalanceStatus:any;
+  sortNum:any;
+  searchFilterByMaterialCd:any;
+  stockListDetails:any;
+  changedStockListDetails:any;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private environment:EnvConfigurationService) {
+      this.app.isActive=true;
+      this.bpId=localStorage.getItem("bpId");
+      this.orgId=localStorage.getItem("orgId");
+      this.accessObjectId=localStorage.getItem("Opening Stock Balance");
+      this.pageNum=1;
+      this.pageSize=10;
+      this.sortBy=null;
+      this.stockBalanceList=[];
+      this.stockBalanceListLength=0;
+      this.paginationArray=[];
+      this.sortOrder="asc";
+      this.sortBy="materialCd,asc";
+      this.sortNum=1;
+      this.searchFilterByMaterialCd="";
+      this.stockListDetails={};
+      this.changedStockListDetails=[];
+      this.stockBalanceStatus=""
+  }
+
+  ngOnInit() {
+      this.getStockBalanceDetails();
+      $(()=>{
+      $("input[type=file]").change(function(){
+          var file = this.files[0];
+          var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+          var fileName = $( "#stockFile" ).val()
+          fileName = fileName.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g,' ');
+          var stockBalanceFile = {
+                  "Sno":"Sno",
+                  "Matrial":"Matrial",
+                  "Description": "Description",
+                  "Batch": "Batch",
+                  "Qty": "Qty",
+                  "Price":"Price",
+                  "Closing Stock Value": "Closing Stock Vlue"
+              };
+
+          $( "#loadingIcon" ).show();
+          $( "#black-overlay" ).show();
+          var xlsxflag = false; /*Flag for checking whether excel is .xls format or .xlsx format*/  
+          if ($("#stockFile").val().toLowerCase().indexOf(".xlsx") > 0 || $("#stockFile").val().toLowerCase().indexOf(".xls") > 0){
+              xlsxflag = true;  
+              if ( typeof ( FileReader ) != "undefined" ) {
+                  var reader = new FileReader();
+                  reader.onload = function( e: any ) {
+                      var table = $( "<table />", {
+                          id: 'uploadCsvData',
+                          class: 'table table-hover nowrap scrollData',
+                          style: 'width:100%'
+                      } );
+                      var rowthead = $( "<thead/>", {
+                          class: "thead-default"
+                      } );
+                      var rowtbody = $( "<tbody />" );
+                      if ( e.target.result.length == 1 ) {
+                          $.notify( {
+                              title: '',
+                              message: "No data available in the uploaded file"
+                          }, {
+                                  type: "warning"
+                              } );
+                          $( "#loadingIcon" ).hide();
+                          $( "#black-overlay" ).hide();
+                          return false;
+                      }
+                      
+                      var rowslist = e.target.result;
+                      if (xlsxflag) {  
+                          var workbook = XLSX.read(rowslist, { type: 'binary' });  
+                      }  
+                      else {  
+                          var workbook = XLS.read(rowslist, { type: 'binary' });  
+                      } 
+                      /*Gets all the sheetnames of excel in to a variable*/  
+                      var sheet_name_list = workbook.SheetNames;  
+       
+                      var cnt = 0; 
+                      sheet_name_list.forEach(function (y) { /*Iterate through all sheets*/  
+                          /*Convert the cell value to Json*/  
+                          if (xlsxflag) {  
+                              var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[y]);  
+                          }  
+                          else {  
+                              var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[y]);  
+                          }  
+                          if (exceljson.length > 0 && cnt == 0) {  
+                              var columnSet = [];  
+                              var headerTr$ = $('<tr/>');  
+                              for (var i = 0; i < exceljson.length; i++) {  
+                                  var rowHash = exceljson[i];  
+                                  for (var key in rowHash) {  
+                                      if (rowHash.hasOwnProperty(key)) {  
+                                          if ($.inArray(key, columnSet) == -1) {/*Adding each unique column names to a variable array*/  
+                                              columnSet.push(key);  
+                                              headerTr$.append($('<th/>').html(key));  
+                                          }  
+                                      }  
+                                  }  
+                              } 
+                              rowthead.append(headerTr$);
+                              table.append(rowthead);
+                              var columns =columnSet;
+                              for (var i = 0; i < exceljson.length; i++) {  
+                                  var row$ = $('<tr/>');  
+                                  for (var colIndex = 0; colIndex < columns.length; colIndex++) {  
+                                      var cellValue = exceljson[i][columns[colIndex]];  
+                                      if (cellValue == null)  
+                                          cellValue = "";  
+                                      row$.append($('<td/>').html(cellValue));  
+                                  }  
+                                  rowtbody.append(row$);  
+                              }  
+                              table.append(rowtbody);
+                              cnt++;  
+                          }  
+                      });
+                      $( "#ulCsvContent" ).html( '' );
+                      $( "#ulCsvContent" ).append( table );
+                      var data = $( "#ulCsvContent" ).html();
+                      if ( data != null ) {
+                          setTimeout(function(){
+                              try{
+                              $( "#uploadCsvData" ).DataTable( {
+                                  "language": {
+                                      "emptyTable": "No data available",
+                                      "info": "Showing page _PAGE_ of _PAGES_",
+                                      "infoFiltered": "(filtered from _MAX_ total records)"
+                                  },
+                                  "order": [[ 0, "asc" ]],
+                                  columnDefs: [{
+                              targets: ['_all'],
+                            //render: $.fn.dataTable.render.ellipsis()
+                                  render: function( data, type, row ) {
+                                      
+                                    return data.length > 10 ? data.substr(0, 15) + '...' : data;
+                                 }
+                              }],
+                               "fnDrawCallback": function(oSettings) {
+                                 if (10 >= oSettings.fnRecordsDisplay()) {
+                                   $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+                              //     $(oSettings.nTableWrapper).find('.dataTables_filter').hide();
+                                   $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                                   //$(oSettings.nTableWrapper).find('.dataTables_length').hide();
+                                 } else {
+                               $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                             //    $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                                 $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                                   //  $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                                 }
+                               }
+                              });
+                              setTimeout(() => {
+                                  $( ".dataTables_scrollHeadInner" ).css( { "width": "100%" } );
+
+                                  $( ".table " ).css( { "width": "100%" } );
+
+                              }, 600 );
+                              $( "#loadingIcon" ).hide();
+                              $( "#black-overlay" ).hide();
+                              }catch(e){
+                                  $( "#loadingIcon" ).hide();
+                                  $( "#black-overlay" ).hide();
+                              }
+                              $("#ulCsvContent").show();
+                              $("#errorsBlock").hide();
+                              $("#uploadStockSubmit").show();
+                              $("#stockBalanceModal").modal('show');
+                          },600)
+                      }
+                  }
+                  if (xlsxflag) {/*If excel file is .xlsx extension than creates a Array Buffer from excel*/  
+                      reader.readAsArrayBuffer($("#stockFile")[0].files[0]);  
+                  }  
+                  else {  
+                      reader.readAsBinaryString($("#stockFile")[0].files[0]);  
+                  } 
+                  //reader.readAsText( $( "#stockFile" )[0].files[0] );
+              } else {
+                  alert( "This browser does not support HTML5." );
+              }
+          }else{
+              $( "#loadingIcon" ).hide();
+              $( "#black-overlay" ).hide();
+              alert( "Please upload a valid CSV file." ); 
+          }
+      });
+      var url = this.environment.getRequiredApi('upload_stock_balance_file');
+      var bpId = this.bpId;
+      var accessObjId=this.accessObjectId;
+      $("#uploadStockSubmit").click(function(){
+          $( '#loadingIcon' ).show();
+          $( "#black-overlay" ).show();
+          var formdata = new FormData( $( "#csvUploadDataForm" )[0] );
+          $.ajax( {
+              url: url + "?access_token=" + localStorage.getItem( 'token' ) +"&org_id="+localStorage.getItem("orgId")+"&bp_id=" + bpId+"&access_obj_id="+accessObjId,
+              type: "POST",
+              data: formdata,
+              cache: false,
+              contentType: false,
+              processData: false,
+              success: function( data ) {
+                  if(data.status==0){
+                      $( "#loadingIcon" ).hide();
+                      $( "#black-overlay" ).hide();
+                      var message=data.message;
+                      $.notify( {
+                          title: '<strong></strong>',
+                          message: message
+                      }, {
+                              type: 'success'
+                          } ); 
+                      var pbody = $( "<div/>", {
+                          class: "errors-div"
+                      } );
+                      for(var list of data["data"]){
+                          console.log(list);
+                          var pTag = $( "<p/>", {
+                              class: "error"
+                          } );
+                          pTag.append(list);
+                          pbody.append(pTag);
+                      }
+                      $("#stockBalanceModal").hide();
+                      $("#errorsBlock").html(pbody);
+                      $("#ulCsvContent").hide();
+                      $("#errorsBlock").show();
+                      $("#uploadStockSubmit").hide();
+                      $("#refeshStockBalance").click();
+                  }else{
+                      $( "#loadingIcon" ).hide();
+                      $( "#black-overlay" ).hide();
+                      var message=data.message;
+                      $.notify( {
+                          title: '<strong></strong>',
+                          message: message
+                      }, {
+                              type: 'warning'
+                          } ); 
+                      var pbody = $( "<div/>", {
+                          class: "errors-div"
+                      } );
+                      for(var list of data["data"]){
+                          console.log(list);
+                          var pTag = $( "<p/>", {
+                              class: "errors"
+                          } );
+                          pTag.append(list);
+                          pbody.append(pTag);
+                      }
+                      $("#errorsBlock").html(pbody);
+                      $("#ulCsvContent").hide();
+                      $("#errorsBlock").show();
+                      $("#uploadStockSubmit").hide();
+                  }
+              },
+              error: function( data ) {
+                  $( '#loadingIcon' ).hide();
+                  $( "#black-overlay" ).hide();
+                  if ( data.status == 403) {
+                      var errorMessage=null;
+                      if(data.message==null){
+                          errorMessage=data.responseJSON['message'];
+                      }else{
+                          errorMessage=data.message;
+                      }
+                      $.notify( {
+                          title: '<strong></strong>',
+                          message: errorMessage
+                      }, {
+                              type: 'warning'
+                          } );   
+                  }else{
+                      $.notify( {
+                          title: '<strong></strong>',
+                          message: "Max File size limit is reached. Please reload the file with not more than 6000 records."
+                      }, {
+                              type: 'warning'
+                          } );  
+                  }
+
+                  
+              }
+          } );
+      
+      });
+  });
+      setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },150);
+  }
+  getStockBalanceDetails(){
+      $("#stock-table").hide();
+      $('#loadingIcon').show();
+      $("#black-overlay").show();
+      this.searchFilterByMaterialCd=$("#filterSearch").val();
+      var filterVal=this.searchFilterByMaterialCd;
+      let url:any;
+      if(this.searchFilterByMaterialCd!=null && this.searchFilterByMaterialCd!=undefined){
+          url=this.environment.getRequiredApi("get_stock_balance_details")+"?org_id="+this.orgId+"&pg_num="+this.pageNum+"&pg_size="+this.pageSize+"&sort_by="+this.sortBy+"&search_by="+this.searchFilterByMaterialCd+"&";
+      }else{
+          url=this.environment.getRequiredApi("get_stock_balance_details")+"?org_id="+this.orgId+"&pg_num="+this.pageNum+"&pg_size="+this.pageSize+"&sort_by="+this.sortBy+"&";
+      }
+      
+      url=url.replace("{bp_id}",this.bpId);
+     this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+        if(response.status==0){
+            this.downloadUrl=this.environment.getRequiredApi("download_stock_excl")+"?bp_id="+this.bpId+"&org_id="+this.orgId+"&access_obj_id="+this.accessObjectId+"&access_token="+localStorage.getItem("token");
+            this.pageNum=response["data"].pgNum;
+            this.pageSize=response["data"].pgSize;
+            if(response["data"].hasOwnProperty('status')){
+            this.stockBalanceStatus=response["data"].status;
+            }   
+            this.sortBy=response["data"].sortBy;
+            let recordsCount:number=response["data"].ttlCnt;
+            let recordsSize:number=response["data"].pgSize;
+            let pagePer:number=recordsCount % recordsSize;
+            this.paginationCount=recordsCount/recordsSize;
+            if(pagePer==0){
+                this.paginationCount= this.paginationCount;     
+              }else{
+                 this.paginationCount=this.paginationCount+1; 
+              }
+            this.paginationArray=[];
+            for(let i=1; i<=this.paginationCount; i++){
+                let j=i;
+                this.paginationArray.push(j);    
+            }
+            this.startIndex=0;
+            this.endIndex=this.paginationArray.length;
+            this.totalEndCount=this.endIndex-1;
+            var columnList=this.sortNum;
+            var columnOrder=this.sortOrder;
+            var orderArray;
+            var arrayColumn=[];
+            this.stockListDetails={};
+            this.stockBalanceList=[];
+            orderArray=[[this.sortNum,this.sortOrder]];
+                this.stockListDetails=response;
+                this.stockBalanceList=response["data"].stocks;
+                this.stockBalanceListLength=this.stockBalanceList.length;
+                if( this.stockBalanceListLength == 0 ){
+                    this.stockBalanceStatus="L";
+                }
+                var pageno=this.pageNum;
+                var total=this.paginationArray.length;
+                $("#stock-balance-table").DataTable().destroy();
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                setTimeout(function(){
+                    var table = $('#stock-balance-table').DataTable({
+                       "order": orderArray,
+                       retrieve:true,
+                       "language": {
+                           "emptyTable":     "No data available",
+                           "searchPlaceholder" : "Material Code..."
+                       },
+                       columnDefs: [ {
+                                    "targets": 'no-sort',
+                                     "orderable": false
+                               } ],
+                       bPaginate: false,
+                       bInfo:false
+                             });
+                    $('.pageNum').each(function(i){
+                        $(this).removeClass('active-1');
+                        $("#previous").removeAttr('style');
+                        $("#next").removeAttr('style');
+                        $("#"+pageno).addClass('active-1');
+                      var selectpreviousPage=pageno-2;
+                      var currentpage=pageno-1
+                      var selectnextpage=pageno;
+                        if(total>5){
+                            var count=5;
+                          if(i<count){
+                              if(pageno!=5 && pageno<5 ){
+                                      $("#previous-wrapper").hide(); 
+                                      $(this).parent().show();
+                                  }else{
+                                   $("#previous-wrapper").show(); 
+                                  $("#previous-wrapper").attr('style','margin-left:-6px;');
+                                  $("#page-0").show();
+                                   $(this).parent().hide();
+                                   $("#page-"+selectpreviousPage).show();
+                                  $("#page-"+currentpage).show();
+                              }
+                          }else{
+                            $(this).parent().hide();
+                            $("#next-wrapper").show();
+                              if(pageno>=5){
+                                  $("#page-"+selectpreviousPage).show();
+                                  $("#page-"+currentpage).show();
+                                  $("#page-"+selectnextpage).show();
+                                  }
+                              var tCount=total-1;
+                              var nextCount=total-4;
+                            if(i==tCount){
+                               $(this).attr('style','margin-left:-6px;');
+                               $(this).parent().show();
+                            } 
+                            if(selectnextpage==total || selectnextpage==tCount || selectpreviousPage==nextCount){
+                                $(this).removeAttr('style');
+                                $("#next-wrapper").hide();
+                            }
+                          }    
+                        }else{
+                            $(this).parent().show();
+                        }
+                         if(pageno==1){
+                              $("#previous").attr('style','background:#f2f4f8; cursor:text;color:#6d6c6c !important;');    
+                         }else{
+                            if(pageno==total){
+                               $("#next").attr('style','background:#f2f4f8; cursor:text;color:#6d6c6c !important;'); 
+                            }  
+                         }  
+                  });
+                    
+                    $('#stock-balance-table_filter input').val(filterVal);
+                    $("#searchStock").remove();
+                    $("#stock-balance-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+                    $('#stock-balance-table_filter input').unbind();
+                    $('#stock-balance-table_filter input').bind('keyup', function(e) {
+                        console.log( 'Currently applied global search: '+this.value);
+                        var value=this.value;
+                        if(value!=""){
+                            $("#filterSearch").val(value); 
+                        }else{
+                            $("#filterSearch").val(value);
+                            $("#refeshStockBalance").click();
+                        }
+                });
+                    $('.searchStock').click(function() {
+                        $("#refeshStockBalance").click();
+                    });
+                },500);
+            $("#stock-table").show();
+        }else{
+            this.downloadUrl=null;
+            $("#stock-balance-table").DataTable().destroy();
+            this.stockBalanceStatus="D"
+            this.stockBalanceList=[];
+            this.stockBalanceListLength=0;
+            $('#loadingIcon').hide();
+            $("#black-overlay").hide();
+            orderArray=[[this.sortNum,this.sortOrder]];
+            setTimeout(()=>{
+                
+                $("#stock-balance-table").DataTable({
+                    "order": orderArray,
+                    retrieve:true,
+                    bPaginate:false,
+                    "language": {
+                        "emptyTable": "No data available",
+                        "info": "Showing page _PAGE_ of _PAGES_",
+                        "infoFiltered": "(filtered from _MAX_ total records)",
+                        "searchPlaceholder" : "Material Code..."
+                      },
+                      columnDefs: [ {
+                          "targets": 'no-sort',
+                           "orderable": false
+                     } ],
+                     "bInfo":false
+                });
+                $("#searchStock").remove();
+                $("#stock-balance-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+                $('#stock-balance-table_filter input').unbind();
+                $('#stock-balance-table_filter input').bind('keyup', function(e) {
+                    console.log( 'Currently applied global search: '+this.value);
+                    var value=this.value;
+                    if(value!=""){
+                        $("#filterSearch").val(value); 
+                    }else{
+                        $("#filterSearch").val(value);
+                        $("#refeshStockBalance").click();
+                    }
+            });
+                $('.searchStock').click(function() {
+                    $("#refeshStockBalance").click();
+                });
+            },500);
+            
+            this.commonService.responseMessages("", response.message, "warning");
+            $("#stock-table").show();
+        } 
+     });
+  }
+navigatePreviousPage(){
+    let pageNum:number=parseInt(this.pageNum);
+    pageNum=pageNum-1;
+    if(pageNum!=0){
+       this.pageNum=pageNum;
+       this.pageSize=$("#showPageSize").val();
+       this.getStockBalanceDetails();
+    }else{
+        return false    
+    }
+}
+navigateNextPage(pageNum){
+    this.pageNum=parseInt(pageNum);
+    this.pageSize=$("#showPageSize").val();
+     this.getStockBalanceDetails();
+}
+navigatePageNext(){
+    let pageNum:number=parseInt(this.pageNum);
+     pageNum=pageNum+1;
+     let count:number=this.paginationArray.length;
+     if(pageNum<=count){
+         this.pageNum=pageNum;
+         this.pageSize=$("#showPageSize").val();  
+         this.getStockBalanceDetails();
+    }else{
+         return false    
+     } 
+}
+filterPageSizeRecords(){
+    this.pageNum=1;
+    this.pageSize=$("#showPageSize").val();
+    this.getStockBalanceDetails();
+
+}
+uploadStockExcel(){
+    if(this.stockBalanceStatus==""  ||this.stockBalanceStatus=="L" || this.downloadUrl==null){
+        return false;
+    }
+    $( "#stockFile" ).val("");
+    $("#stockFile").click();
+}
+closeModal(id){
+    $("#"+id).modal("hide");
+}
+editEnableStock(id,textId,inputId){
+    if(this.stockBalanceStatus=="L"){
+        return false;
+    }
+    if($("#"+textId+"-"+id).is(":visible")){
+        $("#"+textId+"-"+id).hide();
+        $("#"+inputId+"-"+id).show();
+    }
+}
+sortByColumn(sortByField,sortNumber,columnId){
+    this.sortNum="";
+        this.sortNum=sortNumber;
+    if($("#"+columnId+"-"+sortNumber).hasClass("sorting_asc")){
+        this.sortOrder='desc'
+        this.sortBy=sortByField+","+this.sortOrder;
+    }else{
+        this.sortOrder='asc'
+        this.sortBy=sortByField+","+this.sortOrder;
+    }
+   this.getStockBalanceDetails(); 
+}
+saveStockBalance(){
+    $('#loadingIcon').show();
+    $("#black-overlay").show();
+    this.searchFilterByMaterialCd=$("#filterSearch").val();
+    let payload:any=this.stockListDetails;
+    payload["stocks"]=[];
+    for(let id of this.changedStockListDetails){
+        payload["stocks"].push(this.stockBalanceList[id]);
+    }
+    var filterVal=this.searchFilterByMaterialCd;
+    let url:any=this.environment.getRequiredApi("get_stock_balance_details")+"?org_id="+this.orgId+"&pg_num="+this.pageNum+"&pg_size="+this.pageSize+"&sort_by="+this.sortBy+"&search_by="+this.searchFilterByMaterialCd+"&";
+    url=url.replace("{bp_id}",this.bpId);
+    this.commonService.getData(url, "PUT", payload, this.accessObjectId).subscribe(response=>{
+        if(response.status==0){
+            this.changedStockListDetails=[];
+            this.commonService.responseMessages("", response.message, "success");
+            this.getStockBalanceDetails();
+        }else{
+            this.commonService.responseMessages("", response.message, "warning");
+        }
+        $('#loadingIcon').hide();
+        $("#black-overlay").hide();
+    });
+}
+lockStockBalance(){
+    if((this.stockBalanceStatus=="L" && this.stockBalanceListLength!=0) || this.stockBalanceStatus=="D"){
+        return false;
+    }
+    $('#loadingIcon').show();
+    $("#black-overlay").show();
+    let url:any=this.environment.getRequiredApi("lock_stock_balance")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&status=L&";
+    this.commonService.getData(url, "PUT", this.stockListDetails, this.accessObjectId).subscribe(response=>{
+        if(response.status==0){
+            this.commonService.responseMessages("", response.message, "success");
+            this.getStockBalanceDetails();
+        }else{
+            this.commonService.responseMessages("", response.message, "warning");
+        }
+        $('#loadingIcon').hide();
+        $("#black-overlay").hide();
+    });
+}
+changeStockVal(response,oldClosingStockVal,id){
+    if(this.changedStockListDetails.indexOf(id)==-1){
+        this.changedStockListDetails.push(id);
+    }
+}
+}

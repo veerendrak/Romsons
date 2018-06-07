@@ -1,0 +1,113 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router,ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-billing',
+  templateUrl: './billing.component.html',
+  styleUrls: ['./billing.component.css']
+})
+export class BillingComponent implements OnInit {
+   billingDetailsPage:boolean=false;
+   public deliveryNumber:string;
+   public billingDate:string;  
+   public createBillingPayload:any={};
+    public bpId:string;
+     public orgId:string;
+    public deliveryItemArray=[];
+    public deliveryItemObject={};
+    public outBoundDelPayload:any={};    
+    outBoundDeliveryFormObject:any=[];
+  constructor(private http: Http, private formBuilder: FormBuilder,private messagesService:MessagePropertiesService,private environment:EnvConfigurationService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private commonService:CommonService,private activatedRoute:ActivatedRoute) {
+      this.app.isActive=true;
+      this.billingDetailsPage=true;
+      this.bpId = localStorage.getItem("bpId");
+      this.orgId = localStorage.getItem("orgId");
+      
+  }
+
+  ngOnInit() {
+      
+      this.activatedRoute.queryParams.subscribe(params => {
+           if(this.router.url.includes("billing")){
+              if (params['action'] == "C") {
+                  this.deliveryNumber = params['delvNo'];
+                  this.billingDate = params['billDate'];
+                  this.createBillingPayload["im_action"]=params['action'];
+              }
+              
+          } 
+          this.getSalesOutboundDeliveryList(this.deliveryNumber);
+      });
+      
+  }
+    
+    createBillingDetails(){
+        
+         let url = this.environment.getRequiredApi( 'manage_bill_details' )+"?";
+        
+         this.deliveryItemObject["delv_no"]=this.deliveryNumber;
+         this.deliveryItemObject["object_name"]="";
+         this.deliveryItemObject["text_id"]="";
+         this.deliveryItemObject["text_line"]="";
+        
+        this.deliveryItemArray.push(this.deliveryItemObject);
+        this.createBillingPayload["im_delv_no"]=this.deliveryItemArray;
+        this.createBillingPayload["org_id"]=this.orgId;
+        this.createBillingPayload["bp_id"]=this.bpId;
+        
+        console.log(this.createBillingPayload);
+      
+       this.commonService.getData( url, 'POST', this.createBillingPayload,localStorage.getItem( 'Billing' ))
+            .subscribe(( response ) => {
+              
+               console.log(response.data);
+                
+                
+               
+            }, err => {
+                  
+                    console.log(err)   
+                
+               
+            } );
+        
+    }
+    
+    getSalesOutboundDeliveryList(deliveryNum){
+         
+          this.outBoundDelPayload["bp_id"]=this.bpId;
+          this.outBoundDelPayload["org_id"]=this.orgId;
+         this.outBoundDelPayload["del_num"]=deliveryNum;
+         
+         let url = this.environment.getRequiredApi( 'get_sales_outbound_delivery_list' )+"?";
+      
+        this.commonService.getData( url, 'POST', this.outBoundDelPayload,localStorage.getItem( 'Outbound Delivery' ))
+            .subscribe(( response ) => {
+              
+              if(response.status == 0){
+                this.outBoundDeliveryFormObject = response.data.ex_delivery_list[0];
+                  }else{
+                   this.commonService.responseMessages("",response.message, "warning");
+              }
+              console.log(this.outBoundDeliveryFormObject ) 
+            }, err => {
+                  
+                    console.log(err)   
+                
+               
+                //this.reqdata.responseMessages(err, err.status, 'danger');
+            } );
+    
+    }
+}

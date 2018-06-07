@@ -1,0 +1,15 @@
+import { Component, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'app-edit-billing-details',
+  templateUrl: './edit-billing-details.component.html',
+  styleUrls: ['./edit-billing-details.component.css']
+})
+export class EditBillingDetailsComponent implements OnInit {
+
+  constructor() { }
+
+  ngOnInit() {
+  }
+
+}

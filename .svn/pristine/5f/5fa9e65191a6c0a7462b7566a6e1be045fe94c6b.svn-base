@@ -1,0 +1,34 @@
+import { Component, OnInit } from '@angular/core';
+
+declare var $: any;
+declare var jQuery: any;
+
+@Component({
+  selector: 'app-stock-details',
+  templateUrl: './stock-details.component.html',
+  styleUrls: ['./stock-details.component.css']
+})
+export class StockDetailsComponent implements OnInit {
+
+  constructor() { }
+    
+
+  ngOnInit() {
+      
+       setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },50);
+  }
+
+    expandmodal(materialId,icon){
+        var cls = $("#" + icon).attr('class');
+        if (cls == 'fa fa-minus expand pull-right') {
+            $("#" + icon).attr('class', 'fa fa-plus expand pull-right');
+
+        } else {
+            $("#" + icon).attr('class', 'fa fa-minus expand pull-right');
+        }
+        $("." + materialId).toggle();
+        }
+ }

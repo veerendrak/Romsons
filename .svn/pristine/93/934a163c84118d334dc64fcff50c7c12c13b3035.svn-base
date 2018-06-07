@@ -1,0 +1,297 @@
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+@Component({
+    selector: 'app-customer-information',
+    templateUrl: './customer-information.component.html',
+    styleUrls: ['./customer-information.component.css']
+})
+export class CustomerInformationComponent implements OnInit {
+
+
+    public checked: boolean = false;
+    indeterminate: boolean = false;
+    customerDetailList: any;
+    url: string;
+    bpId: string;
+    orgId: string;
+    accessObjectId: any;
+    roleAdmin: any;
+    roleStockist: any;
+    cdlist: any;
+    cdListLength: any;
+    salesgroups: any;
+    pricelist: any;
+    customerpayload: any;
+    ss_cust_id: any;
+    constructor(private http: Http, private formBuilder: FormBuilder, private environment: EnvConfigurationService,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private dateAdapter: DateAdapter<Date>) {
+        this.app.isActive = true;
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjectId = localStorage.getItem("Customer Details");
+        this.cdListLength = 0;
+        if (localStorage.getItem("roleName") == "Admin") {
+            this.roleAdmin = true;
+        } else {
+            this.roleStockist = true;
+        }
+
+    }
+
+    ngOnInit() {
+
+        setTimeout(() => {
+            var width = $("#mainContent").css("width");
+            $(".outbound-footer").css("width", width);
+        }, 50);
+
+        this.getCustomerlist();
+        this.getSalesGroupDetails();
+        this.getPriceListDetails();
+
+    }
+    getSalesGroupDetails() {
+        //        $('#loadingIcon').show();
+        //        $("#black-overlay").show();
+        let action: any = "SGRPS"
+        let salesgroupUrl: any = this.environment.getRequiredApi("salesgroup_pricelist") + "?action=" + action + "&org_id=" + this.orgId + "&bp_id=" + this.bpId + "&";
+        //        stateUrl = stateUrl.replace("{obj_name}", "states");
+        //        stateUrl = stateUrl.replace("{obj_id}", 1);
+        this.commonService.getData(salesgroupUrl, "GET", "", this.accessObjectId).subscribe((response) => {
+            if (response.status == 0) {
+                this.salesgroups = response["data"].ex_rmss_kad_sg;
+            }
+        });
+    }
+    getPriceListDetails() {
+        //        $('#loadingIcon').show();
+        //        $("#black-overlay").show();
+        let action: any = "PRICES"
+        let priceUrl: any = this.environment.getRequiredApi("salesgroup_pricelist") + "?action=" + action + "&org_id=" + this.orgId + "&bp_id=" + this.bpId + "&";
+        //        stateUrl = stateUrl.replace("{obj_name}", "states");
+        //        stateUrl = stateUrl.replace("{obj_id}", 1);
+        this.commonService.getData(priceUrl, "GET", "", this.accessObjectId).subscribe((response) => {
+            if (response.status == 0) {
+                this.pricelist = response["data"].ex_price_list;
+            }
+        });
+    }
+    getCustomerlist() {
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        this.url = this.environment.getRequiredApi('get_customer_details') + "?bp_id=" + this.bpId + "&org_id=" + this.orgId + "&";
+
+        this.commonService.getData(this.url, 'GET', '', localStorage.getItem("Customer Details"))
+            .subscribe((response) => {
+                //  $("#stock-balance-table").DataTable().destroy();
+                if (response.status == '1') {
+                    this.commonService.responseMessages("", response.message, "warning");
+                    this.customerDetailList = [];
+                    this.applyDataTable();
+
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                } else {
+                    $("#cust-info-table").DataTable().destroy();
+                    this.customerDetailList = response.data.ex_cust_list;
+
+                    this.applyDataTable();
+
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                }
+
+            }, err => {
+
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                console.log(err)
+            });
+    }
+    applyDataTable() {
+        setTimeout(() => {
+            $("#cust-info-table").DataTable({
+                "order": [0],
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)"
+                },
+                "fnDrawCallback": function(oSettings) {
+                    if (5 >= oSettings.fnRecordsDisplay()) {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+
+                        $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                    } else {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_length').show();
+
+                    }
+                },
+                "columnDefs": [{
+                    "targets": 'no-sort',
+                    "orderable": false,
+                }]
+            });
+        }, 500);
+
+        setTimeout(() => {
+            $(".dataTables_scrollHeadInner").css({ "width": "100%" });
+            $(".table ").css({ "width": "100%" });
+            $("#cust-info-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+        }, 1100);
+    }
+    getReportList(event, tableId) {
+        setTimeout(() => {
+            let flag: boolean = this.commonService.checkAction(tableId);
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = true;
+            } else {
+                this.indeterminate = true;
+            }
+        }, 400);
+
+    }
+    displayCustomerDetails(cust_id) {
+
+        this.commonService.saleType = 'Edit';
+        const path: any = "customerInfo";
+        this.router.navigate([path], { queryParams: { "customerid": cust_id, "action": "DIS" } });
+    }
+    //  this.getCustomerDetails();
+    GetApproveDetails(ss_cust_id) {
+        $("#bussinessModal").modal("show");
+
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        let response: any = {}
+        response["address"] = true;
+        response["bp_id"] = this.bpId;
+        response["compliance"] = true;
+        response["incoterms"] = true;
+        response["org_id"] = this.orgId;
+        response["ss_cust_id"] = ss_cust_id;
+        this.ss_cust_id = ss_cust_id
+        let url: any = this.environment.getRequiredApi("get_customer_details") + "?";
+        this.commonService.getData(url, "POST", response, this.accessObjectId).subscribe(response => {
+            $('#loadingIcon').hide();
+            $("#black-overlay").hide();
+            if (response.status == 0) {
+                this.cdlist = response["data"];
+                this.cdListLength = Object.keys(this.cdlist).length;
+                console.log(this.cdlist);
+
+                // this.customerDetailsForm.setValue( obj );
+            } else {
+                this.commonService.responseMessages("", response.message, "warning");
+            }
+        })
+    }
+    closeModal(id) {
+        $("#" + id).modal("hide");
+
+    }
+    submitApproveCustomer(ss_cust_id) {
+        $("#loadingIcon").show();
+        $("#black-overlay").show();
+        //     console.log(this.customerDetailsForm.value);
+
+        this.url = this.environment.getRequiredApi('customer_manage') + "?";
+        this.customerpayload = {};
+        this.customerpayload.bp_id = this.bpId;
+        this.customerpayload.org_id = this.orgId;
+        this.customerpayload.action = "A";
+        if ($('#sales_grp1').val() != "" && $('#sales_grp1').val() != null) {
+            this.customerpayload.sales_grp1 = $('#sales_grp1').val() + "," + $('#sales_grp1 option:selected').text();
+
+        }
+        if ($('#sales_grp2').val() != "" && $('#sales_grp2').val() != null) {
+            this.customerpayload.sales_grp2 = $('#sales_grp2').val() + "," + $('#sales_grp2 option:selected').text();
+        }
+        if ($('#sales_grp3').val() != "" && $('#sales_grp3').val() != null) {
+            this.customerpayload.sales_grp3 = $('#sales_grp3').val() + "," + $('#sales_grp3 option:selected').text();
+        }
+
+        if ($('#sales_grp4').val() != "" && $('#sales_grp4').val() != null) {
+            this.customerpayload.sales_grp4 = $('#sales_grp4').val() + "," + $('#sales_grp4 option:selected').text();
+        }
+        if ($('#price_list').val() != "" && $('#price_list').val() != null) {
+            this.customerpayload.price_list = $('#price_list').val() + "," + $('#price_list option:selected').text();
+
+        }
+        this.customerpayload.ss_cust_id = ss_cust_id;
+        this.customerpayload.remarks = $('#txt_remarks').val();
+        this.commonService.getData(this.url, "POST", this.customerpayload, this.accessObjectId).subscribe((response) => {
+            if (response.status == 1) {
+                $("#loadingIcon").hide();
+                $("#black-overlay").hide();
+                this.commonService.responseMessages('', response.message, 'warning');
+            } else {
+                $("#loadingIcon").hide();
+                $("#black-overlay").hide();
+                this.commonService.responseMessages('', response.message, 'success');
+                //  this.customerDetailsForm.reset();
+                $('#bussinessModal_divpopup')[0].reset();
+                $('#bussinessModal').modal("hide");
+                this.getCustomerlist();
+            }
+
+        });
+    }
+    submitRejectCustomer(ss_cust_id) {
+        $("#loadingIcon").show();
+        $("#black-overlay").show();
+        //     console.log(this.customerDetailsForm.value);
+
+        this.url = this.environment.getRequiredApi('customer_manage') + "?";
+        this.customerpayload = {};
+        this.customerpayload.bp_id = this.bpId;
+        this.customerpayload.org_id = this.orgId;
+        this.customerpayload.action = "R";
+        //        this.customerpayload.sales_grp = $('#sales_grp').val();
+        //        this.customerpayload.price_list = $('#txt_remarks').val();
+        this.customerpayload.ss_cust_id = ss_cust_id;
+        this.customerpayload.remarks = $('#txt_remarks').val();
+
+        this.commonService.getData(this.url, "POST", this.customerpayload, this.accessObjectId).subscribe((response) => {
+            if (response.status == 1) {
+                $("#loadingIcon").hide();
+                $("#black-overlay").hide();
+                this.commonService.responseMessages('', response.message, 'warning');
+            } else {
+                $("#loadingIcon").hide();
+                $("#black-overlay").hide();
+                this.commonService.responseMessages('', response.message, 'success');
+                //  this.customerDetailsForm.reset();
+                $('#bussinessModal_divpopup')[0].reset();
+                $('#bussinessModal').modal("hide");
+                this.getCustomerlist();
+            }
+
+        });
+    }
+    createCustomer() {
+        const path: any = "customerInfo";
+        this.router.navigate([path]);
+    }
+    selectAll(event, checkAll, tableId) {
+        setTimeout(() => {
+            this.commonService.selectAllCheckBoxes(checkAll, tableId)
+        }, 300);
+    }
+
+}

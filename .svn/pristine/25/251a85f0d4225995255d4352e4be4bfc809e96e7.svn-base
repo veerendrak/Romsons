@@ -1,0 +1,50 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+
+@Component({
+  selector: 'app-outgoing-payment',
+  templateUrl: './outgoing-payment.component.html',
+  styleUrls: ['./outgoing-payment.component.css']
+})
+export class OutgoingPaymentComponent implements OnInit {
+    outgoingPayemnt: FormGroup;
+    outgoingPaymentsMessages:any;
+  constructor(private http: Http, private formBuilder: FormBuilder,private messagesService:MessagePropertiesService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private dateAdapter: DateAdapter<Date>) {
+          this.dateAdapter.setLocale('en-gb');    
+          this.outgoingPayemnt = formBuilder.group({
+            hideRequired: false,
+            floatLabel: 'auto',
+            "vendAccount":['', Validators.required],
+            "paymentDate":['',Validators.required],
+            "docDate"   :['',Validators.required],
+            "DocType":['', Validators.required],
+            "cmpnCode":['', Validators.required],
+            "payment":['', Validators.required],
+            
+            "reference":['', Validators.required],
+            "currency":['', Validators.required],
+            
+            "remarks":['', Validators.required],
+            "amt":['', Validators.required],
+            "profitCenter":['', Validators.required],
+            "glAccount":['', Validators.required],
+           
+          });
+        this.outgoingPaymentsMessages = this.messagesService.outgoing_payments_msg;  
+  }
+
+  ngOnInit() {
+  }
+
+}

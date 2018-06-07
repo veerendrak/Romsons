@@ -1,0 +1,153 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Display Config Groups</strong>
+		</span>
+		
+	</div>
+	<div class="card-block db-block" style="padding:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row mb-25">
+				
+				
+				
+				
+					<!-- new changes -->
+					<div class="col-md-12 mt-rem mb-1" style="margin-top:5px">
+							<div class="stock-table ">
+								<table class="table table-hover nowrap editable-table checkBoxTable table-responsive cfg-grp-det table-divs"
+								width="100%" id="conf-grp-table" >
+								<thead>
+									<tr>
+										<th  rowspan="2"  class="no-sort"  style="width:50px;text-align:center;">
+											<!-- <mat-checkbox class="example-margin" 
+											[(ngModel)]="checked"
+											[checked]="checked"
+											[(indeterminate)]="indeterminate"
+											 ></mat-checkbox> -->
+											 <!-- (click)="selectAll($event,'mat-checkbox-1-input','conf-grp-table')" -->
+											 </th>
+										
+										<th rowspan="2" style="line-height: 55px;">Group Name</th>
+										<th rowspan="2" style="line-height: 55px;">Parent Id</th>
+										<th rowspan="2" style="line-height: 55px;">Description</th>
+										<th colspan="10" style="text-align:center">Additional Fields</th>
+										<th rowspan="2" class="no-sort sorting-disabled" style="line-height: 55px;min-width: 60px;">Status</th>
+									</tr>
+									<tr>
+										
+										<th >1</th>
+										<th >2</th>
+										<th >3</th>
+										<th >4</th>
+										<th >5</th>
+										<th >6</th>
+										<th >7</th>
+										<th >8</th>
+										<th >9</th>
+										<th >10</th>
+										</tr>
+								</thead>
+								
+								
+								
+								
+								<tbody>
+									<tr *ngFor="let list of configGrpList let i=index;">
+										<td align="center">
+											<mat-checkbox id="checkbox-{{i}}" (click)="getReportList('conf-grp-table',i,list)"></mat-checkbox>
+											
+										</td>
+											
+											<td>
+												<div class=""
+													title="{{list.group_name}}">{{list.group_name}}
+												</div>
+											</td>
+											<td>
+												<div class="text-name-elipsis"
+													title="{{list.parent_id}}">{{list.parent_id}}
+												</div>
+											</td>
+											<td>
+												<div class="text-name-elipsis" title="{{list.description}}">{{list.description}}
+												</div>
+											</td>
+											<td>
+											<div class="text-name-elipsis addtn-fields" title="{{list.add_field1}}">{{list.add_field1}}
+												</div>
+											</td>
+											<td>
+											<div class="text-name-elipsis addtn-fields" title="{{list.add_field2}}">{{list.add_field2}}
+												</div>
+											</td>
+											<td>
+											<div class="text-name-elipsis addtn-fields" title="{{list.add_field3}}">{{list.add_field3}}
+												</div>
+											</td>
+											<td><div class="text-name-elipsis addtn-fields" title="{{list.add_field4}}">{{list.add_field4}}
+												</div></td>
+											<td><div class="text-name-elipsis addtn-fields" title="{{list.add_field5}}">{{list.add_field5}}
+												</div></td>
+											<td>
+											<div class="text-name-elipsis addtn-fields" title="{{list.add_field6}}">{{list.add_field6}}
+												</div></td>
+											<td><div class="text-name-elipsis addtn-fields" title="{{list.add_field7}}">{{list.add_field7}}
+												</div></td>
+											<td>
+											<div class="text-name-elipsis addtn-fields" title="{{list.add_field8}}">{{list.add_field8}}
+												</div>
+											</td>
+											<td><div class="text-name-elipsis addtn-fields" title="{{list.add_field9}}">{{list.add_field9}}
+												</div></td>
+											<td><div class="text-name-elipsis addtn-fields" title="{{list.add_field10}}">{{list.add_field10}}
+												</div></td>
+												<td>
+													<ng-container *ngIf="!list.mark_as_delete else condB">
+													<div class="text-name-elipsis addtn-fields"
+													 title="Active">Active
+													</div>
+													</ng-container>
+													<ng-template #condB>INACTIVE</ng-template>
+												</td>
+										</tr>
+									
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+<div class="outbound-footer mt-3" >
+
+		<div class="right-block">
+			<div class="pull-left">
+
+				<button class="login-button-export" title="Edit"
+					style="padding-left: 8px;" (click)="navigateConfGrps('E')">
+					<i class="fa edit-icon"
+						style="margin-right: 2px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+
+			</div>
+
+			<div class="pull-left">
+				<button class="login-button-export" title="Create"
+					style="padding-left: 8px;" (click)="navigateConfGrps('C')">
+					<i class="fa create-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+
+	</div>
+</section>
+
+

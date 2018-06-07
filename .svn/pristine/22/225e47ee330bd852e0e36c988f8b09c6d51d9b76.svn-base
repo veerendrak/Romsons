@@ -1,0 +1,34 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-billing',
+  templateUrl: './billing.component.html',
+  styleUrls: ['./billing.component.css']
+})
+export class BillingComponent implements OnInit {
+   createBillingForm:FormGroup;
+   billingDetailsPage:boolean=false;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,
+          private commonService:CommonService) {
+      this.app.isActive=true;
+      this.billingDetailsPage=true;
+      this.createBillingForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+        });
+  }
+
+  ngOnInit() {
+      
+  }
+}

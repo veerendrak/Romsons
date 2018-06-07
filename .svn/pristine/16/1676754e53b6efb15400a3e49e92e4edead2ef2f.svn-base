@@ -1,0 +1,426 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Recurring
+					Order List</strong>
+			</span>
+
+		</div>
+	</div>
+	<div class="card-block db-block" style="padding: 0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<!-- configGrpList -->
+				<div class="outbound-content col-md-12 mt-2">
+					<!-- 	<form [formGroup]="configValueForm"> -->
+					<div class="cust-form-block  col-md-12 row pb-1">
+						<div class="clear-fix"></div>
+						<div class="col-md-3 text-align-sales">
+							<label>Recurring Order List</label> <select
+								style="padding: 5px !important;" #confGrp class="form-control"
+								id="grp_orderlist" (change)="changeOrderType()">
+								<option [value]="" disabled>Please Select Order List</option>
+								<ng-container *ngFor="let types of recOrderList">
+								<option value={{types.configValId}}>{{types.value}}</option>
+								</ng-container>
+							</select>
+						</div>
+						<div class="col-md-3 text-align-sales"></div>
+						<div class="col-md-3 text-align-sales"></div>
+						<div class="col-md-3 text-align-sales" style="padding-top: 27px;">
+							<button class="login-button" (click)="Add_newList()">
+								<i class="fa fa-plus" style="margin-right: 4px; font-size: 16px"></i>
+								Add New List
+							</button>
+						</div>
+					</div>
+					<!-- 	</form> -->
+
+				</div>
+				<!-- configGrpList -->
+				<div class="row ">
+					<!-- new changes -->
+					<div class="col-md-12 mt-rem mb-1" style="margin-top: 5px">
+						<div class="stock-table">
+							<table
+								class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="rec-order-table">
+								<thead>
+									<tr>
+										<th rowspan="2"
+											style="min-width: 50px !important; text-align: center;">
+											<mat-checkbox class="example-margin" id="checkbox-all"
+												[(ngModel)]="checked" [checked]="checked"
+												[(indeterminate)]="indeterminate"
+												(click)="selectAll($event,'checkbox-all-input','rec-order-table')"></mat-checkbox>
+										</th>
+										<th rowspan="2" style="min-width: 90px !important;">Material</th>
+										<th rowspan="2" style="min-width: 130px !important;">Description</th>
+										<th rowspan="2" style="min-width: 80px !important;">Qty</th>
+										<th rowspan="2" style="min-width: 60px !important;">UOM</th>
+										<th rowspan="2" style="min-width: 60px !important;">BOX
+											Size</th>
+									</tr>
+								</thead>
+								<tbody>
+									<ng-container
+										*ngFor="let items of configValSampleList; let i =index;">
+									<tr *ngIf="items.displayRow">
+										<td style="min-width: 50px !important; text-align: center;">
+											<mat-checkbox class="example-margin" id="checkbox-{{i}}"
+												(click)="getReportList($event,'rec-order-table',i)">
+											</mat-checkbox>
+										</td>
+
+										<td><input type="text" autocomplete="off"
+											[attr.disabled]="disableBtns ?  'disabled' : null"
+											name="materialNum" placeholder="Material no."
+											(keyup)="findMaterialDetails(materialNum,items,'spinner-search-mat',i,'matnumajaxListBlock',$event)"
+											class="form-control matNum ajax-list" [value]="items.mat_num"
+											[(ngModel)]="items.mat_num"
+											(change)="populateFileds(items,matnrDetails,'matNum')"
+											id="matNum-{{i}}" list="materialNumlist" #materialNum /> <i
+											class="fa fa-spinner fa-spin spinner-icon"
+											id="spinner-search-mat-{{i}}"
+											style="display: none; margin-top: -16%; margin-right: 2%;"></i>
+											<div class="ajax-searchlist"
+												style="display: none; width: 15%;"
+												id="matnumajaxListBlock-{{i}}">
+												<ul id="customerNamesBlock" class="custmore-list ajax-list">
+													<li *ngFor="let matList of matnrDetails;" class="ajax-list"
+														style="width: 100%"
+														(click)="selectedMatrItem(matList,'matnumajaxListBlock','matNum',i,items)"><span
+														class="pull-left" style="font-weight: 600;">{{matList.mat_num}}</span>
+														<span class="pull-right"> {{matList.mat_name}}</span></li>
+												</ul>
+											</div></td>
+										<td><input type="text" autocomplete="off"
+											[attr.disabled]="disableBtns ?  'disabled' : null"
+											name="desc" placeholder="Description"
+											class="form-control matNum ajax-list"
+											(keyup)="findMaterialDetails(desc,items,'spinner-search-desc',i,'matajaxListBlock',$event)"
+											[value]="items.desc" [(ngModel)]="items.desc"
+											(change)="populateFileds(items,matnrDetails,'desc')"
+											id="desc-{{i}}" list="desclist" #desc /> <i
+											class="fa fa-spinner fa-spin spinner-icon"
+											id="spinner-search-desc-{{i}}"
+											style="display: none; margin-top: -15%; margin-right: 2%;"></i>
+											<!-- <datalist id="desclist">
+													<ng-container *ngFor="let matList of matnrDetails;">
+													<option [value]="ccc">{{matList.mat_num}}</option>
+													</ng-container>
+												</datalist> -->
+											<div class="ajax-searchlist"
+												style="display: none; width: 15%;"
+												id="matajaxListBlock-{{i}}">
+												<ul id="customerNamesBlock" class="custmore-list ajax-list">
+													<li *ngFor="let matList of matnrDetails;" class="ajax-list"
+														style="width: 100%"
+														(click)="selectedMatrItem(matList,'matajaxListBlock','desc',i,items)"><span
+														class="pull-left" style="font-weight: 600;">{{matList.mat_name}}</span>
+														<span class="pull-right"> {{matList.mat_num}}</span></li>
+												</ul>
+											</div></td>
+										<td><input type="text"
+											(change)="changeQtyCalculations(items,i)" name="qty"
+											placeholder="Qty"
+											class="form-control matNum numbersOnly qty error-{{items.errorFlagBox}}"
+											[attr.disabled]="disableBtns ?  'disabled' : null"
+											[value]="items.qty" id="qty-{{i}}" [(ngModel)]="items.qty" /></td>
+										<td>{{items.uom}}</td>
+										<td>{{items.boxSize}}</td>
+
+									</tr>
+									</ng-container>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="outbound-footer mt-3" style="width: 94%;">
+		<!-- <div class="pull-left">
+			<button class="cancel-button-export" style="padding-left: 0px;"
+				(click)="redirectPurchaseOrder()">
+				<i class="fa back-icon"
+					style="margin-right: 4px; padding-right: 4px;">
+					<div class="icon-text" style="right: -4px;">Back</div>
+				</i>
+			</button>
+		</div> -->
+		<div class="left-block">
+			<div class="pull-left" style="max-width: 47%">
+				<button class="login-button" (click)="AddMoreLinesOfItems()">
+					<i class="fa fa-plus" style="margin-right: 4px; font-size: 16px"></i>
+					Add Lines
+				</button>
+			</div>
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="removeLineSelectedItems()">
+					<i class="fa cancel-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Remove Line</div>
+					</i>
+				</button>
+			</div>
+			<div class="pull-left">
+				<button title="Create New Purchase order"
+					class="login-button-export" (click)="createNewPO()">
+					<i class="fa create-icon"
+						style="margin-right: 4px; padding-right: 4px; width: 23px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+				<input type="file" name="file" id="uploadExcel"
+					style="display: none;">
+				<button class="login-button-export Btn-margin"
+					style="display: none;" id="mergeItemList"
+					(click)="mergeItemsList()"></button>
+				<button class="login-button-export" (click)="uploadExcel()"
+					style="padding-left: 8px;" title="Upload Excel">
+					<i class="fa upexcel-icon"
+						style="margin-right: 4px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+			<div class="pull-left">
+				<button class="save-icon-btn"
+					(click)="submit_recurring_orderList_items()"
+					[attr.disabled]="saveBtn ?  'disabled' : null">
+					<i class="fa save-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Save</div>
+					</i>
+				</button>
+			</div>
+
+		</div>
+	</div>
+</section>
+<div class="modal fade" id="bussinessModal" style="top: -10%;"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Recurring Order Details</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('bussinessModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div>
+				<form id="bussinessModal_divpopup">
+					<section>
+						<form [formGroup]="recuringOrderForm">
+							<div class="row cust-det-title"
+								style="font-weight: bold; color: black; margin-left: 24px;"></div>
+							<div class="outbound-content col-md-12">
+								<div class="col-md-12 row pb-1" style="padding-top: 10px;">
+									<div class="clear-fix"></div>
+									<div class="col-md-5 text-align-sales">
+										<label>List Code<sup class="asterick">*</sup></label> <input
+											type="text" class="form-control" formControlName="grp_name"
+											validateOnBlur placeholder="Enter List Code" id="txt_code"
+											style="margin-top: 1px !important; width: 230px !important;"
+											[validateFormControl]="recuringOrderForm.controls['grp_name']">
+										<span
+											*ngIf="recuringOrderForm.controls['grp_name'].touched && !recuringOrderForm.controls['grp_name'].valid && recuringOrderForm.controls['grp_name'].dirty"
+											class="error"> <small
+											*ngIf="recuringOrderForm.controls['grp_name'].errors.required">
+												{{customerDetailMsg.name_req}} </small>
+										</span>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Recurring Order List Name<sup class="asterick">*</sup></label>
+										<input type="text" class="form-control"
+											style="margin-top: 1px !important; width: 235px !important;"
+											formControlName="grp_desc" validateOnBlur id="txt_name"
+											placeholder="Enter Recurring Order List Name"
+											[validateFormControl]="recuringOrderForm.controls['grp_desc']">
+										<!-- <span
+											*ngIf="customerDetailsForm.controls['grp_desc'].touched && !recuringOrderForm.controls['grp_desc'].valid && recuringOrderForm.controls['grp_desc'].dirty"
+											class="error"> <small
+											*ngIf="recuringOrderForm.controls['grp_desc'].errors.required">
+												{{customerDetailMsg.name_req}} </small>
+										</span> -->
+									</div>
+								</div>
+							</div>
+						</form>
+					</section>
+				</form>
+
+			</div>
+		</div>
+		<div class="modal-footer">
+			<div class="row new_row">
+				<div class="pull-left">
+					<button class="cancel-button-export" style="padding-left: 0px;"
+						(click)="closeModal('bussinessModal')">
+						<i class="fa back-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Back</div>
+						</i>
+					</button>
+				</div>
+				<div class="pull-right new_right act_foot">
+
+					<div class="pull-right new_right act_foot">
+						<button type="submit" [disabled]="!recuringOrderForm.valid"
+							(click)="submit_recurring_orderList()"
+							class="login-button-export" id="uploadStockSubmit"
+							style="position: relative; top: 0px;">
+							<i class="fa submit-icon"
+								style="margin-right: 4px; padding-right: 4px;">
+								<div class="icon-text" style="right: -4px;">Save</div>
+							</i>
+						</button>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--create purchase order -->
+
+<div class="modal fade modal-size-medium" id="createPurchaseModal"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog" role="document" style="max-width: 622px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Create Purchase Order</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('createPurchaseModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+
+
+			</div>
+			<div class="modal-body-block" style="padding: 6px 6px !important;">
+				<form [formGroup]="createPurchaseOrderForm" autocomplete="off">
+					<div class="col-md-12 row">
+						<div class="col-md-6">
+
+							<label>Order Type<sup class="asterick">*</sup>
+							</label> <select class="form-control create-edit-pop-txt-box"
+								style="width: 100% !important;" formControlName="docType"
+								id="orderTypes" validateOnBlur
+								[validateFormControl]="createPurchaseOrderForm.controls['docType']">
+								<option value="">Please Select</option>
+								<ng-container *ngFor="let odTypes of orderTypes; let i= index;">
+								<option [value]="odTypes.key">{{odTypes.value}}</option>
+								</ng-container>
+							</select> <span
+								*ngIf="createPurchaseOrderForm.controls['docType'].touched && createPurchaseOrderForm.controls['docType'].invalid && createPurchaseOrderForm.controls['docType'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="createPurchaseOrderForm.controls['docType'].errors.required">
+									{{purchaseOrderMessages.purchase_type_req}} </small>
+							</span>
+						</div>
+						<div class="col-md-6">
+						<label>Vendor Name<sup class="asterick">*</sup></label> <select
+								class="form-control create-edit-pop-txt-box"
+								style="width: 100% !important;" formControlName="vendorName"
+								id="modal-searchInput" validateOnBlur
+								[validateFormControl]="createPurchaseOrderForm.controls['vendorName']">
+								<option value="">Please Select</option>
+								<ng-container
+									*ngFor="let vndTypes of vendorTypes; let i= index;">
+								<option [value]="vndTypes.key">{{vndTypes.value}}</option>
+								</ng-container>
+							</select>
+							<!-- <label>Vendor Name<sup class="asterick">*</sup></label> <input
+								type="text" class="form-control create-edit-pop-txt-box"
+								(keyup)="extractData('modal-name','spinner-search-modal','ajaxListBlock',$event)"
+								id="modal-name" formControlName="vendorName" validateOnBlur
+								[validateFormControl]="createPurchaseOrderForm.controls['vendorName']"
+								placeholder="Vendor Name" style="width: 300px !important;">
+							<i class="fa fa-spinner fa-spin spinner-icon"
+								id="spinner-search-modal"
+								style="display: none; margin-right: -7%; margin-top: -9%;"></i>
+							<input type="hidden" name="customerId" value=""
+								id="modal-searchInput">
+							<div class="ajax-searchlist" style="display: none; width: 400px;"
+								id="ajaxListBlock">
+								<ul id="customerNamesBlock" class="custmore-list ajax-list">
+									<ng-container *ngIf="vendorNames.length>0">
+									<li *ngFor="let cstList of vendorNames; let i = index;"
+										class="ajax-list"
+										(click)="selectedItem(cstList,'ajaxListBlock','modal-name','modal-searchInput')"><span
+										class="pull-left" title="{{cstList.vendor_name}}"
+										style="font-weight: 600;">{{cstList.vendor_name}}</span> <span
+										class="pull-right"> {{cstList.vendor_id}}</span></li>
+									</ng-container>
+									<ng-container *ngIf="vendorNames.length==0">
+									<li>Vendors are not found</li>
+									</ng-container>
+								</ul>
+							</div> -->
+							<span
+								*ngIf="createPurchaseOrderForm.controls['vendorName'].touched && createPurchaseOrderForm.controls['vendorName'].invalid && createPurchaseOrderForm.controls['vendorName'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="createPurchaseOrderForm.controls['vendorName'].errors.required">
+									{{purchaseOrderMessages.vendor_req}}</small>
+							</span>
+						</div>
+						<div class="col-md-3 text-align-sales"></div>
+					</div>
+					<div class="col-md-12 row">
+						<div class="col-md-6">
+							<label>Recurring Order List</label> <select
+								style="padding: 5px !important;" #confGrp
+								class="form-control create-edit-pop-txt-box"
+								id="grp_recur_orderlist">
+								<option [value]="" disabled>Please Select Order List</option>
+								<ng-container *ngFor="let types of recOrderList">
+								<option value={{types.configValId}}>{{types.value}}</option>
+								</ng-container>
+							</select>
+						</div>
+					</div>
+				</form>
+			</div>
+
+			<div class="modal-footer">
+				<div class="row new_row">
+					<div class="pull-right new_right act_foot">
+						<div class="pull-right new_right act_foot closePopUpOk">
+							<button (click)="createPurchaseForm('createPurchaseModal')"
+								[disabled]="createPurchaseOrderForm.invalid"
+								[ngClass]="{'login-button':true ,'forgotOk':true,'btn-disabled':createPurchaseOrderForm.invalid }">Ok</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- End of create purchase order-->
+

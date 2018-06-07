@@ -1,0 +1,53 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+
+
+@Component({
+  selector: 'app-customer-details',
+  templateUrl: './customer-details.component.html',
+  styleUrls: ['./customer-details.component.css']
+})
+export class CustomerDetailsComponent implements OnInit {
+
+  //  customerDetForm:FormGroup;
+    customerDetailMsg:any;
+    
+  constructor(private http: Http, private formBuilder: FormBuilder,
+  private app:AppComponent,private messagesService:MessagePropertiesService) {
+  this.app.isActive=true;    
+ /* this.customerDetForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+          'customerName' : ['', Validators.required],
+          'mobile' : ['', Validators.required],
+          'email' : ['', Validators.required],
+          'druglicence' : ['', Validators.required],
+          'creditLimit' : ['', Validators.required],
+          'doorNumber' : ['', Validators.required],
+          'area' : ['', Validators.required],
+          'street' : ['', Validators.required],
+          'city' : ['', Validators.required],
+          'mandal' : ['', Validators.required],
+          'district' : ['', Validators.required],
+          'state' : ['', Validators.required],
+          'pincode': ['', Validators.required],
+          'registrationType': ['', Validators.required],
+          'gstNumber': ['', Validators.required],
+          'pan' : ['', Validators.required],
+          'bankName':['', Validators.required],
+          'ifcCode':['', Validators.required],
+          'accountNumber':['', Validators.required],
+        });    */
+      this.customerDetailMsg = messagesService.customer_details_msg;
+  }
+
+  ngOnInit() {
+  }
+
+}

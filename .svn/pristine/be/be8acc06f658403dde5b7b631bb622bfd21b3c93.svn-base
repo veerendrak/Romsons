@@ -1,0 +1,365 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-billing-details',
+  templateUrl: './billing-details.component.html',
+  styleUrls: ['./billing-details.component.css']
+})
+export class BillingDetailsComponent implements OnInit {
+    createBillingForm:FormGroup;
+    billingDetMsg:any;
+    billingListData:any;
+      url:string;
+     bpId:string;
+     orgId:string;
+    billingDetailsPayload:any={};
+    checked:boolean=false;
+    indeterminate:boolean=false;
+    
+    billingObjectEdit:any={};
+    billingArrayEdit:any=[];
+    accessObjId:string;
+     errorLogs:any=[];
+    
+  constructor(private http: Http, private formBuilder: FormBuilder,private environment:EnvConfigurationService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService) {
+      this.app.isActive=true;
+      this.createBillingForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+          'docNumber': ['', Validators.required],
+          'billingDate':['', Validators.required],
+        });
+      this.billingDetMsg = messagesService.billing_det_msg;
+       this.bpId = localStorage.getItem("bpId");
+       this.orgId =localStorage.getItem("orgId");
+      this.checked=false;
+      this.indeterminate=false;
+      this.accessObjId = localStorage.getItem("Billing");
+      
+  }
+
+  ngOnInit() {
+    
+     
+        $( '.datepicker-init' ).datetimepicker( {
+                debug: true,
+                widgetPositioning: {
+                    horizontal: 'left'
+                },
+                icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down",
+                    previous: 'fa fa-arrow-left',
+                    next: 'fa fa-arrow-right'
+                },
+                format: 'LL',
+                
+            } );
+        
+      
+      
+      this.getBillingDetailsList();
+  }
+     applyDataTable(){
+       
+       setTimeout(()=>{  
+           $("#billingordertable").DataTable({
+             "order": [0],
+           "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+           "fnDrawCallback": function( oSettings ) {
+                        if ( 5 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                            
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                            
+                           
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                          
+                        }
+                    },
+           "columnDefs": [ {
+                "targets"  : 'no-sort',
+                "orderable": false,
+               } ]
+          
+      });
+         },400);  
+          setTimeout(() =>{
+          $(".dataTables_scrollHeadInner").css({"width":"100%"});
+          $(".table ").css({"width":"100%"}); 
+          $("#billing-order-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+          },1100);
+        
+          setTimeout(()=>{
+              var width=$("#mainContent").css("width");
+              $(".outbound-footer").css("width",width);
+              $(".outbound-footer").show();
+          },50); 
+        
+    }
+    getBillingDetailsList(){
+        this.billingDetailsPayload["bp_id"]=this.bpId;
+        this.billingDetailsPayload["org_id"]=this.orgId;
+        
+         $('#loadingIcon').show();
+       $("#black-overlay").show();
+         this.url = this.environment.getRequiredApi( 'get_billing_details' )+"?";
+      
+        this.commonService.getData( this.url, 'POST', this.billingDetailsPayload,localStorage.getItem("Billing"))
+            .subscribe(( response ) => {
+               if(response.status == '1'){
+                   this.commonService.responseMessages("", response.message, "warning");
+                this.billingListData=[];
+                   $('#loadingIcon').hide();
+                   $("#black-overlay").hide();
+               }else{
+                this.billingListData = response.data.ex_bill_list; 
+                   $("#billingordertable").DataTable().destroy();
+                    this.applyDataTable();
+                   
+                    
+              $('#loadingIcon').hide();
+              $("#black-overlay").hide(); 
+               }
+           
+                   
+              
+              
+            
+            }, err => {
+                  $('#loadingIcon').hide();
+              $("#black-overlay").hide();
+                    console.log(err)   
+            
+            } );
+        
+        //
+       // this.applyDataTable();
+    }
+    
+    
+    
+    
+    editBillingOrder(type) {
+
+        let flag: boolean = this.commonService.continueAction(type);
+        if (flag) {
+            this.commonService.responseMessages("", "Please select atleast one billing ", "warning");
+            return false;
+        }
+        if (this.billingArrayEdit.length != 1 && !flag) {
+            this.commonService.responseMessages("", "Please select only one billing to edit", "warning");
+            return false;
+        } else {
+            this.commonService.saleType = 'Edit';
+            const path: any = "billing/editbillingdetails";
+
+            this.router.navigate([path], { queryParams: { "billId": this.billingArrayEdit[0].bill_num, "delvNo": this.billingArrayEdit[0].del_num, "action": "U" } });
+        }
+
+
+
+
+
+
+    }
+  createBillingOrder(){
+      this.commonService.saleType='Create';
+      $(".modal-header").find("#header-text").text("Create Billing");
+      $("#billingSalesModal").modal("show");
+      
+       $('#billingDate').datetimepicker({
+          debug:false,
+          widgetPositioning: {
+             horizontal: 'left'
+           },
+       icons: {
+         time: "fa fa-clock-o",
+         date: "fa fa-calendar",
+         up: "fa fa-arrow-up",
+         down: "fa fa-arrow-down",
+         previous: 'fa fa-arrow-left',
+         next: 'fa fa-arrow-right'
+       },
+       format: 'DD-MM-YYYY'
+     });
+  }
+  changePickerPos() {
+      setTimeout(() => {
+          $(".bootstrap-datetimepicker-widget").css("position", "fixed");
+          $(".bootstrap-datetimepicker-widget").css("top", "102px");
+          $(".bootstrap-datetimepicker-widget").css("left","200px")
+          
+      }, 100);
+//      this.createBillingForm.controls.billingDate.invalid = false;
+  } 
+  closeModal(id){
+      $("#"+id).modal("hide");
+      this.createBillingForm.reset();
+  }
+  createBillingSubmit(id){
+      
+      if(this.createBillingForm.value["docNumber"] == "" ||  this.createBillingForm.value["billingDate"] == ""){
+          
+      return false;
+      }
+     
+      $("#"+id).modal("hide"); 
+       const path:any="billing/createbilling";
+      let  delv_no = this.createBillingForm.value["docNumber"];
+     
+      let billingDate = $("#billingDate").val();
+      let splittedDateArray = billingDate.split("-");
+      billingDate = splittedDateArray[2]+splittedDateArray[1]+splittedDateArray[0];
+          
+      this.router.navigate([path],{ queryParams: {"delvNo":delv_no,"billDate":billingDate,"action":"C"} });
+      
+  }
+  editBillingOrderById(){
+      this.commonService.saleType='Edit';
+      const path:any="billing/createsalesorder";
+      this.router.navigate([path]);
+  }
+
+  displayBillingDetails(selectedBillId, selectedDelNo) {
+      this.commonService.saleType = 'Display';
+      const path: any = "billing/editbillingdetails";
+      this.router.navigate([path], { queryParams: { "billId": selectedBillId, "delvNo": selectedDelNo, "action": "DIS" } });
+
+  }
+    
+    removeStyles(id){
+    $('#'+id).datetimepicker("hide"); 
+      
+        this.createBillingForm.controls['billingDate'].setValue($("#billingDate").val());
+     
+    }
+    
+    
+    getReportList(billNum, delNum, tableId, i) {
+        setTimeout(() => {
+            let flag: boolean = this.commonService.checkAction(tableId);
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = true;
+            } else {
+                this.indeterminate = true;
+            }
+        }, 400);
+        setTimeout(() => {
+            if ($("#checkbox-" + i + "-input").is(":checked")) {
+                this.billingObjectEdit = {};
+                this.billingObjectEdit["bill_num"] = billNum;
+                this.billingObjectEdit["del_num"] = delNum;
+                this.billingArrayEdit.push(this.billingObjectEdit);
+            } else {
+                for (let i in this.billingArrayEdit) {
+                    if (this.billingArrayEdit[i].bill_num == billNum) {
+                        this.billingArrayEdit.splice(i, 1);
+
+                    }
+                }
+            }
+            
+        }, 300);
+
+
+    }
+    selectAll(event, checkAll, tableId) {
+        setTimeout(() => {
+            this.commonService.selectAllCheckBoxes(checkAll, tableId)
+        }, 300);
+    }
+    cancelBilling(){
+        
+        let cancelBillingPayload = {};
+        cancelBillingPayload["bp_id"] = this.bpId;
+        cancelBillingPayload["org_id"] = this.orgId;
+        cancelBillingPayload["object"] = "SB";
+
+        let billList = [];
+
+        if (this.billingArrayEdit.length == 0) {
+            this.commonService.responseMessages("", "Please Select Billings To Cancel", "warning");
+            return false;
+        } else {
+            for (let billIndex in this.billingArrayEdit) {
+
+                billList.push(this.billingArrayEdit[billIndex].bill_num);
+            }
+            cancelBillingPayload["object_nums"] = billList;
+
+
+            let url: any = this.environment.getRequiredApi("cancel_sales_order") + "?";
+            this.commonService.getData(url, "POST", cancelBillingPayload, this.accessObjId).subscribe(response => {
+                console.log(response)
+                this.errorLogs=[];
+                let errorObject={};
+                if (response.status == 0) {
+                    let data = response.data.ex_return;
+                     if(response.data.hasOwnProperty("ex_return")){
+                         for (let index of data) {
+                             errorObject={};
+                             if (index.type == "E") {
+                                    errorObject["number"]=index.number;
+                                    errorObject["message"]=index.message;
+                                 this.errorLogs.push(errorObject);
+                             }
+                         }
+                         
+                         
+                         
+                     }
+                    
+                    if(this.errorLogs.length == 0){
+                         this.commonService.responseMessages("", "Billing is cancelled", "warning");
+                        this.getBillingDetailsList();
+                    }
+                    
+                    
+                } else {
+                    this.commonService.responseMessages("", response.message, "warning");
+                }
+            });
+            //console.log(cancelBillingPayloa    
+        }
+    }
+    
+     billingListPrint(){
+      if(this.billingArrayEdit.length != 1){
+      this.commonService.responseMessages("","Please select only one sales order", "warning");
+      return false;
+    }else{
+       if(this.billingArrayEdit.length==1){
+           
+           let url:any=this.environment.getRequiredApi("print_billing_list")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&im_v_vbeln="+this.billingArrayEdit[0].bill_num+"&access_obj_id="+this.accessObjId+"&access_token="+localStorage.getItem("token");
+           window.open(url,'_blank');
+       } 
+    }
+   
+   }
+    
+}

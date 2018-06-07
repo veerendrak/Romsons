@@ -1,0 +1,338 @@
+<section class="card" id="mainContent">
+
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Dashboard</strong>
+		</span>
+	</div>
+	<div class="card-block db-block"
+		style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div class="row">
+		<div class="col-lg-12">
+			  <div class="row col-md-12">
+				<div class="col-md-4  main-dash">
+				<div class="purchase-content">
+					<div class="purchase-header">
+						<div class="pull-left">
+						<h1 class="price-order">200</h1>
+							<h5>Open Purchase Order</h5>
+						</div>
+						<div class="pull-right">
+							<img src="" />
+						</div>
+					</div>
+					<div class="purchase-content">
+					<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="purchase-order-dboard" style="margin-bottom:0px;">
+						<thead>
+							<tr>
+								<th>PO No.</th>
+								<th>PO Date.</th>
+								<th>PO Amount</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+						</tbody>
+					</table>
+					</div>
+					<div class="purchase-footer">
+						<div  class="pull-right right-option">View More</div>
+					</div>
+				</div>
+					</div>
+			<div class="col-md-4  main-dash">
+				<div class="purchase-content">
+					<div class="sales-header">
+						<div class="pull-left">
+						<h1 class="price-order">180</h1>
+							<h5>Open Sales Order</h5>
+						</div>
+						<div class="pull-right">
+							<img src="" />
+						</div>
+					</div>
+					<div class="purchase-content">
+					<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="purchase-order-dboard" style="margin-bottom:0px;">
+						<thead>
+							<tr>
+								<th>SNo.</th>
+								<th>Customer Name</th>
+								<th>Date</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>1</td>
+								<td>Sree</td>
+								<td>07/02/2018</td>
+							</tr>
+							<tr>
+								<td>2</td>
+								<td>Sree</td>
+								<td>07/02/2018</td>
+							</tr>
+							<tr>
+								<td>3</td>
+								<td>Sree</td>
+								<td>07/02/2018</td>
+							</tr>
+						</tbody>
+					</table>
+					</div>
+					<div class="purchase-footer">
+						<div  class="pull-right right-option">View More</div>
+					</div>
+				</div>
+					</div>
+			
+			<div class="col-md-4  main-dash">
+				<div class="purchase-content">
+					<div class="pending-header">
+						<div class="pull-left">
+						<h1 class="price-order"><i class="fa fa-rupee"></i> 2500,00</h1>
+							<h5>Pending Payment</h5>
+						</div>
+						<div class="pull-right">
+							<img src="" />
+						</div>
+					</div>
+					<div class="purchase-content">
+					<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="purchase-order-dboard" style="margin-bottom:0px;">
+						<thead>
+							<tr>
+								<th>PO No.</th>
+								<th>PO Date.</th>
+								<th>PO Amount</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+						</tbody>
+					</table>
+					</div>
+					<div class="purchase-footer">
+						<div  class="pull-right right-option">View More</div>
+					</div>
+				</div>
+					</div>
+				<div class="col-md-4  main-dash">
+				<div class="purchase-content">
+					<div class="payable-header">
+						<div class="pull-left">
+						<h1 class="price-order"><i class="fa fa-rupee"></i> 1300,00</h1>
+							<h5>Pending Payable</h5>
+						</div>
+						<div class="pull-right">
+							<img src="" />
+						</div>
+					</div>
+					<div class="purchase-content">
+					<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="purchase-order-dboard" style="margin-bottom:0px;">
+						<thead>
+							<tr>
+								<th>PO No.</th>
+								<th>PO Date.</th>
+								<th>PO Amount</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+						</tbody>
+					</table>
+					</div>
+					<div class="purchase-footer">
+						<div  class="pull-right right-option">View More</div>
+					</div>
+				</div>
+					</div>
+					
+				<div class="col-md-4  main-dash">
+				<div class="purchase-content">
+					<div class="delivery-header">
+						<div class="pull-left">
+						<h1 class="price-order"> 28</h1>
+							<h5>Pending Delivery</h5>
+						</div>
+						<div class="pull-right">
+							<img src="" />
+						</div>
+					</div>
+					<div class="purchase-content">
+					<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="purchase-order-dboard" style="margin-bottom:0px;">
+						<thead>
+							<tr>
+								<th>PO No.</th>
+								<th>PO Date.</th>
+								<th>PO Amount</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+						</tbody>
+					</table>
+					</div>
+					<div class="purchase-footer">
+						<div  class="pull-right right-option">View More</div>
+					</div>
+				</div>
+					</div>
+					<div class="col-md-4  main-dash">
+				<div class="purchase-content">
+					<div class="notifiction-header">
+						<div class="pull-left">
+						<h1 class="price-order"> 100</h1>
+							<h5>Notification</h5>
+						</div>
+						<div class="pull-right">
+							<img src="" />
+						</div>
+					</div>
+					<div class="purchase-content">
+					<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="purchase-order-dboard" style="margin-bottom:0px;">
+						<thead>
+							<tr>
+								<th>PO No.</th>
+								<th>PO Date.</th>
+								<th>PO Amount</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+							<tr>
+								<td>
+									<i class="fa fa-arrow-circle-right" style="margin-right:4px"></i>1
+								</td>
+								<td>07/02/2018</td>
+								<td>1000,0</td>
+								<td>Pending</td>
+							</tr>
+						</tbody>
+					</table>
+					</div>
+					<div class="purchase-footer">
+						<div  class="pull-right right-option">View More</div>
+					</div>
+				</div>
+					</div>
+			  </div>
+			</div>
+		</div>
+		</div>
+</section>

@@ -1,0 +1,50 @@
+<nav class="cat__menu-left">
+    <div class="cat__menu-left__lock cat__menu-left__action--menu-toggle">
+		<i class="fa fa-2x fa-align-justify" id="justify" style="color: #f3bb42;font-size: 1.5rem;display:none;" (click)="showLeftBar('#justify','#arrow')"></i>
+        <i class="fa fa-remove" id="arrow" style="color: #f3bb42;font-size: 1.5rem;" (click)="showLeftBar('#arrow','#justify')"></i>
+    </div>
+	<div class="cat__menu-left__logo">
+		<h3 class="title-logo">Romsons</h3>
+		
+    </div>
+	<div class="cat__menu-left__inner">
+		<div class="profile-info">
+			<i class="fa fa-5x fa-user-circle-o profile-logo"></i>
+			<div class="loginUser">User Name</div>
+		</div>
+        <ul class="cat__menu-left__list cat__menu-left__list--root">
+			<li class="cat__menu-left__item cat__menu-left__submenu" [routerLinkActive]="['cat__menu-left__item--active']" >
+				<a href="javascript: void(0);">
+			                    <i class="fa fa-user cat_menu_icons_left"></i>
+			                    Customer
+			                </a> 
+				<ul class="cat__menu-left__list">
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a routerLink="/usermanagement">
+                            <i class="fa fa-sitemap cat_menu_icons_left"></i>
+                           	User Management
+                        </a> 
+					</li>
+				
+		</ul>
+			</li>
+			<li class="cat__menu-left__item cat__menu-left__submenu" [routerLinkActive]="['cat__menu-left__item--active']" >
+				<a href="javascript: void(0);">
+			                    <i class="fa fa-user cat_menu_icons_left"></i>
+			                    Sales Purchases 
+			                </a> 
+				<ul class="cat__menu-left__list">
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a>
+                            <i class="fa fa-sitemap cat_menu_icons_left"></i>
+                           	View Sales Reports
+                        </a> 
+					</li>
+				</ul>
+			</li>
+		</ul>
+		
+			</div>
+</nav>

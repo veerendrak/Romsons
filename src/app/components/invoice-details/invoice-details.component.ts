@@ -1,0 +1,598 @@
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import { ExcelService } from '../../services/excel.service';
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+var exportIdlist: number;
+
+@Component({
+    selector: 'app-invoice-details',
+    templateUrl: './invoice-details.component.html',
+    styleUrls: ['./invoice-details.component.css']
+})
+export class InvoiceDetailsComponent implements OnInit {
+    checked: boolean = false;
+    indeterminate: boolean = false;
+    accessObjectId: any;
+    bpId: any;
+    orgId: any;
+    purchaseInvList: any;
+    exportExcelFlag: boolean;
+    filterPurInvForm: FormGroup;
+    createPurInvForm: FormGroup;
+    purchaseArray: any;
+    selectedReferenceType: string;
+    exportArrayList: any;
+    checkboxErrorMsg: any;
+    cancelArray: any;
+    errorLogs: any;
+    billingObjectEdit: any = {};
+    billingArrayEdit: any = [];
+    billingDetMsg: any;
+    rolekaduser: any;
+    constructor(private http: Http, private formBuilder: FormBuilder,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private environment: EnvConfigurationService, private excelService: ExcelService) {
+        this.app.isActive = true;
+        this.checked = false;
+        this.indeterminate = false;
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjectId = localStorage.getItem("Purchase Order");
+        this.filterPurInvForm = formBuilder.group({
+            'fromDate': ['', Validators.required],
+            'toDate': ['', Validators.required],
+        });
+
+        this.createPurInvForm = formBuilder.group({
+            'reference': ['', Validators.required],
+            'refNum': ['', Validators.required],
+        });
+        this.billingDetMsg = messagesService.billing_det_msg;
+        this.selectedReferenceType = "";
+        this.exportArrayList = [];
+        this.checkboxErrorMsg = this.messagesService.check_box_error;
+        this.cancelArray = [];
+        this.errorLogs = [];
+        this.rolekaduser = true;
+    }
+
+    ngOnInit() {
+         if (localStorage.getItem("roleName") == "KAD User") {
+            this.rolekaduser = false;
+        }
+        else {
+            this.rolekaduser = true;
+        }
+        
+        
+        this.exportExcelFlag = false;
+        $('.datepicker-init-sale').datetimepicker({
+            widgetPositioning: {
+                horizontal: 'left'
+            },
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down",
+                previous: 'fa fa-arrow-left',
+                next: 'fa fa-arrow-right'
+            },
+            format: 'DD/MM/YYYY',
+        });
+
+        this.getPurchaseInvoiceList();
+        $(function() {
+            $(document).on('click', function(e) {
+                if (!$(e.target).hasClass('ajax-list')) {
+                    $(".ajax-searchlist").hide();
+                }
+                $("#invoice-order-table_paginate").find('.page-link').on('click', function(e) {
+                    setTimeout(function() {
+                        if ($("#checkbox-all-input").is(":checked")) {
+                            $("#invoice-order-table").find("tbody").find(".mat-checkbox-input").each(function(i) {
+                                let id: any = $(this).attr('id');
+                                if (!$("#" + id).is(":checked")) {
+                                    $("#" + id).click();
+                                }
+                            });
+                        } else {
+                            $("#invoice-order-table").find("tbody").find(".mat-checkbox-input").each(function(i) {
+                                let id: any = $(this).attr('id');
+                                if (exportIdlist == 0) {
+                                    if ($("#" + id).is(":checked")) {
+                                        $("#" + id).click();
+                                    }
+                                }
+
+                            });
+                        }
+                    }, 300);
+                });
+            });
+        });
+    }
+    createInvoiceOrder(type) {
+        this.commonService.saleType = 'Create';
+        $(".modal-header").find("#header-text").text("Create Invoice");
+        $("#purInvModal").modal("show");
+    }
+    editInvoiceOrder(type) {
+
+
+        let flag: boolean = this.commonService.continueAction(type);
+        if (flag) {
+            this.commonService.responseMessages("", this.getWarningErrorMessage('select_atleast_msg'), "warning");
+            return false;
+        }
+        if (this.purchaseArray.length != 1 && !flag) {
+            this.commonService.responseMessages("", this.getWarningErrorMessage('select_msg'), "warning");
+            return false;
+        } else {
+            this.commonService.saleType = 'Edit';
+            const path: any = "invoicedetails/editInvoice";
+
+            this.router.navigate([path], { queryParams: { "po_inv_num": this.purchaseArray[0], "action": "DIS" } });
+        }
+    }
+    createPurchaseReturn(type){
+        let flag: boolean = this.commonService.continueAction(type);
+        if (flag) {
+            this.commonService.responseMessages("", this.getWarningErrorMessage('select_atleast_msg'), "warning");
+            return false;
+        }
+        if (this.exportArrayList.length != 1 && !flag) {
+            this.commonService.responseMessages("", this.getWarningErrorMessage('select_msg'), "warning");
+            return false;
+        } else {
+            if(this.exportArrayList[0].status=='Generated Invoice'){
+                this.commonService.saleType = 'Edit';
+                const path: any = "purchaseorder/savepurchaseorder";
+                let orderType:any='ZRN';
+                this.router.navigate([path], { queryParams: { "orderType": orderType, "vendorId": this.exportArrayList[0].vendor_id,"invoiceId": this.exportArrayList[0].inv_id, "dlvNumber":this.exportArrayList[0].gi_no, "action": "C", frompage: "PI" } }); 
+            }else{
+                this.commonService.responseMessages("", "Please select Generated Invoice", "warning");
+                return false; 
+            }
+            
+        }
+    }
+    editInvoiceOrderById(purId, delno, list) {
+        this.commonService.saleType = 'Edit';
+        const path: any = "invoicedetails/editInvoice";
+        list.po_num;
+        this.router.navigate([path], { queryParams: { "po_inv_num": purId, "del_number": delno, "fiscal": list.fiscal_year, "action": "DIS" } });
+    }
+    //    selectAll(event, checkAll, tableId) {
+    //        this.exportArrayList = [];
+    //        exportIdlist = 0;
+    //
+    //        setTimeout(() => {
+    //            this.commonService.selectAllCheckBoxes(checkAll, tableId)
+    //
+    //            setTimeout(() => {
+    //                if ($("#" + checkAll).is(":checked")) {
+    //                    for (let list of this.purchaseInvList) {
+    //                        this.purchaseArray.push(list.inv_id);
+    //                        this.exportArrayList.push(list);
+    //                    }
+    //                } else {
+    //                    this.commonService.selectAllCheckBoxes(checkAll, tableId);
+    //                    this.purchaseArray = [];
+    //                    this.exportArrayList=[];
+    //
+    //                }
+    //            }, 400);
+    //        }, 300);
+    //    }
+    selectAll(event, checkAll, tableId) {
+
+        let checkBoxArray = [];
+        let mulChkFlag: boolean = false;
+        exportIdlist = 0;
+        setTimeout(() => {
+            this.commonService.selectAllCheckBoxes(checkAll, tableId)
+
+            $("#invoice-order-table").find("tbody").find(".mat-checkbox-input").each(function(i) {
+                let id: any = $(this).attr('id');
+
+            });
+            let billingRowCount = $("#invoice-order-table tbody tr").length;
+
+            if (billingRowCount < 10) {
+                mulChkFlag = true;
+            }
+
+            if ($("#" + checkAll).is(":checked")) {
+
+                setTimeout(() => {
+                    for (let list = 0; list < this.purchaseInvList.length; list++) {
+
+                        if (mulChkFlag) {
+                            if ($("#checkbox-" + list + "-input").is(":checked")) {
+                                this.billingObjectEdit = {};
+                                this.billingObjectEdit["inv_id"] = this.purchaseInvList[list].inv_id;
+
+                                this.billingObjectEdit["status"] = this.purchaseInvList[list].status;
+                                this.billingArrayEdit.push(this.billingObjectEdit);
+                            }
+                        } else {
+                            this.billingObjectEdit = {};
+                            this.billingObjectEdit["bill_num"] = this.purchaseInvList[list].inv_id;
+
+                            this.billingObjectEdit["status"] = this.purchaseInvList[list].status;
+                            this.billingArrayEdit.push(this.billingObjectEdit);
+
+                        }
+
+                        this.exportArrayList.push(this.purchaseInvList[list]);
+
+
+
+                    }
+                }, 400);
+
+            } else {
+                this.commonService.selectAllCheckBoxes(checkAll, tableId);
+                this.billingArrayEdit = [];
+                this.exportArrayList = [];
+            }
+
+        }, 300);
+    }
+    getReportList(response, tableId, i) {
+        setTimeout(() => {
+            let flag: boolean = this.commonService.checkAction(tableId);
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = true;
+            } else {
+                this.indeterminate = true;
+            }
+        }, 400);
+        setTimeout(() => {
+            if ($("#checkbox-" + i + "-input").is(":checked")) {
+                this.billingObjectEdit = {};
+                this.billingObjectEdit["inv_id"] = response.inv_id;
+                //                this.billingObjectEdit["del_num"] = response.delv_no;
+                //                this.billingObjectEdit["doc_cat"] = response.doc_cat;
+                this.billingObjectEdit["status"] = response.status;
+                this.billingArrayEdit.push(this.billingObjectEdit);
+                this.exportArrayList.push(response);
+
+            } else {
+                for (let i in this.billingArrayEdit) {
+                    if (this.billingArrayEdit[i].inv_id == response.inv_id) {
+                        this.billingArrayEdit.splice(i, 1);
+                        this.exportArrayList.splice(i, 1);
+                    }
+                }
+                setTimeout(() => {
+                    let flag: boolean = this.commonService.continueAction(tableId);
+                    if (flag) {
+                        this.indeterminate = false;
+                        this.checked = false;
+                    } else {
+                        this.indeterminate = true;
+                    }
+                }, 200);
+            }
+            exportIdlist = this.exportArrayList.length;
+        }, 300);
+
+
+    }
+    printSelectedReports(type) {
+        let flag: boolean = this.commonService.continueAction(type);
+
+        if (this.purchaseArray.length == 1) {
+            //printing    
+        } else {
+            flag = true;
+        }
+        if (flag) {
+            if (this.purchaseArray.length == 0) {
+                this.commonService.responseMessages("", this.getWarningErrorMessage('select_atleast_msg'), "warning");
+                return false
+            } else {
+                this.commonService.responseMessages("", this.getWarningErrorMessage('select_msg'), "warning");
+                return false
+            }
+        }
+    }
+
+    getPurchaseInvoiceList() {
+        this.purchaseArray = [];
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        let url: any = this.environment.getRequiredApi("get_pur_invoices") + "?org_id=" + this.orgId + "&bp_id=" + this.bpId + "&"
+        this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe((response) => {
+            this.purchaseInvList = [];
+            $("#invoice-order-table").DataTable().destroy();
+            if (response.status == 0) {
+                if (response.data.hasOwnProperty("ex_purchase_inv_list")) {
+                    this.purchaseInvList = response.data.ex_purchase_inv_list;
+                    this.exportExcelFlag = false;
+                }
+                if (response.data.hasOwnProperty("ex_return")) {
+                    for (let element of response.data["ex_return"]) {
+                        if (element.type == "E") {
+                            this.exportExcelFlag = true;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                this.commonService.responseMessages("", response.message, "warning")
+            }
+            $('#loadingIcon').hide();
+            $("#black-overlay").hide();
+            this.applyDataTable();
+        });
+    }
+
+    applyDataTable() {
+        setTimeout(() => {
+            var table = $('#invoice-order-table').DataTable({
+                "order": [[1, 'desc']],
+
+                retrieve: true,
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)",
+                },
+                columnDefs: [{
+                    "targets": 'no-sort',
+                    "orderable": false
+                },
+                { type: 'currency', "targets": [4] }],
+                "fnDrawCallback": function(oSettings) {
+                    if (10 >= oSettings.fnRecordsDisplay()) {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+
+                        $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+
+                    } else {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                        //    $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                        //  $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                    }
+                },
+            });
+
+            setTimeout(() => {
+                var width = $("#mainContent").css("width");
+                $(".outbound-footer").css("width", width);
+                $(".outbound-footer").show();
+            }, 50);
+        }, 500);
+        setTimeout(() => {
+            $(".dataTables_scrollHeadInner").css({ "width": "100%" });
+            $(".table ").css({ "width": "100%" });
+            if(this.rolekaduser){
+                $("#invoice-order-table").attr('style',"display:inline-table !important");
+            }else{
+                $("#invoice-order-table").attr('style',"display:block !important;overflow-x:auto;overflow-y:hidden;");
+            }
+        }, 600);
+    }
+
+    exportExcel() {
+        if (this.exportArrayList.length != 0) {
+            this.commonExportExcel(this.exportArrayList);
+        } else {
+
+            if (this.purchaseInvList.length != 0) {
+                this.commonExportExcel(this.purchaseInvList)
+            } else {
+                this.commonService.responseMessages("", "No data available", "warning")
+            }
+        }
+    }
+
+    commonExportExcel(list) {
+        let jsonArrrayData: any = [];
+        if (list != 0) {
+            for (let index of list) {
+                if (!index.hasOwnProperty('inv_id')) {
+                    index.inv_id = "  "
+                }
+                if (!index.hasOwnProperty('inv_date')) {
+                    index.inv_date = "  "
+                }
+                if (!index.hasOwnProperty('amount')) {
+                    index.amount = ' ';
+                }
+                if (!index.hasOwnProperty('vendor_name')) {
+                    index.vendor_name = ' ';
+                }
+                if (!index.hasOwnProperty('gi_no')) {
+                    index.gi_no = ' ';
+                }
+                if (!index.hasOwnProperty('status')) {
+                    index.status = ' ';
+                }
+                if (!index.hasOwnProperty('po_num')) {
+                    index.po_num = ' ';
+                }
+                
+                if(!this.rolekaduser){
+                    if (!index.hasOwnProperty('cust_id')) {
+                        index.cust_id = ' ';
+                    }
+                    if (!index.hasOwnProperty('cust_name')) {
+                        index.cust_name = ' ';
+                    }    
+                }
+                jsonArrrayData.push(index);
+            }
+            
+            let columns: any;
+             let columnHeaders: any;
+            if(!this.rolekaduser){
+             columns=  ['inv_id', 'inv_date', 'amount', 'vendor_name','cust_id','cust_name','po_num', 'gi_no', 'status']    
+                columnHeaders =  ['Invoice No.', 'Invoice Date', 'Amount', 'Vendor Name','Hospital Code','Hospital Name','PO NO.', 'Delivery NO.', 'Status']   
+            }else{
+                columns=  ['inv_id', 'inv_date', 'amount', 'vendor_name','po_num', 'gi_no', 'status']    
+                columnHeaders =  ['Invoice No.', 'Invoice Date', 'Amount', 'Vendor Name', 'PO NO.', 'Delivery NO.', 'Status']
+                
+                }
+           
+            let jsonData: any = JSON.stringify(jsonArrrayData);
+            this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "Purchase Invoice List", columns, columnHeaders, 'Purchase_Invoice');
+        }
+    }
+
+    showFilters() {
+        $("#filter-block").slideToggle();
+    }
+    getFilterData() {
+        this.getPurchaseInvoiceList()
+    }
+    closeModal(id) {
+        $("#" + id).modal("hide");
+    }
+
+    changeReferecneType(referenceType) {
+        if (referenceType.length != 0) {
+            if (referenceType == "D") {
+                this.selectedReferenceType = "Delivery Note";
+            } else {
+                this.selectedReferenceType = "PO Number";
+
+            }
+        } else {
+            this.selectedReferenceType = "";
+        }
+    }
+
+    navigateToCreate(id) {
+        this.closeModal(id);
+        this.commonService.saleType = 'Create';
+        const path: any = "invoicedetails/createInvoice";
+        this.router.navigate([path], { queryParams: { "refNum": this.createPurInvForm.value["refNum"], "action": "C" } });
+    }
+
+    getWarningErrorMessage(messageKey) {
+        return this.checkboxErrorMsg[messageKey] + "purchase invoice";
+    }
+    cancelPurInvoice() {
+        this.cancelArray = [];
+        if (this.exportArrayList.length == 0) {
+            this.commonService.responseMessages("", this.getWarningErrorMessage('select_atleast_msg'), "warning");
+            return false
+        } else {
+            swal({
+                title: "Do you want to cancel the purchase invoice ?",
+                //type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-default btn-primary-custom login-button-export",
+                cancelButtonClass: "btn-danger btn-danger-custom ",
+
+                confirmButtonText: "Ok",
+                closeOnConfirm: true
+            },
+                () => {
+                    this.exportArrayList.forEach((items) => {
+                        let cancelObject = {};
+                        cancelObject['invoice_num'] = items.inv_id;
+                        cancelObject['reason_rev'] = "03";
+                        cancelObject['fiscal_year'] = items.fiscal_year;
+                        this.cancelArray.push(cancelObject);
+                    })
+                    //$("#cancel-pur-invoice").modal("show");
+                    this.confirmCancelPurInv();
+                });
+
+        }
+    }
+
+    confirmCancelPurInv() {
+        let cancelPayload = {};
+        /*   for(let list of this.cancelArray){
+             let reason = $('#'+id+list.invoice_num).val();
+              if(reason.length == 0){
+                  this.commonService.responseMessages("", "Please enter a reason to cancel", "warning");
+                  return false; 
+              }
+              list["reason_rev"]=reason;
+              delete list["inv_date"];
+             
+          }*/
+        cancelPayload["im_invoice_dets"] = this.cancelArray;
+        cancelPayload["bp_id"] = this.bpId;
+        cancelPayload["org_id"] = this.orgId;
+        cancelPayload["action"] = "CANINV";
+        let url: any = this.environment.getRequiredApi("manage_invoice_details") + "?";
+        this.commonService.getData(url, "POST", cancelPayload, this.accessObjectId).subscribe(response => {
+            console.log(response);
+            this.errorLogs = [];
+            if (response.status == 0) {
+                if (response.data.hasOwnProperty("ex_return")) {
+                    for (let index of response.data["ex_return"]) {
+                        if (index.type == "E") {
+                            this.errorLogs.push(index);
+                        }
+                    }
+                }
+                if (this.errorLogs.length == 0) {
+                    this.commonService.responseMessages("", "Purchase Invoice is cancelled", "success");
+                    this.indeterminate = false;
+                    this.checked = false;
+                    this.getPurchaseInvoiceList();
+                } else {
+
+                    $("#displayErrorsModal").modal("show");
+                }
+            } else {
+                this.commonService.responseMessages("", response.message, "warning");
+            }
+            $('#loadingIcon').hide();
+            $("#black-overlay").hide();
+        });
+    }
+    PurchaseinvoicePrint() {
+
+        let mulBill = "";
+        let billMsg = "";
+        let noPrintFlag = true;
+
+        for (let printIndex of this.billingArrayEdit) {
+            mulBill = mulBill + printIndex.inv_id + ",";
+            if (printIndex.status != "Generated Invoice") {
+                noPrintFlag = false;
+                break;
+            }
+        }
+        mulBill = mulBill.substring(0, mulBill.lastIndexOf(","));
+
+        if (mulBill.length == 0) {
+            billMsg = this.billingDetMsg.bill_select;
+        }
+        if (!noPrintFlag) {
+            billMsg = this.billingDetMsg.bill_sel_cancel;
+
+        }
+
+
+        if (mulBill.length != 0 && noPrintFlag) {
+            let url: any = this.environment.getRequiredApi("print_billing_list") + "?org_id=" + this.orgId + "&bp_id=" + this.bpId + "&im_v_vbeln=" + mulBill + "&access_obj_id=" + this.accessObjectId + "&access_token=" + localStorage.getItem("token") + "&action=P";
+            window.open(url, '_blank');
+        } else {
+            this.commonService.responseMessages("", billMsg, "warning");
+        }
+
+
+    }
+}

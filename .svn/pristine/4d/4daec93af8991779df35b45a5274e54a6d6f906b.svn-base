@@ -1,0 +1,534 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<button type="button" name="addressBtn" id="addressBtn" (click)="getcustomerListById()" style="display:none;"></button>
+<div style="padding-left:15px; padding-right:15px;" >
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">{{title}}</strong>
+		</span>
+		<span class="pull-right">
+			<i class="fa angle-down" id="angle-down" (click)="expandCollapseBlock('wizard-block','outBound-form-block','angle-down')"></i>
+			<i class="fa angle-up" id="angle-up" (click)="expandCollapseBlock('wizard-block','outBound-form-block','angle-up')" style="display:none"></i>
+		</span>
+	</div>
+	<div class="card-block db-block" id="wizard-block" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="mb-1">
+							<div class="cat__wizard wizard clearfix row">
+								<div  class="steps clearfix col-md-12">
+									<ul id="steps-wizard">
+										<li class="start" [ngClass]="{disabled:createSalesFlag,current:createdSales}"><a 
+											href="javascript:void(0)"> 
+											<i
+												class="fa  cat__wizard__steps__icon"
+												id="gs-GSTR1"><span class="font-number">1</span></i> 
+											<i
+												class="fa fa-check cat__wizard__steps__icon" id="icon-GSTR1"
+												style="display: none;"></i>
+												<div class="cat_wizard_steps_title ell-spa">
+													Sales Order<span  class="" id="GSTR1"></span>
+												</div>
+										</a></li>
+
+										<li style="cursor: text" [ngClass]="{disabled:deliveryFlag,current:deliveredFlag}"><a
+											href="javascript:void(0)"> 
+											<i
+												class="fa  cat__wizard__steps__icon"
+												id="gs-GSTR2"><span class="font-number">2</span></i> <i
+												class="fa fa-check cat__wizard__steps__icon" id="icon-GSTR2"
+												style="display: none;"></i>
+												<div class="cat_wizard_steps_title ell-spa">
+													Delivery<span class="" id="GSTR2"></span>
+												</div>
+										</a></li>
+
+										<li style="cursor: text" [ngClass]="{disabled:goodsFlag,current:goodsIssuedFlag}"><a
+											 href="javascript:void(0)"> 
+											 <i (click)="navigatePath('postgoodsissue')"
+												class="fa  cat__wizard__steps__icon"
+												id="gs-GSTR1A"><span class="font-number">3</span></i> 
+												<i (click)="navigatePath('postgoodsissue')"
+												class="fa fa-check cat__wizard__steps__icon"
+												id="icon-GSTR1A" style="display: none;"></i>
+												<div class="cat_wizard_steps_title ell-spa">
+													Post Goods Issue<span class="" id="GSTR1A"></span>
+												</div>
+										</a></li>
+										<li style="cursor: text" class="last disabled"><a
+											 href="javascript:void(0)"> 
+											 <i
+												class="fa  cat__wizard__steps__icon"
+												id="gs-GSTR2A"><span class="font-number">4</span></i> <i
+												class="fa fa-check cat__wizard__steps__icon"
+												id="icon-GSTR2A" style="display: none;"></i>
+												<div class="cat_wizard_steps_title ell-spa">
+													Billing<span class="" id="GSTR1A"></span>
+												</div>
+										</a></li>
+									</ul>
+
+								</div>
+							</div>
+						</div>
+					</div>
+			</div>
+	</div>
+</div>
+<div class="" *ngIf="createSalesBlock">
+	<div class="card-block db-block mb-1" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" *ngIf="createSalesBlock">
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12 outBound-form-block" id="outBound-form-block">
+					<form [formGroup]="salesOrderForm" autocomplete="off">
+					 <div class="delivery-form-block col-md-12 row">
+						<div class="col-md-2 text-align-sales" >
+						<label class="label-elp">Requested  Delivery Date</label>
+						<input type="text" class="form-control datepicker-init-sale" name="req_date_h" id="reqDelDate"
+						formControlName="req_date_h"  validateOnBlur [validateFormControl]="salesOrderForm.controls['req_date_h']">
+						</div>
+						<div class="col-md-2 text-align-sales">
+						
+						<label>PO Number</label>
+							<input type="text" class="form-control" name="purch_no_c" id="purchNoc"
+							formControlName="purch_no_c"  validateOnBlur [validateFormControl]="salesOrderForm.controls['purch_no_c']">
+						</div>
+						<div class="col-md-2 text-align-sales">
+						
+						<label>PO Date</label>
+							<input type="text" class="form-control datepicker-init-sale" name="purch_date" id="purchDate"
+							formControlName="purch_date"  validateOnBlur [validateFormControl]="salesOrderForm.controls['purch_date']">
+						</div>
+						<div class="col-md-3 text-align-sales">
+						
+						<label>Inco Terms</label>
+							<select class="form-control create-edit-pop-select-box" id="incoTerms">
+								<option value="">Select Inco terms</option>
+								<ng-container *ngIf="payIncoTermsListLength>0">
+								<ng-container *ngFor="let inco of payIncoTermsList['ex_incoterms']; let i=index;">
+									<option [value]="inco.inco_term" 
+									[selected]="customerList['ex_incoterms'].inco_term==inco.inco_term">{{inco.description}}</option>
+								</ng-container>
+								</ng-container>
+							</select>
+						</div>
+						<div class="col-md-3 text-align-sales">
+						
+						<label>Payment Terms</label>
+							<select class="form-control create-edit-pop-select-box" id="payTerms">
+								<option value="">Select Payment terms</option>
+								<ng-container *ngIf="payIncoTermsListLength>0">
+								<ng-container *ngFor="let pay of payIncoTermsList['ex_pay_terms']; let i=index;">
+									<option [value]="pay.pay_term"
+									[selected]="customerList['ex_incoterms'].pay_term==pay.pay_term">{{pay.description}}</option>
+								</ng-container>
+								</ng-container>
+							</select>
+						</div>
+						</div>
+						<div class="clear-fix"></div>
+						 <div class="delivery-form-block col-md-12 row pb-1">
+						<div class="col-md-3 text-align-sales">
+						<label>Sold To Party<sup class="asterick">*</sup></label>
+						<ng-container>
+						<input type="text" class="form-control" formControlName="soldToParty" [value]="sdName"
+						 validateOnBlur [validateFormControl]="salesOrderForm.controls['soldToParty']" [attr.disabled]="dsFlag ?  'disabled' : null">
+							<span
+											*ngIf="salesOrderForm.controls['soldToParty'].touched && salesOrderForm.controls['soldToParty'].invalid && salesOrderForm.controls['soldToParty'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="salesOrderForm.controls['soldToParty'].errors.required">
+											{{salesOrderMessage.sold_to_party_req}}	</small>
+										</span>
+							  <div class="txt-msg-block">
+							  <ng-container *ngIf="customerListLength>0">
+							  	<label class="mb-0" style="font-size:10px !important;" *ngIf="customerList['ex_compliance'].gstin!=''"><strong>GSTN: </strong><span>{{customerList['ex_compliance'].gstin}}</span></label>
+							  	<!-- <label  class="mb-0"><strong>PAN: </strong><span>{{customerList['ex_compliance'].pan_no}}</span></label> -->
+							  	<label class="mb-0" style="font-size:10px !important;" *ngIf="customerList['ex_compliance'].lst_no!=''"><strong>DL: </strong><span>{{customerList['ex_compliance'].lst_no}}</span></label>
+							  	<span *ngIf="customerList['ex_compliance'].addr_number!=''">Address: {{customerList['ex_address'].addr_number}} ,</span>
+							  	<span *ngIf="customerList['ex_compliance'].street!=''">{{customerList['ex_address'].street}} ,</span>
+							  	<span *ngIf="customerList['ex_compliance'].city!=''">{{customerList['ex_address'].city}} ,</span>
+							  	 <span *ngIf="customerList['ex_compliance'].post_code!=''">{{customerList['ex_address'].post_code}} ,</span>
+							  	<span *ngIf="customerList['ex_compliance'].telefone!=''">{{customerList['ex_address'].telefone}} ,</span>
+							  	 <span *ngIf="customerList['ex_compliance'].country!=''">{{customerList['ex_address'].country}}</span>
+							  	 </ng-container>
+							  </div>
+							  </ng-container>
+						</div>
+						<div class="col-md-3 text-align-sales">
+						<label>Ship To Party</label>
+						<ng-container>
+						<input type="text" class="form-control" [value]="sdName"
+						list="addressList" id="shiptoparty" (keyup)="extractData('shiptoparty','spinner-search','ajaxList')" >
+						<i class="fa fa-spinner fa-spin spinner-icon" id="spinner-search" style="display:none"></i>
+						<input type="hidden" name="shiptoId" id="shiptoCustomerId" [value]="sdNameId"/>
+						<div class="ajax-searchlist" style="display:none;" id="ajaxList">
+							<datalist id="addressList">
+								<ng-container *ngIf="customerNames.length>0">
+								<option *ngFor="let cstList of customerNames; let i = index;"
+								[value]="cstList.cust_name">
+									{{cstList.cust_id}}
+								</option>
+								</ng-container>
+							</datalist>
+						</div>
+							 <div class="txt-msg-block">
+							 <ng-container *ngIf="customerShiptoPartyLenth>0">
+							  	<label class="mb-0" style="font-size:10px !important;" *ngIf="customerShiptoParty['ex_compliance'].gstin!=''"><strong>GSTN: </strong><span>{{customerShiptoParty['ex_compliance'].gstin}}</span></label>
+							  	<!-- <label  class="mb-0"><strong>PAN: </strong><span>{{customerShiptoParty['ex_compliance'].pan_no}}</span></label> -->
+							  	<label class="mb-0" style="font-size:10px !important;" *ngIf="customerShiptoParty['ex_compliance'].gstin!=''"><strong>DL: </strong><span>{{customerShiptoParty['ex_compliance'].lst_no}}</span></label>
+							  	<span *ngIf="customerShiptoParty['ex_compliance'].addr_number!=''">Address: {{customerShiptoParty['ex_address'].addr_number}} ,</span>
+							  	<span *ngIf="customerShiptoParty['ex_compliance'].street!=' '">{{customerShiptoParty['ex_address'].street}} ,</span>
+							  	<span *ngIf="customerShiptoParty['ex_compliance'].city!=' '">{{customerShiptoParty['ex_address'].city}} ,</span> 
+							  	<span *ngIf="customerShiptoParty['ex_compliance'].post_code!=' '">{{customerShiptoParty['ex_address'].post_code}} ,</span>
+							  	<span *ngIf="customerShiptoParty['ex_compliance'].telefone!=' '">{{customerShiptoParty['ex_address'].telefone}} ,</span> 
+							  	<span *ngIf="customerShiptoParty['ex_compliance'].country!=' '">{{customerShiptoParty['ex_address'].country}}</span>
+							  </ng-container>
+							  </div>
+							 </ng-container>
+						</div>
+						<div class="col-md-6 text-align-sales">
+						<label>Header Text</label>
+							<textarea id="header_text"  class="form-control" placeholder="Special instruction" style="height:94px;"></textarea>
+						</div>
+						
+					</div>
+					</form>
+					</div>
+					<div class="col-md-12 mt-2 mb-3">
+							<div class="stock-table table-responsive">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="outbound-delivery-table">
+								<thead>
+									<tr>
+										<th rowspan="2"  style="min-width:50px !important;text-align:center;">
+										<mat-checkbox  class="example-margin" id="checkbox-all" 
+										[(ngModel)]="checked"
+											[checked]="checked"
+											[(indeterminate)]="indeterminate"
+											 (click)="selectAll($event,'checkbox-all-input','outbound-delivery-table')"></mat-checkbox></th>
+										<th rowspan="2"  style="min-width:90px !important;">Material</th>
+										<th rowspan="2" style="min-width:80px !important;">Qty</th>
+										<th rowspan="2" style="min-width:60px !important;">UOM</th>
+										<th rowspan="2" style="min-width:130px !important;">Description</th>
+										<th rowspan="2" style="min-width:80px !important;">Unit Price</th>
+										<th rowspan="2" style="min-width:50px !important;">Fix.Sch.</th>
+										<th rowspan="2" style="min-width:80px !important;">Sch.Val</th>
+										<th rowspan="2" style="min-width:120px !important;">Add Dis.</th>
+										<th rowspan="2" style="min-width:80px !important;">Dis %/ Val</th>
+										<th rowspan="2" style="min-width:80px !important;">Dis Amt</th>
+										<th rowspan="2" style="min-width:100px !important;">Net Val</th>
+										<th colspan="2" class="align-center">S/U GST</th>
+										<th colspan="2" class="align-center">CGST</th>
+										<th colspan="2" class="align-center">IGST</th>
+										<th rowspan="2" style="min-width:80px !important;">Total Val</th>
+										</tr>
+										<tr>
+										<th style="min-width:50px !important;">Rate</th>
+										<th style="min-width:80px !important;">Value</th>
+										<th style="min-width:50px !important;">Rate</th>
+										<th style="min-width:80px !important;">Value</th>
+										<th style="min-width:50px !important;">Rate</th>
+										<th style="min-width:80px !important;">Value</th>
+										
+									</tr>
+								</thead>
+								<tbody>
+									
+								<ng-container *ngFor="let items of createSalesOrderItems; let i =index;">
+										<tr id="sales-row-{{i}}" *ngIf="items.displayRow">
+											<td style="min-width:50px !important;text-align:center;">
+												<mat-checkbox class="example-margin" id="checkbox-{{i}}"  (click)="getReportList($event,'outbound-delivery-table',i)">
+												</mat-checkbox></td>
+											<td>
+												<input type="text" autocomplete="off"  name="materialNum"  placeholder="Material no." (keyup)="findMaterialDetails(materialNum,items,'spinner-search-mat',i,'matList')" 
+												class="form-control matNum" 
+													[value]="items.mat_num" [(ngModel)]="items.mat_num" (change)="populateFileds(items,matnrDetails,'matNum')"  id="matNum-{{i}}" list="materialNumlist"  #materialNum/>
+													<i class="fa fa-spinner fa-spin spinner-icon" id="spinner-search-mat-{{i}}" style="display:none;margin-top: -27%;margin-right: 2%;"></i>
+												<datalist id="materialNumlist">
+													<ng-container *ngFor="let matList of matnrDetails;">
+													<option [value]="matList.mat_num">{{matList.mat_name}}</option>
+													</ng-container>
+												</datalist>
+											</td>
+											<td>
+												<input type="text" (change)="changeQtyCalculations(items)" name="qty" placeholder="Qty" 
+												class="form-control matNum numbersOnly" 
+													[value]="items.qty" [(ngModel)]="items.qty"/>
+											</td>
+											<td>
+												{{items.uom}}
+											</td>
+											<td>
+												<input type="text" autocomplete="off" name="desc" placeholder="Description"  class="form-control matNum" (keyup)="findMaterialDetails(desc,items,'spinner-search-desc',i)"  
+													[value]="items.desc" [(ngModel)]="items.desc" (change)="populateFileds(items,matnrDetails,'desc')" id="desc-{{i}}" list="desclist" #desc/>
+													<i class="fa fa-spinner fa-spin spinner-icon" id="spinner-search-desc-{{i}}" style="display:none;margin-top: -15%;margin-right: 2%;"></i>
+													<datalist id="desclist">
+													<ng-container *ngFor="let matList of matnrDetails;">
+													<option [value]="matList.mat_name">{{matList.mat_num}}</option>
+													</ng-container>
+												</datalist>
+											</td>
+											<td align="right"> {{items.price | PriceInd}}</td>
+											<td> {{items.fix_sch}} <span *ngIf="items.schTypeSymbol=='per' && items.fix_sch!=''">%</span></td>
+											<td align="right"> {{items.sch_val | PriceInd}}</td>
+											<td>
+												<select class="form-control create-edit-pop-select-box" style="padding:5px 0px 5px 5px !important; font-size:12px !important;" name="addDis"
+												[(ngModel)]="items.add_dis" (change)="changeQtyCalculations(items,i)">
+												<option value="">Select Dis type</option>
+													<option value="ZPER">Percentage</option>
+													<option value="ZVAL">Value</option>
+												</select>
+											</td>
+											<td>
+												<input type="text"  id="amt-{{i}}" name="disAmt" placeholder="discount per val per" class="form-control matNum numbersOnly" 
+													[value]="items.dis_per_val" [(ngModel)]="items.dis_per_val" (change)="changeQtyCalculations(items,i)"/>
+												<i class="fa fa-percent per-icon" *ngIf="items.add_dis=='ZPER'" id="perIcon"></i>
+												<i class="fa fa-rupee per-icon" *ngIf="items.add_dis=='ZVAL'" id="valIcon"></i>
+											</td>
+											<td align="right"> {{items.dis_amt | PriceInd}}</td>
+											<td align="right"> {{items.net_val | PriceInd}}</td> 
+											<td>{{items.sgst_rt}}</td>
+											<td align="right"> {{items.sgst_val | PriceInd}}</td>
+											<td>{{items.cgst_rt}}</td>
+											<td align="right"> {{items.cgst_val | PriceInd}}</td>
+											<td>{{items.igst_rt}}</td>
+											<td align="right"> {{items.igst_val | PriceInd}}</td>
+											<td align="right"> {{items.grossValue | PriceInd}}</td>
+											
+										</tr>
+								</ng-container>
+									
+								</tbody>
+								<!-- <tfoot>
+									<tr>
+										<td colspan="11"></td>
+										<td align=right>{{totalNetval}}</td>
+										<td align="right"></td>
+										<td align="right">{{totalSgst}}</td>
+										<td></td>
+										<td align="right">{{totalCgst}}</td>
+										<td></td>
+										<td align="right">{{totalIgst}}</td>
+										<td align="right">{{totalGrossVl}}</td>
+									</tr>
+								</tfoot> -->
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+<div class="outbound-footer mt-3">
+		<div class="left-block">
+		<div class="pull-left" style="max-width:47%">
+			<button class="login-button" (click)="AddMoreLinesOfItems()">
+			<i class="fa fa-plus" style="margin-right:4px;font-size:16px"></i> Add Lines</button>
+		</div>
+		<div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;" (click)="removeLineSelectedItems()">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Remove Lines</div>
+				</i>
+			</button>
+		</div>
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export Btn-margin" (click)="displaySchemeList()">
+					<i class="fa scheme-icon" style="margin-right:4px;padding-right:4px;">
+					<div class="icon-text" style="right:-4px;">Display scheme</div>
+					</i>
+				</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export Btn-margin" [attr.disabled]="calcBtn ?  'disabled' : null" (click)="calculatePrice()">
+				<i class="fa calc-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Calculate Total</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+				<input type="file" name="file" id="uploadExcel" style="display:none;">
+			<button class="login-button-export Btn-margin" style="display:none;" id="mergeItemList" (click)="mergeItemsList()"></button>
+			<button class="login-button-export Btn-margin" (click)="uploadExcel()">
+				<i class="fa upexcel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Upload Excel</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="save-icon-btn" (click)="saveSalesOrderItems()" [attr.disabled]="saveBtn ?  'disabled' : null">
+				<i class="fa save-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Save</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;" (click)="redirectSalesOrder()">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Back</div>
+				</i>
+			</button>
+		</div>
+		</div>
+	</div>
+</div>
+<div class="deliveryBlock" *ngIf="outboundDeliberyBlock">
+	<app-outbound-delivery ></app-outbound-delivery>
+</div>
+<div class="postgoodsBlock" *ngIf="postGoodsBlock">
+	
+</div>
+<div class="billingBlock" *ngIf="billingBlock">
+	<app-billing></app-billing>
+</div>
+</section>
+<!--create schemes modal -->
+
+					<div class="modal fade modal-size-medium sales-d-scheme" id="displaySchemesModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>Trade Scheme
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('displaySchemesModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+								</div>
+								<div class="modal-body">
+									<div class="col-md-12 row">
+										<table class="table table-hover nowrap editable-table checkBoxTable" width="100%" id="schemesTable" style="display:inline-table;">
+											<thead>
+												<tr>
+													<th>Material</th>
+													<th width="80px">Qty</th>
+													<th width="80px">Min Qty</th>
+													<th width="80px">Max Qty</th>
+													<th width=80px;>UOM</th>
+													<th>Discount</th>
+													
+												</tr>
+											</thead>
+											<tbody *ngIf="customerListLength>0">
+											<ng-container *ngFor="let schList of customerList['ex_schemes']; let i=index">
+											<input type="hidden" [value]="schList['schemes'].length" #rowlength>
+														<tr>
+															<td [attr.rowspan]="schList['schemes'].length">{{schList.mat_id}} - {{schList.mat_desc}}</td>
+															<ng-container *ngFor="let mSch of schList.schemes; let j=index;">
+																<ng-container *ngIf="j==0">
+																	<td>{{mSch.qty}}</td>
+																	<td>{{mSch.min_quan}}</td>
+																	<td>{{mSch.max_quan}}</td>
+																	<td>{{mSch.uom}}</td>
+																	<td>{{mSch.rate}} %</td>
+																	
+																</ng-container>
+															</ng-container>
+															</tr>
+															<ng-container *ngFor="let mSch of schList.schemes; let j=index;">
+																<ng-container *ngIf="j>0">
+																<tr>
+																	<td>{{mSch.qty}}</td>
+																	<td>{{mSch.min_quan}}</td>
+																	<td>{{mSch.max_quan}}</td>
+																	<td>{{mSch.uom}}</td>
+																	<td>{{mSch.rate}} %</td>
+																	
+																	</tr>
+																</ng-container>
+															</ng-container>
+															
+											</ng-container>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<button (click)="closeModal('displaySchemesModal')"
+											 Class="login-button forgotOk"
+											>Ok</button>
+										<button (click)="closeModal('displaySchemesModal')"
+											 Class="cancel-button forgotOk"
+											>Cancel</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+</div>
+
+<!--Error display modal -->
+
+					<div class="modal fade modal-size-medium" id="displayErrorsModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>Display Errors
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('displayErrorsModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;">
+									<div class="col-md-12 row">
+										<table class="table table-hover nowrap editable-table checkBoxTable" width="100%" id="errorTable" style="display:inline-table;">
+											<thead>
+												<tr>
+													<th>Error Code</th>
+													<th>Error Description</th>
+												</tr>
+											</thead>
+											<tbody>
+											<ng-container *ngFor="let erList of errorList; let i=index">
+												<tr *ngIf="erList.type=='E'">
+													<td>{{erList.id}}</td>
+													<td>{{erList.message}}</td>
+												</tr>
+												</ng-container>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<!-- <button (click)="closeModal('displayErrorsModal')"
+											 Class="login-button forgotOk"
+											>Ok</button> -->
+										<button (click)="closeModal('displayErrorsModal')"
+											 Class="cancel-button forgotOk"
+											>Cancel</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+</div>

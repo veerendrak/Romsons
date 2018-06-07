@@ -1,0 +1,185 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">GSTR2
+					Report</strong>
+			</span>
+			<div class="pull-right">
+			<div class="rangeSlider row pull-left">
+						<input class="scroll-range"  value="1" id="scroll-range" type="range"/>
+			</div> 
+				<div class="row pull-left icon-filter-align">
+					<span class="" (click)="showFilters();" title="Advance Filters">
+						<i class="fa fa-sliders"> </i>
+					</span>
+				</div>
+			</div>
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv" id="filter-block">
+							<form [formGroup]="gstrdetailsForm" autocomplete="off">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+									<div class="col-md-2 text-align-sales">
+										<label><b>From Period</b><sup class="asterick">*</sup></label>
+										<input type="text" style="padding: 5px !important;"
+											placeholder="From Period" id="frmDate"
+											class="form-control datepicker-init"
+											formControlName="frmDate" validateOnBlur
+											(blur)="changeTodatePicker('#frmDate')"
+											[validateFormControl]="gstrdetailsForm.controls['frmDate']" />
+										<span
+											*ngIf="gstrdetailsForm.controls['frmDate'].touched && gstrdetailsForm.controls['frmDate'].invalid && gstrdetailsForm.controls['frmDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="gstrdetailsForm.controls['frmDate'].errors.required">
+												Please select From Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales toDatepic">
+										<label><b>To Period</b><sup class="asterick">*</sup></label> <input
+											type="text" style="padding: 5px !important;"
+											placeholder="To Period" class="form-control datepicker-init2"
+											id="toDate" formControlName="toDate" validateOnBlur
+											(blur)="removeStyles()"
+											[validateFormControl]="gstrdetailsForm.controls['toDate']" />
+										<span
+											*ngIf="gstrdetailsForm.controls['toDate'].touched && gstrdetailsForm.controls['toDate'].invalid && gstrdetailsForm.controls['toDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="gstrdetailsForm.controls['toDate'].errors.required">
+												Please select To Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<button type="submit" class="login-button-export"
+											[disabled]="gstrdetailsForm.invalid"
+											(click)="getgstr2Details();"
+											style="position: relative; top: 26px;">
+											<i class="fa submit-icon"
+												style="margin-right: 4px; padding-right: 4px;"> <span
+												class="icon-text" style="right: -4px;">Submit</span>
+											</i>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+						<!-- new changes -->
+						<div class="col-md-12 text-align-sales mb-1 mt-3">
+							<div id="head-hsn-table">
+								<div *ngIf="gstrdetailsList.length>0">
+									<table
+										class="table table table-hover nowrap editable-table totalTable totalSmry"
+										style="display: inline-table; margin-bottom: 0px;">
+										<tbody>
+											<tr>
+												<td style="background: #e4e9f0;">Totals:</td>
+												<td>
+													<div class="pull-left">Net Value:</div>
+													<div class="pull-right">&#8377; {{totalPrice |
+														PriceInd}}</div>
+												</td>
+												<td>
+													<div class="pull-left">S/UGST :</div>
+													<div class="pull-right">&#8377; {{totalSgstVal |
+														PriceInd}}</div>
+												</td>
+												<td>
+													<div class="pull-left">CGST :</div>
+													<div class="pull-right">&#8377; {{totalCgstVal |
+														PriceInd}}</div>
+												</td>
+												<td>
+													<div class="pull-left">IGST :</div>
+													<div class="pull-right">&#8377; {{totalIgstVal |
+														PriceInd}}</div>
+												</td>
+												<td>
+													<div class="pull-left">Total Value :</div>
+													<div class="pull-right">&#8377; {{totalGrossVal |
+														PriceInd}}</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<div class="col-md-12 mt-1 mb-5 mt-3">
+						<div class="stock-table " id="">
+							<table
+								class="gstr1-table table table-hover nowrap editable-table checkBoxTable table-divs"
+								width="100%" id="cust-info-table">
+								<thead>
+									<tr>
+										<th style="min-width: 130px !important;">Invoice No</th>
+										<th style="min-width: 110px !important;">Invoice Date</th>
+										<th style="min-width: 130px !important;">Supply Name</th>
+										<!-- <th style="min-width: 110px !important;">Supply Type</th> -->
+										<th style="min-width: 140px !important;">Place Of Supply</th>
+										<th style="min-width: 60px !important;">Rate</th>
+										<th style="min-width: 120px !important;">Tax Value</th>
+										<th style="min-width: 130px !important;">S/UGST</th>
+										<th style="min-width: 130px !important;">CGST</th>
+										<th style="min-width: 130px !important;">IGST</th>
+										<th style="min-width: 110px !important;">Invoice Value</th>
+									</tr>
+								</thead>
+								<tbody>
+									<ng-container
+										*ngFor="let sList of gstrdetailsList; let i=index;">
+									<tr>
+										<td>{{sList.inv_id}}</td>
+										<td>
+										<span class="hide">{{sList.inv_date | date :'yyyyMMdd'}}</span>
+										{{sList.inv_date}}</td>
+										<td><div class="text-name-elipsis"
+												title="{{sList.suppl_name}}">{{sList.suppl_name}}</div></td>
+									<!-- 	<td>{{sList.suppl_type}}</td> -->
+										<td>{{sList.pos}}</td>
+										<td align="right">{{sList.rate}}</td>
+										<td align="right">{{sList.tax_val| PriceInd}}</td>
+										<td align="right">{{sList.sgst}}</td>
+										<td align="right">{{sList.cgst}}</td>
+										<td align="right">{{sList.igst}}</td>
+										<td align="right">{{sList.inv_value| PriceInd}}</td>
+									</tr>
+									</ng-container>
+								</tbody>
+
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3" style="width: 94%;">
+		<div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export" title="Export Excel"
+					style="padding-left: 8px;" (click)="exportExcel()">
+					<i class="fa excel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,293 @@
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+import { ExcelService } from '../../services/excel.service';
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+@Component({
+    selector: 'app-incoming-payments-list',
+    templateUrl: './incoming-payments-list.component.html',
+    styleUrls: ['./incoming-payments-list.component.css']
+})
+export class IncomingPaymentsListComponent implements OnInit {
+    public checked: boolean = false;
+    indeterminate: boolean = false;
+    incomingpaymenyList: any;
+    url: string;
+    bpId: string;
+    orgId: string;
+    accessObjectId: any;
+    checkboxLength: any;
+    paymentDocArray: any;
+    cancelPayload: any;
+    errorLogs: any;
+    extRet: any;
+    constructor(private http: Http, private formBuilder: FormBuilder, private environment: EnvConfigurationService,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private dateAdapter: DateAdapter<Date>, private excelService: ExcelService) {
+        this.app.isActive = true;
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjectId = localStorage.getItem("Incoming Payment");
+        this.checkboxLength = 0;
+        this.paymentDocArray = [];
+        this.cancelPayload = {};
+        this.errorLogs = [];
+        this.extRet = [];
+    }
+
+    ngOnInit() {
+        setTimeout(() => {
+            var width = $("#mainContent").css("width");
+            $(".outbound-footer").css("width", width);
+        }, 50);
+        this.getincomingpaymentlist();
+    }
+    createincomingpayment() {
+        const path: any = "incomingpay/postincomingpayment";
+        this.router.navigate([path]);
+    }
+    getincomingpaymentlist() {
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        this.url = this.environment.getRequiredApi('get_incoming_payment_list') + "?bp_id=" + this.bpId + "&org_id=" + this.orgId + "&";
+
+        this.commonService.getData(this.url, 'GET', '', this.accessObjectId)
+            .subscribe((response) => {
+                //  $("#stock-balance-table").DataTable().destroy();
+                if (response.status == '1') {
+                    this.commonService.responseMessages("", response.message, "warning");
+                    this.incomingpaymenyList = [];
+                    this.applyDataTable();
+
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                } else {
+                    $("#cust-info-table").DataTable().destroy();
+                    this.incomingpaymenyList = response.data.ex_payments_list;
+
+                    this.applyDataTable();
+
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                }
+
+            }, err => {
+
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                console.log(err)
+            });
+    }
+    applyDataTable() {
+        setTimeout(() => {
+            $("#cust-info-table").DataTable({
+                "order": [0],
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)"
+                },
+                "fnDrawCallback": function(oSettings) {
+                    if (5 >= oSettings.fnRecordsDisplay()) {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+
+                        $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                    } else {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_length').show();
+
+                    }
+                },
+                "columnDefs": [{
+                    "targets": 'no-sort',
+                    "orderable": false,
+                }]
+            });
+        }, 500);
+
+        setTimeout(() => {
+            $(".dataTables_scrollHeadInner").css({ "width": "100%" });
+            $(".table ").css({ "width": "100%" });
+            $("#cust-info-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+        }, 1100);
+    }
+    getReportList(response, tableId, i) {
+        setTimeout(() => {
+            let flag: boolean = this.commonService.checkAction(tableId);
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = true;
+            } else {
+                this.indeterminate = true;
+            }
+        }, 400);
+        setTimeout(() => {
+            if ($("#checkbox-" + i + "-input").is(":checked")) {
+                if (this.paymentDocArray == null || this.paymentDocArray == "") {
+                    this.paymentDocArray.push({ 'payment_id': response.payment_id, 'posting_date': response.posting_date });// = response.payment_id + "," + response.posting_date;
+                } else {
+                    // this.paymentDocArray = this.paymentDocArray + "," + response.payment_id + "," + response.posting_date;
+                    this.paymentDocArray.push({ 'payment_id': response.payment_id, 'posting_date': response.posting_date });
+                }
+                this.checkboxLength++;
+            } else {
+                if (this.paymentDocArray.includes(",")) {
+                    this.paymentDocArray = this.paymentDocArray.replace(response.payment_id, "");
+                    this.paymentDocArray = this.paymentDocArray.replace(/^,|,$/g, '');
+                } else {
+                    this.paymentDocArray = "";
+                }
+                this.checkboxLength = parseInt(this.checkboxLength) - 1;
+                setTimeout(() => {
+                    let flag: boolean = this.commonService.continueAction(tableId);
+                    if (flag) {
+                        this.indeterminate = false;
+                        this.checked = false;
+                    } else {
+                        this.indeterminate = true;
+                    }
+                }, 200);
+            }
+
+        }, 300);
+
+    }
+    exportExcel() {
+        let jsonArrrayData: any = [];
+        console.log(this.incomingpaymenyList);
+        for (let index of this.incomingpaymenyList) {
+            if (!index.hasOwnProperty('payment_id')) {
+                index.payment_id = "  "
+            }
+            if (!index.hasOwnProperty('customer_account')) {
+                index.customer_account = "  "
+            }
+            if (!index.hasOwnProperty('customer_name')) {
+                index.customer_name = ' ';
+            }
+            if (!index.hasOwnProperty('document_date')) {
+                index.document_date = ' ';
+            }
+            if (!index.hasOwnProperty('posting_date')) {
+                index.posting_date = " ";
+            }
+            if (!index.hasOwnProperty('amount')) {
+                index.amount = " ";
+            }
+
+            jsonArrrayData.push(index);
+        }
+        let columns: any = ['payment_id', 'customer_account', 'customer_name', 'document_date', 'posting_date', 'amount']
+        let columnHeaders: any = ['Payment ID', 'Customer Account', 'Customer Name', 'Document Date', 'Posting Date', 'Amount']
+        let jsonData: any = JSON.stringify(jsonArrrayData);
+        this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "Incoming Payment list", columns, columnHeaders, 'Incoming Payment');
+    }
+    selectAll(event, checkAll, tableId) {
+        setTimeout(() => {
+            this.commonService.selectAllCheckBoxes(checkAll, tableId);
+            if ($("#checkbox-all-input").is(":checked")) {
+                this.checkboxLength = 100;
+                this.incomingpaymenyList.forEach(currenItem => {
+                    if (this.paymentDocArray == null || this.paymentDocArray == "") {
+                        //  this.paymentDocArray = currenItem.payment_id + "," + currenItem.posting_date;
+                        this.paymentDocArray.push({ 'payment_id': currenItem.payment_id, 'posting_date': currenItem.posting_date });
+                    } else {
+                        //  this.paymentDocArray = this.paymentDocArray + "," + currenItem.payment_id + "," + currenItem.posting_date;
+                        this.paymentDocArray.push({ 'payment_id': currenItem.payment_id, 'posting_date': currenItem.posting_date });
+                    }
+                });
+            } else {
+                this.checkboxLength = 0;
+                this.paymentDocArray = [];
+                this.paymentDocArray = "";
+            }
+        }, 300);
+    }
+    cancelPayment(tableId) {
+        if (this.checkboxLength == 0) {
+            this.commonService.responseMessages("", "Please select at least one payment", "warning");
+            return false;
+        }
+        this.cancelPayload = {};
+        let object = "INCP";
+        let selectedSalesOrders: any = [];
+        this.cancelPayload["bp_id"] = this.bpId;
+        this.cancelPayload["object"] = "INCP";
+        this.cancelPayload["object_details"] = [];
+        this.cancelPayload["org_id"] = this.orgId;
+        // let arrayList = this.paymentDocArray.split(',');
+        for (let pay of this.paymentDocArray) {
+            let plObject: any = {}
+            plObject["belnr"] = pay.payment_id;
+            let splittedpostingArray = pay.posting_date.split("-");
+            plObject["budat"] = splittedpostingArray[2] + "-" + splittedpostingArray[1] + "-" + splittedpostingArray[0];
+            plObject["bukrs"] = pay.company_code;
+            plObject["gjahr"] = pay.fiscal_year;
+            this.cancelPayload["object_details"].push(plObject);
+        }
+        swal({
+            title: "Do you want to cancel selected incoming payment?",
+            //text: "Do you want to delete branch?",
+            showCancelButton: true,
+            cancelButtonClass: "cancel-button-export btn-primary-custom",
+            confirmButtonClass: "login-button-export btn-primary-custom",
+            confirmButtonText: "Ok",
+            closeOnConfirm: true
+        },
+
+            () => {
+                if (this.checkboxLength == 0) {
+                    this.commonService.responseMessages("", "Please select at least one payment", "warning");
+                    return false;
+                } else {
+                    $('#loadingIcon').show();
+                    $("#black-overlay").show();
+                    let url: any = this.environment.getRequiredApi("cancel_sales_order") + "?";
+                    this.commonService.getData(url, "POST", this.cancelPayload, this.accessObjectId).subscribe(response => {
+                        console.log(response)
+                        this.errorLogs = [];
+                        this.paymentDocArray = [];
+                        this.checked = false;
+                        this.indeterminate = false;
+                        if (response.status == 0) {
+                            let respID = response.id;
+                            this.extRet = response.ex_return;
+                            //this.errorLogs= data.ex_return;
+                            if (response.data.hasOwnProperty("ex_return")) {
+                                for (let index of response.data.ex_return) {
+                                    if (index.type == "E") {
+                                        this.errorLogs = response.data.ex_return;
+                                        //$("#cancel-sales-order").modal("show");
+                                        $('#loadingIcon').hide();
+                                        $("#black-overlay").hide();
+                                        return false;
+                                    }
+                                }
+                            }
+
+                            this.commonService.responseMessages("", "Incoming payment successfully cancelled", "success");
+                            $('#loadingIcon').hide();
+                            $("#black-overlay").hide();
+                            this.getincomingpaymentlist()
+                        }
+                        if (response.status == 1) {
+                            this.commonService.responseMessages("", response.message, "warning");
+
+                        }
+
+                    });
+                }
+
+            });
+    }
+}

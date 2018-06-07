@@ -1,0 +1,54 @@
+
+.outbound-content{
+	padding:0px;
+}
+.mat-placeholder-required{
+	color:red;
+}
+.mat-form-field{
+	width:100%;
+}
+.delivery-form-block{
+	padding:0px;
+}
+.outbound-footer{
+	background:linear-gradient(to top, #fff 50%, #E7E3E3 150%) !important;
+	padding:10px 7px 7px 7px !important;
+	border:1px solid #ccc;
+	position: absolute;
+    bottom: 0px;
+    width: 100%;
+    left:0px;
+}
+
+.add-qty{
+	color: #004f4b;
+    font-size: 20px;
+}
+.left-block{
+	max-width: 80%;
+    float: left;
+}
+.right-block{
+	margin-right: 0%;
+    float: right;
+    text-align: right;
+    max-width: 100%;
+}
+.asterick{
+	color: red;
+   font-size: 15px;
+top: 0 !important;
+}
+.text-align-sales{
+   padding-bottom: 10px;
+} 
+.text-align-sales{
+   padding-bottom: 10px;
+} 
+.delivery-form-block input{
+	padding:5px 5px 5px 5px !important;
+}
+.btn-disabled{
+	cursor: not-allowed;
+}

@@ -1,0 +1,927 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { ExcelService } from '../../services/excel.service';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+import {Observable} from 'rxjs/Observable';
+import {of} from 'rxjs/observable/of';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/distinctUntilChanged';
+import 'rxjs/add/operator/do';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/merge';
+
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+var exportIdlist:number;
+
+@Component({
+  selector: 'app-sales-order-details',
+  templateUrl: './sales-order-details.component.html',
+  styleUrls: ['./sales-order-details.component.css']
+})
+export class SalesOrderDetailsComponent implements OnInit {
+    createSalesOrderForm:FormGroup;
+    filterSalesOrderForm:FormGroup;
+    createDeliveryForm:FormGroup;
+    createSalesOrderPage:boolean=false;
+    salesOrderDetails:boolean=false;
+    saleType:any;
+    checked:boolean=false;
+    indeterminate:boolean=false;
+    saleOrderMessages:any;
+    bpId:any;
+    orgId:any;
+    accessObjectId:any;
+    fromRange:any;
+    toRange:any;
+    sortBy:any;
+    paginationCount:any;
+    paginationArray:any;
+    startIndex:any;
+    endIndex:any;
+    totalEndCount:any;
+    sortOrder:any;
+    sortNum:any;
+    searchFilterByMaterialCd:any;
+    salesListPayload:any;
+    salesOrderDetailsList:any;
+    salesOrderDetailslength:any;
+    customerNames:any;
+    model: any;
+    clickedItem:any;
+    searching = false;
+    searchFailed = false;
+    hideSearchingWhenUnsubscribed = new Observable(() => () => this.searching = false);
+    dataTableRowsCount:any;
+    orderTypes:any;
+    salesDocArray:any;
+    printOrderNum:any;
+    checkboxLength:any;
+    shipToNum:any;
+    cancelPayload:any;
+    extRet:any;
+    errorLogs:any;
+    dlvrNum:any;
+    reqDelDate:any;
+    docFlowList:any;
+    subTypes:any;
+    exportArrayList:any;
+    checkboxErrorMsg:any;
+    
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private environment:EnvConfigurationService,private excelService: ExcelService) {
+      this.app.isActive=true;
+      this.salesOrderDetails=true;
+      this.createSalesOrderForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+          'customer'   : [''],
+          'orderType' : ['', Validators.required],
+          'invoiceNum' : [''], 
+        });
+      this.createDeliveryForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+         'outboundDate': ['', Validators.required],
+         'outboundOrder':['', Validators.required],
+         'frmItem':[''],
+         'toItem':['']
+        });
+      this.filterSalesOrderForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+          'custName'   : [''],
+          'fromDate' : [''], 
+          'toDate' : [''], 
+          'status' : [''], 
+        });
+      this.checked=false;
+      this.indeterminate=false;
+      this.saleOrderMessages = messagesService.sales_order_details_msg;
+      this.bpId=localStorage.getItem("bpId");
+      this.orgId=localStorage.getItem("orgId");
+      this.accessObjectId=localStorage.getItem("Sales Order");
+      this.fromRange=1;
+      this.toRange=100;
+      this.sortBy=null;
+      this.paginationArray=[];
+      this.sortOrder="asc";
+      this.sortBy="";
+      this.sortNum=1;
+      this.salesListPayload={};
+      this.salesOrderDetailsList=[];
+      this.salesOrderDetailslength=0;
+      this.customerNames=[];
+      this.orderTypes=[];
+      this.salesDocArray=null;
+      this.shipToNum="";
+      this.checkboxLength=0;
+      this.printOrderNum="";
+      this.cancelPayload={};
+      this.extRet=[];
+      this.errorLogs=[];
+      this.dlvrNum="";
+      this.docFlowList=[];
+      this.subTypes={
+        "C":"Sales Order",
+        "J":"Delivery Order",
+        "R":"Post Goods Issue",
+        "M":"Billing",
+        "H":"Sales Return",
+        "T":"Delivery Return",
+        "N":"Invoice Cancellation",
+        "h":"Goods Issue Return",
+        "O":"Credit Memo",
+        "S":"Credit Memo Cancellation"
+        }   
+       this.exportArrayList=[];
+      this.checkboxErrorMsg=this.messagesService.check_box_error;
+  }
+  ngOnInit() {
+      this.commonService.deliveryNum="";
+      this.salesDocArray=null;
+          $( '.datepicker-init-sale' ).datetimepicker( {
+              widgetPositioning: {
+                  horizontal: 'left'
+              },
+              icons: {
+                  time: "fa fa-clock-o",
+                  date: "fa fa-calendar",
+                  up: "fa fa-arrow-up",
+                  down: "fa fa-arrow-down",
+                  previous: 'fa fa-arrow-left',
+                  next: 'fa fa-arrow-right'
+              },
+              format: 'DD/MM/YYYY',
+          } );
+      this.salesListPayload['bp_id']=this.bpId;
+      this.salesListPayload['cust_id']=null;
+      this.salesListPayload['from_date']=null;
+      this.salesListPayload['org_id']=this.orgId;
+      this.salesListPayload['status']=null;
+      this.salesListPayload['to_date']=null;
+      this.getsalesOrderList();
+      var checked=this.checked;
+      $(function() {
+          $(document).on('click', function (e) {
+            if (!$(e.target).hasClass('ajax-list')) {
+                  $(".ajax-searchlist").hide();
+              }
+            $("#sales-order-table_paginate").find('.page-link').on('click',function(e) {
+              setTimeout(function(){
+                 if($("#checkbox-all-input").is(":checked")){
+                    $("#sales-order-table").find("tbody").find(".mat-checkbox-input").each(function(i){
+                        let id:any=$(this).attr('id');
+                        if(!$("#"+id).is(":checked")){
+                            $("#"+id).click();
+                        }
+                    });
+                }else{
+                    $("#sales-order-table").find("tbody").find(".mat-checkbox-input").each(function(i){
+                        let id:any=$(this).attr('id');
+                         if(exportIdlist ==0){
+                            if ($("#" + id).is(":checked")) {
+                                $("#" + id).click();
+                            }     
+                          
+                        }
+                    });
+                } 
+              },300);
+            });
+      });
+            });
+      let orderTypesUrl:any=this.environment.getRequiredApi("header_dropdown")+"?group=ORDTYPS&";
+      this.commonService.getData(orderTypesUrl, "GET", "", this.accessObjectId).subscribe(response=>{
+         if(response.status==0){
+             this.orderTypes=response["data"].configValues;
+         } 
+      });
+  }
+  createSalesOrder(type){
+      this.commonService.saleType='Create';
+       this.commonService.showOrderType=false;
+      $("#createSalesModal").modal("show");
+  }
+  closeModal(id){
+      $("#"+id).modal("hide");
+      this.createSalesOrderForm.reset();
+      this.createSalesOrderForm.controls['customer'].setValue("");
+      this.createSalesOrderForm.controls['orderType'].setValue("");
+      this.createSalesOrderForm.controls['invoiceNum'].setValue("");
+      if(id == "cancel-sales-order"){
+          this.getsalesOrderList();
+      }
+  }
+  createSalesForm(id){
+      let orderType:any=$("#orderTypes").val();
+      if(this.customerNames.length==0 && orderType=="ZKS"){
+        this.commonService.responseMessages("","Please select valid customer", "warning"); 
+          return false;   
+      }
+      if($("#invoice-num").val()=="" && orderType=="ZRKS"){
+        this.commonService.responseMessages("","Please select valid invoice number", "warning"); 
+          return false;   
+      }
+      $("#"+id).modal("hide");
+      const path:any="salesorder/createsalesorder";
+      let custId:any=$("#modal-searchInput").val();
+      if(orderType=='ZKS'){
+        this.router.navigate([path],{ queryParams: {"orderType":orderType,"custId":custId,"action":"C",frompage:"SO"} });    
+      }else{
+          let invoiceNum:any=$("#invoice-num").val();
+          const path:any="salesreturn/createsalesreturn";
+         this.router.navigate([path],{ queryParams: {"orderType":orderType,"invoiceNum":invoiceNum,"action":"C",frompage:"SO"} });    
+      }
+      
+  }
+  editSalesOrder(type){
+      if(this.checkboxLength>1 || this.checkboxLength==0){
+          
+           if(this.checkboxLength==0)        
+            this.commonService.responseMessages("",this.getWarningErrorMessage('select_atleast_msg'), "warning");
+            else
+                this.commonService.responseMessages("",this.getWarningErrorMessage('select_msg'), "warning");
+        
+            return false;
+       }else{
+          if(this.checkboxLength==1){
+              this.commonService.saleType='Edit';
+              this.commonService.orderType=""; 
+              const path:any="salesorder/editsalesorder";
+              this.router.navigate([path],{ queryParams: {"orderNum":this.salesDocArray,"dlvrNum":this.dlvrNum,"action":"U",frompage:"SO"} });
+          } 
+       }
+      
+  }
+  displayDetails(list){
+      this.commonService.saleType='Display';
+      const path:any="salesorder/editsalesorder";
+      if(list.hasOwnProperty('del_order')){
+          this.dlvrNum=list.del_order;
+      }
+      this.router.navigate([path],{ queryParams: {"orderNum":list.sales_doc,"dlvrNum":this.dlvrNum,"action":"DIS",frompage:"SO"} });
+  }
+ 
+  selectAll(event,checkAll,tableId){
+      this.exportArrayList=[];
+      setTimeout(()=>{
+          this.commonService.selectAllCheckBoxes(checkAll,tableId);
+          if($("#checkbox-all-input").is(":checked")){
+            this.checkboxLength=100;    
+            this.salesOrderDetailsList.forEach(currenItem=>{
+                if(this.salesDocArray==null || this.salesDocArray==""){
+                  this.salesDocArray=currenItem.sales_doc;
+              }else{
+                  this.salesDocArray=this.salesDocArray+","+currenItem.sales_doc;
+              }
+                this.exportArrayList.push(currenItem);
+            });
+                
+          }else{
+            this.checkboxLength=0;   
+            this.salesDocArray=null; 
+            this.salesDocArray="";  
+               this.exportArrayList =[];
+          }
+      },300);
+  }
+  getReportList(response,tableId,i){
+      this.shipToNum=response.ship_to_num;
+      setTimeout(()=>{let flag:boolean=this.commonService.checkAction(tableId);
+      if(flag){
+          this.indeterminate=false;
+          this.checked=true;
+      }else{
+          this.indeterminate=true;
+      }
+      },400);
+      setTimeout(()=>{
+          if($("#checkbox-"+i+"-input").is(":checked")){
+              this.printOrderNum=response.sales_doc;
+              if(this.reqDelDate=="" || this.reqDelDate==undefined || this.reqDelDate=="undefined"){
+                this.reqDelDate=response.req_del_date;    
+              }else{
+                this.reqDelDate=this.reqDelDate+","+response.req_del_date;    
+              }
+              
+              if(response.hasOwnProperty('del_order')){
+                  this.dlvrNum=response.del_order;
+              }
+              if(this.salesDocArray==null || this.salesDocArray==""){
+                  this.salesDocArray=response.sales_doc;
+              }else{
+                  this.salesDocArray=this.salesDocArray+","+response.sales_doc;
+              }
+              this.checkboxLength++;
+              this.exportArrayList.push(response);
+          }else{
+              this.printOrderNum="";
+              if(this.salesDocArray.includes(",")){
+                  this.salesDocArray=this.salesDocArray.replace(response.sales_doc,"");
+                  this.salesDocArray=this.salesDocArray.replace(/^,|,$/g,'');
+              }else{
+                  this.salesDocArray=""; 
+              }
+              if(this.reqDelDate.includes(",")){
+                  this.reqDelDate=this.reqDelDate.replace(response.req_del_date,"");
+                  this.reqDelDate=this.reqDelDate.replace(/^,|,$/g,'');
+              }else{
+                  this.reqDelDate=""; 
+              }
+              this.checkboxLength=parseInt(this.checkboxLength)-1;
+              setTimeout(()=>{let flag:boolean=this.commonService.continueAction(tableId);
+              if(flag){
+                  this.indeterminate=false;
+                  this.checked=false;
+              }else{
+                  this.indeterminate=true;
+              }
+              },200);
+              this.dlvrNum="";
+              for (let i in this.exportArrayList) {
+                    if (this.exportArrayList[i].sales_doc == response.sales_doc) {
+                        this.exportArrayList.splice(i, 1);
+                        
+                    }
+                }
+               
+          }
+          exportIdlist = this.exportArrayList.length;
+          
+      },300);
+      
+  }
+  printSelectedReports(type){
+      let flag:boolean=this.commonService.continueAction(type);
+      if(flag){
+          this.commonService.responseMessages("","Please select atleast one sales order", "warning");
+          return false
+      }
+  }
+  getsalesOrderList(){
+      $("#sales-table").hide();
+      $('#loadingIcon').show();
+      $("#black-overlay").show();
+      let url:any=this.environment.getRequiredApi("get_sales_order_list")+"?"
+      this.commonService.getData(url, "POST", this.salesListPayload, this.accessObjectId).subscribe((response)=>{
+          if(response.status==0){
+              this.salesOrderDetailsList=response["data"].ex_so_list;
+              this.salesOrderDetailslength=this.salesOrderDetailsList.length;
+              //this.filterSalesOrderForm.reset();
+              //this.filterSalesOrderForm.controls['status'].setValue("");  
+          }else{
+              this.salesOrderDetailsList=[];
+              this.salesOrderDetailslength=this.salesOrderDetailsList.length; 
+              this.commonService.responseMessages("", response.message, "warning")
+          }
+          
+          $("#sales-order-table").DataTable().destroy();
+          $('#loadingIcon').hide();
+          $("#black-overlay").hide();
+          this.applyDataTable();
+            
+      });
+  }
+  applyDataTable(){
+      setTimeout(()=>{
+          var table = $('#sales-order-table').DataTable({
+             "order": [[1,'desc']],
+             retrieve:true,
+             "language": {
+                 "emptyTable": "No data available",
+                 "info": "Showing page _PAGE_ of _PAGES_",
+                 "infoFiltered": "(filtered from _MAX_ total records)",
+                // "searchPlaceholder" : "Search..."
+               },
+               
+             columnDefs: [ {
+                          "targets": 'no-sort',
+                           "orderable": false,
+                           
+                     } ],
+             "fnDrawCallback": function(oSettings) {
+                 if (10 >= oSettings.fnRecordsDisplay()) {
+                   $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+              //     $(oSettings.nTableWrapper).find('.dataTables_filter').hide();
+                   $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                   //$(oSettings.nTableWrapper).find('.dataTables_length').hide();
+                 } else {
+               $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+             //    $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                 $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                   //  $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                 }
+               },
+            
+                   });
+          this.dataTableRowsCount = table.page.info().recordsTotal;
+          console.log(this.dataTableRowsCount+'-------');
+          $('#sales-order-table_filter input').val();
+          $("#searchStock").remove();
+         // $("#sales-order-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+          $("#sales-table").show();
+          setTimeout(()=>{
+              var width=$("#mainContent").css("width");
+              $(".outbound-footer").css("width",width);
+              $(".outbound-footer").show();
+          },50);
+          
+      },500);
+      
+      setTimeout(() =>{
+          $(".dataTables_scrollHeadInner").css({"width":"100%"});
+          $(".table ").css({"width":"100%"});    
+          },600);
+  }
+  
+getFilterData(){
+    if($("#cust-name").val()!=null && $("#cust-name").val()!=""){
+        this.salesListPayload['cust_id']=$("#filterCustomerId").val();
+    }else{
+        $("#filterCustomerId").val('');
+        this.salesListPayload['cust_id']=null;    
+    }
+    
+    let fromDate:any=$("#from-date").val();
+    if(fromDate!=undefined && fromDate!=''){
+       fromDate=fromDate.split("/");
+        fromDate=fromDate[2]+""+fromDate[1]+""+fromDate[0];
+    }else{
+        fromDate=null;    
+    }
+    
+    let toDate:any=$("#to-date").val();
+    if(toDate!=undefined && toDate!=''){
+            toDate=toDate.split("/");
+            toDate=toDate[2]+""+toDate[1]+""+toDate[0];
+     }else{
+        toDate=null;    
+    }
+    if($("#so-status").val()!="" && $("#so-status").val()!=null){
+        this.salesListPayload['status']=$("#so-status").val();    
+    }else{
+        this.salesListPayload['status']=null;    
+    }
+    this.salesListPayload['from_date']=fromDate;
+    this.salesListPayload['to_date']=toDate;
+    this.getsalesOrderList();
+}
+extractData(id,spinnerId,ajaxDropdown,event){
+    let term:any=$("#"+id).val();
+    if(this.customerNames.length==0){
+         if(term.length>3){
+              term=term.substring(0,3);  
+         }   
+    }
+    if(term.length ==3 && event.keyCode!=38 && event.keyCode!=40 && event.keyCode!=13){
+        $("#"+spinnerId).show();
+        let url:any=this.environment.getRequiredApi("find_customers")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&cust_name="+term+"&";
+    this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+        if(response.status==0){
+            this.customerNames=response["data"].ex_cust_list;
+            $("#"+spinnerId).hide();
+            $("#"+ajaxDropdown).show();
+            setTimeout(()=>{
+               $("#"+ajaxDropdown).find('ul').find('li:first').addClass('active');
+               $("#"+ajaxDropdown).find('ul').find('li:first').focus();
+            },100);
+        }else{
+            $("#"+spinnerId).hide();
+            $("#"+ajaxDropdown).show();
+        }
+    });
+    }else{
+       if(term==""){
+           this.customerNames=[];
+           $("#"+spinnerId).hide();
+       }else{
+        if(event.keyCode!=13 && event.keyCode!=38 && event.keyCode!=40){
+           var searchText=term;
+           searchText=searchText.toUpperCase();
+           $(".ajax-list").removeClass('active');
+           $("#"+ajaxDropdown).find('ul > li').each(function(){
+                var currentLiText = $(this).text();
+                currentLiText=currentLiText.toUpperCase();
+                 var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                $(this).toggle(showCurrentLi);
+            });
+           $("#"+ajaxDropdown).find('ul').find('li:visible').first().addClass('active');
+           $("#"+ajaxDropdown).find('ul').find('li:visible').first().focus();
+        }
+       }
+    }
+    if(event.keyCode==38 || event.keyCode==40 || event.keyCode==13){
+        $("#"+ajaxDropdown).find('ul > li').each(function(){
+              if(event.keyCode==40){
+                  if($(this).hasClass('active')){
+                    console.log($(this).attr('class'));
+                    if($(this).next().is(':visible')){
+                        $(this).removeClass('active');
+                        $(this).next().addClass('active');
+                        $(this).next().focus();
+                        $("#"+ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                        return false;
+                      }
+                 }
+              } 
+            if(event.keyCode==13){
+                  if($(this).hasClass('active')){
+                    $(this).click();
+                 }
+              } 
+            if(event.keyCode==38){
+                  if($(this).hasClass('active')){
+                    if($(this).prev().is(':visible')){
+                        $(this).removeClass('active');
+                        $(this).prev().focus();
+                        $(this).prev().addClass('active');
+                        $("#"+ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                        return false;
+                      }
+                 }
+              } 
+        });
+    }
+}
+createDeliveryModal(){
+    if(this.checkboxLength>1 || this.checkboxLength==0){
+        this.commonService.responseMessages("","Please select only one sales order", "warning");
+         return false;
+     }else{
+        $("#outboundDeliveryModal").modal('show');
+        $('#sFiterfromDate').datetimepicker({
+          debug:true,
+          widgetPositioning: {
+             horizontal: 'left'
+           },
+       icons: {
+         time: "fa fa-clock-o",
+         date: "fa fa-calendar",
+         up: "fa fa-arrow-up",
+         down: "fa fa-arrow-down",
+         previous: 'fa fa-arrow-left',
+         next: 'fa fa-arrow-right'
+       },
+       format: 'DD/MM/YYYY'
+     });
+        $("#orderNum").val(this.salesDocArray);
+        console.log(this.reqDelDate);
+        let fromDate:any=this.reqDelDate;
+        fromDate=fromDate.split("-");
+        let changeDate:any=fromDate[2]+"/"+fromDate[1]+"/"+fromDate[0];
+        this.createDeliveryForm.controls['outboundOrder'].setValue(this.salesDocArray);
+        this.createDeliveryForm.controls['outboundDate'].setValue(changeDate);
+     }    
+}
+createDeliverySubmit(id){
+ $("#"+id).modal("hide"); 
+      const path:any="obd/createdelivery";
+      let fromDate:any=$("#sFiterfromDate").val();
+      fromDate=fromDate.split("/");
+      let changeDate:any=fromDate[2]+parseFloat(fromDate[1])+parseFloat(fromDate[0]);
+      let orderNum:any=$("#orderNum").val();
+      orderNum=orderNum.trim();
+      let fromItem:any=$("#fromItem").val();
+      let toItem:any=$("#toItem").val();
+      this.router.navigate([path],{ queryParams: {"orderNum":orderNum,"fromDate":changeDate,"action":"C","fromItem":fromItem,"toItem":toItem,frompage:"SO"} });    
+}
+salesOrderListPrint(){
+    if(this.checkboxLength>1 || this.checkboxLength==0){
+        if(this.checkboxLength==0)        
+            this.commonService.responseMessages("",this.getWarningErrorMessage('select_atleast_msg'), "warning");
+        else
+            this.commonService.responseMessages("",this.getWarningErrorMessage('select_msg'), "warning");
+        
+        return false;
+    }else{
+       if(this.checkboxLength==1){
+           let url:any=this.environment.getRequiredApi("print_sale_order")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&im_v_vbeln="+this.salesDocArray+"&im_v_kunnr="+this.shipToNum+"&access_obj_id="+this.accessObjectId+"&access_token="+localStorage.getItem("token");
+           window.open(url,'_blank');
+       } 
+    }
+   
+   }
+exportToExcel() {
+  }
+    
+    
+cancelSalesOrder(tableId){
+    if(this.checkboxLength==0){
+           this.commonService.responseMessages("","Please select at least one sales order/return", "warning");
+            return false;
+        }
+        this.cancelPayload={};
+        let object = "SO";
+        let selectedSalesOrders:any = [];
+        this.cancelPayload["bp_id"]=this.bpId;
+        this.cancelPayload["object"]="SO";
+        this.cancelPayload["object_details"]=[];
+        this.cancelPayload["org_id"]=this.orgId;
+        let arrayList=this.salesDocArray.split(',');
+        for(let index of arrayList){
+            let plObject:any={}
+                plObject["vbeln"]=index;
+            this.cancelPayload["object_details"].push(plObject);
+            }
+      swal( {
+         title: "Do you want to cancel selected SO/SR?",
+         //text: "Do you want to delete branch?",
+         showCancelButton: true,
+         cancelButtonClass: "cancel-button-export btn-primary-custom",
+         confirmButtonClass: "login-button-export btn-primary-custom",
+         confirmButtonText: "Ok",
+         closeOnConfirm: true
+     }, 
+      
+      () => { 
+        if(this.checkboxLength==0){
+           this.commonService.responseMessages("","Please select at least one sales order/return", "warning");
+            return false;
+        }else{
+            $('#loadingIcon').show();
+            $("#black-overlay").show();
+               let url:any=this.environment.getRequiredApi("cancel_sales_order")+"?";
+                this.commonService.getData(url, "POST", this.cancelPayload, this.accessObjectId).subscribe(response=>{
+               console.log(response)
+                    this.errorLogs=[];
+                    this.salesDocArray="";
+                    this.checkboxLength=0;
+                     this.checked = false;
+                     this.indeterminate = false;
+                     this.exportArrayList=[];
+                 if (response.status == 0) {
+                   let respID = response.id;
+                   this.extRet = response.ex_return;
+                  //this.errorLogs= data.ex_return;
+                   if(response.data.hasOwnProperty("ex_return")){
+                      for(let index of response.data.ex_return){
+                        if (index.type=="E") {
+                                this.errorLogs = response.data.ex_return;
+                            $("#cancel-sales-order").modal("show");
+                             $('#loadingIcon').hide();
+                     $("#black-overlay").hide();
+                            return false;
+                           }
+                        }
+                   }
+                     
+                     this.commonService.responseMessages("","Sales order/return successfully cancelled", "success"); 
+                     $('#loadingIcon').hide();
+                     $("#black-overlay").hide();
+                    
+                     
+                     
+                     this.getsalesOrderList()  
+                 }
+                   if (response.status == 1) {
+                        this.commonService.responseMessages("",response.message, "warning");
+                       
+                   }
+
+            });
+        } 
+    
+    });  
+  }   
+  exportExcel(){
+      if (this.exportArrayList.length != 0) {
+              this.commonExportExcel(this.exportArrayList);  
+          } else {
+          if (this.salesOrderDetailsList.length != 0) {
+              this.commonExportExcel(this.salesOrderDetailsList)
+
+          } else {
+              this.commonService.responseMessages("", "No data available", "warning")
+          }
+
+
+          }
+     
+  }
+    
+    commonExportExcel(list){
+        
+    
+        let count:any=0;
+      let jsonArrrayData:any=[];
+      let exportList:any=[];
+      if(list.length !=0){
+          
+       for(let index of list){
+          if(!index.hasOwnProperty('del_order')){
+              index.del_order="  "
+          }
+          if(!index.hasOwnProperty('doc_category')){
+              index.doc_category="  "
+          }
+          if(!index.hasOwnProperty('doc_type')){
+              index.doc_type=' ';
+          }
+          if(!index.hasOwnProperty('doc_type_desc')){
+              index.doc_type_desc=' ';
+          }
+          if(!index.hasOwnProperty('po_num')){
+              index.po_num=" ";
+          }
+          if(!index.hasOwnProperty('po_date')){
+              index.po_date=' ';
+          }
+          if(!index.hasOwnProperty('req_del_date')){
+              index.req_del_date='--';
+          }
+          if(!index.hasOwnProperty('sales_doc')){
+              index.sales_doc=' ';
+          }
+          if(!index.hasOwnProperty('ship_to_name')){
+              index.ship_to_name=' ';
+          }
+          if(!index.hasOwnProperty('ship_to_num')){
+              index.ship_to_num=' ';
+          }
+          if(!index.hasOwnProperty('sold_to_name')){
+              index.sold_to_name=' ';
+          }
+          if(!index.hasOwnProperty('sold_to_num')){
+              index.sold_to_num='--';
+          }
+          if(!index.hasOwnProperty('status')){
+              index.status=' ';
+          }
+          if(!index.hasOwnProperty('total_amt')){
+              index.total_amt=' ';
+          }
+          jsonArrrayData.push(index);
+          
+      }
+      let columns:any=['sales_doc','doc_category','doc_type','doc_type_desc','po_num','po_date','req_del_date','ship_to_name','ship_to_num','sold_to_name','sold_to_num','total_amt','status']
+      let columnHeaders:any=['SO Number','Document Category','Document Type','Document Description','PO Number','PO Date','Req Delivery Date','Ship to party','Ship to party Number','Sold to party Number','Sold to party','Total Amount','Status']
+      let jsonData:any=JSON.stringify(jsonArrrayData);
+      this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "Sales orders list",columns,columnHeaders,'SO');
+      
+      
+      }
+        
+    }
+    
+    
+    
+selectedItem(response,modalBlock,textInput,hiddenInput){
+    if(response.cust_name==null && response.cust_name==undefined){
+        $("#"+textInput).val(response.cust_id);
+    }else{
+        $("#"+textInput).val(response.cust_name);    
+    }
+    
+    $("#"+hiddenInput).val(response.cust_id);
+    $("#"+modalBlock).hide();
+}
+changePickerPos(){
+    setTimeout(()=>{
+        $(".bootstrap-datetimepicker-widget").css("position","fixed");
+        $(".bootstrap-datetimepicker-widget").css("top","102px");
+    },100);
+} 
+removeStyles(id){
+    $('#'+id).datetimepicker("hide");  
+    this.createDeliveryForm.controls['outboundDate'].setValue($("#sFiterfromDate").val()); 
+}
+showFilters(){
+  $("#filter-block").slideToggle();  
+}
+getDocumentFlow(docNum){
+    $('#loadingIcon').show();
+    $("#black-overlay").show();
+    this.docFlowList=[];
+    let url:any=this.environment.getRequiredApi("get_sales_doc_flow")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&doc_num="+docNum+"&item_num=''&all_items=false&";
+    this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+        if(response.status==0){
+            if(response.data.hasOwnProperty("ex_return")){
+                      for(let index of response.data.ex_return){
+                        if (index.type=="E") {
+                                this.errorLogs = response.data.ex_return;
+                                $("#cancel-sales-order").modal("show");
+                                $('#loadingIcon').hide();
+                                $("#black-overlay").hide();
+                            return false;
+                           }
+                        }
+                   }
+            if(response['data'].hasOwnProperty('ex_document_flow')){
+                let orderNum:any="";
+                let itemNum:any="";
+                let invoiceNum:any=""
+                let returnOrdNum:any="";
+                let count:any=0;
+                let objectList:any=[];
+                this.docFlowList=response['data'].ex_document_flow;
+                /*for(let flow of response['data'].ex_document_flow){
+                  if(flow.vbtyp_n=='C'){
+                      objectList.push(flow);
+                  }
+                }*/
+                /*for(let flow1 of objectList){
+                    orderNum="";
+                    this.docFlowList.push(flow1);
+                    for(let flowLi of response['data'].ex_document_flow){
+                       if(flowLi.vbtyp_n!='C'){
+                        if(orderNum=="" && flow1.vbeln==flowLi.docnuv
+                        && (flow1.posnn==flowLi.itemnum || flow1.posnn==flowLi.itemnuv)){
+                            flowLi.child=false;
+                            this.docFlowList.push(flowLi);
+                            orderNum=flowLi.docnum;  
+                        }else{
+                           if(orderNum==flowLi.docnum && flow1.vbeln==flowLi.docnuv && (flow1.posnn==flowLi.itemnum || flow1.posnn==flowLi.itemnuv)){
+                               flowLi.child=true; 
+                               this.docFlowList.push(flowLi);
+                           }else{
+                               if(flowLi.vbtyp_n=='R'){
+                                  if(orderNum==flowLi.docnuv && (flow1.posnn==flowLi.itemnum || flow1.posnn==flowLi.itemnuv)){
+                                        flowLi.child=true; 
+                                        this.docFlowList.push(flowLi);
+                                  }
+                              } 
+                              if(flowLi.vbtyp_n=='M'){
+                                  if(orderNum==flowLi.docnuv && (flow1.posnn==flowLi.itemnum || flow1.posnn==flowLi.itemnuv)){
+                                        flowLi.child=true; 
+                                        this.docFlowList.push(flowLi);
+                                      invoiceNum=flowLi.docnum;
+                                  }
+                              }
+                              if(flowLi.vbtyp_n=='N'){
+                                  if(orderNum==flowLi.docnuv && (flow1.posnn==flowLi.itemnum || flow1.posnn==flowLi.itemnuv)){
+                                        flowLi.child=true; 
+                                        this.docFlowList.push(flowLi);
+                                  }
+                              }
+                              if(flowLi.vbtyp_n=='H'){
+                                  if(invoiceNum==flowLi.docnuv && (flow1.posnn==flowLi.itemnum || flow1.posnn==flowLi.itemnuv)){
+                                        flowLi.child=true; 
+                                        this.docFlowList.push(flowLi);
+                                  }
+                              }
+                              if(flowLi.vbtyp_n=='T'){
+                                  if(orderNum==flowLi.docnuv && flow1.posnn==flowLi.itemnum || flow1.posnn==flowLi.itemnuv){
+                                        flowLi.child=true; 
+                                        this.docFlowList.push(flowLi);
+                                        returnOrdNum=flowLi.docnum;
+                                  }
+                              }
+                              if(flowLi.vbtyp_n=='O'){
+                                  if(returnOrdNum==flowLi.docnuv && (flow1.posnn==flowLi.itemnum || flow1.posnn==flowLi.itemnuv)){
+                                        flowLi.child=true; 
+                                        this.docFlowList.push(flowLi);
+                                  }
+                              }
+                              if(flowLi.vbtyp_n=='S'){
+                                  if(returnOrdNum==flowLi.docnuv && (flow1.posnn==flowLi.itemnum || flow1.posnn==flowLi.itemnuv)){
+                                        flowLi.child=true; 
+                                        this.docFlowList.push(flowLi);
+                                  }
+                              } 
+                             if(flowLi.vbtyp_n=='h'){
+                                  if(orderNum==flowLi.docnuv && flow1.posnn==flowLi.itemnum || flow1.posnn==flowLi.itemnuv){
+                                        flowLi.child=true; 
+                                        this.docFlowList.push(flowLi);
+                                  }
+                              } 
+                           } 
+                        }
+                      }
+                    }
+                    
+                }*/
+                //this.docFlowList=response['data'].ex_document_flow;
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                $("#docFlowList").modal('show');
+            }
+        }else{
+            $('#loadingIcon').hide();
+            $("#black-overlay").hide();
+            this.commonService.responseMessages("",response.message, "warning");    
+        }
+    });
+}  
+changeValidate(id){
+        let date:any=$("#"+id).val();
+        this.filterSalesOrderForm.controls['fromDate'].setValue(date);
+}  
+    
+    getWarningErrorMessage(messageKey) {
+
+        return this.checkboxErrorMsg[messageKey] + "sales order";
+
+    }
+}
+

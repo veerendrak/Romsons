@@ -1,0 +1,654 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { ExcelService } from '../../services/excel.service';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+    selector: 'app-outbound-delivery-details',
+    templateUrl: './outbound-delivery-details.component.html',
+    styleUrls: ['./outbound-delivery-details.component.css']
+})
+export class OutboundDeliveryDetailsComponent implements OnInit {
+
+    createDeliveryForm: FormGroup;
+    checked: boolean = false;
+    indeterminate: boolean = false;
+    outboundMessage: any;
+    outBoundDelPayload: any = {};
+    url: string;
+    bpId: string;
+    orgId: string;
+    outBoundDeliveryList: any;
+    deliveryListItem: any = [];
+    accessObjectId: any;
+    checkboxLength: any;
+    dlvrsDocArray: any;
+    cancelPayload: any = {};
+    cancelpgiPayload: any = {};
+    errorLogs: any;
+    extRet: any;
+    extpgiRet: any;
+    cancelObjectNums: any = [];
+
+    checkArray: any = [];
+    selectedPgiList: any = [];
+    selectedPgiListObject = {};
+    cancelPgiFlag:boolean=false;
+
+    constructor(private http: Http, private formBuilder: FormBuilder, private environment: EnvConfigurationService,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private excelService: ExcelService) {
+        this.app.isActive = true;
+        this.createDeliveryForm = formBuilder.group({
+            hideRequired: false,
+            floatLabel: 'auto',
+            'outboundDate': ['', Validators.required],
+            'outboundOrder': ['', Validators.required],
+            'frmItem': [''],
+            'toItem': ['']
+        });
+        this.checked = false;
+        this.indeterminate = false;
+        this.outboundMessage = messagesService.outbound_delivery_msg;
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjectId = localStorage.getItem('Outbound Delivery');
+        this.checkboxLength = 0;
+        this.dlvrsDocArray = null;
+    }
+
+    ngOnInit() {
+        this.commonService.deliveryNum="";
+        this.cancelPgiFlag=false;
+        this.outBoundDelPayload["bp_id"] = this.bpId;
+        this.outBoundDelPayload["org_id"] = this.orgId;
+        this.getSalesOutboundDeliveryList();
+        $(function(){
+            $(document).on('click', function (e) {
+            $("#delivery-order-table_paginate").find('.page-link').on('click',function(e) {
+              setTimeout(function(){
+                 if($("#checkbox-all-input").is(":checked")){
+                    $("#delivery-order-table").find("tbody").find(".mat-checkbox-input").each(function(i){
+                        let id:any=$(this).attr('id');
+                        if(!$("#"+id).is(":checked")){
+                            $("#"+id).click();
+                        }
+                    });
+                }else{
+                    $("#delivery-order-table").find("tbody").find(".mat-checkbox-input").each(function(i){
+                        let id:any=$(this).attr('id');
+                        if($("#"+id).is(":checked")){
+                            $("#"+id).click();
+                        }
+                    });
+                } 
+              },300);
+            });
+          }); 
+        });
+    }
+
+    isEmpty(obj) {
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key))
+                return false;
+        }
+        return true;
+    }
+
+    getSalesOutboundDeliveryList() {
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        this.url = this.environment.getRequiredApi('get_sales_outbound_delivery_list') + "?";
+
+        this.commonService.getData(this.url, 'POST', this.outBoundDelPayload, localStorage.getItem('Outbound Delivery'))
+            .subscribe((response) => {
+                if (response.status == '1') {
+                    this.commonService.responseMessages("", response.message, "warning");
+                    this.outBoundDeliveryList = [];
+                } else {
+                    let soDetObject = {};
+                    let soDetArray = [];
+                    this.outBoundDeliveryList = response.data.ex_delivery_list;
+                    $("#delivery-order-table").DataTable().destroy();
+                }
+                this.applyDataTable();
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+            }, err => {
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                console.log(err)
+
+            });
+
+    }
+
+    applyDataTable() {
+        setTimeout(() => {
+            $("#delivery-order-table").DataTable({
+                "order": [[1, 'asc']],
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)"
+                },
+                "fnDrawCallback": function(oSettings) {
+                    if (5 >= oSettings.fnRecordsDisplay()) {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+
+                        $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+
+
+                    } else {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_length').show();
+
+                    }
+                },
+                columnDefs: [{
+                    "targets": 'no-sort',
+                    "orderable": false
+                }],
+
+            });
+        }, 400);
+        setTimeout(() => {
+            $(".dataTables_scrollHeadInner").css({ "width": "100%" });
+            $(".table ").css({ "width": "100%" });
+        }, 600);
+        setTimeout(() => {
+            var width = $("#mainContent").css("width");
+            $(".outbound-footer").css("width", width);
+            $(".outbound-footer").show();
+        }, 50);
+
+    }
+
+    displayDeliveryItemDetails(delNum, items) {
+        $("#itemDetailsPopup").modal("show");
+        this.deliveryListItem = items;
+        this.deliveryListItem["deliveryItem"] = delNum;
+    }
+
+    createDeliveryOrder(type) {
+        this.commonService.saleType = 'Create';
+        $("#outboundDeliveryModal").modal("show");
+        $('#sFiterfromDate').datetimepicker({
+            debug: true,
+            widgetPositioning: {
+                horizontal: 'left'
+            },
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down",
+                previous: 'fa fa-arrow-left',
+                next: 'fa fa-arrow-right'
+            },
+            format: 'DD/MM/YYYY'
+        });
+    }
+    closeModal(id) {
+        $("#" + id).modal("hide");
+        this.createDeliveryForm.reset();
+        if (id == "cancel-outbound-delivery") {
+            this.getSalesOutboundDeliveryList()
+        }
+    }
+    createDeliverySubmit(id) {
+        $("#" + id).modal("hide");
+        const path: any = "obd/createdelivery";
+        let fromDate: any = $("#sFiterfromDate").val();
+        fromDate = fromDate.split("/");
+        let changeDate: any = fromDate[2] + fromDate[1] + fromDate[0];
+        let orderNum: any = $("#orderNum").val();
+        orderNum = orderNum.trim();
+        let fromItem: any = $("#fromItem").val();
+        let toItem: any = $("#toItem").val();
+        this.router.navigate([path], { queryParams: { "orderNum": orderNum, "fromDate": changeDate, "action": "C", "fromItem": fromItem, "toItem": toItem } });
+    }
+    editDeliveryOrderById() {
+        this.commonService.saleType = 'Edit';
+        const path: any = "obd/createsalesorder";
+        this.router.navigate([path]);
+    }
+    printSelectedReports(type) {
+        if (this.selectedPgiList.length != 1) {
+            this.commonService.responseMessages("", "Please select atleast one sales order", "warning");
+            return false
+        }
+        else {
+
+            let url: any = this.environment.getRequiredApi("print_delivery_list") + "?org_id=" + this.orgId + "&bp_id=" + this.bpId + "&im_v_vbeln=" + this.selectedPgiList[0].del_no + "&access_obj_id=" + this.accessObjectId + "&access_token=" + localStorage.getItem("token");
+            window.open(url, '_blank');
+        }
+    }
+    selectAll(event, checkAll, tableId) {
+        setTimeout(() => {
+            if ($("#" + checkAll).is(":checked")) {
+                this.commonService.selectAllCheckBoxes(checkAll, tableId);
+                let count: any = 0;
+                this.checkboxLength = 100;
+                this.outBoundDeliveryList.forEach(currentItem=>{
+                    this.selectedPgiListObject = {};
+                //this.checkArray.push(response.del_nu    
+                this.selectedPgiListObject["act_pg_date"] = currentItem.act_pgi_date;
+                this.selectedPgiListObject["del_no"] = currentItem.del_num;
+                this.selectedPgiList.push(this.selectedPgiListObject);
+                });
+            } else {
+                this.commonService.selectAllCheckBoxes(checkAll, tableId);
+                this.checkboxLength = 0;
+                this.selectedPgiList=[];
+            }
+        }, 300);
+
+    }
+    getReportList(event, tableId, i, response) {
+        setTimeout(() => {
+            let flag: boolean = this.commonService.checkAction(tableId);
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = true;
+            } else {
+                this.indeterminate = true;
+            }
+        }, 400);
+        setTimeout(() => {
+            if ($("#checkbox-" + i + "-input").is(":checked")) {
+                this.selectedPgiListObject = {};
+                //this.checkArray.push(response.del_nu    
+                this.selectedPgiListObject["act_pg_date"] = response.act_pgi_date;
+                this.selectedPgiListObject["del_no"] = response.del_num;
+                this.selectedPgiList.push(this.selectedPgiListObject);
+
+                if (this.dlvrsDocArray == null || this.dlvrsDocArray == "") {
+                    this.dlvrsDocArray = response.del_num;
+                } else {
+                    this.dlvrsDocArray = this.dlvrsDocArray + "," + response.sales_doc;
+                }
+                this.checkboxLength++;
+            } else {
+                for (let i in this.selectedPgiList) {
+                    if (this.selectedPgiList[i].del_no == response.del_num) {
+                        this.selectedPgiList.splice(i, 1);
+
+                    }
+                }
+                if (this.dlvrsDocArray.includes(",")) {
+                    this.dlvrsDocArray = this.dlvrsDocArray.replace(response.sales_doc, "");
+                    this.dlvrsDocArray = this.dlvrsDocArray.replace(/^,|,$/g, '');
+                } else {
+                    this.dlvrsDocArray = "";
+                }
+                this.checkboxLength = parseInt(this.checkboxLength) - 1;
+                setTimeout(() => {
+                    let flag: boolean = this.commonService.continueAction(tableId);
+                    if (flag) {
+                        this.indeterminate = false;
+                        this.checked = false;
+                    } else {
+                        this.indeterminate = true;
+                    }
+                }, 200);
+            }
+            console.log(this.selectedPgiList);
+
+        }, 300);
+    }
+    getSoList(itemList) {
+        $("#itemDetailsPopup").modal("show");
+        this.deliveryListItem = [];
+        for (let soList of itemList) {
+            this.deliveryListItem.push(soList.so_num);
+        }
+        console.log(this.deliveryListItem);
+    }
+
+    displayDeliveryDetails(items) {
+        this.commonService.saleType = 'Display';
+        const path: any = "obd/editdeliverydetails";
+        this.router.navigate([path], { queryParams: { "orderNum": items.del_num, "action": "DIS" } });
+    }
+    changePickerPos() {
+        setTimeout(() => {
+            $(".bootstrap-datetimepicker-widget").css("position", "fixed");
+            $(".bootstrap-datetimepicker-widget").css("top", "88.5px");
+            $(".bootstrap-datetimepicker-widget").css("left", "18px");
+             //$(".bootstrap-datetimepicker-widget").css("top", "163px");
+            //$(".bootstrap-datetimepicker-widget").css("left", "367.938px");
+            $(".bootstrap-datetimepicker-widget").css("height", "auto");
+            $( ".bootstrap-datetimepicker-widget .datepicker table  td" ).css("padding","0px");
+        }, 100);
+    }
+    
+    changeCancelPickerPos(){
+        setTimeout(() => {
+            $(".bootstrap-datetimepicker-widget").css("position", "fixed");
+            
+            $(".bootstrap-datetimepicker-widget").css("top", "163px");
+            $(".bootstrap-datetimepicker-widget").css("left", "367.938px");
+            $(".bootstrap-datetimepicker-widget").css("height", "auto");
+            $( ".bootstrap-datetimepicker-widget .datepicker table  td" ).css("padding","0px");
+        }, 100);
+    }
+    removeStyles(id) {
+        $('#' + id).datetimepicker("hide");
+        this.createDeliveryForm.controls['outboundDate'].setValue($("#sFiterfromDate").val());
+    }
+    editDeliveryOrder(type) {
+        if (this.checkboxLength > 1 || this.checkboxLength == 0) {
+            this.commonService.responseMessages("", "Please select only one sales order", "warning");
+            return false;
+        } else {
+            if (this.checkboxLength == 1) {
+                this.commonService.saleType = 'Edit';
+                const path: any = "obd/editdeliverydetails";
+                this.router.navigate([path], { queryParams: { "orderNum": this.dlvrsDocArray, "action": "U" } });
+            }
+        }
+
+    }
+
+    cancelOutboundDlivery(tableId) {
+        
+        if (this.selectedPgiList == 0) {
+            this.commonService.responseMessages("", "Please select at least one outbound delivery", "warning");
+            return false;
+        }
+        this.cancelPayload = {};
+
+        let object = "OBD";
+        let selectedDeliveryNo: any = [];
+        this.cancelPayload["bp_id"] = this.bpId;
+        this.cancelPayload["object"] = "OBD";
+        this.cancelPayload["org_id"] = this.orgId;
+        this.cancelPayload["object_details"] = [];
+        let plObject: any = {}
+        for (let index in this.selectedPgiList) {
+            plObject = {}
+            plObject["vbeln"] = this.selectedPgiList[index].del_no;
+            this.cancelPayload["object_details"].push(plObject);
+        }
+
+        console.log(this.cancelPayload)
+
+        swal({
+            title: "Do you want to cancel selected outbound delivery?",
+            //text: "Do you want to delete branch?",
+            showCancelButton: true,
+            cancelButtonClass: "cancel-button-export btn-primary-custom",
+            confirmButtonClass: "login-button-export btn-primary-custom",
+            confirmButtonText: "Ok",
+            closeOnConfirm: true
+        },
+
+            () => {
+                $('#loadingIcon').show();                
+                $("#black-overlay").show();
+                if (this.checkboxLength == 0) {
+                    this.commonService.responseMessages("", "Please select at least one outbound delivery", "warning");
+                    return false;
+                } else {
+                    let url: any = this.environment.getRequiredApi("cancel_sales_order") + "?";
+                    this.commonService.getData(url, "POST", this.cancelPayload, this.accessObjectId).subscribe(response => {
+                        console.log(response)
+                        this.selectedPgiList=[];
+                        if (response.status == 0) {
+                            let respID = response.id;
+                            this.extRet = response.ex_return;
+
+
+                            //this.errorLogs= data.ex_return;
+                            if (response.data.hasOwnProperty("ex_return")) {
+                                for (let index of response.data.ex_return) {
+                                    if (index.type == "E") {
+                                        this.errorLogs = response.data.ex_return;
+                                        $('#loadingIcon').hide();
+                                        $("#black-overlay").hide();
+                                        $("#cancel-outbound-delivery").modal("show");
+                                        this.cancelPgiFlag=false;
+                                        this.indeterminate=false;
+                                        this.checked=false;
+                                        return false;
+                                    }
+                                }
+
+                            }
+                            this.commonService.responseMessages("", "Outbound delivery successfully cancelled", "success");
+                            this.getSalesOutboundDeliveryList();
+                        }
+                        if (response.status == 1) {
+                            this.commonService.responseMessages("", response.message, "warning");
+                        }
+                        $('#loadingIcon').hide();
+                        $("#black-overlay").hide();
+                    });
+                    //window.open(url,'_blank');
+                }
+
+            });
+    }
+    exportExcel() {
+        let jsonArrrayData: any = [];
+        for (let index of this.outBoundDeliveryList) {
+            if (!index.hasOwnProperty('del_num')) {
+                index.del_num = "  "
+            }
+            if (!index.hasOwnProperty('doc_category')) {
+                index.doc_category = "  "
+            }
+            if (!index.hasOwnProperty('del_date')) {
+                index.del_date = ' ';
+            }
+            if (!index.hasOwnProperty('ship_to')) {
+                index.ship_to = ' ';
+            }
+            if (!index.hasOwnProperty('status')) {
+                index.status = " ";
+            }
+            let soNums: any = "";
+            for (let item of index.item) {
+                if (soNums == "") {
+                    soNums = item.so_num;
+                } else {
+                    soNums = soNums + "," + item.so_num;
+                }
+            }
+            index.so_num = soNums;
+            jsonArrrayData.push(index);
+        }
+        let columns: any = ['del_num', 'doc_category', 'del_date', 'ship_to', 'status', 'so_num']
+        let columnHeaders: any = ['Delivery Number', 'Document Category', 'Delivery Date', 'Ship to party', 'Status', 'Sales Order Numbers']
+        let jsonData: any = JSON.stringify(jsonArrrayData);
+        this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "Sales orders list", columns, columnHeaders, 'Delivery');
+    }
+
+
+    cancelPGI(tableId) {
+        if (this.selectedPgiList == 0) {
+            this.commonService.responseMessages("", "Please select at least one outbound delivery", "warning");
+            return false;
+        }
+        swal({
+            title: "Do you want to cancel selected post goods issue?",
+            //text: "Do you want to delete branch?",
+            showCancelButton: true,
+            cancelButtonClass: "cancel-button-export btn-primary-custom",
+            confirmButtonClass: "login-button-export btn-primary-custom",
+            confirmButtonText: "Ok",
+            closeOnConfirm: true
+        },
+
+            () => {
+
+                // this.cancelBillingForm.reset(    
+                $("#cancel-pgi").modal("show");
+
+
+                this.cancelpgiPayload = {};
+                let object = "PGI";
+                let selectedDeliveryNo: any = [];
+                this.cancelpgiPayload["bp_id"] = this.bpId;
+                this.cancelpgiPayload["object"] = "PGI";
+                this.cancelpgiPayload["org_id"] = this.orgId;
+                this.cancelpgiPayload["object_details"] = [];
+//$( "#cpg" ).find( "td div ul li .datepicker table tbody td" ).css("padding","0px");
+
+                for (let index in this.selectedPgiList) {
+
+
+
+                    $('#date_picker' + this.selectedPgiList[index].del_no).datetimepicker({
+                        debug: false,
+                        widgetPositioning: {
+                            horizontal: 'left'
+                        },
+                        icons: {
+                            time: "fa fa-clock-o",
+                            date: "fa fa-calendar",
+                            up: "fa fa-arrow-up",
+                            down: "fa fa-arrow-down",
+                            previous: 'fa fa-arrow-left',
+                            next: 'fa fa-arrow-right'
+                        },
+                        format: 'DD-MM-YYYY',
+                        maxDate: new Date()
+                    });
+
+                     $('#date_picker' + this.selectedPgiList[index].del_no).val("");
+
+                }
+            
+           
+                if(this.selectedPgiList.length >= 4){
+                     $(".out-cancel-pgi-modal-body").css("height","400px");
+                    $(".out-cancel-pgi-modal-body").css("overflow-y","scroll");
+                }else{
+                    if(this.selectedPgiList.length <= 2){
+                        $(".out-cancel-pgi-modal-body").css("height","205px");
+                    }else{
+                        $(".out-cancel-pgi-modal-body").css("height","300px");    
+                    }
+                    
+                    $(".out-cancel-pgi-modal-body").css("overflow-y","");
+                }
+
+
+
+            });
+    }
+
+    proceedToCancel() {
+        
+        
+        
+        for (let billIndex in this.selectedPgiList) {
+            let delvyNum = this.selectedPgiList[billIndex].del_no;
+            let date = $('#date_picker' + delvyNum).val()
+            if (date == ""|| date.length == 0) {
+                this.commonService.responseMessages("", "Please select Reversal Date", "warning");
+                return false;
+            }
+            
+          }
+        
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+
+        let plpgiObject: any = {}
+        for (let index in this.selectedPgiList) {
+            plpgiObject = {}
+            let delvyNum = this.selectedPgiList[index].del_no;
+            plpgiObject["vbeln"] = delvyNum;
+            let delDate = $('#date_picker' + delvyNum).val().split("-");
+
+            plpgiObject["budat"] = delDate[2] + delDate[1] + delDate[0];
+            this.cancelpgiPayload["object_details"].push(plpgiObject);
+        }
+        console.log(this.cancelpgiPayload)
+
+        let url: any = this.environment.getRequiredApi("cancel_sales_order") + "?";
+        this.commonService.getData(url, "POST", this.cancelpgiPayload, this.accessObjectId).subscribe(response => {
+            console.log(response)
+            this.selectedPgiList = [];
+            this.errorLogs = [];
+            if (response.status == 0) {
+
+                this.extpgiRet = response.ex_return;
+
+
+                //this.errorLogs= data.ex_return;
+                if (response.data.hasOwnProperty("ex_return")) {
+                    for (let index of response.data.ex_return) {
+                        if (index.msgty != "S") {
+                            this.errorLogs = response.data.ex_return;
+                            this.indeterminate=false;
+                             this.checked=false;
+                            break;
+                        }
+                    }
+
+                }
+                if (this.errorLogs.length != 0) {
+                    this.cancelPgiFlag=true;
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                    $("#cancel-outbound-delivery").modal("show");
+
+
+                } else {
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                    this.commonService.responseMessages("", "Post goods issue successfully cancelled", "success");
+                    this.getSalesOutboundDeliveryList();
+                }
+            }
+            if (response.status == 1) {
+                this.commonService.responseMessages("", response.message, "warning");
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+            }
+
+        });
+
+
+        this.closeModal('cancel-pgi')
+    }
+    displayItemsList(label, id) {
+        $("#" + label + "" + id).show();
+    }
+    hideItemsList(label, id) {
+        $("#" + label + "" + id).hide();
+    }
+    /* removeStyles(id){
+    $('#'+id).datetimepicker("hide"); 
+      
+        this.createBillingForm.controls['billingDate'].setValue($("#billingDate").val());
+        this.cancelBillingForm.controls['billingDate'].setValue($("#cancelBilling").val());
+    }
+    
+     changeCancelPickerPos(){
+               setTimeout(() => {
+          $(".bootstrap-datetimepicker-widget").css("position", "fixed");
+          $(".bootstrap-datetimepicker-widget").css("top", "92px");
+          $(".bootstrap-datetimepicker-widget").css("left","150px")
+          
+      }, 100);               
+      }*/
+
+
+}

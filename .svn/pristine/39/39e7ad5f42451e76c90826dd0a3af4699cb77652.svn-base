@@ -1,0 +1,828 @@
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router, ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+declare var XLSX: any;
+declare var XLS: any;
+var mergeItems = [];
+@Component({
+    selector: 'app-purchase-order',
+    templateUrl: './purchase-order.component.html',
+    styleUrls: ['./purchase-order.component.css']
+})
+export class PurchaseOrderComponent implements OnInit {
+    purchaseOrderForm: FormGroup;
+    @Output()
+    @Input() salesSeries: any = "";
+    title: any;
+    bpId: any;
+    orgId: any;
+    accessObjectId: any;
+    purchaseOrderMessage: any;
+    formResetFlag: boolean = false;
+    formEditObj: any;
+    createpurchaseOrderItems: any;
+    indeterminate: boolean = false;
+    checked: boolean = false;
+    checkedObjects: any;
+    matnrDetails: any;
+    calcBtn: boolean = true;
+    saveBtn: boolean = true;
+    uploadExcelFlag: boolean = false;
+    managepurchasePayload: any;
+    manageSalesPayloadLength: any;
+    vendorId: any;
+    orderType: any;
+    calcResultsList: any;
+    errorList: any;
+    errorFlag: boolean = false;
+    fromPage: any;
+    vendorList: any;
+    vendorListLength: any;
+    sdName: any;
+    shName: any;
+    sdNameId: any;
+    shNameId: any;
+    sdSubId: any;
+    shSubId: any;
+    payload: any;
+    disableBtns: boolean = false;
+    canceldisableBtns: boolean = true;
+    orderNum: any;
+    createSalesFlag: boolean = true;
+    createdSales: boolean = false;
+    constructor(private http: Http, private formBuilder: FormBuilder,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private dateAdapter: DateAdapter<Date>, private activatedRoute: ActivatedRoute, private environment: EnvConfigurationService) {
+        this.app.isActive = true;
+        this.dateAdapter.setLocale('en-gb');
+        this.purchaseOrderForm = formBuilder.group({
+            'docType': ['', Validators.required],
+            'vendorCode': ['', Validators.required],
+            'vendorName': [],
+            'docDate': ['', Validators.required],
+            'billingAddr': [],
+            'shippingAddr': [],
+        });
+        this.purchaseOrderMessage = messagesService.purchase_order_details_msg;
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjectId = localStorage.getItem("Purchase Order");
+        this.createpurchaseOrderItems = [];
+        this.matnrDetails = [];
+        this.checkedObjects = [];
+        this.calcBtn = true;
+        this.saveBtn = true;
+        this.managepurchasePayload = {};
+        this.calcResultsList = {};
+        this.errorList = {};
+        this.vendorList = {};
+        this.vendorListLength = 0;
+        this.manageSalesPayloadLength = 0;
+        this.fromPage = "";
+        this.shName = "";
+        this.sdName = "";
+        this.shNameId = "";
+        this.sdNameId = "";
+        this.sdSubId = "";
+        this.shSubId = "";
+        this.payload = {};
+        this.orderNum = "";
+        this.createSalesFlag = true;
+        this.createdSales = false;
+    }
+
+    isEmpty(obj) {
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key))
+                return false;
+        }
+        return true;
+    }
+
+    ngOnInit() {
+        this.createpurchaseOrderItems = [
+            {
+                "mat_num": "",
+                "qty": "",
+                "uom": "",
+                "desc": "",
+                "price": 0,
+                "deldate": "",
+                "storloc": "",
+                "plant": "",
+                "net_val": "",
+                "sgst_rt": "",
+                "sgst_val": 0,
+                "cgst_rt": "",
+                "cgst_val": 0,
+                "igst_rt": "",
+                "igst_val": 0,
+                "grossValue": 0,
+                "displayRow": true
+            },
+            {
+                "mat_num": "",
+                "qty": "",
+                "uom": "",
+                "desc": "",
+                "price": 0,
+                "deldate": "",
+                "storloc": "",
+                "plant": "",
+                "net_val": "",
+                "sgst_rt": "",
+                "sgst_val": 0,
+                "cgst_rt": "",
+                "cgst_val": 0,
+                "igst_rt": "",
+                "igst_val": 0,
+                "grossValue": 0,
+                "displayRow": true
+            },
+            {
+                "mat_num": "",
+                "qty": "",
+                "uom": "",
+                "desc": "",
+                "price": 0,
+                "deldate": "",
+                "storloc": "",
+                "plant": "",
+                "net_val": "",
+                "sgst_rt": "",
+                "sgst_val": 0,
+                "cgst_rt": "",
+                "cgst_val": 0,
+                "igst_rt": "",
+                "igst_val": 0,
+                "grossValue": 0,
+                "displayRow": true
+            },
+            {
+                "mat_num": "",
+                "qty": "",
+                "uom": "",
+                "desc": "",
+                "price": 0,
+                "deldate": "",
+                "storloc": "",
+                "plant": "",
+                "net_val": "",
+                "sgst_rt": "",
+                "sgst_val": 0,
+                "cgst_rt": "",
+                "cgst_val": 0,
+                "igst_rt": "",
+                "igst_val": 0,
+                "grossValue": 0,
+                "displayRow": true
+            },
+            {
+                "mat_num": "",
+                "qty": "",
+                "uom": "",
+                "desc": "",
+                "price": 0,
+                "deldate": "",
+                "storloc": "",
+                "plant": "",
+                "net_val": "",
+                "sgst_rt": "",
+                "sgst_val": 0,
+                "cgst_rt": "",
+                "cgst_val": 0,
+                "igst_rt": "",
+                "igst_val": 0,
+                "grossValue": 0,
+                "displayRow": true
+            }
+        ]
+        if (this.commonService.saleType == 'Create') {
+            this.title = "Purchase Order/ Create";
+        } else {
+            this.title = "Edit Purchase Order";
+        }
+        this.applyDataTableAndPicker();
+        if ($('body').hasClass('cat__menu-left--visible')) {
+            $(".ell-spa").removeAttr("style");
+        }
+        else {
+            $(".ell-spa").attr("style", "width:340px");
+        }
+        setTimeout(() => {
+            var width = $("#mainContent").css("width");
+            $(".outbound-footer").css("width", width);
+        }, 50);
+        mergeItems = [];
+        $(() => {
+            $(document).on("input", ".numbersOnly", function() {
+                this.value = this.value.replace(/[^\d]/g, '');
+            });
+            $("input[type=file]").change(function() {
+                var file = this.files[0];
+                var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+                var fileName = $("#uploadExcel").val()
+                fileName = fileName.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, ' ');
+                $("#loadingIcon").show();
+                $("#black-overlay").show();
+                var xlsxflag = false; /*Flag for checking whether excel is .xls format or .xlsx format*/
+                if ($("#uploadExcel").val().toLowerCase().indexOf(".xlsx") > 0 || $("#uploadExcel").val().toLowerCase().indexOf(".xls") > 0) {
+                    xlsxflag = true;
+                    if (typeof (FileReader) != "undefined") {
+                        var reader = new FileReader();
+                        reader.onload = function(e: any) {
+                            if (e.target.result.length == 1) {
+                                $.notify({
+                                    title: '',
+                                    message: "No data available in the uploaded file"
+                                }, {
+                                        type: "warning"
+                                    });
+                                $("#loadingIcon").hide();
+                                $("#black-overlay").hide();
+                                return false;
+                            }
+
+                            var rowslist = e.target.result;
+                            if (xlsxflag) {
+                                var workbook = XLSX.read(rowslist, { type: 'binary' });
+                            }
+                            else {
+                                var workbook = XLS.read(rowslist, { type: 'binary' });
+                            }
+                            /*Gets all the sheetnames of excel in to a variable*/
+                            var sheet_name_list = workbook.SheetNames;
+
+                            var cnt = 0;
+                            sheet_name_list.forEach(function(y) { /*Iterate through all sheets*/
+                                /*Convert the cell value to Json*/
+                                if (xlsxflag) {
+                                    var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[y]);
+                                }
+                                else {
+                                    var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[y]);
+                                }
+                                if (exceljson.length > 0 && cnt == 0) {
+                                    var columnSet = [];
+                                    for (var i = 0; i < exceljson.length; i++) {
+                                        var rowHash = exceljson[i];
+                                        for (var key in rowHash) {
+                                            if (rowHash.hasOwnProperty(key)) {
+                                                if ($.inArray(key, columnSet) == -1) {
+                                                    columnSet.push(key);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    var columns = columnSet;
+                                    for (var i = 0; i < exceljson.length; i++) {
+                                        if (exceljson.length > mergeItems.length) {
+                                            var newObject = {
+                                                "mat_num": "",
+                                                "qty": "",
+                                                "uom": "",
+                                                "desc": "",
+                                                "price": 0,
+                                                "deldate": "",
+                                                "storloc": "",
+                                                "plant": "",
+                                                "net_val": "",
+                                                "sgst_rt": "",
+                                                "sgst_val": 0,
+                                                "cgst_rt": "",
+                                                "cgst_val": 0,
+                                                "igst_rt": "",
+                                                "igst_val": 0,
+                                                "grossValue": 0,
+                                                "displayRow": true
+                                            }
+                                            mergeItems.push(newObject);
+                                        }
+                                        for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+                                            var cellValue = exceljson[i][columns[colIndex]];
+                                            if (cellValue == null)
+                                                cellValue = "";
+                                            if (colIndex == 0) {
+                                                mergeItems[i]['mat_num'] = cellValue;
+                                            }
+                                            else {
+                                                mergeItems[i]['qty'] = cellValue;
+                                            }
+
+
+
+                                        }
+                                    }
+                                    cnt++;
+                                }
+                            });
+                            $("#mergeItemList").click();
+                            $("#uploadExcel").val("")
+                        }
+                        if (xlsxflag) {/*If excel file is .xlsx extension than creates a Array Buffer from excel*/
+                            reader.readAsArrayBuffer($("#uploadExcel")[0].files[0]);
+                        }
+                        else {
+                            reader.readAsBinaryString($("#uploadExcel")[0].files[0]);
+                        }
+                        //reader.readAsText( $( "#stockFile" )[0].files[0] );
+                        $("#loadingIcon").hide();
+                        $("#black-overlay").hide();
+                    } else {
+                        $("#loadingIcon").hide();
+                        $("#black-overlay").hide();
+                        alert("This browser does not support HTML5.");
+                    }
+                } else {
+                    $("#loadingIcon").hide();
+                    $("#black-overlay").hide();
+                    alert("Please upload a valid CSV file.");
+                }
+            });
+        });
+        this.activatedRoute.queryParams.subscribe(params => {
+            console.log(this.router.url);
+            if (params['action'] == "C" && this.router.url.includes('purchaseorder')) {
+                this.title = "Purchase Order / New";
+                // $("#gs-GSTR1").attr("style", "background:#036963;color:#fff");
+                this.orderType = params["orderType"];
+                this.vendorId = params["vendorId"];
+                this.fromPage = params["frompage"];
+                $("#downloadLink").show();
+                this.payload["vendorId"] = this.vendorId;
+                this.getvendorDetails();
+            }
+        });
+    }
+    getvendorDetails() {
+        //        $('#loadingIcon').show();
+        //        $("#black-overlay").show();
+        //        let url: any = this.environment.getRequiredApi("get_customer_details") + "?";
+        //        this.commonService.getData(url, "POST", this.payload, this.accessObjectId).subscribe(response => {
+        //            if (response.status == 0) {
+        //                this.vendorList = response["data"];
+        //                this.vendorListLength = Object.keys(this.vendorList).length;
+        //                if (Object.keys(this.vendorList['ex_address']).length > 0) {
+        //                    this.sdName = this.vendorList['ex_address'].cust_name;
+        //                    this.sdNameId = this.vendorList['ex_address'].cust_id;
+        //                    this.sdSubId = this.sdNameId.substring(6, this.sdNameId.length);
+        //                    this.shName = this.vendorList['ex_address'].cust_name;
+        //                    this.shNameId = this.vendorList['ex_address'].cust_id;
+        //                    this.shSubId = this.shNameId.substring(6, this.shNameId.length);
+        //                }
+        //
+        //            } else {
+        //                this.commonService.responseMessages("", response.message, "warning");
+        //            }
+        //            $('#loadingIcon').hide();
+        //            $("#black-overlay").hide();
+        //        })
+    }
+    uploadExcel() {
+        $("#uploadExcel").click();
+    }
+    mergeItemsList() {
+        let mergeArray: any = [];
+        for (let index of this.createpurchaseOrderItems) {
+            if (index.mat_num != "" && index.qty != "" && index.price > 0) {
+                mergeArray.push(index);
+            }
+        }
+        if (mergeArray.length > 0) {
+            this.uploadExcelFlag = false;
+        } else {
+            this.uploadExcelFlag = true;
+        }
+        this.createpurchaseOrderItems = mergeArray.concat(mergeItems);
+        this.enableButtons();
+    }
+    applyDataTableAndPicker() {
+        setTimeout(() => {
+            $('.datepicker-init-sale').datetimepicker({
+                widgetPositioning: {
+                    horizontal: 'left'
+                },
+
+                icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down",
+                    previous: 'fa fa-arrow-left',
+                    next: 'fa fa-arrow-right'
+                },
+                format: 'DD/MM/YYYY',
+            });
+        }, 500);
+
+    }
+    findMaterialDetails(matnr, response, spinnerId, i, ajaxBlock) {
+        if (matnr.value.length == 2) {
+            $("#" + spinnerId + "-" + i).show();
+            let url: any = this.environment.getRequiredApi("find_matnr_num") + "?org_id=" + this.orgId + "&bp_id=" + this.bpId + "&material=" + matnr.value + "&";
+            this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response => {
+                if (response.status == 0) {
+                    this.matnrDetails = [];
+                    $("#" + spinnerId + "-" + i).hide();
+                    this.matnrDetails = response["data"].ex_mat_list;
+                    $("#" + ajaxBlock + "-" + i).show();
+                }
+            });
+        } else {
+            var searchText = matnr.value;
+            searchText = searchText.toUpperCase();
+            $("#" + ajaxBlock + "-" + i).find('ul > li').each(function() {
+                var currentLiText = $(this).text(),
+                    showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                $(this).toggle(showCurrentLi);
+            });
+        }
+    }
+    selectAll(event, checkAll, tableId) {
+        setTimeout(() => {
+            if ($("#" + checkAll).is(":checked")) {
+                this.commonService.selectAllCheckBoxes(checkAll, tableId);
+                let count: any = 0;
+                this.createpurchaseOrderItems.forEach(response => {
+                    if (response.displayRow) {
+                        this.checkedObjects.push(count);
+                    }
+                    count++;
+                });
+            } else {
+                this.commonService.selectAllCheckBoxes(checkAll, tableId);
+                this.checkedObjects = [];
+            }
+
+
+        }, 300);
+
+    }
+    getReportList(event, tableId, i) {
+        setTimeout(() => {
+            let flag: boolean = this.commonService.checkAction(tableId);
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = true;
+            }
+            else {
+                this.indeterminate = true;
+            }
+        }, 400);
+        setTimeout(() => {
+            if ($("#checkbox-" + i + "-input").is(":checked")) {
+                this.checkedObjects.push(i);
+            }
+            else {
+                if (this.checkedObjects.length > 0) {
+                    let count: any = 0;
+                    for (let index of this.checkedObjects) {
+                        if (index == i) {
+                            delete this.checkedObjects[count];
+                        }
+                        count++;
+                    }
+                }
+                setTimeout(() => {
+                    let flag: boolean = this.commonService.continueAction(tableId);
+                    if (flag) {
+                        this.indeterminate = false;
+                        this.checked = false;
+                    }
+                    else {
+                        this.indeterminate = true;
+                    }
+                }, 200);
+            }
+
+        }, 300);
+    }
+    calculatePrice() {
+
+    }
+    reArrangeItems() {
+        let reArrangeItems = [];
+        for (let item of this.createpurchaseOrderItems) {
+            if (item.mat_num != "" && item.qty != "") {
+                reArrangeItems.push(item);
+            }
+
+        }
+        for (let item of this.createpurchaseOrderItems) {
+            if (item.mat_num != "" && item.qty == "") {
+                reArrangeItems.push(item);
+            }
+
+        }
+        for (let item of this.createpurchaseOrderItems) {
+            if (item.mat_num == "" && item.qty == "") {
+                reArrangeItems.push(item);
+            }
+
+        }
+        this.createpurchaseOrderItems = reArrangeItems;
+    }
+    changeQtyCalculations(items, id) {
+        //        if (items.qty != 0 && items.price != 0) {
+        //            let flag: any = this.checkLimit(items, id);
+        //            if (flag != false) {
+        //                $("#amt-" + id).removeAttr('style');
+        //                this.calcBtn = false;
+        //                this.saveBtn = false;
+        //            }
+        //        }
+        if (items.qty == "") {
+            items.qty = 0;
+        }
+        if (items.price != "") {
+            let price = items.price * items.qty;
+            let percentage: any = 0;
+            let disAmt: any = 0;
+            let netVal: any = price;// - schVal;
+            items.net_val = netVal;
+            let igst: any;
+            let cgst: any;
+            let sgst: any;
+            igst = (netVal * items.igst_rt) / 100;
+            cgst = (netVal * items.cgst_rt) / 100;
+            sgst = (netVal * items.sgst_rt) / 100;
+            items.igst_val = igst;
+            items.cgst_val = cgst;
+            items.sgst_val = sgst;
+            let grossVal: any;
+            grossVal = netVal + igst + cgst + sgst;
+            items.grossValue = grossVal;
+        }
+        if (items.price != 0) {
+            this.enableButtons();
+        } else {
+            this.calcBtn = false;
+            this.saveBtn = true;
+        }
+
+    }
+    AddMoreLinesOfItems() {
+        for (let i: any = 0; i < 5; i++) {
+            let newItem: any = {
+                "mat_num": "",
+                "qty": "",
+                "uom": "",
+                "desc": "",
+                "price": 0,
+                "deldate": "",
+                "storloc": "",
+                "plant": "",
+                "net_val": "",
+                "sgst_rt": "",
+                "sgst_val": 0,
+                "cgst_rt": "",
+                "cgst_val": 0,
+                "igst_rt": "",
+                "igst_val": 0,
+                "grossValue": 0,
+                "displayRow": true
+            }
+            this.createpurchaseOrderItems.push(newItem);
+        }
+    }
+    savePurchaseOrderItems() {
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        let purDate: any = null;
+        this.managepurchasePayload = {};
+        if ($("#docDate").val() != null && $("#docDate").val() != "") {
+            purDate = $("#docDate").val();
+            purDate = purDate.split('/')[2] + "" + purDate.split('/')[1] + "" + purDate.split('/')[0];
+        }
+        this.managepurchasePayload['bp_id'] = this.bpId;
+        this.managepurchasePayload['org_id'] = this.orgId;
+        this.managepurchasePayload['im_action'] = "C";
+        this.managepurchasePayload['im_po_header'] = {};
+        this.managepurchasePayload['im_po_header']['doc_type'] = this.orderType;
+        this.managepurchasePayload['im_po_header']['doc_date'] = purDate;
+        this.managepurchasePayload['im_po_header']['vendor'] = this.vendorId;
+        //        this.managepurchasePayload['sales_text'] = [];
+        //        let object: any = {};
+        //        object['text_line'] = $("#header_text").val();
+        //        object['text_id'] = "0002";
+        //        object['langu'] = 'E';
+        //        this.managepurchasePayload['sales_text'].push(object);
+        this.managepurchasePayload['im_po_item_schedules'] = [];
+        let condCount: any = 1;
+        for (let item of this.createpurchaseOrderItems) {
+            let object: any = {};
+            if (item.mat_num != "" && item.qty != "") {
+                object['po_item'] = condCount;
+                object['quantity'] = item.qty;
+                object['deliv_date'] = item.deldate;
+                this.managepurchasePayload['im_po_item_schedules'].push(object);
+                condCount++;
+            }
+        }
+        this.managepurchasePayload['im_po_items'] = [];
+        let itemCount: any = 1;
+        for (let item of this.createpurchaseOrderItems) {
+            if (item.displayRow) {
+                if (item.mat_num != "" && item.qty != "") {
+                    if (item.qty == "") {
+                        item.qty = 0;
+                    }
+                    let object: any = {};
+                    object['po_item'] = itemCount;
+                    object['material'] = item.mat_num;
+                    object['net_price'] = item.price;
+                    object['plant'] = item.plant;
+                    object['store_loc'] = item.storloc;
+                    this.managepurchasePayload['im_po_items'].push(object);
+                    itemCount++;
+                }
+            }
+        }
+
+        let url: any = this.environment.getRequiredApi("purchase_order_manage") + "?";
+        this.commonService.getData(url, "POST", this.managepurchasePayload, this.accessObjectId).subscribe(response => {
+            if (response.status == 0) {
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                //  this.orderNum = response["data"]['salesdocument_ex'];
+                if (response["data"]['ex_return'].length > 0) {
+                    this.errorList = response["data"]['ex_return'];
+                    for (let elist of response["data"]['ex_return']) {
+                        if (elist.type == 'E') {
+                            this.errorFlag = true;
+                            $('#loadingIcon').hide();
+                            $("#black-overlay").hide();
+                            $("#displayErrorsModal").modal("show");
+                            return false;
+                        }
+                    }
+                }
+                if (response.purchaseorder != "") {
+                    this.title = "Purchase Order / Display (" + response.purchaseorder + ")";
+                    $("#gs-GSTR1").removeAttr("style");
+                    this.managepurchasePayload = {};
+                    this.commonService.responseMessages("", "Purchase order '" + response.purchaseorder + " 'created Succesfully", "success");
+                    this.disableBtns = true;
+                    this.calcBtn = true;
+                    this.saveBtn = true;
+                    this.canceldisableBtns = false;
+                    this.commonService.saleType = 'Display';
+                    const path: any = "purchaseorder/editpurchaseorder";
+                    this.router.navigate([path], { queryParams: { "orderNum": response.purchaseorder, "action": "DIS", frompage: "PO" } });
+                }
+                this.createSalesFlag = false;
+                this.createdSales = true;
+                $("#gs-GSTR1").hide();
+                $("#icon-GSTR1").show();
+            } else {
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                this.commonService.responseMessages("", "Error occured while creating purchase order", "warning");
+            }
+        });
+    }
+    removeLineSelectedItems() {
+        if (this.checkedObjects.length > 0) {
+            for (let index of this.checkedObjects) {
+                if (index != undefined && index != null) {
+                    this.createpurchaseOrderItems[index].displayRow = false;
+                }
+            }
+            this.checkedObjects = [];
+        } else {
+            this.commonService.responseMessages("", "Please select atleast one item", "warning");
+        }
+        setTimeout(() => {
+            let flag: boolean = this.commonService.continueAction("purchase-order-table");
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = false;
+            }
+            else {
+                this.indeterminate = true;
+            }
+            if ($("#purchase-order-table").find('tbody').find('tr').length == 0) {
+                this.indeterminate = false;
+                this.checked = false;
+            }
+
+        }, 200);
+        this.enableButtons();
+    }
+    enableButtons() {
+        let flag: boolean = false;
+        for (let item of this.createpurchaseOrderItems) {
+            if (item.displayRow) {
+                if ((item.qty != "" || item.qty != 0) && item.mat_num != "") {
+                    if (item.net_val < 0) {
+                        this.calcBtn = true;
+                        this.saveBtn = true;
+                        return false;
+                    }
+                    else {
+                        if (this.uploadExcelFlag) {
+                            if (item.net_val == 0) {
+                                this.calcBtn = false;
+                                this.saveBtn = true;
+                                return false;
+                            }
+                        }
+                        else {
+                            this.calcBtn = false;
+                            this.saveBtn = false;
+                            flag = false;
+                        }
+
+                    }
+                }
+            }
+        }
+
+    }
+    populateFileds(response, matResponse, matType) {
+        for (let list of matResponse) {
+            if (matType == 'matNum') {
+                if (response['mat_num'] != "") {
+                    if (list['mat_num'] == response['mat_num']) {
+                        response['uom'] = list['uom'];
+                        response['desc'] = list['mat_name'];
+                        response['qty'] = "";
+                        response['price'] = 0;
+                        response["deldate"] = "";
+                        response["storloc"] = "";
+                        response["plant"] = "";
+                        //                    response["dis_per_val"]=0;
+                        //                    response["dis_amt"]=0;
+                        response["net_val"] = 0;
+                        response["sgst_rt"] = "";
+                        response["sgst_val"] = 0;
+                        response["cgst_rt"] = "";
+                        response["cgst_val"] = 0;
+                        response["igst_rt"] = "";
+                        response["igst_val"] = 0;
+                        response['grossValue'] = 0;
+                        return false;
+                    }
+                }
+
+            }
+            if (matType == 'desc') {
+                if (response['desc'] != "") {
+                    if (list['mat_name'] == response['desc']) {
+                        response['uom'] = list['uom'];
+                        response['mat_num'] = list['mat_num'];
+                        response['qty'] = "";
+                        response['price'] = 0;
+                        response["deldate"] = "";
+                        response["storloc"] = "";
+                        response["plant"] = "";
+                        response["net_val"] = 0;
+                        response["sgst_rt"] = "";
+                        response["sgst_val"] = 0;
+                        response["cgst_rt"] = "";
+                        response["cgst_val"] = 0;
+                        response["igst_rt"] = "";
+                        response["igst_val"] = 0;
+                        response['grossValue'] = 0;
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    selectedItem(response, modalBlock, textInput, hiddenInput) {
+        $("#" + textInput).val(response.cust_id + " - " + response.cust_name);
+        $("#" + hiddenInput).val(response.cust_id);
+        $("#" + modalBlock).hide();
+        //  $("#addressBtn").click();
+    }
+    selectedMatrItem(response, modalBlock, inputId, num, item) {
+        if (inputId == 'desc') {
+            item.desc = response.mat_name;
+        }
+        if (inputId == 'matNum') {
+            item.mat_num = response.mat_num;
+        }
+
+        $("#" + modalBlock + "-" + num).hide();
+        this.populateFileds(item, this.matnrDetails, inputId);
+    }
+    redirectPurchaseOrder() {
+        const path: any = 'purchaseorder';
+        this.router.navigate([path]);
+    }
+    removeStyles(id) {
+        $('#' + id).datetimepicker("hide");
+        this.purchaseOrderForm.controls['docDate'].setValue($("#docDate").val());
+
+    }
+}

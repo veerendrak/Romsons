@@ -1,0 +1,168 @@
+﻿﻿import '../polyfills';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule} from '@angular/platform-browser/animations'
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'
+import { HttpModule } from '@angular/http';
+import { AppComponent } from './app.component';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import { routing } from './app.routing';
+import { TopBarComponent} from './components/top-bar/top-bar.component';
+import { MenuLeftComponent } from './components/menu-left/menu-left.component';
+import { MenuRightComponent } from './components/menu-right/menu-right.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { LoginComponent } from './components/login/login.component';
+import { UserManagementComponent } from './components/user-management/user-management.component';
+import {CdkTableModule} from '@angular/cdk/table';
+import {
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatDatepickerModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatGridListModule,
+    MatIconModule,
+    MatInputModule,
+    MatListModule,
+    MatMenuModule,
+    MatNativeDateModule,
+    MatPaginatorModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    MatRadioModule,
+    MatRippleModule,
+    MatSelectModule,
+    MatSidenavModule,
+    MatSliderModule,
+    MatSlideToggleModule,
+    MatSnackBarModule,
+    MatSortModule,
+    MatStepperModule,
+    MatTableModule,
+    MatTabsModule,
+    MatToolbarModule,
+    MatTooltipModule,
+  } from '@angular/material';
+  import { DashboardComponent } from './components/dashboard/dashboard.component';
+  import { StockBalanceComponent } from './components/stock-balance/stock-balance.component';
+  import { StockDetailsComponent } from './components/stock-details/stock-details.component';
+  import { SalesOrderComponent } from './components/sales-order/sales-order.component';
+  import { OutboundDeliveryComponent } from './components/outbound-delivery/outbound-delivery.component';
+  import { SalesOrderDetailsComponent } from './components/sales-order-details/sales-order-details.component';
+  import {CommonService} from './services/common.service';
+  import { BillingComponent } from './components/billing/billing.component';
+  import { BillingDetailsComponent } from './components/billing-details/billing-details.component';
+  import { OutboundDeliveryDetailsComponent } from './components/outbound-delivery-details/outbound-delivery-details.component';
+  import { ValidateOnBlurDirective } from './directives/validate-on-blur.directive';
+  import { MessagePropertiesService } from './services/message-properties.service';
+  import { EnvConfigurationService } from './services/env-configuration.service';
+  import { DelarshipDetailsComponent } from './components/delarship-details/delarship-details.component';
+  import { ChartsModule } from 'ng2-charts';
+  import { CustomerDetailsComponent } from './components/customer-details/customer-details.component';
+  import { IncomingPaymentsComponent } from './components/incoming-payments/incoming-payments.component';
+  import { RoleManagementComponent } from './components/role-management/role-management.component';
+  import { PurchaseOrderDetailsComponent } from './components/purchase-order-details/purchase-order-details.component';
+  import { PurchaseOrderComponent } from './components/purchase-order/purchase-order.component';
+  import { GoodsReceiptComponent } from './components/goods-receipt/goods-receipt.component';
+  import { GoodsReceiptDetailsComponent } from './components/goods-receipt-details/goods-receipt-details.component';
+  import { InvoiceDetailsComponent } from './components/invoice-details/invoice-details.component';
+  import { CreateInvoiceComponent } from './components/create-invoice/create-invoice.component';
+  import { OutgoingPaymentComponent } from './components/outgoing-payment/outgoing-payment.component';
+  import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+  import { UserProfileComponent } from './components/user-profile/user-profile.component';
+  import { BussinessPartnersComponent } from './components/bussiness-partners/bussiness-partners.component';
+  import {PriceIndPipe} from './directives/customprice.converter';
+import { BusinessplaceSettingsComponent } from './components/businessplace-settings/businessplace-settings.component';
+import { CustomerInformationComponent } from './components/customer-information/customer-information.component';
+
+
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    TopBarComponent,
+    MenuLeftComponent,
+    MenuRightComponent,
+    FooterComponent,
+    LoginComponent,
+    UserManagementComponent,
+    DashboardComponent,
+    StockBalanceComponent,
+    StockDetailsComponent,
+    SalesOrderComponent,
+    OutboundDeliveryComponent,
+    SalesOrderDetailsComponent,
+    ValidateOnBlurDirective,
+    SalesOrderDetailsComponent,
+    BillingComponent,
+    BillingDetailsComponent,
+    OutboundDeliveryDetailsComponent,
+    DelarshipDetailsComponent,
+    CustomerDetailsComponent,
+    IncomingPaymentsComponent,
+    RoleManagementComponent,
+    PurchaseOrderDetailsComponent,
+    PurchaseOrderComponent,
+    GoodsReceiptComponent,
+    GoodsReceiptDetailsComponent,
+    InvoiceDetailsComponent,
+    CreateInvoiceComponent,
+    OutgoingPaymentComponent,
+    ResetPasswordComponent,
+    UserProfileComponent,
+    BussinessPartnersComponent,
+    PriceIndPipe,
+    BusinessplaceSettingsComponent,
+    CustomerInformationComponent,
+  ],
+  imports: [
+    BrowserModule, BrowserAnimationsModule, FormsModule, ReactiveFormsModule,
+    CdkTableModule,
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatStepperModule,
+    MatDatepickerModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatGridListModule,
+    MatIconModule,
+    MatInputModule,
+    MatListModule,
+    MatMenuModule,
+    MatNativeDateModule,
+    MatPaginatorModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    MatRadioModule,
+    MatRippleModule,
+    MatSelectModule,
+    MatSidenavModule,
+    MatSliderModule,
+    MatSlideToggleModule,
+    MatSnackBarModule,
+    MatSortModule,
+    MatTableModule,
+    MatTabsModule,
+    MatToolbarModule,
+    MatTooltipModule,
+    RouterModule,
+    HttpModule,
+    routing,
+    ChartsModule,
+    NgbModule.forRoot()
+  ],
+  providers: [CommonService,MessagePropertiesService,EnvConfigurationService],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }

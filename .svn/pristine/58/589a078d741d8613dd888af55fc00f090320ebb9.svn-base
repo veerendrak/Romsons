@@ -1,0 +1,232 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">{{title}}</strong>
+		</span>
+	</div>
+	
+</div>
+<div class="" >
+	<div class="card-block db-block mb-1" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" >
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					<form [formGroup]="goodsReceiptForm">
+					 <div class="delivery-form-block col-md-12 row">
+						<div class="col-md-3 text-align-sales" >
+							
+							<label>Delivery Number<sup class="asterick">*</sup> </label>
+						<input type="text" class="form-control " formControlName="dlNUm" [value]=""
+						validateOnBlur [validateFormControl]="goodsReceiptForm.controls['dlNUm']">
+						<span
+								*ngIf="goodsReceiptForm.controls['dlNUm'].touched && goodsReceiptForm.controls['dlNUm'].invalid && goodsReceiptForm.controls['dlNUm'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="goodsReceiptForm.controls['dlNUm'].errors.required">
+								{{goodsReceiptMessages.delivery_num}}</small>
+							</span>
+										
+						</div>
+						<div class="col-md-3 text-align-sales">
+						
+						<label>Doc Date <sup class="asterick">*</sup> </label>
+						<input type="text" class="form-control datepicker-init-sale" formControlName="docDate" [value]=""
+						validateOnBlur [validateFormControl]="goodsReceiptForm.controls['docDate']"> 
+											<span
+												*ngIf="goodsReceiptForm.controls['docDate'].touched && goodsReceiptForm.controls['docDate'].invalid && goodsReceiptForm.controls['docDate'].dirty"
+												class="error"> <small class="custom-error-class"
+												*ngIf="goodsReceiptForm.controls['docDate'].errors.required">
+													{{goodsReceiptMessages.doc_date}} </small>
+											</span>
+										</div>
+						<div class="col-md-3 text-align-sales">
+						
+						<label>Posting Date <sup class="asterick">*</sup> </label>
+						<input type="text" class="form-control datepicker-init-sale" formControlName="posDate" [value]=""
+						validateOnBlur [validateFormControl]="goodsReceiptForm.controls['posDate']"> 
+											<span
+												*ngIf="goodsReceiptForm.controls['posDate'].touched && goodsReceiptForm.controls['posDate'].invalid && goodsReceiptForm.controls['posDate'].dirty"
+												class="error"> <small class="custom-error-class"
+												*ngIf="goodsReceiptForm.controls['posDate'].errors.required">
+													{{goodsReceiptMessages.pos_date}} </small>
+											</span>
+										</div>
+						<div class="col-md-3 text-align-sales" >
+							
+							<label>Delivery Note<sup class="asterick">*</sup> </label>
+						<input type="text" class="form-control " formControlName="dlNote" [value]=""
+						validateOnBlur [validateFormControl]="goodsReceiptForm.controls['dlNote']">
+									<span
+											*ngIf="goodsReceiptForm.controls['dlNote'].touched && goodsReceiptForm.controls['dlNote'].invalid && goodsReceiptForm.controls['dlNote'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="goodsReceiptForm.controls['dlNote'].errors.required">
+											{{goodsReceiptMessages.delivery_note}}	</small>
+										</span>
+										
+						</div>
+						</div>
+						<div class="clear-fix"></div>
+						 <div class="delivery-form-block col-md-12 row pb-1">
+						<div class="col-md-3 text-align-sales">
+						<label>Header Text<sup class="asterick">*</sup> </label>
+						<input type="text" class="form-control " formControlName="dlText" [value]=""
+						validateOnBlur [validateFormControl]="goodsReceiptForm.controls['dlText']">
+									<span
+											*ngIf="goodsReceiptForm.controls['dlText'].touched && goodsReceiptForm.controls['dlText'].invalid && goodsReceiptForm.controls['dlText'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="goodsReceiptForm.controls['dlText'].errors.required">
+											{{goodsReceiptMessages.header_text}}	</small>
+										</span>
+						</div>
+						
+						
+					</div>
+					</form>
+					</div>
+					<div class="col-md-12 mt-1 mb-3">
+							<div class="stock-table table-responsive">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="goods-order-table">
+								<thead>
+									<tr>
+										<!-- <th class="no-sort"  style="width:50px;text-align:center;">
+											<mat-checkbox class="example-margin" 
+											[(ngModel)]="checked"
+											[checked]="checked"
+											[(indeterminate)]="indeterminate"
+											 (click)="selectAll($event,'mat-checkbox-1-input','goods-order-table')"></mat-checkbox>
+											 </th> -->
+										<th>Material Code</th>
+										<th>Qty</th>
+										<th>Description</th>
+										<th>UOM</th>
+										<th>Plant</th>
+										<th>Stor Loc</th>
+										<th>Purchase Order</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<!-- <td align="center">
+											<mat-checkbox  (click)="getReportList($event,'goods-order-table')"></mat-checkbox>
+											
+										</td> -->
+										<td><a href="javascript:void(0)" class="sales-num-anchor" (click)="editGoodsOrderById()">100012</a></td>
+										<td>1000</td>
+										<td>Lorem ipsum dolor sit antem..</td>
+										<td>BOX</td>
+										<td>S001</td>
+										<td>Hyderabad</td>
+										<td>PO12345</td>
+									</tr>
+									<tr>
+										<!-- <td align="center">
+											<mat-checkbox  (click)="getReportList($event,'goods-order-table')"></mat-checkbox>
+											
+										</td> -->
+										<td><a href="javascript:void(0)" class="sales-num-anchor" (click)="editGoodsOrderById()">100013</a></td>
+										<td>1000</td>
+										<td>Lorem ipsum dolor sit antem..</td>
+										<td>BOX</td>
+										<td>S001</td>
+										<td>Hyderabad</td>
+										<td>PO12345</td>
+									</tr>
+									<tr>
+										<!-- <td align="center">
+											<mat-checkbox  (click)="getReportList($event,'goods-order-table')"></mat-checkbox>
+											
+										</td> -->
+										<td><a href="javascript:void(0)" class="sales-num-anchor" (click)="editGoodsOrderById()">100013</a></td>
+										<td>1000</td>
+										<td>Lorem ipsum dolor sit antem..</td>
+										<td>BOX</td>
+										<td>S001</td>
+										<td>Hyderabad</td>
+										<td>PO12345</td>
+									</tr>
+									<tr>
+										<!-- <td align="center">
+											<mat-checkbox  (click)="getReportList($event,'goods-order-table')"></mat-checkbox>
+											
+										</td> -->
+										<td><a href="javascript:void(0)" class="sales-num-anchor" (click)="editGoodsOrderById()">100013</a></td>
+										<td>1000</td>
+										<td>Lorem ipsum dolor sit antem..</td>
+										<td>BOX</td>
+										<td>S001</td>
+										<td>Hyderabad</td>
+										<td>PO12345</td>
+									</tr>
+									<tr>
+										<!-- <td align="center">
+											<mat-checkbox  (click)="getReportList($event,'goods-order-table')"></mat-checkbox>
+											
+										</td> -->
+										<td><a href="javascript:void(0)" class="sales-num-anchor" (click)="editGoodsOrderById()">100013</a></td>
+										<td>1000</td>
+										<td>Lorem ipsum dolor sit antem..</td>
+										<td>BOX</td>
+										<td>S001</td>
+										<td>Hyderabad</td>
+										<td>PO12345</td>
+									</tr>
+									<tr>
+										<!-- <td align="center">
+											<mat-checkbox  (click)="getReportList($event,'goods-order-table')"></mat-checkbox>
+											
+										</td> -->
+										<td><a href="javascript:void(0)" class="sales-num-anchor" (click)="editGoodsOrderById()">100013</a></td>
+										<td>1000</td>
+										<td>Lorem ipsum dolor sit antem..</td>
+										<td>BOX</td>
+										<td>S001</td>
+										<td>Hyderabad</td>
+										<td>PO12345</td>
+									</tr>
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+<div class="outbound-footer mt-3">
+		<!-- <div class="left-block">
+		<div class="pull-left" style="max-width:47%">
+			<button class="login-button">
+			<i class="fa fa-plus" style="margin-right:4px;font-size:16px"></i> Add Lines</button>
+		</div>
+		<div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Remove Line</div>
+				</i>
+			</button>
+		</div>
+		</div> -->
+		<div class="right-block">
+			<div class="pull-left">
+			<button class="login-button-export">
+				<i class="fa save-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Save</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Cancel</div>
+				</i>
+			</button>
+		</div>
+		</div>
+	</div>
+</div>
+
+</section>

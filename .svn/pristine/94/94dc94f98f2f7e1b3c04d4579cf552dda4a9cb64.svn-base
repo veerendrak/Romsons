@@ -1,0 +1,251 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Outbound Delivery</strong>
+		</span>
+	</div>
+	<div class="card-block db-block mb-5" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+					<!-- new changes -->
+					<div class="col-md-12 mt-1">
+							<div class="stock-table table-responsive">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="delivery-order-table">
+								<thead>
+									<tr>
+										<th class="no-sort"  style="width:50px !important;text-align:center;"><mat-checkbox></mat-checkbox></th>
+										<th style="width:100px !important;">Del Number</th>
+										<th style="width:120px !important;">Del Date</th>
+										<th style="width:150px !important;">Ship To Party</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></td>
+										<td>10000022</td>
+										<td>02/02/2018</td>
+										<td>Lorum ipsum dolor sit enum..</td>
+										<td>Billed</td>
+									</tr>
+									<tr>
+										<td  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></td>
+										<td>10000022</td>
+										<td>02/02/2018</td>
+										<td>Lorum ipsum dolor sit enum..</td>
+										<td>Pending</td>
+									</tr>
+									<tr>
+										<td  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></td>
+										<td>10000022</td>
+										<td>02/02/2018</td>
+										<td>Lorum ipsum dolor sit enum..</td>
+										<td>Delivered</td>
+									</tr>
+									<tr>
+										<td  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></td>
+										<td>10000022</td>
+										<td>02/02/2018</td>
+										<td>Lorum ipsum dolor sit enum..</td>
+										<td>Partially Delivered</td>
+									</tr>
+									<tr>
+										<td  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></td>
+										<td>10000023</td>
+										<td>02/02/2018</td>
+										<td>Lorum ipsum dolor sit enum..</td>
+										<td>Partially Delivered</td>
+									</tr>
+									<tr>
+										<td  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></td>
+										<td>10000024</td>
+										<td>02/03/2018</td>
+										<td>Lorum ipsum dolor sit enum..</td>
+										<td>Partially Delivered</td>
+									</tr>
+									<tr>
+										<td  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></td>
+										<td>10000025</td>
+										<td>02/02/2018</td>
+										<td>Lorum ipsum dolor sit enum..</td>
+										<td>Partially Delivered</td>
+									</tr>
+									<tr>
+										<td  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></td>
+										<td>10000022</td>
+										<td>02/02/2018</td>
+										<td>Lorum ipsum dolor sit enum..</td>
+										<td>Partially Delivered</td>
+									</tr>
+									<tr>
+										<td  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></td>
+										<td>10000028</td>
+										<td>02/02/2018</td>
+										<td>Lorum ipsum dolor sit enum..</td>
+										<td>Billed</td>
+									</tr>
+									<tr>
+										<td  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></td>
+										<td>10000029</td>
+										<td>02/02/2018</td>
+										<td>Lorum ipsum dolor sit enum..</td>
+										<td>Pending</td>
+									</tr>
+									<tr>
+										<td  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></td>
+										<td>10000030</td>
+										<td>02/02/2018</td>
+										<td>Lorum ipsum dolor sit enum..</td>
+										<td>Pending</td>
+									</tr>
+									
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+<div class="outbound-footer mt-3">
+		<!-- <div class="left-block">
+		<div class="pull-left" style="max-width:47%">
+			<button class="btn login-button">
+			<i class="fa fa-plus" style="margin-right:4px;"></i> Add Lines</button>
+		</div>
+		<div class="pull-left" style="max-width:50%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Remove Line</button>
+			</div>
+		</div> -->
+		<div class="right-block">
+			<div class="pull-left">
+			<button class="login-button-export">
+			<i class="fa print-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Print</div>
+			</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export" (click)="editDeliveryOrder()">
+				<i class="fa edit-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Edit</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export" (click)="createDeliveryOrder()">
+				<i class="fa create-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Create</div>
+				</i>
+			</button>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!--create sales order -->
+
+					<div class="modal fade modal-size-medium" id="outboundDeliveryModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									Outbound Delivery
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('outboundDeliveryModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;">
+								<form [formGroup]="createDeliveryForm">
+									<div class="col-md-12 row">
+									<div class="col-md-6">
+									
+									<label>Date<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box" id="" 
+									formControlName="outboundDate"  validateOnBlur [validateFormControl]="createDeliveryForm.controls['outboundDate']"
+									style="width: 225px !important;">
+									<span
+											*ngIf="createDeliveryForm.controls['outboundDate'].touched && createDeliveryForm.controls['outboundDate'].invalid && createDeliveryForm.controls['outboundDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createDeliveryForm.controls['outboundDate'].errors.required">
+												{{outboundMessage.out_date_req_msg}}</small>
+										</span>
+									</div>
+									<div class="col-md-6">
+									<label>Order<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box"
+									formControlName="outboundOrder"  validateOnBlur [validateFormControl]="createDeliveryForm.controls['outboundOrder']"
+									 style="width: 231px !important;">
+									<span
+											*ngIf="createDeliveryForm.controls['outboundOrder'].touched && createDeliveryForm.controls['outboundOrder'].invalid && createDeliveryForm.controls['outboundOrder'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createDeliveryForm.controls['outboundOrder'].errors.required">
+												{{outboundMessage.out_order_req_msg}}</small>
+										</span>
+									</div>
+									
+									</div>
+									<div class="col-md-12 row" style="padding-top: 5px;">
+									<div class="col-md-6">
+									
+									<label>From Item<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box" 
+									formControlName="frmItem"  validateOnBlur [validateFormControl]="createDeliveryForm.controls['frmItem']"
+									style="width: 225px !important;">
+									<span
+											*ngIf="createDeliveryForm.controls['frmItem'].touched && createDeliveryForm.controls['frmItem'].invalid && createDeliveryForm.controls['frmItem'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createDeliveryForm.controls['frmItem'].errors.required">
+												{{outboundMessage.frm_item_req_msg}}</small>
+										</span>
+									</div>
+									<div class="col-md-6">
+									<label>To Item<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box" 
+									formControlName="toItem"  validateOnBlur [validateFormControl]="createDeliveryForm.controls['toItem']"
+									style="width: 231px !important;">
+									<span
+											*ngIf="createDeliveryForm.controls['toItem'].touched && createDeliveryForm.controls['toItem'].invalid && createDeliveryForm.controls['toItem'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createDeliveryForm.controls['toItem'].errors.required">
+												{{outboundMessage.to_item_req_msg}}</small>
+										</span>
+									</div>
+									
+									</div>
+									</form>
+								</div>
+
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<button (click)="createDeliverySubmit('outboundDeliveryModal')"
+											class="login-button forgotOk"
+											>Ok</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<!-- End of create sales order-->

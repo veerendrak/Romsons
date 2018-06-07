@@ -1,0 +1,127 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Incoming
+					Payment</strong>
+			</span>
+		</div>
+		<div class="card-block db-block mb-1"
+			style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+			<div class="row">
+				<div class="col-lg-12" style="padding-left: 30%;">
+
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+						<form [formGroup]="incommingPayemnt">
+							<div class="delivery-form-block col-md-12 row pb-1">
+								<div class="col-md-3 text-align-sales">
+									<label>Customer Account<sup class="asterick">*</sup></label> <input
+										type="text" class="form-control" required="required"
+										formControlName="custAccount" validateOnBlur
+										[validateFormControl]="incommingPayemnt.controls['custAccount']">
+									<span
+										*ngIf="incommingPayemnt.controls['custAccount'].touched && incommingPayemnt.controls['custAccount'].invalid && incommingPayemnt.controls['custAccount'].dirty"
+										class="error"> <small class="custom-error-class"
+										*ngIf="incommingPayemnt.controls['custAccount'].errors.required">
+											{{incomingPaymentsMessages.custAccount_req}}</small>
+									</span>
+								</div>
+								<div class="col-md-3 text-align-sales">
+									<label>Posting Date<sup class="asterick">*</sup></label> <input
+										type="text" class="form-control datepicker-init">
+
+								</div>
+								<div class="col-md-3 text-align-sales">
+									<label>Invoice Date<sup class="asterick">*</sup></label> <input
+										type="text" class="form-control datepicker-init">
+
+								</div>
+							</div>
+							<div class="delivery-form-block col-md-12 row pb-1">
+								<div class="col-md-3 text-align-sales">
+									<label>Amount<sup class="asterick">*</sup></label> <input
+										type="text" class="form-control" formControlName="amount"
+										validateOnBlur
+										[validateFormControl]="incommingPayemnt.controls['amount']">
+									<span
+										*ngIf="incommingPayemnt.controls['amount'].touched && incommingPayemnt.controls['amount'].invalid && incommingPayemnt.controls['amount'].dirty"
+										class="error"> <small class="custom-error-class"
+										*ngIf="incommingPayemnt.controls['amount'].errors.required">
+											{{incomingPaymentsMessages.amount_req}}</small>
+									</span>
+								</div>
+								<div class="col-md-3 text-align-sales">
+									<label>Cheque / Invoice no<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control" formControlName="refNo"
+										validateOnBlur
+										[validateFormControl]="incommingPayemnt.controls['refNo']">
+									<span
+										*ngIf="incommingPayemnt.controls['refNo'].touched && incommingPayemnt.controls['refNo'].invalid && incommingPayemnt.controls['refNo'].dirty"
+										class="error"> <small class="custom-error-class"
+										*ngIf="incommingPayemnt.controls['refNo'].errors.required">
+											{{incomingPaymentsMessages.refNo_req}}</small>
+									</span>
+								</div>
+
+							</div>
+
+
+							<div class="delivery-form-block col-md-12 row pb-1">
+								<div class="col-md-3 text-align-sales">
+									<label>Unit Code<sup class="asterick">*</sup></label> <input
+										type="text" class="form-control"
+										formControlName="profitCenter" validateOnBlur
+										[validateFormControl]="incommingPayemnt.controls['profitCenter']">
+
+									<span
+										*ngIf="incommingPayemnt.controls['profitCenter'].touched && incommingPayemnt.controls['profitCenter'].invalid && incommingPayemnt.controls['profitCenter'].dirty"
+										class="error"> <small class="custom-error-class"
+										*ngIf="incommingPayemnt.controls['profitCenter'].errors.required">
+											{{incomingPaymentsMessages.profitCenter_req}}</small>
+									</span>
+								</div>
+							</div>
+
+
+							<div class="delivery-form-block col-md-12 row pb-1">
+								<div class="col-md-3 text-align-sales">
+									<label>Remarks<sup class="asterick">*</sup></label>
+									<textarea class="form-control" formControlName="billingAddr"
+										style="height: 86px;"></textarea>
+								</div>
+							</div>
+
+						</form>
+					</div>
+					<!-- end chnges -->
+
+
+				</div>
+				<div class="outbound-footer mt-1">
+					<div class="right-block">
+						<div class="pull-left">
+							<button [disabled]="incommingPayemnt.invalid"
+								[ngClass]="{'save-icon-btn':true,'btn-disabled':incommingPayemnt.invalid }">
+								<i class="fa save-icon"
+									style="margin-right: 4px; padding-right: 4px;">
+									<div class="icon-text" style="right: -4px;">Post</div>
+								</i>
+							</button>
+						</div>
+						<div class="pull-left">
+							<button class="cancel-button-export" style="padding-left: 0px;">
+								<i class="fa cancel-icon"
+									style="margin-right: 4px; padding-right: 4px;">
+									<div class="icon-text" style="right: -4px;">Back</div>
+								</i>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+</section>

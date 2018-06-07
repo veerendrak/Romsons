@@ -1,0 +1,732 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+import { ExcelService } from '../../services/excel.service';
+import {GoogleChartComponent} from '../google-chart/google-chart.component';
+
+declare var $: any;
+declare var jQuery: any;
+
+@Component({
+    selector: 'app-purchase-invoice-report',
+    templateUrl: './purchase-invoice-report.component.html',
+    styleUrls: ['./purchase-invoice-report.component.css']
+})
+export class PurchaseInvoiceReportComponent implements OnInit {
+    public poreportdetailsForm: FormGroup;
+    public bpId: string;
+    public orgId: string;
+    public accessObjId: string;
+    public poreportdetailsList: any = [];
+    public material: any;
+    public ajaxDropdown = false;
+    public screenType: any;
+    public actionFlag: any;
+    public customertypeList: any;
+    public emptyFlag: boolean = false;
+    public cdListLength: any;
+    public gstrdetailslength: any;
+    grossAmt:any;
+    sgstAmt:any;
+    cgstAmt:any;
+    igstAmt:any;
+    poReportInvoiceList:any;
+    customerMaterialSmry:any;
+    vendorsSummary:any;
+    invoiceSumary:any;
+    materialSumary:any;
+    graphBlock:boolean=true;
+    netAmt:any;
+    public pie_ChartData = [
+                            ['Sales Group', 'Total Sales Group Amounts']
+                              ];
+       public pie_ChartData1 = [
+        ['Material Group', 'Total Material Group Amounts']
+          ];
+      
+      public bar_ChartData = [
+            ['Vendors', 'Generated Invoice Amounts','Cancelled Invoice Amounts'],
+            ];
+       public pie_ChartOptions = {
+            title: 'Sales Group activities',
+            width: 600,
+            height: 300
+        };
+       public pie_ChartOptions1 = {
+            title: 'Material Group activities',
+            width: 610,
+            height: 300
+        };
+       public bar_ChartOptions = {
+            title: ' ',
+            bars:'vertical',
+            chartArea: {width: '65%'},
+            colors: ['#FF9900','#FFCC33'],
+            hAxis: {
+                title: 'Vendors',
+                showTextEvery:1,
+                minValue: 0,
+                textStyle: {
+                    bold: true,
+                    fontSize: 12,
+                    color: '#4d4d4d'
+                },
+                titleTextStyle: {
+                    bold: true,
+                    fontSize: 18,
+                    color: '#4d4d4d'
+                }
+            },
+            vAxis: {
+                title: ' ',
+                viewWindowMode:'explicit',
+                viewWindow: {
+                  max:60000,
+                  min:0
+                },
+                textStyle: {
+                    fontSize: 14,
+                    bold: true,
+                    color: '#848484'
+                },
+                titleTextStyle: {
+                    fontSize: 14,
+                    bold: true,
+                    color: '#848484'
+                }
+            },
+        };
+    constructor(private http: Http, private formBuilder: FormBuilder, private environment: EnvConfigurationService,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private excelService: ExcelService) {
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjId = localStorage.getItem("Reports Gallery")
+        this.poreportdetailsForm = new FormBuilder().group(
+            {
+                'frmDate': ['', Validators.required],
+                'toDate': ['', Validators.required]
+            }
+        );
+        this.actionFlag = true;
+        this.poreportdetailsList = [];
+        this.cdListLength = 0;
+        this.gstrdetailslength = 0;
+        this.grossAmt=0;
+        this.sgstAmt=0;
+        this.cgstAmt=0;
+        this.igstAmt=0;
+        this.poReportInvoiceList=[];
+        this.customerMaterialSmry=[];
+        this.vendorsSummary=[];
+        this.invoiceSumary=[];
+        this.materialSumary=[];
+        this.netAmt=0;
+    }
+    ngOnInit() {
+        $('.datepicker-init').datetimepicker({
+            widgetPositioning: {
+                horizontal: 'left'
+            },
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down",
+                previous: 'fa fa-arrow-left',
+                next: 'fa fa-arrow-right'
+            },
+            format: 'DD-MM-YYYY',
+
+        });
+        this.poreportdetailsList = [];
+        this.applyTable();
+    }
+    getpiReportDetails() {
+        this.grossAmt=0;
+        this.sgstAmt=0;
+        this.cgstAmt=0;
+        this.igstAmt=0;
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        let filterOption:any=$("#layoutVal").val();
+        let fromDate, toDate;
+        let custArray = [];
+        let custGrpArray = [];
+        let matArray = [];
+        let splittedFromDate = $("#frmDate").val().split("-");
+        fromDate = splittedFromDate[2] + splittedFromDate[1] + splittedFromDate[0];
+        let splittedToDate = $("#toDate").val().split("-");
+        toDate = splittedToDate[2] + splittedToDate[1] + splittedToDate[0];
+        let url = "";
+        url = this.environment.getRequiredApi('get_pireport_details') + "?bp_id=" + this.bpId + "&org_id=" + this.orgId + "&from_date=" + fromDate + "&to_date=" + toDate + "&";
+        this.commonService.getData(url, 'GET', '', this.accessObjId)
+            .subscribe((response) => {
+                console.log(response);
+                if (response.status == '1') {
+                    this.poreportdetailsList = [];
+                    this.commonService.responseMessages('', response.message, 'warning');
+                } else {
+                    if(response.data.hasOwnProperty('ex_pi_report_list')){
+                        this.poreportdetailsList = response.data.ex_pi_report_list;
+                    
+                    let objectNamesList:any=[];
+                    let objectVendorsList:any=[];
+                    for(let index of this.poreportdetailsList){
+                        if(objectNamesList.indexOf(index.inv_id)==-1){
+                            objectNamesList.push(index.inv_id);
+                        }
+                        if(objectVendorsList.indexOf(index.vendor_name)==-1){
+                            objectVendorsList.push(index.vendor_name);
+                        }
+                        this.grossAmt=this.grossAmt+parseFloat(index.amount);
+                        for(let item of index.pi_item_details){
+                            if(item.hasOwnProperty('price')){
+                                this.netAmt=this.netAmt+parseFloat(item.price);
+                            }
+                            if(item.hasOwnProperty('igst_value')){
+                                this.igstAmt=this.igstAmt+parseFloat(item.igst_value);
+                            }
+                            if(item.hasOwnProperty('cgst_value')){
+                                this.cgstAmt=this.cgstAmt+parseFloat(item.cgst_value);
+                            }
+                            if(item.hasOwnProperty('sgst_value')){
+                                this.sgstAmt=this.sgstAmt+parseFloat(item.sgst_value);
+                            }
+                            
+                        }
+                    }
+                    $("#filter-block").hide();
+                    let totalAmounts:any=0;
+                    let fixedAmounts:any=0;
+                    let objectData:any;
+                         for(let index of objectVendorsList){
+                                 totalAmounts=0;
+                                 fixedAmounts=0;
+                                 objectData=[];
+                                 objectData.push(index);
+                                 for (let element of this.poreportdetailsList) {
+                                     if(element.vendor_name==index){
+                                         for(let item of element.pi_item_details){
+                                             if(element.status=='Generated Invoice'){
+                                                 totalAmounts=totalAmounts+(parseFloat(item.net_price));  
+                                             }else{
+                                                 if(element.status.includes('Cancelled by')){
+                                                     fixedAmounts=fixedAmounts+(parseFloat(item.net_price));
+                                                 }
+                                             }
+                                             
+                                         }  
+                                     }    
+                             }
+                            objectData.push(totalAmounts);
+                            objectData.push(fixedAmounts);
+                            this.bar_ChartData.push(objectData);
+                       }
+                    let data = response.data.ex_return;
+                    if (response.data.hasOwnProperty("ex_return")) {
+                        for (let index of data) {
+                            if (index.id == "E") {
+                                this.poreportdetailsList = [];
+                                this.gstrdetailslength = 0;
+                                this.commonService.responseMessages('', index.message, 'warning');
+                            }
+                        }
+                    }
+                }
+                }
+                $("#datatablediv-piSummaryItem").DataTable().destroy();
+                if(filterOption=='piSummaryItem'){
+                    this.applyDataTable('piordertable-piSummaryItem','piSummaryItem');
+                    }else{
+                        this.switchLayout(filterOption);    
+                   }
+                this.graphBlock=false;
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+            }, err => {
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                console.log(err)
+            });
+
+
+    }
+    changeTodatePicker(id) {
+         $(id).datetimepicker("hide");
+        this.poreportdetailsForm.controls['frmDate'].setValue($("#frmDate").val());
+        if ($("#toDate").val() != "") {
+            $("#toDate").datetimepicker("destroy");
+        }
+        var fromDateFilt=new Date();
+        if($("#frmDate").val().length != 0){
+            fromDateFilt = this.convertDate($("#frmDate").val())
+        }
+        $('#toDate').datetimepicker({
+            widgetPositioning: {
+                horizontal: 'left'
+            },
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down",
+                previous: 'fa fa-arrow-left',
+                next: 'fa fa-arrow-right'
+            },
+            format: 'DD-MM-YYYY',
+            minDate: fromDateFilt
+        });
+    }
+   
+     public convertDate(date){
+        let dateArry = date.split("-");
+        return new Date(dateArry[2],dateArry[1]-1,dateArry[0]);
+    }
+    removeStyles() {
+        this.poreportdetailsForm.controls['frmDate'].setValue($("#frmDate").val());
+        this.poreportdetailsForm.controls['toDate'].setValue($("#toDate").val());
+    }
+    applyTable() {
+        setTimeout(() => {
+            $("#datatablediv-piSummaryItem").DataTable({
+                retrieve: true,
+                "bPaginate": false,
+                "bInfo": false,
+                "order": [0],
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)"
+                },
+                "fnDrawCallback": function(oSettings) {
+                    if (5 >= oSettings.fnRecordsDisplay()) {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+
+                        $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                    } else {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_length').show();
+
+                    }
+                },
+                "columnDefs": [{
+                    "targets": 'no-sort',
+                    "orderable": false,
+                }]
+                
+            });
+            $("#datatablediv-inv_id").DataTable({
+                retrieve: true,
+                "bPaginate": false,
+                "bInfo": false,
+                "order": [0],
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)"
+                },
+                "fnDrawCallback": function(oSettings) {
+                    if (5 >= oSettings.fnRecordsDisplay()) {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+
+                        $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                    } else {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_length').show();
+
+                    }
+                },
+                "columnDefs": [{
+                    "targets": 'no-sort',
+                    "orderable": false,
+                }]
+                
+            });
+            $("#datatablediv-mat_id").DataTable({
+                retrieve: true,
+                "bPaginate": false,
+                "bInfo": false,
+                "order": [0],
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)"
+                },
+                "fnDrawCallback": function(oSettings) {
+                    if (5 >= oSettings.fnRecordsDisplay()) {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+
+                        $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                    } else {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_length').show();
+
+                    }
+                },
+                "columnDefs": [{
+                    "targets": 'no-sort',
+                    "orderable": false,
+                }]
+                
+            });
+            // $("#purchase-order-table").css("display", "table !important")
+        }, 500);
+
+        setTimeout(() => {
+            $(".dataTables_scrollHeadInner").css({ "width": "100%" });
+            $(".table ").css({ "width": "100%" });
+            //$("#cust-info-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+        }, 1100);
+    }
+    exportExcel() {
+        let jsonArrrayData: any = [];
+        let count = 0;
+        if (this.poreportdetailsList.length != 0) {
+            for (let index of this.poreportdetailsList) {
+                for (let items of this.poreportdetailsList[count].pi_item_details) {
+                    let listObj: any = {};
+                    if (!index.hasOwnProperty('inv_id')) {
+                        listObj.inv_id = "  "
+                    }
+                    else {
+                        listObj.inv_id = index.inv_id;
+                    }
+                    if (!index.hasOwnProperty('status')) {
+                        listObj.status = "  "
+                    }
+                    else {
+                        listObj.status = index.status;
+                    }
+                    if (!index.hasOwnProperty('vendor_name')) {
+                        listObj.vendor_name = ' ';
+                    }
+                    else {
+                        listObj.vendor_name = index.vendor_name;
+                    }
+                    if (!index.hasOwnProperty('inv_date')) {
+                        listObj.inv_date = ' ';
+                    }
+                    else {
+                        listObj.inv_date = index.inv_date;
+                    }
+                    if (!index.hasOwnProperty('amount')) {
+                        listObj.amount = " ";
+                    }
+                    else {
+                        listObj.amount = index.amount;
+                    }
+                    if (!items.hasOwnProperty('mat_id')) {
+                        listObj.mat_id = " ";
+                    }
+                    else {
+                        listObj.mat_id = items.mat_id;
+                    }
+                    if (!items.hasOwnProperty('price')) {
+                        listObj.price = " ";
+                    }
+                    else {
+                        listObj.price = items.price;
+                    }
+                    if (!items.hasOwnProperty('mat_desc')) {
+                        listObj.mat_desc = " ";
+                    }
+                    else {
+                        listObj.mat_desc = items.mat_desc;
+                    }
+                    if (!items.hasOwnProperty('qty')) {
+                        listObj.qty = " ";
+                    }
+                    else {
+                        listObj.qty = items.qty;
+                    }
+                    if (!items.hasOwnProperty('uom')) {
+                        listObj.uom = " ";
+                    }
+                    else {
+                        listObj.uom = items.uom;
+                    }
+                    if (!items.hasOwnProperty('po_number')) {
+                        listObj.po_number = " ";
+                    }
+                    else {
+                        listObj.po_number = items.po_number;
+                    }
+                    if (!items.hasOwnProperty('del_note')) {
+                        listObj.del_note = " ";
+                    }
+                    else {
+                        listObj.del_note = items.del_note;
+                    }
+                    if (!items.hasOwnProperty('gi_no')) {
+                        listObj.gi_no = " ";
+                    }
+                    else {
+                        listObj.gi_no = items.gi_no;
+                    }
+                    if (!items.hasOwnProperty('cgst_value')) {
+                        listObj.cgst_value = " ";
+                    }
+                    else {
+                        listObj.cgst_value = items.cgst_value;
+                    }
+                    if (!items.hasOwnProperty('cgst_value')) {
+                        listObj.cgst_value = " ";
+                    }
+                    else {
+                        listObj.cgst_value = items.cgst_value;
+                    }
+                    if (!items.hasOwnProperty('igst_value')) {
+                        listObj.igst_value = " ";
+                    }
+                    else {
+                        listObj.igst_value = items.igst_value;
+                    }
+                    if (!items.hasOwnProperty('net_price')) {
+                        listObj.net_price = " ";
+                    }
+                    else {
+                        listObj.net_price = items.net_price;
+                    }
+
+                    jsonArrrayData.push(listObj);
+                }
+                count++;
+            }
+            let filterOption:any=$("#layoutVal").val();
+            let columns: any;
+            let columnHeaders: any;
+            if(filterOption=='piSummaryItem'){
+               columns=['inv_id', 'status', 'vendor_name', 'inv_date', 'amount', 'mat_id', 'mat_desc', 'qty', 'uom', 'po_number', 'del_note', 'gi_no','price', 'cgst_value', 'cgst_value', 'igst_value', 'net_price'];
+               columnHeaders=['Invoice No', 'Status', 'Vendor Name', 'Invoice Date', 'Amount', 'Material', 'Description', 'Qty', 'UOM', 'PO No', 'Del No', 'GI No','Net Amount', 'S/UGST', 'CGST', 'IGST', 'Total Value'];
+                let jsonData: any = JSON.stringify(jsonArrrayData);
+                this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "Invoice Items List", columns, columnHeaders, 'Invoice_Items');
+            }
+            if(filterOption=='inv_id'){
+               columns=['inv_id', 'status', 'vendor_name', 'inv_date','po_number', 'del_note', 'gi_no','net_amt', 'igst_amt', 'cgst_amt', 'sgst_amt', 'total_amt'];
+               columnHeaders=['Invoice No', 'Status', 'Vendor Name', 'Invoice Date', 'PO No', 'Del No', 'GI No','Net Amount', 'IGST', 'CGST', 'S/UGST', 'Total PI Amount'];
+                this.excelService.JSONToCSVConvertor(this.invoiceSumary, "", "Invoice List", columns, columnHeaders, 'Invoice');
+            }
+            if(filterOption=='mat_id'){
+               columns=['mat_id', 'mat_desc','totalQty','uom','po_number', 'del_note', 'gi_no','net_amt', 'igst_amt', 'cgst_amt', 'sgst_amt', 'total_amt'];
+               columnHeaders=['Material No', 'Material Description','QTY', 'UOM', 'PO No', 'Del No', 'GI No','Net Amount', 'IGST', 'CGST', 'S/UGST', 'Total Value'];
+                this.excelService.JSONToCSVConvertor(this.materialSumary, "", "Materials List", columns, columnHeaders, 'Material');
+            }
+            
+        } else {
+            this.commonService.responseMessages("", "No Data Available To Export", "warning");
+        }
+    }
+    navigateToRepGallery() {
+        const path: any = "rptsgallery";
+        this.router.navigate([path]);
+    }
+    showFilters(){
+        $("#filter-block").slideToggle();  
+    }
+    switchLayout(layOutValue){
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        $(".showcolumns").hide();
+        let id:any="piordertable-"+layOutValue;
+        if(layOutValue!='piSummaryItem'){
+          $("#datatablediv-"+layOutValue).DataTable().destroy();
+          this.layoutDataSummary(this.poreportdetailsList,layOutValue);
+        }
+        setTimeout(()=>{this.applyDataTable(id,layOutValue); },500) 
+      }
+  layoutDataSummary(response,filterOption){
+      let layoutSelectList:any=[];
+      this.customerMaterialSmry=[];
+      this.vendorsSummary=[];
+      this.materialSumary=[];
+      this.invoiceSumary=[];
+  for(let list of response){
+     if(list.hasOwnProperty(filterOption)){
+         if(filterOption=='vendor_name'){
+             if(layoutSelectList.indexOf(list.vendor_name)==-1){
+                layoutSelectList.push(list.vendor_name);
+               }
+          }else{
+             if(filterOption=='inv_id'){  
+               if(layoutSelectList.indexOf(list.inv_id)==-1){
+                layoutSelectList.push(list.inv_id);
+               }
+              }
+         }
+     }else{
+       for(let item of list.pi_item_details){
+             if(layoutSelectList.indexOf(item.mat_id)==-1){
+                layoutSelectList.push(item.mat_id);   
+             }
+        }  
+     } 
+  }
+  let totalAmounts:any=0;
+  let igstAmounts:any=0;
+  let cgstAmounts:any=0;
+  let sgstAmounts:any=0;
+  let cessAmounts:any=0;
+  let fixedAmounts:any=0;
+  let addDisAmounts:any=0;
+  let netValAmounts:any=0;
+  let totalQty:any=0;
+  let disObj:any;
+  for(let index of layoutSelectList){
+      totalAmounts=0;
+      igstAmounts=0;
+      cgstAmounts=0;
+      sgstAmounts=0;
+      cessAmounts=0;
+      fixedAmounts=0;
+      addDisAmounts=0;
+      netValAmounts=0;
+      disObj={};
+      //disObj.cust_name=index;
+      for (let element of this.poreportdetailsList) {
+         if(element.hasOwnProperty(filterOption)){
+         if(filterOption=='vendor_name'){
+          if(element.vendor_name==index){
+               disObj.vendor_name=element.vendor_name;
+               for(let item of element.pi_item_details){
+                   netValAmounts=netValAmounts+(parseFloat(item.price));
+                   totalAmounts=totalAmounts+(parseFloat(item.net_price));
+                   igstAmounts=igstAmounts+parseFloat(item.igst_value); 
+                   cgstAmounts=cgstAmounts+parseFloat(item.cgst_value); 
+                   sgstAmounts=sgstAmounts+parseFloat(item.sgst_value); 
+                   cessAmounts=cessAmounts;                   
+               }
+          }
+         }else{
+            if(filterOption=='inv_id'){
+               if(element.inv_id==index){
+               disObj.inv_id=element.inv_id;
+               disObj.vendor_name=element.vendor_name;
+               disObj.status=element.status;
+               disObj.inv_date=element.inv_date;
+               for(let item of element.pi_item_details){
+                   disObj.po_number=item.po_number;
+                   disObj.del_note=item.del_note;
+                   disObj.gi_no=item.gi_no;
+                   netValAmounts=netValAmounts+(parseFloat(item.price));
+                   totalAmounts=totalAmounts+(parseFloat(item.net_price));
+                   igstAmounts=igstAmounts+parseFloat(item.igst_value); 
+                   cgstAmounts=cgstAmounts+parseFloat(item.cgst_value); 
+                   sgstAmounts=sgstAmounts+parseFloat(item.sgst_value); 
+                   cessAmounts=cessAmounts;                   
+                    
+               }
+          } 
+            }
+         } 
+         }else{
+             for(let item of element.pi_item_details){
+               if(item.hasOwnProperty(filterOption)){
+                 if(item.mat_id==index){
+                     //disObj.status=element.status;
+                     disObj.mat_id=index;
+                     disObj.mat_desc=item.mat_desc;
+                     disObj.po_number=item.po_number;
+                     disObj.del_note=item.del_note;
+                     disObj.gi_no=item.gi_no;
+                     disObj.uom=item.uom;
+                     netValAmounts=netValAmounts+(parseFloat(item.price));
+                     totalAmounts=totalAmounts+(parseFloat(item.net_price));
+                     totalQty=totalQty+parseFloat(item.qty);
+                     igstAmounts=igstAmounts+parseFloat(item.igst_value); 
+                     cgstAmounts=cgstAmounts+parseFloat(item.cgst_value); 
+                     sgstAmounts=sgstAmounts+parseFloat(item.sgst_value); 
+                     cessAmounts=cessAmounts; 
+                     totalQty=Math.round(totalQty+parseFloat(item.qty));
+                 }
+             }
+            }
+         
+         }  
+  }
+ disObj.total_amt=totalAmounts;
+ disObj.totalQty=totalQty;
+ disObj.net_amt=netValAmounts;
+ disObj.dis_amt=addDisAmounts;
+ disObj.igst_amt=igstAmounts;
+ disObj.cgst_amt=cgstAmounts;
+ disObj.sgst_amt=sgstAmounts;
+ disObj.cess_amt=cessAmounts;
+ this.customerMaterialSmry.push(disObj);
+}
+this.vendorsSummary=this.customerMaterialSmry;
+this.invoiceSumary=this.customerMaterialSmry;
+this.materialSumary=this.customerMaterialSmry;
+    }
+  applyDataTable(id,tableId){
+      setTimeout(()=>{  
+      $('#loadingIcon').hide();
+    $("#black-overlay").hide();
+         var table =  $("#datatablediv-"+tableId).DataTable({
+          "order" : [],
+           "retrieve": true,
+           "bPaginate":false,
+           "bInfo":false,
+          "language": {
+             "emptyTable": "No data available",
+             "info": "Showing page _PAGE_ of _PAGES_",
+             "infoFiltered": "(filtered from _MAX_ total records)"
+           },
+          
+          "fnDrawCallback": function( oSettings ) {
+              
+                       if ( 5 >= oSettings.fnRecordsDisplay() ) {
+                           $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                           
+                           $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                          
+                          
+                       } else {
+                           $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                           $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                           $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                           $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                         
+                       }
+                   },
+          "columnDefs": [ {
+               "targets"  : 'no-sort',
+               "orderable": false,
+              } ]
+         
+     });
+        },1000);  
+         setTimeout(() =>{
+         $("#"+id).show();
+         $(".dataTables_scrollHeadInner").css({"width":"100%"});
+         $(".table ").css({"width":"100%"}); 
+         //$("#billing-order-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+         },1100);
+       
+         setTimeout(()=>{
+             var width=$("#mainContent").css("width");
+             $(".outbound-footer").css("width",width);
+             $(".outbound-footer").show();
+         },50); 
+       
+       
+   }
+  showGraphs(){
+      if($("#graph-block").is(':visible')){
+          this.graphBlock=false;
+      }else{
+          this.graphBlock=true;    
+      }    
+  }
+}

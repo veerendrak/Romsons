@@ -1,0 +1,276 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+import { ExcelService } from '../../services/excel.service';
+
+declare var $: any;
+declare var jQuery: any;
+
+@Component({
+  selector: 'app-inventory-stock-mb',
+  templateUrl: './inventory-stock-mb.component.html',
+  styleUrls: ['./inventory-stock-mb.component.css']
+})
+export class InventoryStockMbComponent implements OnInit {
+
+    
+    public inventoryStockForm: FormGroup;  
+    public bpId:string;
+    public orgId:string;
+    public accessObjId:string;
+    public inventoryStockList:any=[];
+    material:any;
+    ajaxDropdown=false;
+    
+    
+   constructor(private http: Http, private formBuilder: FormBuilder,private environment:EnvConfigurationService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private excelService: ExcelService) { 
+      this.bpId = localStorage.getItem("bpId");
+      this.orgId =localStorage.getItem("orgId");
+      this.accessObjId =  localStorage.getItem("Stock Details")
+    
+      this.inventoryStockForm = new FormBuilder().group(
+            {
+
+                'frmDate':['', Validators.required],
+                'toDate':['', Validators.required]
+            }
+        );
+       
+  
+  }
+
+  ngOnInit() {
+      
+       $('.datepicker-init').datetimepicker({
+
+                    widgetPositioning: {
+                        horizontal: 'left'
+                    },
+                    icons: {
+                        time: "fa fa-clock-o",
+                        date: "fa fa-calendar",
+                        up: "fa fa-arrow-up",
+                        down: "fa fa-arrow-down",
+                        previous: 'fa fa-arrow-left',
+                        next: 'fa fa-arrow-right'
+                    },
+                    format: 'DD-MM-YYYY',
+
+                });
+      this.applyDataTable();
+     
+  }
+    
+    getInvStockMbDetails(){
+        
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        this.compareDates();
+        let stockMbPayload = {};
+        let fromDate ,toDate;
+        let stockMbArray=[];
+        let matNrArray = [];
+        let splittedFromDate = $("#frmDate").val().split("-");
+        fromDate = splittedFromDate[2] + splittedFromDate[1] + splittedFromDate[0];
+
+        let splittedToDate = $("#toDate").val().split("-");
+        toDate = splittedToDate[2] + splittedToDate[1] + splittedToDate[0];
+        
+        stockMbArray[0]=fromDate+","+toDate;
+        stockMbPayload["budat"]=stockMbArray;
+        stockMbPayload["bp_id"]=this.bpId;
+        stockMbPayload["org_id"] = this.orgId;
+
+        let mat_nr = $("#material-code").val();
+        if (mat_nr.length != 0) {
+            matNrArray[0] = mat_nr;
+            stockMbPayload["matnr"] = matNrArray;
+        }
+        
+        
+        
+        let url = this.environment.getRequiredApi('get_inv_stock_md') + "?";
+
+
+        this.commonService.getData(url, 'POST', stockMbPayload, this.accessObjId)
+            .subscribe((response) => {
+                console.log(response);
+                if (response.status == '1') {
+                      this.inventoryStockList=[];  
+                      
+                      this.commonService.responseMessages( '', response.message, 'warning' );
+                } else {
+                        this.inventoryStockList=response.data.ex_t_mb5bdata;
+                }
+                $(".inv-stock-table").DataTable().destroy();
+                this.applyDataTable();
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+
+
+
+            }, err => {
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                console.log(err)
+
+            });
+        
+        
+        
+    }
+    changeTodatePicker(){
+       
+        var maxFromDate = this.convertDate($("#frmDate").val());
+        var minFromDate = this.convertDate($("#frmDate").val());
+        var date = maxFromDate.getDate()+30;
+        maxFromDate.setDate(date);
+        
+        if($("#toDate").val() !=""){
+         $(".datepicker-init2").datetimepicker("destroy");    
+        }
+        
+       
+         
+        
+        
+        $('.datepicker-init2').datetimepicker({
+
+                    widgetPositioning: {
+                        horizontal: 'left'
+                    },
+                    icons: {
+                        time: "fa fa-clock-o",
+                        date: "fa fa-calendar",
+                        up: "fa fa-arrow-up",
+                        down: "fa fa-arrow-down",
+                        previous: 'fa fa-arrow-left',
+                        next: 'fa fa-arrow-right'
+                    },
+                    format: 'DD-MM-YYYY',
+                    maxDate:  maxFromDate,
+                    minDate: minFromDate
+                });
+        
+        this.inventoryStockForm.controls['frmDate'].setValue($("#frmDate").val());
+
+        this.inventoryStockForm.controls['toDate'].setValue($("#toDate").val());
+    }
+    removeStyles(){
+        
+         
+        this.inventoryStockForm.controls['frmDate'].setValue($("#frmDate").val());
+        
+        this.inventoryStockForm.controls['toDate'].setValue($("#toDate").val());
+    }
+    
+  
+    
+    applyDataTable(){
+      setTimeout(()=>{
+          var table = $('.inv-stock-table').DataTable({
+             
+             
+             "language": {
+                 "emptyTable": "No data available",
+                 "info": "Showing page _PAGE_ of _PAGES_",
+                 "infoFiltered": "(filtered from _MAX_ total records)",
+                 //"searchPlaceholder" : "Search..."
+               },
+            
+             "fnDrawCallback": function(oSettings) {
+                 if (10 >= oSettings.fnRecordsDisplay()) {
+                   $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+              //     $(oSettings.nTableWrapper).find('.dataTables_filter').hide();
+                   $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                   //$(oSettings.nTableWrapper).find('.dataTables_length').hide();
+                 } else {
+               $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+             //    $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                 $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                   //  $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                 }
+               },
+                   });
+         
+          setTimeout(()=>{
+              var width=$("#mainContent").css("width");
+              $(".outbound-footer").css("width",width);
+              $(".outbound-footer").show();
+          },50);
+      },500);
+      setTimeout(() =>{
+          $(".dataTables_scrollHeadInner").css({"width":"100%"});
+          $(".table ").css({"width":"100%"});    
+          },600);
+  }
+    
+   public compareDates(){
+      let frmDate =  this.inventoryStockForm.controls['frmDate'].value;
+      let toDate = this.inventoryStockForm.controls['toDate'].value;
+       
+      frmDate =this.convertDate(frmDate);
+       toDate = this.convertDate(toDate);
+      let one_day = 1000 * 60 * 60 * 24;
+      let difference = frmDate.getTime() - toDate.getTime()
+       console.log(Math.round(difference / one_day))
+      return Math.round(difference / one_day);
+       
+   }
+    
+    public convertDate(date){
+        let dateArry = date.split("-");
+        return new Date(dateArry[2],dateArry[1]-1,dateArry[0]);
+    }
+    
+    extractData(id, spinnerId, ajaxDropdown) {
+        let term: any = $("#" + id).val();
+        if (term.length == 2) {
+            $("#" + spinnerId).show();
+            let url: any = this.environment.getRequiredApi("find_matnr_num") + "?org_id=" + this.orgId + "&bp_id=" + this.bpId + "&material=" + term + "&";
+            this.commonService.getData(url, "GET", "", this.accessObjId).subscribe(response => {
+                if (response.status == 0) {
+                    this.material = response["data"].ex_mat_list;
+                    $("#" + spinnerId).hide();
+                    $("#" + ajaxDropdown).show();
+                    this.ajaxDropdown = true;
+                } else {
+                    $("#" + spinnerId).hide(); $("#" + ajaxDropdown).show();
+                    this.ajaxDropdown = false;
+                }
+
+            });
+        } else {
+            if (term == "") {
+                this.material = [];
+                $("#" + spinnerId).hide();
+            } else {
+                var searchText = term;
+                searchText = searchText.toUpperCase();
+                $("#" + ajaxDropdown).find('ul > li').each(function() {
+                    var currentLiText = $(this).text();
+                    currentLiText = currentLiText.toUpperCase();
+                    var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                    $(this).toggle(showCurrentLi);
+                });
+            }
+        }
+    }
+    
+    selectedItem(response, modalBlock, textInput, hiddenInput) {
+        $("#" + textInput).val(response.mat_num);
+        $("#" + hiddenInput).val(response.mat_num);
+        $("#" + modalBlock).hide();
+
+    }
+  
+     
+
+}

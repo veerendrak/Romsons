@@ -1,0 +1,29 @@
+.bussiness-form{
+	padding-left:15px;
+	padding-right:15px;
+}
+.bp-form-block{
+	border-bottom: 2px dashed #ccc;
+    margin-bottom: 10px;
+}
+.cust-det-title{
+	font-weight: bold;
+    color: black;
+    margin-left: -1px;
+}
+table {display:table;}
+.card {    bottom: 0;
+    margin-bottom: 0;
+    min-height: 500px !important;}
+    
+#businessPlace .login-button{margin-right:0;}
+
+@media only screen and (max-width: 1024px){	
+.tab-custom-padding{padding:5px !important;}
+}
+
+.card-header-adj {
+    margin-top: -17px;
+    padding: 5px 0px !important;
+    padding-bottom: 3px !important;
+}

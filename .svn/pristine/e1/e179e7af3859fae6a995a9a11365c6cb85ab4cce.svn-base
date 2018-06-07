@@ -1,0 +1,232 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+
+<div class="createBlok" >
+	<div class="card-block db-block mb-5" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" >
+				<div class="row cust-det-title">Customer Details</div>
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					<form >
+					
+					 <div class="col-md-12 row pb-1">
+						<div class="col-md-3 text-align-sales">
+						   <label>Type<sup class="asterick">*</sup></label>
+						  <select  class="form-control">
+						  <option>-- None --</option>
+						  <option value="Authorized">Authorized</option>
+						  </select>
+						</div>
+					 </div>
+					 <div class=" col-md-12 row pb-1">
+						<div class="clear-fix"></div>
+						<div class="col-md-3 text-align-sales">
+							    <label>Name<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+							  
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							  <label>Mobile<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+							  
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							<label>Email<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control"> 
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							  <label>Drug Licence<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control"> 
+						</div>
+						<div class="col-md-3 text-align-sales" style="padding-top:3%"> 
+				
+							<mat-checkbox><mat-label>Security Deposit</mat-label></mat-checkbox>
+							</div>
+						
+						<div class="col-md-3 text-align-sales">
+						 <label>Credit Limit<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+						</div>
+						<div class="col-md-3 text-align-sales">
+						  <label>Status<sup class="asterick">*</sup></label>
+						  <select  class="form-control">
+						  <option>-- None --</option>
+						  <option value="Yes">Yes</option>
+						  </select>
+						</div>
+					</div>
+					</form>
+					</div>
+					
+					<!-- end changes -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+	
+	<div class="card-block db-block mb-5" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" >
+				<div class="row cust-det-title">Address Details</div>
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					<form >
+					 <div class="cust-form-block col-md-12 row pb-1">
+						<div class="col-md-3 text-align-sales">
+							   <label>Door Number<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+						<label>Area<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+						<label>Street<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+						<label>City<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+						</div>
+						
+						
+						<div class="col-md-3 text-align-sales">
+						<label>Mandal<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+						<label>District<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							<label>State<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">  
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+						<label>Pincode<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control"> 
+						</div>
+						
+					</div>
+					</form>
+					</div>
+					
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+	
+	<div class="card-block db-block mb-5" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" >
+				<div class="row cust-det-title">Compliance Details</div>
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					<form>
+					 <div class="cust-form-block col-md-12 row pb-1">
+						<div class="col-md-3 text-align-sales">
+							  <label>Registration Type<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							<label>GST Number<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">  
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							<label>PAN Number<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+						</div>
+						
+						
+						
+					</div>
+					</form>
+					</div>
+					
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+	
+	<div class="card-block db-block mb-5" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" >
+				<div class="row cust-det-title">Bank Details</div>
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					<form>
+					 <div class=" col-md-12 row pb-1">
+						<div class="col-md-3 text-align-sales">
+							  <label>Bank Name<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							 <label>IFC Code<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+							  
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							  <label>Account Number<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control">
+						</div>
+						
+						
+						
+					</div>
+					</form>
+					</div>
+					
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+	
+	
+	
+	
+	
+<div class="outbound-footer mt-1">
+		
+		<div class="right-block">
+			
+			<div class="pull-left" >
+			<button class="btn login-button">
+			<i class="fa fa-save" style="margin-right:4px;"></i>Save</button>
+			</div>
+			<div class="pull-left" style="max-width:12%;">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+</section>

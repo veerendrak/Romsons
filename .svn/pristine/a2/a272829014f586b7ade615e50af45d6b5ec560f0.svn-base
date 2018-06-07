@@ -1,0 +1,85 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router,ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-edit-billing-details',
+  templateUrl: './edit-billing-details.component.html',
+  styleUrls: ['./edit-billing-details.component.css']
+})
+export class EditBillingDetailsComponent implements OnInit {
+        
+    public billingId:string;
+     bpId:any;
+     orgId:any;
+    public billingItemsArray:any=[];
+    public billingHeaders:any={};
+    public remark='';
+
+   constructor(private http: Http, private formBuilder: FormBuilder,private messagesService:MessagePropertiesService,private environment:EnvConfigurationService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private commonService:CommonService,private activatedRoute:ActivatedRoute) {
+       
+        this.bpId=localStorage.getItem("bpId");
+        this.orgId=localStorage.getItem("orgId");
+        this.billingHeaders["bill_type"]="";
+       this.billingHeaders["bill_date"]="";
+       this.billingHeaders["sold_to_name"]="";
+       this.billingHeaders["ship_to_name"]="";
+       console.log(this.billingHeaders)
+   } 
+ 
+
+  ngOnInit() {
+      
+       this.activatedRoute.queryParams.subscribe(params => {
+      if(this.router.url.includes("billing")){
+      
+        this.billingId=  params['billId'];
+        this.getBillingListOnBillId( this.billingId);
+      
+      }
+  });
+  }
+    
+    
+    public getBillingListOnBillId(billId){
+        
+        
+         
+         let url = this.environment.getRequiredApi( 'get_billing_details_billid' )+"?bill_no="+billId+"&org_id="+this.orgId+"&bp_id="+this.bpId+"&";
+      
+        this.commonService.getData( url, 'GET', '',localStorage.getItem( 'Billing' ))
+            .subscribe(( response ) => {
+              
+                if(response.status == 0){
+                     this.billingItemsArray = response.data.ex_bill_item;
+                   this.billingHeaders = response.data.ex_bill_hdr[0];
+                }else{
+                   this.billingItemsArray=[]; 
+                }
+               
+               
+            }, err => {
+                  
+                    console.log(err)   
+                
+               
+                //this.reqdata.responseMessages(err, err.status, 'danger');
+            } );
+    }
+    
+    public backToBillingDetails(){
+        const path:any='billing';
+        this.router.navigate([path]);
+    }
+
+}

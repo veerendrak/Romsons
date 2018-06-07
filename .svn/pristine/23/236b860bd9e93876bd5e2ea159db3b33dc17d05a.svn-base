@@ -1,0 +1,62 @@
+import { Routes, RouterModule } from '@angular/router';
+import { ModuleWithProviders } from '@angular/core';
+import { HttpModule } from '@angular/http';
+import { LoginComponent } from './components/login/login.component';
+import { UserManagementComponent } from './components/user-management/user-management.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { StockBalanceComponent } from './components/stock-balance/stock-balance.component';
+import { StockDetailsComponent } from './components/stock-details/stock-details.component';
+import { SalesOrderComponent } from './components/sales-order/sales-order.component';
+import { OutboundDeliveryComponent } from './components/outbound-delivery/outbound-delivery.component';
+import { SalesOrderDetailsComponent } from './components/sales-order-details/sales-order-details.component';
+import { BillingComponent } from './components/billing/billing.component';
+import { BillingDetailsComponent } from './components/billing-details/billing-details.component';
+import { OutboundDeliveryDetailsComponent } from './components/outbound-delivery-details/outbound-delivery-details.component';
+import { CustomerDetailsComponent } from './components/customer-details/customer-details.component';
+import { IncomingPaymentsComponent } from './components/incoming-payments/incoming-payments.component';
+import { DelarshipDetailsComponent } from './components/delarship-details/delarship-details.component';
+import { RoleManagementComponent } from './components/role-management/role-management.component';
+import { PurchaseOrderDetailsComponent } from './components/purchase-order-details/purchase-order-details.component';
+import { PurchaseOrderComponent } from './components/purchase-order/purchase-order.component';
+import { GoodsReceiptComponent } from './components/goods-receipt/goods-receipt.component';
+import { GoodsReceiptDetailsComponent } from './components/goods-receipt-details/goods-receipt-details.component';
+import { InvoiceDetailsComponent } from './components/invoice-details/invoice-details.component';
+import { CreateInvoiceComponent } from './components/create-invoice/create-invoice.component';
+import { OutgoingPaymentComponent } from './components/outgoing-payment/outgoing-payment.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { UserProfileComponent } from './components/user-profile/user-profile.component';
+
+export const routes: Routes = [
+    {path:'', component: LoginComponent },
+    {path:'login', component: LoginComponent },
+    {path:'usermanagement', component:UserManagementComponent},
+    {path:'quickstats', component:DashboardComponent},
+    {path:'openstk', component:StockBalanceComponent},
+    {path:'stkdet', component:StockDetailsComponent},
+    {path:'salesorder', component:SalesOrderDetailsComponent},
+    {path:'createsalesorder', component:SalesOrderComponent},
+    {path:'salesorder/createsalesorder', component:SalesOrderComponent},
+    {path:'obd/createsalesorder', component:SalesOrderComponent},
+    {path:'billing/createsalesorder', component:SalesOrderComponent},
+    {path:'obd', component:OutboundDeliveryDetailsComponent},
+    {path:'billing', component:BillingDetailsComponent},
+    {path:'custdet', component:CustomerDetailsComponent},
+    {path:'incomingpay', component:IncomingPaymentsComponent},
+    {path:'delarshipdetails',component:DelarshipDetailsComponent},
+    {path:'organizationroles',component:RoleManagementComponent},
+    {path:'purchaseorder',component:PurchaseOrderDetailsComponent},
+    {path:'purchaseorder/savepurchaseorder',component:PurchaseOrderComponent},
+    {path:'goodsreceiptdetails/goodsreceipt',component:GoodsReceiptComponent},
+    {path:'goodsreceiptdetails', component:GoodsReceiptDetailsComponent},
+    {path:'invoicedetails', component:InvoiceDetailsComponent},
+    {path:'invoicedetails/createInvoice', component:CreateInvoiceComponent},
+    {path:'outgoingpayment',component:OutgoingPaymentComponent},
+     { path: 'resetPassword', component: ResetPasswordComponent },
+      { path: 'userProfile', component: UserProfileComponent },
+    
+    
+    {path: '**', redirectTo: 'pages/page-404' }
+
+]; 
+
+export const routing: ModuleWithProviders = RouterModule.forRoot( routes, { useHash: true } );

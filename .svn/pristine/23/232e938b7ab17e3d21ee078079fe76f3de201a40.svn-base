@@ -1,0 +1,353 @@
+
+
+<section class="card" id="mainContent">
+
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">User
+				Management</strong>
+		</span>
+		<span class="pull-right" style="max-width:90px;margin-right: 13px;">	
+			
+				<button class="btn login-button" id="add_user" style="width: 100% !important;" 
+					data-toggle="modal"  (click)="openModal()">
+					<i class="fa fa-plus" style="margin-right:4px;"></i> Add User
+				</button>
+			
+		</span>
+	</div>
+
+	<div class="card-block">
+	
+		<table class="table table-hover nowrap" id="userListTable"
+			width="100%" style="position: none !important;" >
+			<thead class="thead-default">
+				<tr>
+					<!-- <th><div class="checkbox align-center"
+							style="text-align: center;">
+							<input id="checkbox_bulk" class="styled" type="checkbox">
+							<label for="checkbox_bulk"> </label>
+						</div></th> -->
+						<th>Organization/Bussiness</th>
+						<th>User name</th>
+					<th>E-mail</th>
+					<th>Role</th>
+					<th>Mobile</th>
+					
+					
+					<th class="centerAlign">Actions</th>
+					<!-- <th class="centerAlign">Reset Password</th>
+					<th class="centerAlign">Edit</th>
+					<th class="centerAlign">Remove</th> -->
+				</tr>
+			</thead>
+			<tbody>
+
+				<tr *ngFor="let items of orgUsers, let i=index">
+					<td  data-toggle="tooltip" title={{items.bpLegalName}}>{{items.bpLegalName}}</td>
+					<td data-toggle="tooltip" title={{items.firstName}} >{{items.firstName}} {{items.lastName}}</td>
+					<td data-toggle="tooltip" title={{items.email}}>{{items.email}}</td>
+						<td  data-toggle="tooltip" title={{items.role}}>{{items.role}}</td>
+					<td data-toggle="tooltip" title={{items.mobile}}>{{items.mobile}}</td>
+				
+					
+					<td class="centerAlign">
+					
+					<span data-toggle="tooltip"
+						title="Reset Password" (click)="resetPassword(items.userId,items.logonId)">
+						<i
+							class="icmn-history cursor-hand-custom custom-hover"
+							aria-hidden="true"></i> </span>
+					 <span data-toggle="tooltip"
+						title="Edit User" (click)="edituserDetails(items,'editUser')"> <a
+							href="javascript: void(0);" class="mr-2" data-toggle="modal"
+							data-target="#addUser"><i
+								class="icmn-pencil cursor-hand-custom"> </i></a>
+					</span> <span data-toggle="tooltip" title="Remove User" *ngIf="items.role != 'Admin'"
+						(click)="deleteUser(items.userId,items.bpId,items.firstName)"> <a
+							class="swal-btn-cancel deleteUser"> <i
+								class="icmn-bin cursor-hand-custom" style="color: red"></i>
+						</a></span>
+						<span data-toggle="tooltip" title="Cannot Remove This User" *ngIf="items.role == 'Admin'"> <a
+							class="swal-btn-cancel deleteUser"> <i
+								class="icmn-bin " style="color: red"></i>
+						</a></span>
+					
+				
+						</td>
+				</tr>
+			</tbody>
+		</table>
+
+
+	</div>
+</section>
+
+<div class="modal fade modal-size-medium" id="addUser" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true" data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+		<form [formGroup]="addUserForm" >
+												<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4 id="myModalLabel" *ngIf="isAddUser">Add User</h4>
+						<h4 id="myModalLabel" *ngIf="!isAddUser">Edit User</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="close"  data-dismiss="modal" (click)="reset();"
+					aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+
+
+			</div>
+					
+			<div class="modal-body addrole-body" style="padding: 0 6px !important;">
+
+
+
+				<div class="card-block addrole-block">
+						
+								<!-- Popup Form Validation -->
+								
+									<div class="row">
+										<div class="col-md-12 padd-align">
+											<label>Role<sup class="asterick">*</sup>
+											</label> <select class="form-control create-edit-pop-txt-box"
+												 formControlName="roleId" (change)="validateBussiness();"
+												validateOnBlur
+												[validateFormControl]="addUserForm.controls['roleId']"
+												>
+												<option value=null disabled selected>Select Role</option>
+												<ng-container *ngFor="let roles of orgRoles">
+												<option													
+													value={{roles.id}}>{{roles.value}}</option>
+												
+												</ng-container>
+											</select> <span
+												*ngIf="addUserForm.controls['roleId'].touched && !addUserForm.controls['roleId'].valid && addUserForm.controls['roleId'].dirty"
+												class="error"> <small
+												*ngIf="addUserForm.controls['roleId'].errors.required">
+													{{userManagementMessages.role_req}} </small>
+
+											</span>
+										</div>
+									</div>
+									
+									<div class="row" *ngIf="roleAdmin">
+									
+										
+										<div class="col-md-12 padd-align" *ngIf="disableUserInput">
+											<label>Business Partner<sup class="asterick">*</sup>
+											</label> 
+											
+											<input	type="text" [attr.disabled]="disableUserInput ?  'disabled' : null" class="form-control create-edit-pop-txt-box" [value]="bpartnerArray.bpLegalName" >
+										</div>
+									
+									
+										<div class="col-md-12 padd-align" *ngIf="!disableUserInput">
+											<label>Business Partner<sup class="asterick">*</sup>
+											</label> <select class="form-control create-edit-pop-txt-box" 
+												 formControlName="bpId" [attr.disabled]="disableUserInput ?  'disabled' : null"
+												validateOnBlur
+												[validateFormControl]="addUserForm.controls['bpId']"
+												>
+												<option value=null disabled selected>Select Business Partner</option>
+												<ng-container *ngFor="let bPartner of bPartners">
+												
+												<option	 [selected]="bPartner.bpId== bpIdLegalName"												
+													value={{bPartner.bpId}}>{{bPartner.bpLegalName}}</option>
+												
+												</ng-container>
+											</select> <span
+												*ngIf="addUserForm.controls['bpId'].touched && !addUserForm.controls['bpId'].valid && addUserForm.controls['bpId'].dirty"
+												class="error"> <small
+												*ngIf="addUserForm.controls['bpId'].errors.required">
+													{{userManagementMessages.business_partner_req}}</small>
+
+											</span>
+											<span
+												*ngIf="roleAdmin"
+												class="error"> <small>{{rmsMsg}}
+													</small>
+
+											</span>
+											
+										</div>
+										
+										
+										
+										
+										
+									</div>
+									
+									
+									<div class="row">
+										<div class="col-md-12 padd-align">
+											<label>E-mail<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control create-edit-pop-txt-box"
+												formControlName="email" validateOnBlur #email [attr.disabled]="disableUserInput ?  'disabled' : null"
+												[validateFormControl]="addUserForm.controls['email']"
+												placeholder="email" >
+											<div id="popover-next"
+												class="popover fade bs-tether-element bs-tether-enabled bs-tether-element-attached-middle bs-tether-element-attached-left bs-tether-target-attached-middle bs-tether-target-attached-right show"
+												role="tooltip"
+												style="top: -38px; display: none; margin-left: 99px; max-width: 365px; position: absolute;">
+												<h3 class="popover-title"></h3>
+												 <div class="popover-content">
+													<div *ngIf="!isBranchUser">
+																<p>{{assignBpartner}}</p>
+													</div>
+													<div *ngIf="isBranchUser">
+														<p>  {{alreadyExisted}}</p>
+													</div>
+													<div class="form-actions role-buttons" style="margin-left: 80px !important;margin-bottom: -9px !important;margin-top: 0px !important;">
+														<button class="btn login-button" type="button" style="margin-top: 9px"
+															*ngIf="!isBranchUser" (click)="existedUserToOtherBpartner(addUserToBpartner)">Add User</button>
+														<button
+															class=" cancel-button-export"
+															type="button" (click)="cancelPopup('popover-next')">
+												<i class="fa cancel-icon" style=""> <span
+													class="icon-text" style="">Cancel</span>
+												</i>
+											</button>
+													</div>
+												</div>
+											</div>
+			
+			
+											<span
+												*ngIf="addUserForm.controls['email'].touched && !addUserForm.controls['email'].valid"
+												class="error"> <small
+												*ngIf="addUserForm.controls['email'].errors.required">
+													{{userManagementMessages.email_req}} </small> <small
+												*ngIf="addUserForm.controls['email'].errors.pattern">
+													{{userManagementMessages.email_req_error}} </small>
+											</span>
+										</div>
+			
+									</div>
+									<div class="user-next-block" *ngIf="opendiv">
+									
+									<div class="row">
+										<div class="col-md-12 padd-align">
+											<label>First name<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control create-edit-pop-txt-box" [attr.disabled]="disableUserInput ?  'disabled' : null"
+												formControlName="firstName" validateOnBlur 
+												[validateFormControl]="addUserForm.controls['firstName']"
+												placeholder="First name" >
+			
+											<span
+												*ngIf="addUserForm.controls['firstName'].touched && !addUserForm.controls['firstName'].valid"
+												class="error"> <small
+												*ngIf="addUserForm.controls['firstName'].errors.required">
+													{{userManagementMessages.firstName_req}} </small> 
+											</span>
+										</div>
+			
+									</div>
+									
+									<div class="row">
+										<div class="col-md-12 padd-align">
+											<label>Last name<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control create-edit-pop-txt-box"
+												formControlName="lastName" validateOnBlur [attr.disabled]="disableUserInput ?  'disabled' : null"
+												[validateFormControl]="addUserForm.controls['lastName']"
+												placeholder="Last name" >
+			
+											<span
+													*ngIf="addUserForm.controls['lastName'].touched && !addUserForm.controls['lastName'].valid && addUserForm.controls['lastName'].dirty"
+													class="error"> <small
+													*ngIf="addUserForm.controls['lastName'].errors.required">
+														{{userManagementMessages.lastName_req}}  </small>
+												</span>
+										</div>
+			
+									</div>
+									
+											
+											<input type="hidden" value="REG_USERS" formControlName="userType">
+
+
+										<div class="row">
+											<div class="col-md-12 padd-align">
+												<label>Mobile<sup class="asterick">*</sup></label> <input
+													type="text" class="form-control create-edit-pop-txt-box"
+													formControlName="mobile" validateOnBlur [attr.disabled]="disableUserInput ?  'disabled' : null"
+													[validateFormControl]="addUserForm.controls['mobile']"
+													placeholder="Mobile" >
+			
+												<span
+													*ngIf="addUserForm.controls['mobile'].touched && !addUserForm.controls['mobile'].valid && addUserForm.controls['mobile'].dirty"
+													class="error"> <small
+													*ngIf="addUserForm.controls['mobile'].errors.required">
+														{{userManagementMessages.mobile_req}}</small> <small
+													*ngIf="addUserForm.controls['mobile'].errors.pattern">
+														{{userManagementMessages.mobile_err_req}}</small>
+												</span>
+											</div>
+			
+										</div>
+			
+									</div>
+									
+									
+									<div style="display: none;">
+										<input class="form-control" formControlName="logonId"
+											type="text"> <input class="form-control"
+											formControlName="role" type="text"> <input
+											class="form-control" formControlName="userId" type="text">
+										<input class="form-control" formControlName="bpLegalName"
+											type="text">
+									</div>
+
+									
+								
+								<!-- End Popup Form Validation -->
+				</div>
+			</div>
+			
+			<div class="modal-footer">
+			<div class="row new_row">
+			<div *ngIf="!opendiv" class="pull-right mr18 act_foot"  style="max-width:47%">
+										<button type="button" style="padding: 5px 5px 5px 5px; margin-top: 2px;"
+											(click)="finduserStatus(email.value)"
+											[disabled]="(!addUserForm.controls['email'].valid || !addUserForm.controls['roleId'].valid || !addUserForm.controls['bpId'].valid)"
+											class="btn login-button "
+											>Next</button>
+										<button class="btn login-button"
+											style="display: none;">Click here</button>
+									</div>
+			<div class="pull-right mr18  act_foot" *ngIf="opendiv"  style="max-width:47%;"
+										>
+										<button type="submit" style="padding: 5px 5px 5px 5px; margin-top: 2px;"
+										(click)="submituserDetails()"
+											class="btn login-button" id="user_mgmt" [disabled]="!addUserForm.valid">
+											<i class="fa fa-hand-pointer-o" style="margin-right: 8px;font-size:16px;"></i>
+											Submit</button>
+										<button type="button"
+											class="cancel-button-export" style="padding-left:0px;"
+											id="adduserDetails" (click)="reset()">
+											<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+										<span class="icon-text" style="right:-4px;">Cancel</span>
+										</i>
+										</button>
+											
+											
+									</div>
+			</div>
+			
+			
+			
+			
+			
+			
+			
+			</div>
+			
+			</form>
+		</div>
+	</div>
+</div>

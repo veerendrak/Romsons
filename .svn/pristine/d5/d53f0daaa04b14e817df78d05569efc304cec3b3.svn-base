@@ -1,0 +1,286 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Reports
+					Gallery</strong>
+			</span>
+		</div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row" style="height: 450px;">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="outbound-content col-md-12 mb-5 mt-2"
+							id="filter-block">
+							<div class="app-content" data-device-width="large">
+								<div class="main-content">
+									<div id="main" class="tab-pane">
+										<div class="accordion mt-3 row" id="accordion">
+											<!-- Sales Report -->
+											<div class="col-md-3 no-paading mr-3 ml-3">
+												<div aria-controls="collapseMock" aria-expanded="true"
+													class="table-sub-header card-header card-header-custom"
+													data-parent="#accordion" data-toggle="collapse" role="tab"
+													style="padding: 10px !important; padding-bottom: 0px !important;"
+													id="changecolor_0" data-target="#collapseMock_0">
+													<div class="card-title col-lg-12">
+														<span
+															class="accordion-indicator accordion-indicator-custom  pull-right"
+															style="position: absolute; right: 10px;"> <i
+															_ngcontent-c4="" class="plus fa fa-plus fa-1x text-muted"></i>
+															<i _ngcontent-c4=""
+															class="minus fa fa-minus fa-1x text-white"></i>
+														</span>
+														<div class="row">
+															<div class="col-lg-12 accordian-title">Sales
+																Reports</div>
+														</div>
+													</div>
+												</div>
+												<div aria-labelledby="" class="card-collapse collapse show"
+													role="tabcard" id="collapseMock_0" aria-expanded="true"
+													style="">
+													<div
+														class="card-block card-block-table-custom no-paading card">
+														<div
+															class="card-block db-block custom-card-block no-paading">
+															<div class="savedata-filter-table">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label> <a href="javascript:void(0)"
+																				class="link-text anchor-txt">Sales Order Report
+																				<i class="fa sales-order-icon  cat_menu_icons_left "></i>
+																				</a>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<div class="savedata-filter-table">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label> <a href="javascript:void(0)"
+																				class="link-text anchor-txt">Delivery Details Report
+																				<i class="fa outbound-delivery-icon	  cat_menu_icons_left "></i>
+																			
+																			</a>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<div class="savedata-filter-table">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label>
+																			<a [routerLink]="['/bill/report']" class="link-text anchor-txt ">Billing Report
+																			 <i class="fa fa billing-icon cat_menu_icons_left "></i>
+																			</a>
+																			</label>
+																		</div>
+																		
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<div class="savedata-filter-table">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label> <a [routerLink]="['/salesanalysis']" href="javascript:void(0)"
+																				class="link-text anchor-txt">Sales Analysis
+																				<i class="fa salesanalysis-icon cat_menu_icons_left "></i>
+																				
+																				</a>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<div class="savedata-filter-table">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label> <a [routerLink]="['/gstr1']" href="javascript:void(0)"
+																				class="link-text anchor-txt">GSTR1 Report</a>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- End Sales Report -->
+											<!-- Purchase Reports -->
+											<div class="col-md-3 no-paading mr-3 ml-3">
+												<div aria-controls="collapseMock" aria-expanded="true"
+													class="table-sub-header card-header card-header-custom"
+													data-parent="#accordion" data-toggle="collapse" role="tab"
+													style="padding: 10px !important; padding-bottom: 0px !important;"
+													id="changecolor_1" data-target="#collapseMock_1">
+													<div class="card-title col-lg-12">
+														<span
+															class="accordion-indicator accordion-indicator-custom  pull-right"
+															style="position: absolute; right: 10px;"> <i
+															_ngcontent-c4="" class="plus fa fa-plus fa-1x text-muted"></i>
+															<i _ngcontent-c4=""
+															class="minus fa fa-minus fa-1x text-white"></i>
+														</span>
+														<div class="row">
+															<div class="col-lg-12 accordian-title">Purchase
+																Reports</div>
+														</div>
+													</div>
+												</div>
+												<div aria-labelledby="" class="card-collapse collapse show"
+													role="tabcard" id="collapseMock_1" aria-expanded="true"
+													style="">
+													<div
+														class="card-block card-block-table-custom no-paading card">
+														<div
+															class="card-block db-block custom-card-block no-paading">
+															<div class="savedata-filter-table">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label> <a [routerLink]="['/poreport']" href="javascript:void(0)"
+																				class="link-text anchor-txt">
+																				<i class="fa purchase-icon cat_menu_icons_left "></i>
+																				PO Report</a>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<div class="savedata-filter-table">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label> <a [routerLink]="['/grreport']"  href="javascript:void(0)"
+																				class="link-text anchor-txt">
+																				<i class="fa goods-receipt-icon cat_menu_icons_left "></i>
+																				GR Report</a>
+																			</label>
+																		</div>
+
+																	</div>
+																	<!---->
+																</div>
+															</div>
+
+															<div class="savedata-filter-table">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label> <a [routerLink]="['/pireport']" href="javascript:void(0)"
+																				class="link-text anchor-txt">
+																				<i class="fa purchase-invoice-icon cat_menu_icons_left "></i>
+																				Invoice Report</a>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															
+															<div class="savedata-filter-table">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label> <a [routerLink]="['/me2nreport']"  href="javascript:void(0)"
+																				class="link-text anchor-txt">Purchase Analysis</a>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- End Purchase Reports -->
+
+											<!-- Inventory Reports -->
+											<div class="col-md-3 no-paading mr-3 ml-3">
+												<div aria-controls="collapseMock" aria-expanded="true"
+													class="table-sub-header card-header card-header-custom"
+													data-parent="#accordion" data-toggle="collapse" role="tab"
+													style="padding: 10px !important; padding-bottom: 0px !important;"
+													id="changecolor_1" data-target="#collapseMock_2">
+													<div class="card-title col-lg-12">
+														<span
+															class="accordion-indicator accordion-indicator-custom  pull-right"
+															style="position: absolute; right: 10px;"> <i
+															_ngcontent-c4="" class="plus fa fa-plus fa-1x text-muted"></i>
+															<i _ngcontent-c4=""
+															class="minus fa fa-minus fa-1x text-white"></i>
+														</span>
+														<div class="row">
+															<div class="col-lg-12 accordian-title">Inventory
+																Reports</div>
+														</div>
+													</div>
+												</div>
+												<div aria-labelledby="" class="card-collapse collapse show"
+													role="tabcard" id="collapseMock_2" aria-expanded="true"
+													style="">
+													<div
+														class="card-block card-block-table-custom no-paading card">
+														<div
+															class="card-block db-block custom-card-block no-paading">
+															<div class="savedata-filter-table">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label> <a [routerLink]="['/stkdet']" href="javascript:void(0)"
+																				class="link-text anchor-txt">
+																				<i class="fa stock-in-hand-icon cat_menu_icons_left "></i>
+																				
+																				Stock In Hand Report</a>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<div class="savedata-filter-table">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label> <a [routerLink]="['/inventorystock']" href="javascript:void(0)"
+																				class="link-text anchor-txt">
+																				<i class="fa stock-details-icon cat_menu_icons_left "></i>
+																				Stock Details Report</a>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- End Inventory Reports -->
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

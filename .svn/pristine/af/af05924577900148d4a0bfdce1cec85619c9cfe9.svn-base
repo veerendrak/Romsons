@@ -1,0 +1,20 @@
+<div class="footer-background">
+	<div style="text-align: center;">
+
+		<span> Copyright &copy; 2017 <a href="http://www.incresol.com/"
+			target="_blank" style="color: white;">Incresol Software Services
+				Pvt Ltd.</a> All Rights Reserved
+		</span> <!-- <span style="float: right; margin-right: 3px !important;"><small>
+				<a id="termsBtn"
+				style="text-decoration: underline; cursor: pointer; color: #fff;"
+				>Terms of usage</a>
+				<span style="color: #fff;"> ||</span> <a
+				href="https://wiki.asptax.com/doku.php?id=cloud_release_notes#release_114"
+				target="_blank"
+				style="text-decoration: underline; cursor: pointer; color: #fff;">
+					Version : </a>
+		</small></span> -->
+
+	</div>
+
+</div>

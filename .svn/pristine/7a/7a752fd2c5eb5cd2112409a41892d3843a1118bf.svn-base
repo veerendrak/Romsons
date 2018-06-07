@@ -1,0 +1,383 @@
+
+.mat-form-field{
+	width:100%;
+}
+
+
+.table thead th{
+	vertical-align:middle;
+}
+.txt-msg-block{
+	border:1px solid #ccc;
+	padding:5px;
+}
+.txt-msg-block p{
+	margin-bottom:0px;
+	font-size:12px;
+}
+.outbound-input{
+	width:60px;
+}
+
+.left-block{
+	max-width: 80%;
+    float: left;
+}
+.right-block{
+	margin-right: 0%;
+    float: right;
+    text-align: right;
+    max-width: 100%;
+}
+.cat__wizard .steps ul li{
+	
+	    -webkit-box-flex: 200;
+    -ms-flex-positive: 200;
+    flex-grow: 200;
+    float: none;
+    width: auto;
+    position: relative;
+    list-style-type: none;
+}
+.cat__wizard .steps ul li.disabled:before, .cat__wizard .steps ul li.disabled:after {
+    background: #bfc0c0;
+}
+.cat__wizard .steps ul li.disabled .cat__wizard__steps__icon, .cat__wizard .steps ul li.disabled .number {
+    border-color: #fff;
+    background: #bfc0c0;
+    color: #000;
+}
+.disabled > a > i{
+	color:#000;
+	font-weight:600;	
+}
+/*@media only screen and (min-width: 1200px){
+.cat__wizard .steps ul{
+    width: 1200px;
+    margin-left: 25px;
+}
+}
+
+@media only screen and (max-width: 1024px){
+.cat__wizard .steps ul{
+    width: 1024px;
+    margin-left: 25px;
+}
+}
+*/
+@media only screen and (max-width: 767px){
+.cat__wizard .steps ul li:before, .cat__wizard .steps ul li:after {
+    position: absolute;
+    content: '';
+    display: block;
+    width: 97%;
+    top: 0.7rem;
+    right: 0;
+    height: 0.60rem;
+    background: rgb(34, 190, 239);
+    z-index: 1;
+}
+}
+
+.cat_wizard_steps_title {
+    display: block;
+    text-align: left;
+    color:#02615c;
+    font-family: 'Open Sans';
+    font-size: 14px;
+    font-weight:600;
+}
+.forgotOk{
+	padding:5px 13px 5px 13px;
+}
+.forgotOk:hover{
+	padding:5px 13px 5px 13px;
+}
+.forgotOk:active{
+	padding:5px 13px 5px 13px;
+}
+.create-edit-pop-txt-box{
+	padding: 5px !important;
+}
+.asterick{
+	
+    color: red;
+    font-size: 15px;
+	top: 0 !important;
+}
+
+.checkbox{
+	margin-top:-8px;
+}
+.btn-disabled{
+	cursor: not-allowed;
+}
+.delivery-form-block input{
+	padding:5px !important;
+}
+.table thead th{
+	min-width:130px !important;
+}
+table {
+		display:block;
+		width:100%;
+		overflow-x:auto;
+		overflow-y:hidden;
+	}
+.text-name-elipsis{
+	overflow:hidden;
+	width:190px;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+}
+.popup-button-block {border-top:1px solid #ccc; width:100%;}
+.popup-button-block button{padding:5px 20px; float:right; display:block; margin-top:10px}
+#cancel-sales-order .mb-5 {margin-bottom:10px !important;}
+#cancel-sales-order .card-block {padding:0 !important;}
+#cancel-sales-order table {width:100% !important; display:table;}
+
+.custName {
+    font-weight: 600;
+    width: 293px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 13px !important;
+    padding: 4px 4px 0;
+    font-weight: normal !important;
+}
+ 
+ .custmore-list {width:132%;}
+@media only screen and (max-width: 1024px){	
+.right-block{
+	float:left;
+	left:0;
+  }	
+	.right-block button{
+	margin-top:12px;
+  }	
+  .left-block{
+	max-width: 80%;
+    float: left;
+    min-width:35%;
+    margin-bottom:0;
+   }
+ table td {min-width:150px;}
+ table td:first-child {min-width:50px;}
+ #sales-order-table_filter {
+    margin-right: -24px !important;
+}
+}	
+.fa-sliders{font-size: 25px; margin-right: 6px;}
+
+
+.report-block {
+    margin-bottom: 20px;
+    background-color: white;
+    width: 30%;
+    margin-left: 1.5%;
+}
+.block {
+    border-radius: 4px;
+    border: 1px solid #abcde8;
+}
+
+.nav {
+    padding-left: 0;
+    margin-bottom: 0;
+    list-style: none;
+}
+ol, ul {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+user agent stylesheet
+ul, menu, dir {
+    display: block;
+    list-style-type: disc;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    -webkit-padding-start: 40px;
+}
+.report-block h4 {
+    padding: 5px 5px 0 5px;
+    line-height: 25px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.report-block h3, .report-block h4 {
+    color: #fff;
+    background-color: #0f74a2;
+    padding-left: 5px;
+    margin: 0;
+}
+h4 {
+    font-size: 14px;
+}
+h3, h4 {
+    color: #4d4d4d;
+    line-height: 15px;
+}
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: 'Source Sans Pro',sans-serif;
+}
+.h4, h4 {
+    font-size: 18px;
+}
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit;
+}
+user agent stylesheet
+h4 {
+    display: block;
+    -webkit-margin-before: 1.33em;
+    -webkit-margin-after: 1.33em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    font-weight: bold;
+}
+.nav-stacked>li {
+    float: none;
+}
+.nav>li {
+    position: relative;
+    display: block;
+}
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+user agent stylesheet
+li {
+    display: list-item;
+    text-align: -webkit-match-parent;
+}
+.nav-stacked>li>a {
+    border-radius: 0;
+    border-top: 0;
+    border-left: 3px solid transparent;
+    color: #444;
+}
+.nav>li>a {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+}
+a {
+    color: #337aa8;
+}
+a {
+    color: #3c8dbc;
+}
+a {
+    color: #337ab7;
+    text-decoration: none;
+}
+a {
+    background-color: transparent;
+}
+.billing-icon{
+	background-image:url("/assets/modules/dummy-assets/common/img/left-menu-icon/left-menu-sprite-icon.png");
+	background-repeat: no-repeat;
+    background-position: -88px -187px;
+    height: 30px;
+    width: 30px;
+    float: left;
+    margin-top: -20px;
+}
+.sales-order-icon{
+	background-image:url("/assets/modules/dummy-assets/common/img/left-menu-icon/left-menu-sprite-icon.png");
+	background-repeat: no-repeat;
+    background-position: -58px -370px;
+    height: 30px;
+    width: 30px;
+   float: left;
+    margin-top: -20px;
+}
+.outbound-delivery-icon{
+	background-image:url("/assets/modules/dummy-assets/common/img/left-menu-icon/left-menu-sprite-icon.png");
+	background-repeat: no-repeat;
+    background-position: -86px -43px;
+    height: 30px;
+    width: 30px;
+    float: left;
+    margin-top: -20px;
+}
+.salesanalysis-icon{
+	background-image:url("/assets/modules/dummy-assets/common/img/left-menu-icon/left-menu-sprite-icon.png");
+	background-repeat: no-repeat;
+    background-position: -20px -990px;
+    height: 30px;
+    width: 30px;
+    float: left;
+    margin-top: -20px;
+}
+.anchor-txt{ margin-left: 30px; }
+.purchase-icon{
+	background-image:url("/assets/modules/dummy-assets/common/img/left-menu-icon/left-menu-sprite-icon.png");
+	background-repeat: no-repeat;
+    background-position: -18px -878px;
+    height: 30px;
+    width: 30px;
+    float: left;
+    margin-top: -6px;
+}
+.goods-receipt-icon{
+	background-image:url("/assets/modules/dummy-assets/common/img/left-menu-icon/left-menu-sprite-icon.png");
+	background-repeat: no-repeat;
+    background-position: -18px -483px;
+    height: 30px;
+    width: 30px;
+    float: left;
+    margin-top: -6px;
+}
+.purchase-invoice-icon{
+	background-image:url("/assets/modules/dummy-assets/common/img/left-menu-icon/left-menu-sprite-icon.png");
+	background-repeat: no-repeat;
+    background-position: -18px -515px;
+    height: 30px;
+    width: 30px;
+    float: left;
+    margin-top: -6px;
+}
+.stock-in-hand-icon{	
+	background-image:url("/assets/modules/dummy-assets/common/img/left-menu-icon/left-menu-sprite-icon.png");
+	background-repeat: no-repeat;
+    background-position: -14px -845px;
+    height: 30px;
+    width: 30px;
+    float: left;
+    margin-top: -6px;
+}
+.stock-details-icon{
+	background-image:url("/assets/modules/dummy-assets/common/img/left-menu-icon/left-menu-sprite-icon.png");
+	background-repeat: no-repeat;
+    background-position: -53px -332px;
+    height: 30px;
+    width: 30px;
+    float: left;
+    margin-top: -6px;
+	
+}

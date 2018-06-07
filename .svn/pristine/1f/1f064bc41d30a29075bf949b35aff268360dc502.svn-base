@@ -1,0 +1,111 @@
+.login-button{
+	border:1px solid #000;
+	background: #00504c;
+    color: #c8aa34 !important;
+    font-weight: 500;
+    margin-bottom: 0px;
+    line-height: 15px;
+    padding: 3px 5px 3px 5px;
+    margin-right:5px;
+    border-color:#00504c;
+    background: linear-gradient(to top, #00504c 50%, #048078 50%);
+    font-size:13px;
+}
+.login-button:hover{
+	border:1px solid #000;
+	background: #00504c;
+    color: #c8aa34 !important;
+    font-weight: 500;
+    margin-bottom: 0px;
+    line-height: 15px;
+    padding: 3px 5px 3px 5px;
+    border-color:#00504c;
+    background: linear-gradient(to top, #00504c 50%, #048078 50%);
+    font-size:13px;
+}
+.login-button:active{
+	border:1px solid #000;
+	background: #00504c;
+    color: #c8aa34 !important;
+    font-weight: 500;
+    margin-bottom: 0px;
+    line-height: 15px;
+    padding: 3px 5px 3px 5px;
+    border-color:#00504c;
+    background: linear-gradient(to top, #00504c 50%, #048078 50%);
+    font-size:13px;
+}
+.outbound-content{
+	padding:0px 5px 10px 24px;
+}
+.mat-placeholder-required{
+	color:red;
+}
+.mat-form-field{
+	width:100%;
+}
+.delivery-form-block{
+	padding-left:0px;
+	border-bottom: 2px dashed #ccc;
+}
+.outbound-footer{
+	background:linear-gradient(to top, #fff 50%, #E7E3E3 150%) !important;
+	padding:10px 7px 7px 7px !important;
+	border:1px solid #ccc;
+	position: absolute;
+    bottom: 0px;
+    width: 100%;
+}
+.cancel-button{
+	border:1px solid #D53300;
+	background: #D53300;
+    color: #fff !important;
+    font-weight: 500;
+    margin-bottom: 0px;
+    line-height: 15px;
+    padding: 3px 5px 3px 5px;
+    margin-right:5px;
+    border-color:#D53300;
+    background: linear-gradient(to top, #D53300 50%, #D53300 50%);
+    font-size:13px;
+}
+.cancel-button:hover{
+	border:1px solid #D53300;
+	background: #D53300;
+    color: #fff !important;
+    font-weight: 500;
+    margin-bottom: 0px;
+    line-height: 15px;
+    padding: 3px 5px 3px 5px;
+    margin-right:5px;
+    border-color:#D53300;
+    background: linear-gradient(to top, #D53300 50%, #D53300 50%);
+    font-size:13px;
+}
+.cancel-button:active{
+	border:1px solid #D53300;
+	background: #D53300;
+    color: #fff !important;
+    font-weight: 500;
+    margin-bottom: 0px;
+    line-height: 15px;
+    padding: 3px 5px 3px 5px;
+    margin-right:5px;
+    border-color:#D53300;
+    background: linear-gradient(to top, #D53300 50%, #D53300 50%);
+    font-size:13px;
+}
+.add-qty{
+	color: #004f4b;
+    font-size: 20px;
+}
+.left-block{
+	max-width: 80%;
+    float: left;
+}
+.right-block{
+	margin-right: 0%;
+    float: right;
+    text-align: right;
+    max-width: 100%;
+}

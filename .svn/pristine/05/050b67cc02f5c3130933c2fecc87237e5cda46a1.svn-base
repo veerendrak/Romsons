@@ -1,0 +1,488 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Customer
+					Details</strong>
+			</span>
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv">
+
+							<div class="col-md-12 mt-2 form-align-inv" *ngIf="!roleStockist">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+									<div class="col-md-2 text-align-sales">
+										<label><b>Status</b><sup class="asterick">*</sup></label> <select
+											class="form-control" id="app_cust_status"
+											(change)="get_customerstatus_list()"
+											style="width: 200px !important; padding: 5px !important">
+											<option value="P">Pending</option>
+											<option value="R">Rejected</option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- new changes -->
+						<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table " id="">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable table-responsive"
+									width="100%" id="cust-info-table"
+									style="overflow-y: hidden; overflow-x: auto;">
+
+									<thead>
+										<tr>
+
+											<th *ngIf="!roleAdmin" class="no-sort sorting-disabled"
+												style="width: 50px; text-align: center;"><mat-checkbox
+													class="example-margin" [(ngModel)]="checked"
+													[checked]="checked" [(indeterminate)]="indeterminate"
+													id="checkbox-all"
+													(click)="selectAll($event,'checkbox-all-input','cust-info-table')">
+												</mat-checkbox></th>
+											<th style="min-width: 100px !important;">Type</th>
+											<th *ngIf="!roleAdmin" style="min-width: 100px !important;">Customer
+												Id</th>
+											<th style="min-width: 140px !important;">Customer Name</th>
+											<th style="min-width: 120px !important;">Phone Number</th>
+											<th style="min-width: 80px !important;">Email Id</th>
+											<th style="min-width: 50px !important;">DL No</th>
+											<th style="min-width: 65px !important;">GST No</th>
+											<th style="min-width: 92px !important;">Credit Limit</th>
+											<th *ngIf="!roleStockist" style="min-width: 70px !important;">Plant
+												ID</th>
+											<th *ngIf="!roleStockist" style="min-width: 90px !important;">Plant
+												Name</th>
+											<th style="min-width: 60px !important;">Status</th>
+
+											<th style="min-width: 60px !important;"
+												class="no-sort sorting-disabled" *ngIf="!roleStockist">Action</th>
+										</tr>
+									</thead>
+									<tbody>
+
+										<tr *ngFor="let cld of customerDetailList; let i=index;">
+											<td *ngIf="!roleAdmin" align="center"><mat-checkbox
+													class="example-margin" id="checkbox-{{i}}"
+													(click)="getReportList(cld,'cust-info-table',i)"></mat-checkbox>
+											</td>
+											<td><div class="text-name-elipsis"
+													title="{{cld.cust_grp_desc}}">{{cld.cust_grp_desc}}</div></td>
+
+											<td *ngIf="!roleAdmin"><span><a
+													href="javascript:void(0)" class="sales-num-anchor"
+													(click)="displayCustomerDetails(cld.cust_id)">{{cld.cust_id}}</a>
+											</span></td>
+											<td>{{cld.cust_name}}</td>
+											<td>{{cld.telefone}}</td>
+											<td><div class="text-name-elipsis" title="{{cld.email}}">{{cld.email}}</div></td>
+
+											<td><div class="text-name-elipsis"
+													title="{{cld.lst_no}}">{{cld.lst_no}}</div></td>
+											<td>{{cld.gstin}}</td>
+											<td>{{cld.credit_limit | PriceInd}}</td>
+											<td *ngIf="!roleStockist">{{cld.plant_id}}</td>
+											<td *ngIf="!roleStockist"><div class="text-name-elipsis"
+													title="{{cld.plant_name}}">{{cld.plant_name}}</div></td>
+											<td>{{cld.cust_status}}</td>
+
+											<td *ngIf="!roleStockist"><button class="save-icon-btn"
+													(click)="GetApproveDetails(cld.ss_cust_id,cld.plant_id);">
+													<i class="fa save-icon"
+														style="margin-right: 4px; padding-right: 4px;">
+														<div class="icon-text" style="right: -4px;">Approve</div>
+													</i>
+												</button></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- end chnges -->
+
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="outbound-footer mt-3" *ngIf="!roleAdmin"
+			style="display: none;">
+			<div class="right-block">
+				<div class="pull-left">
+					<button class="login-button-export" title="Export Excel"
+						style="padding-left: 8px;" (click)="exportExcel()">
+						<i class="fa excel-icon"
+							style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div>
+				<div class="pull-left">
+					<button class="login-button-export" title="Edit"
+						style="padding-left: 8px;"
+						(click)="editCustomerdetails('stock-table')">
+						<i class="fa edit-icon"
+							style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div>
+				<div class="pull-left">
+					<button class="login-button-export" title="Create"
+						style="padding-left: 8px;" (click)="createCustomer()">
+						<i class="fa create-icon"
+							style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<div class="modal fade" id="bussinessModal" style="top: -10%;"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Approve Customer Details</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('bussinessModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div *ngIf="cdListLength>0">
+				<div id="bussinessModal_divpopup"
+					style="height: 456px; overflow-x: hidden; overflow-y: scroll;">
+					<section>
+						<form [formGroup]="customerapprovalform">
+							<div class="row cust-det-title"
+								style="font-weight: bold; color: black; margin-left: 24px;"></div>
+							<div class="outbound-content col-md-12">
+								<div class="col-md-12 row pb-1" style="padding-top: 10px;">
+									<div class="clear-fix"></div>
+									<div class="col-md-3 text-align-sales">
+										<label>Sales Group 1 ({{group1type}})<sup
+											class="asterick">*</sup></label> <select
+											class="form-control input-width-custom"
+											formControlName="sales_grp1" name="sales_grp1"
+											id="sales_grp1">
+
+											<option value="">Please Select Sales Group</option>
+											<option *ngFor="let sg of salesgroups_mdd"
+												[value]="sg.sales_group">{{sg.sales_group}}<span>--</span>{{sg.description}}
+											</option>
+										</select>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Sales Group 2 <span *ngIf="!usertype">({{group2type}})
+										</span><sup *ngIf="!usertype" class="asterick">*</sup></label> <select
+											class="form-control input-width-custom"
+											formControlName="sales_grp2" name="sales_grp2"
+											id="sales_grp2">
+
+											<option value="">Please Select Sales Group</option>
+											<option *ngFor="let sg of salesgroups_pcd"
+												[value]="sg.sales_group">{{sg.sales_group}}<span>--</span>{{sg.description}}
+											</option>
+										</select>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Sales Group3</label> <select
+											class="form-control input-width-custom"
+											formControlName="sales_grp3" name="sales_grp3"
+											id="sales_grp3">
+
+											<option value="">Please Select Sales Group</option>
+											<option *ngFor="let sg of salesgroups_kad"
+												[value]="sg.sales_group">{{sg.sales_group}}<span>--</span>{{sg.description}}
+											</option>
+										</select>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Sales Group4</label> <select
+											class="form-control input-width-custom"
+											formControlName="sales_grp4" name="sales_grp4"
+											id="sales_grp4">
+
+											<option value="">Please Select Sales Group</option>
+											<option *ngFor="let sg of salesgroups_kad"
+												[value]="sg.sales_group">{{sg.sales_group}}<span>--</span>{{sg.description}}
+											</option>
+										</select>
+									</div>
+
+									<div class="col-md-3 text-align-sales">
+										<label>Tax Group 1 (CGST)<sup class="asterick">*</sup></label>
+										<select class="form-control input-width-custom"
+											formControlName="tax_grp1" name="tax_grp1" id="tax_grp1">
+											<option value="">Please Select Tax Group</option>
+											<ng-container *ngFor="let types of taxtypeslist">
+											<option value={{types.key}}>{{types.key}}<span>--</span>{{types.value}}
+											</option>
+											</ng-container>
+										</select> <span
+											*ngIf="customerapprovalform.controls['tax_grp1'].touched && !customerapprovalform.controls['tax_grp1'].valid && customerapprovalform.controls['tax_grp1'].dirty"
+											class="error"> <small
+											*ngIf="customerapprovalform.controls['tax_grp1'].errors.required">
+												{{customerDetailMsg.tax_grp1}} </small>
+										</span>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Tax Group 2 (SGST)<sup class="asterick">*</sup></label>
+										<select class="form-control input-width-custom"
+											formControlName="tax_grp2" name="tax_grp2" id="tax_grp2">
+											<option value="">Please Select Tax Group</option>
+											<ng-container *ngFor="let types of taxtypeslist">
+											<option value={{types.key}}>{{types.key}}<span>--</span>{{types.value}}
+											</option>
+											</ng-container>
+										</select> <span
+											*ngIf="customerapprovalform.controls['tax_grp2'].touched && !customerapprovalform.controls['tax_grp2'].valid && customerapprovalform.controls['tax_grp2'].dirty"
+											class="error"> <small
+											*ngIf="customerapprovalform.controls['tax_grp2'].errors.required">
+												{{customerDetailMsg.tax_grp2}} </small>
+										</span>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Tax Group 3 (IGST)<sup class="asterick">*</sup></label>
+										<select class="form-control input-width-custom"
+											formControlName="tax_grp3" name="tax_grp3" id="tax_grp3">
+											<option value="">Please Select Tax Group</option>
+											<ng-container *ngFor="let types of taxtypeslist">
+											<option value={{types.key}}>{{types.key}}<span>--</span>{{types.value}}
+											</option>
+											</ng-container>
+										</select> <span
+											*ngIf="customerapprovalform.controls['tax_grp3'].touched && !customerapprovalform.controls['tax_grp3'].valid && customerapprovalform.controls['tax_grp3'].dirty"
+											class="error"> <small
+											*ngIf="customerapprovalform.controls['tax_grp3'].errors.required">
+												{{customerDetailMsg.tax_grp3}} </small>
+										</span>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Tax Group 4 (UGST)<sup class="asterick">*</sup></label>
+										<select class="form-control input-width-custom"
+											formControlName="tax_grp4" name="tax_grp4" id="tax_grp4">
+											<option value="">Please Select Tax Group</option>
+											<ng-container *ngFor="let types of taxtypeslist">
+											<option value={{types.key}}>{{types.key}}<span>--</span>{{types.value}}
+											</option>
+											</ng-container>
+										</select> <span
+											*ngIf="customerapprovalform.controls['tax_grp4'].touched && !customerapprovalform.controls['tax_grp4'].valid && customerapprovalform.controls['tax_grp4'].dirty"
+											class="error"> <small
+											*ngIf="customerapprovalform.controls['tax_grp4'].errors.required">
+												{{customerDetailMsg.tax_grp4}} </small>
+										</span>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Price List <sup class="asterick">*</sup></label> <select
+											class="form-control input-width-custom" name="price_list"
+											id="price_list" formControlName="price_list" validateOnBlur
+											[validateFormControl]="customerapprovalform.controls['price_list']"
+											[(ngModel)]="pricelistval">
+											<option value="">Please Select Price List</option>
+											<option *ngFor="let pl of pricelist"
+												[value]="pl.price_list_type"
+												[selected]="pl.price_list_type==pricelistval">{{pl.price_list_type}}<span>--</span>{{pl.description}}
+											</option>
+										</select> <span
+											*ngIf="customerapprovalform.controls['price_list'].touched && !customerapprovalform.controls['price_list'].valid && customerapprovalform.controls['price_list'].dirty"
+											class="error"> <small
+											*ngIf="customerapprovalform.controls['price_list'].errors.required">
+												{{customerDetailMsg.price_list}} </small>
+										</span>
+									</div>
+									<div class="col-md-5 text-align-sales">
+										<label>Recon Account</label> <input type="text"
+											class="form-control input-width-custom" disabled
+											validateOnBlur
+											[value]="reconaccount == undefined ? '': reconaccount"
+											style="height: 30px;">
+										<!-- <select
+											class="form-control input-width-custom"
+											name="recon_account_no" id="recon_account_no"
+											formControlName="recon_account_no" validateOnBlur
+											[validateFormControl]="customerapprovalform.controls['recon_account_no']">
+											<option value="">Please Select Recon Account</option>
+											<ng-container *ngFor="let types of reconaccountlist">
+											<option value={{types.key}}>{{types.key}}<span>--</span>{{types.value}}
+											</option>
+											</ng-container>
+										</select> <span
+											*ngIf="customerapprovalform.controls['recon_account_no'].touched && !customerapprovalform.controls['recon_account_no'].valid && customerapprovalform.controls['recon_account_no'].dirty"
+											class="error"> <small
+											*ngIf="customerapprovalform.controls['recon_account_no'].errors.required">
+												{{customerDetailMsg.recon_account}} </small>
+										</span> -->
+									</div>
+								</div>
+
+							</div>
+						</form>
+						<div class="row cust-det-title"
+							style="font-weight: bold; color: black; margin-left: 24px;">Customer
+							Details</div>
+						<div class="bp-form-block ">
+							<div class="newrow">
+								<table style="border: 1px solid #c1c0c0;"
+									class="table table-hover" id="business_place" width="100%">
+									<tr>
+										<td>Type : <label class="form-label font-weight-custom">{{cdlist['ex_address'].cust_grp_desc}}</label></td>
+										<td>Name : <span class="form-label font-weight-custom">{{cdlist['ex_address'].cust_name
+												}}</span></td>
+										<td>Name2 : <span class="form-label font-weight-custom">{{cdlist['ex_address'].name2
+												}}</span></td>
+
+									</tr>
+									<tr>
+										<td>Email : <span class="form-label font-weight-custom">{{cdlist['ex_address'].email
+												}}</span></td>
+										<td>Mobile : <span class="form-label font-weight-custom">{{cdlist['ex_address'].telefone
+												}}</span></td>
+										<td>Credit Limit : <span
+											class="form-label font-weight-custom">{{cdlist['ex_address'].credit_limit
+												}}</span></td>
+
+									</tr>
+									<tr>
+										<td>Status : <span class="form-label font-weight-custom">{{cust_appstatus}}</span></td>
+									</tr>
+								</table>
+							</div>
+						</div>
+						<div class="row cust-det-title"
+							style="font-weight: bold; color: black; margin-left: 24px;">Address
+							Details</div>
+						<div class="bp-form-block ">
+							<div class="newrow">
+								<table style="border: 1px solid #c1c0c0;"
+									class="table table-hover" id="business_place" width="100%">
+									<tr>
+										<td>Door No. : <span
+											class="form-label font-weight-custom">{{cdlist['ex_address'].telefone
+												}}</span></td>
+										<td>Street : <span class="form-label font-weight-custom">{{cdlist['ex_address'].street
+												}}</span></td>
+										<td>Street1 : <span class="form-label font-weight-custom">{{cdlist['ex_address'].street2
+												}}</span></td>
+
+									</tr>
+									<tr>
+										<td>Street2 : <span class="form-label font-weight-custom">{{cdlist['ex_address'].street3
+												}}</span></td>
+										<td>City : <span class="form-label font-weight-custom">{{cdlist['ex_address'].city
+												}}</span></td>
+										<td>State : <span class="form-label font-weight-custom">{{cdlist['ex_address'].state
+												}}</span></td>
+
+									</tr>
+									<tr>
+
+										<td>Pin Code : <span
+											class="form-label font-weight-custom">{{cdlist['ex_address'].post_code
+												}}</span></td>
+									</tr>
+								</table>
+							</div>
+						</div>
+						<div class="row cust-det-title"
+							style="font-weight: bold; color: black; margin-left: 24px;">Compliance
+							Details</div>
+						<div class="bp-form-block ">
+							<div class="newrow">
+								<table style="border: 1px solid #c1c0c0;"
+									class="table table-hover" id="business_place" width="100%">
+									<tr>
+										<td>GSTIN : <span class="form-label font-weight-custom">{{cdlist['ex_compliance'].gstin
+												}}</span></td>
+										<td>PAN No : <span class="form-label font-weight-custom">{{cdlist['ex_compliance'].pan_no
+												}}</span></td>
+										<td>DL No : <span class="form-label font-weight-custom">{{cdlist['ex_compliance'].lst_no
+												}}</span></td>
+									</tr>
+								</table>
+							</div>
+						</div>
+						<div class="row cust-det-title" style="display: none;">Bank
+							Details</div>
+						<div class="bp-form-block " style="display: none;">
+							<div class="newrow">
+								<table style="border: 1px solid #c1c0c0;"
+									class="table table-hover" id="business_place" width="100%">
+									<tr>
+										<td>Bank Name : <span
+											class="form-label font-weight-custom">{{cdlist['ex_address']['bank_details'][0]['banks']
+												}}</span></td>
+										<td>IFSC Code : <span
+											class="form-label font-weight-custom">{{cdlist['ex_address']['bank_details'][0]['bankl']
+												}}</span></td>
+										<td>Account No. : <span
+											class="form-label font-weight-custom">{{cdlist['ex_address']['bank_details'][0]['bankn']
+												}}</span></td>
+									</tr>
+								</table>
+							</div>
+						</div>
+						<div class="bp-form-block ">
+							<div class="newrow">
+								<label>Remarks</label>
+								<textarea class="form-control" id="txt_remarks"
+									style="height: 50px;"></textarea>
+							</div>
+						</div>
+					</section>
+				</div>
+
+			</div>
+
+		</div>
+		<div class="modal-footer">
+			<div class="row new_row">
+				<div class="pull-left">
+					<button class="cancel-button-export" style="padding-left: 0px;"
+						(click)="closeModal('bussinessModal')">
+						<i class="fa back-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Back</div>
+						</i>
+					</button>
+				</div>
+				<div class="pull-right new_right act_foot">
+
+					<div class="pull-right new_right act_foot">
+						<button type="submit" [disabled]="!customerapprovalform.valid"
+							(click)="submitApproveCustomer(ss_cust_id)"
+							class="login-button-export" id="uploadStockSubmit"
+							style="position: relative; top: 0px;">
+							<i class="fa submit-icon"
+								style="margin-right: 4px; padding-right: 4px;">
+								<div class="icon-text" style="right: -4px;">Approve</div>
+							</i>
+						</button>
+						<button class="cancel-button-export" style="padding-left: 0px;"
+							id="close" (click)="submitRejectCustomer(ss_cust_id)">
+							<i class="fa cancel-icon"
+								style="margin-right: 4px; padding-right: 4px;">
+								<div class="icon-text" style="right: -4px;">Reject</div>
+							</i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+

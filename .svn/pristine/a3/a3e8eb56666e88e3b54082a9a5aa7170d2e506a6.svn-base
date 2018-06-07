@@ -1,0 +1,143 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Purchase
+					Analysis</strong>
+			</span>
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv">
+							<form [formGroup]="poanalysisdetailsForm">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+									<div class="col-md-2 text-align-sales">
+										<label><b>From Period</b><sup class="asterick">*</sup></label>
+										<input type="text" style="padding: 5px !important;"
+											placeholder="From Period" id="frmDate"
+											class="form-control datepicker-init"
+											formControlName="frmDate" validateOnBlur
+											(blur)="changeTodatePicker('#frmDate')"
+											[validateFormControl]="poanalysisdetailsForm.controls['frmDate']" />
+										<span
+											*ngIf="poanalysisdetailsForm.controls['frmDate'].touched && poanalysisdetailsForm.controls['frmDate'].invalid && poanalysisdetailsForm.controls['frmDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poanalysisdetailsForm.controls['frmDate'].errors.required">
+												Please select From Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales toDatepic">
+										<label><b>To Period</b><sup class="asterick">*</sup></label> <input
+											type="text" style="padding: 5px !important;"
+											placeholder="To Period" class="form-control datepicker-init2"
+											id="toDate" formControlName="toDate" validateOnBlur
+											(blur)="removeStyles()"
+											[validateFormControl]="poanalysisdetailsForm.controls['toDate']" />
+										<span
+											*ngIf="poanalysisdetailsForm.controls['toDate'].touched && poanalysisdetailsForm.controls['toDate'].invalid && poanalysisdetailsForm.controls['toDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poanalysisdetailsForm.controls['toDate'].errors.required">
+												Please select To Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<button type="submit" class="login-button-export"
+											[disabled]="poanalysisdetailsForm.invalid"
+											(click)="getpoAnalysisReport();"
+											style="position: relative; top: 26px;">
+											<i class="fa submit-icon"
+												style="margin-right: 4px; padding-right: 4px;"> <span
+												class="icon-text" style="right: -4px;">Submit</span>
+											</i>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+						<!-- new changes -->
+						<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table " id="">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable table-responsive"
+									width="100%" id="purchase-order-table">
+									<thead>
+										<tr>
+											<th style="min-width: 130px !important;">Vendor Plant</th>
+											<th *ngIf="!rolekaduser" style="min-width: 110px !important;">Hospital
+												Code</th>
+											<th *ngIf="!rolekaduser" style="min-width: 110px !important;">Hospital
+												Name</th>
+											<th style="min-width: 110px !important;">PO No</th>
+											<th style="min-width: 110px !important;">Doc Date</th>
+											<th style="min-width: 110px !important;">Material</th>
+											<th style="min-width: 130px !important;">Description</th>
+											<th style="min-width: 60px !important;">UOM</th>
+											<th style="min-width: 110px !important;">Qty</th>
+											<th style="min-width: 130px !important;">Gross Value</th>
+											<th style="min-width: 130px !important;">Del Pending Qty</th>
+											<th style="min-width: 140px !important;">Del Pending
+												Value</th>
+											<th style="min-width: 130px !important;">Inv Pending Qty</th>
+											<th style="min-width: 140px !important;">Inv Pending
+												Value</th>
+
+										</tr>
+									</thead>
+									<tbody>
+										<ng-container *ngFor="let sList of poanalysisdetailsList;">
+										<tr>
+											<td>{{sList.vendor_sup_plant}}</td>
+											<td *ngIf="!rolekaduser">{{sList.hospital_code}}</td>
+											<td *ngIf="!rolekaduser">{{sList.hospital_name}}</td>
+											<td>{{sList.pur_doc_num}}</td>
+											<td>{{sList.doc_date}}</td>
+											<td>{{sList.material}}</td>
+											<td><div class="text-name-elipsis"
+													title="{{sList.mat_desc}}">{{sList.mat_desc}}</div></td>
+											<td>{{sList.uom}}</td>
+											<td align="right">{{sList.quantity | PriceInd}}</td>
+											<td align="right">{{sList.gross_price}}</td>
+											<td align="right">{{sList.deliv_qty_pending | PriceInd}}</td>
+											<td align="right">{{sList.deliv_val_pending}}</td>
+											<td align="right">{{sList.inv_qty_pending | PriceInd}}</td>
+											<td align="right">{{sList.inv_val_pending}}</td>
+
+										</tr>
+										</ng-container>
+									</tbody>
+
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3" style="width: 94%;">
+		<div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export" title="Export Excel"
+					style="padding-left: 8px;" (click)="exportExcel()">
+					<i class="fa excel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+</section>

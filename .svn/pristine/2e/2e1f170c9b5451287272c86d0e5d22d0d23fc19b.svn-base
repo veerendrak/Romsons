@@ -1,0 +1,93 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Customer Details</strong>
+		</span>
+	</div>
+</div>
+<div class="" >
+	<div class="card-block db-block mb-1" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" >
+				<div class="row">
+					<!-- new changes -->
+					<div class="col-md-12 mt-1 mb-3">
+							<div class="stock-table table-responsive">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="cust-info-table">
+								<thead>
+									<tr>
+										<th  class="no-sort sorting-disabled"  style="width:50px;text-align:center;"><mat-checkbox 
+										class="example-margin" 
+											[(ngModel)]="checked"
+											[checked]="checked"
+											[(indeterminate)]="indeterminate" id="checkbox-all"
+											 (click)="selectAll($event,'checkbox-all-input','cust-info-table')"></mat-checkbox></th>
+										<th   style="width:100px;">Customer Id</th>
+										<th >Customer Name</th>
+										<th >Phone Number</th>
+										<th >Email Id</th>
+										<th >Type</th>
+										<th >DL No</th>
+										<th >GST No</th>
+										<th >Credit Limited</th>
+										<th>Flag</th>
+										</tr>
+								</thead>
+								<tbody>
+									<ng-container *ngIf="customerDetailList.length>0">
+										<tr *ngFor="let cld of customerDetailList; let i=index;">
+										<td align="center">
+											<mat-checkbox class="example-margin" id="checkbox-{{i}}"  (click)="getReportList(cld,'cust-info-table',i)"
+											 ></mat-checkbox>
+										</td>
+											
+											<td>{{cld.cust_id}}</td>
+										    <td><div class="text-name-elipsis" title="{{cld.cust_name}}">{{cld.cust_name}}</div></td>
+											<td>{{cld.telefone}}</td>
+											<td>{{cld.email}}</td>
+											<td><div class="text-name-elipsis" title="{{cld.cust_grp_desc}}">{{cld.cust_grp_desc}}</div></td>
+											<td><div class="text-name-elipsis" title="{{cld.lst_no}}">{{cld.lst_no}}</div></td>
+											<td>{{cld.gstin}}</td>
+												<td>{{cld.credit_limit}}</td>
+												<td>{{cld.cust_status}}</td>
+										</tr>
+									</ng-container>
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+<div class="outbound-footer mt-3">
+		<div class="right-block">
+			<div class="pull-left">
+			<button class="login-button-export">
+				<i class="fa upexcel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Export Excel</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export">
+				<i class="fa edit-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Edit</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export">
+				<i class="fa create-icon" style="margin-right:4px;padding-right:4px;" (click)="createCustomer()">
+				<div class="icon-text" style="right:-4px;">Create</div>
+				</i>
+			</button>
+			</div>
+		</div>
+	</div>
+</div>
+</section>

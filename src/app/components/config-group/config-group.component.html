@@ -1,0 +1,315 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">{{title}}</strong>
+		</span>
+		
+	</div>
+
+	<div class="createBlok" >
+		<form [formGroup]="configDetailsForm">
+
+			
+							<div class="row">
+								<!-- new changes -->
+								<div class="outbound-content col-md-12">
+
+
+									
+									<div class="cust-form-block  col-md-12 row pb-1 mt-18">
+										<div class="clear-fix"></div>
+										<div class="col-md-3 text-align-sales">
+											<label>Group Name<sup class="asterick">*</sup></label> <input
+												type="text" class="form-control" formControlName="group_name"
+												validateOnBlur
+												
+												[attr.disabled]="displaygrpFlag ?  'disabled' : null"
+												[validateFormControl]="configDetailsForm.controls['group_name']">
+											
+
+											<span
+												*ngIf="configDetailsForm.controls['group_name'].touched && !configDetailsForm.controls['group_name'].valid && configDetailsForm.controls['group_name'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['group_name'].errors.required">
+													{{customerDetailMsg.group_name}} </small>
+
+											</span>
+
+										</div>
+										
+										<div class="col-md-3 text-align-sales">
+											<label>Description<sup class="asterick">*</sup></label> <input type="text"
+												class="form-control" formControlName="description"
+												validateOnBlur id="txt_description"
+												
+												[attr.disabled]="fromDisplayFlag ?  'disabled' : null"
+												[validateFormControl]="configDetailsForm.controls['description']">
+												 <span
+												*ngIf="configDetailsForm.controls['description'].touched && !configDetailsForm.controls['description'].valid && configDetailsForm.controls['description'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['description'].errors.required">
+													{{customerDetailMsg.desc_req}} </small> 
+											</span> 
+										</div>
+
+										<div class="col-md-3 text-align-sales">
+											<label>Parent Id</label> 
+											
+											
+											<select [attr.disabled]="disbaleFlag ?  'disabled' : null"
+												class="form-control" formControlName="parent_id"
+												id="cust_type" validateOnBlur
+												[validateFormControl]="configDetailsForm.controls['parent_id']"
+												>
+												<option [value]="undefined" disabled>Please Select
+													Type</option>
+												<ng-container *ngFor="let types of dropDowmList">
+												<option [selected]="types.group_name == parentId"
+													value={{types.group_name}}>{{types.group_name}}</option>
+												</ng-container>
+
+											</select> 
+											
+											 <!-- <span
+												*ngIf="configDetailsForm.controls['parent_id'].touched && !configDetailsForm.controls['parent_id'].valid && configDetailsForm.controls['parent_id'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['parent_id'].errors.required">
+													{{customerDetailMsg.mobile_req}}</small> 
+											</span> -->
+
+
+										</div>
+										
+										<!-- <div class="col-md-3 text-align-sales">
+											<label>Short Description<sup class="asterick">*</sup></label> <input type="text"
+												class="form-control" formControlName="shrtDesc"
+												validateOnBlur
+												
+												
+												[validateFormControl]="configDetailsForm.controls['shrtDesc']">
+											 <span
+												*ngIf="configDetailsForm.controls['shrtDesc'].touched && !configDetailsForm.controls['shrtDesc'].valid && configDetailsForm.controls['shrtDesc'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['shrtDesc'].errors.required">
+													{{customerDetailMsg.mobile_req}}</small> 
+											</span> 
+
+
+										</div> -->
+
+						
+
+										
+										
+										
+										<div class="col-md-3 text-align-sales">
+											<label>Additional Field 1</label> <input
+												type="text" class="form-control" formControlName="add_field1"
+												validateOnBlur
+												
+												
+												[validateFormControl]="configDetailsForm.controls['add_field1']">
+											<!-- <span
+												*ngIf="configDetailsForm.controls['add_field1'].touched && !configDetailsForm.controls['add_field1'].valid && configDetailsForm.controls['add_field1'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['add_field1'].errors.required">
+													{{customerDetailMsg.add_field1_req}} </small>
+											</span> -->
+										</div>
+										
+										<div class="col-md-3 text-align-sales">
+											<label>Additional Field 2</label> <input
+												type="text" class="form-control" formControlName="add_field2"
+												validateOnBlur
+												
+												
+												[validateFormControl]="configDetailsForm.controls['add_field2']">
+											<!-- <span
+												*ngIf="configDetailsForm.controls['add_field2'].touched && !configDetailsForm.controls['add_field2'].valid && configDetailsForm.controls['add_field2'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['add_field2'].errors.required">
+													{{customerDetailMsg.add_field2_req}} </small>
+											</span> -->
+										</div>
+										
+										<div class="col-md-3 text-align-sales">
+											<label>Additional Field 3</label> <input
+												type="text" class="form-control" formControlName="add_field3"
+												validateOnBlur
+												
+												
+												[validateFormControl]="configDetailsForm.controls['add_field3']">
+											<!-- <span
+												*ngIf="configDetailsForm.controls['add_field3'].touched && !configDetailsForm.controls['add_field3'].valid && configDetailsForm.controls['add_field3'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['add_field3'].errors.required">
+													{{customerDetailMsg.add_field3_req}} </small>
+											</span> -->
+										</div>
+										
+										
+										<div class="col-md-3 text-align-sales">
+											<label>Additional Field 4</label> <input
+												type="text" class="form-control" formControlName="add_field4"
+												validateOnBlur
+												
+												
+												[validateFormControl]="configDetailsForm.controls['add_field4']">
+											<!-- <span
+												*ngIf="configDetailsForm.controls['add_field4'].touched && !configDetailsForm.controls['add_field4'].valid && configDetailsForm.controls['add_field4'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['add_field4'].errors.required">
+													{{customerDetailMsg.add_field4_req}} </small>
+											</span> -->
+										</div>
+										
+										
+										<div class="col-md-3 text-align-sales">
+											<label>Additional Field 5</label> <input
+												type="text" class="form-control" formControlName="add_field5"
+												validateOnBlur
+												
+												
+												[validateFormControl]="configDetailsForm.controls['add_field5']">
+											<!-- <span
+												*ngIf="configDetailsForm.controls['add_field5'].touched && !configDetailsForm.controls['add_field5'].valid && configDetailsForm.controls['add_field5'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['add_field5'].errors.required">
+													{{customerDetailMsg.add_field5_req}} </small>
+											</span> -->
+										</div>
+										
+										
+										<div class="col-md-3 text-align-sales">
+											<label>Additional Field 6</label> <input
+												type="text" class="form-control" formControlName="add_field6"
+												validateOnBlur
+												
+												
+												[validateFormControl]="configDetailsForm.controls['add_field6']">
+											<!-- <span
+												*ngIf="configDetailsForm.controls['add_field6'].touched && !configDetailsForm.controls['add_field6'].valid && configDetailsForm.controls['add_field6'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['add_field6'].errors.required">
+													{{customerDetailMsg.add_field6_req}} </small>
+											</span> -->
+										</div>
+										
+										
+										<div class="col-md-3 text-align-sales">
+											<label>Additional Field 7</label> <input
+												type="text" class="form-control" formControlName="add_field7"
+												validateOnBlur
+												
+												
+												[validateFormControl]="configDetailsForm.controls['add_field7']">
+											<!-- <span
+												*ngIf="configDetailsForm.controls['add_field7'].touched && !configDetailsForm.controls['add_field7'].valid && configDetailsForm.controls['add_field7'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['add_field7'].errors.required">
+													{{customerDetailMsg.add_field7_req}} </small>
+											</span> -->
+										</div>
+										
+										<div class="col-md-3 text-align-sales">
+											<label>Additional Field 8</label> <input
+												type="text" class="form-control" formControlName="add_field8"
+												validateOnBlur
+												
+												
+												[validateFormControl]="configDetailsForm.controls['add_field8']">
+											<!-- <span
+												*ngIf="configDetailsForm.controls['add_field8'].touched && !configDetailsForm.controls['add_field8'].valid && configDetailsForm.controls['add_field8'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['add_field8'].errors.required">
+													{{customerDetailMsg.add_field8_req}} </small>
+											</span> -->
+										</div>
+										
+										<div class="col-md-3 text-align-sales">
+											<label>Additional Field 9</label> <input
+												type="text" class="form-control" formControlName="add_field9"
+												validateOnBlur
+												
+												
+												[validateFormControl]="configDetailsForm.controls['add_field9']">
+											<!-- <span
+												*ngIf="configDetailsForm.controls['add_field9'].touched && !configDetailsForm.controls['add_field9'].valid && configDetailsForm.controls['add_field9'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['add_field9'].errors.required">
+													{{customerDetailMsg.add_field9_req}} </small>
+											</span> -->
+										</div>
+										
+										<div class="col-md-3 text-align-sales">
+											<label>Additional Field 10</label> <input
+												type="text" class="form-control" formControlName="add_field10"
+												validateOnBlur
+												
+												
+												[validateFormControl]="configDetailsForm.controls['add_field10']">
+											<!-- <span
+												*ngIf="configDetailsForm.controls['add_field10'].touched && !configDetailsForm.controls['add_field10'].valid && configDetailsForm.controls['add_field10'].dirty"
+												class="error"> <small
+												*ngIf="configDetailsForm.controls['add_field10'].errors.required">
+													{{customerDetailMsg.add_field10_req}} </small>
+											</span> -->
+												</div>
+		
+											<div class="col-md-3 text-align-sales">
+												<label>Status</label> <select class="form-control"  placeholder="Please Select Status"
+													formControlName="mark_as_delete" id="cust_type" validateOnBlur
+													[validateFormControl]="configDetailsForm.controls['mark_as_delete']">
+													
+													<ng-container *ngFor="let actInact of actInactArray">
+												<option [selected]="statusFlag == actInact.value"
+													[value]="actInact.value">{{actInact.key}}</option>
+												</ng-container>
+													<!-- <option value="false">Active</option>
+													<option value="true">In-Active</option> -->
+												</select>
+											</div>
+		
+		
+		
+								</div>
+
+								</div>
+
+								<!-- end changes -->
+							</div>
+			
+		</form>
+		</div>
+		<div class="outbound-footer mt-3" >
+			<div class="left-block">
+				<div class="pull-left">
+					<button class="cancel-button-export" style="padding-left: 0px;"
+						(click)="navigateBack();">
+						<i class="fa back-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Back</div>
+						</i>
+					</button>
+				</div>
+			</div>
+			<div class="right-block">
+				
+				
+				<div class="pull-left">
+					<button  class="save-icon-btn" (click)="saveConfigGroupsVal()"
+						[disabled]="configDetailsForm.invalid"
+						>
+						<i class="fa save-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Save</div>
+						</i>
+					</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+</section>

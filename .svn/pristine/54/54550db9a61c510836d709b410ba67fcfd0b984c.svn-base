@@ -1,0 +1,294 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-bussiness-partners',
+  templateUrl: './bussiness-partners.component.html',
+  styleUrls: ['./bussiness-partners.component.css']
+})
+export class BussinessPartnersComponent implements OnInit {
+    bpId:any;
+    orgId:any;
+    accessObjectId:any;
+    displayTable:boolean=false;
+    displayInformation:any;
+    title:any;
+    messages:any;
+    myForm:FormGroup;
+    bpStaus:any;
+    countryList:any; 
+    states:any;
+    editBpList:any;
+    bpFlag:boolean=false;
+    countryId:any;
+    cities:any;
+    isPointerOn:any;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private environment:EnvConfigurationService) {
+      this.app.isActive=true;
+      this.bpId=localStorage.getItem("bpId");
+      this.orgId=localStorage.getItem("orgId");
+      this.accessObjectId=localStorage.getItem("Business Partners");
+      this.displayInformation=[];
+      this.messages=this.messagesService.bussinessPartnerMsgs;
+      this.myForm = formBuilder.group( {
+          'bpLegalName': ['', [Validators.required]],
+          'bpGstinNumber': ['', [Validators.required, Validators.pattern( '^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9]{1}[Z][0-9A-Z]{1}$' )]],
+          'gstinStatus': ['Active'],
+          'bpPan': ['', [Validators.required,  Validators.pattern( '^[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}$' )]],
+          'bpZipCode': ['', [Validators.required, Validators.pattern( '^[1-9][0-9]{5}$' )]],
+          'bpContact': ['', [Validators.required, Validators.pattern( '^[789]{1}[0-9]{9}$' )]],
+          'bpId': [''],
+          'bpType': [''],
+          'drugLicNum': ['',[]],
+          'erpBankGl': [''],
+          'erpBp': [''],
+          'erpBusArea': [''],
+          'erpProfitCenter': [''],
+          'erpRefId': ['',[Validators.required]],
+          'addrLine1': ['', [Validators.required]],
+          'addrLine2': [''],
+          'state': [''],
+          'stateId': ['',[Validators.required]],
+          'country': [''],
+          'countryId': ['',[Validators.required]],
+          'location': ['',[Validators.required]],
+          'locationId': [''],
+          });
+      this.countryId=1;
+      this.bpStaus =[
+                     {
+                         "status": "Active",
+                     },
+                     {
+                         "status": "Inactive",
+                     }];
+      this.editBpList={};
+      this.cities=[];
+ }
+
+  ngOnInit() {
+      let countriesUrl:any = this.environment.getRequiredApi("dropdown_list") + "?";
+      countriesUrl=countriesUrl.replace("{obj_name}","countries");
+      this.commonService.getData( countriesUrl, "GET", "", this.accessObjectId).subscribe(( response ) => {
+          if(response.status==0){
+              this.countryList = response["data"].objs;
+          }
+      });
+      let stateUrl:any = this.environment.getRequiredApi( "dropdown_list_byid" )+ "?";
+      stateUrl=stateUrl.replace("{obj_name}","states");
+      stateUrl=stateUrl.replace("{obj_id}",1);
+      this.commonService.getData( stateUrl, "GET", "", this.accessObjectId).subscribe(( response ) => {
+          if(response.status==0){
+              this.states  = response["data"].objs;
+          }
+      });
+
+      this.getDisplayInformation();
+      
+      $(function(){
+          $('#location').change(function(){
+              var value=$('#citiesNameList option[value="' + $('#location').val() + '"]').text().trim();
+              $("#locationId").val(value);
+          });
+      });
+  }
+
+  public getDisplayInformation() {
+      $( '#loadingIcon' ).show(); $( "#black-overlay" ).show();
+      this.displayInformation = [];
+      let url:any = this.environment.getRequiredApi("get_bps_list")+"?";
+      url=url.replace("{org_id}",this.orgId);
+      this.commonService.getData(url, "GET", '', this.accessObjectId).subscribe((response) => {
+              $( '#loadingIcon' ).hide(); $( "#black-overlay" ).hide();
+              if(response.status==0){
+                  this.displayTable = true;
+                  this.displayInformation=response["data"].bps;
+                  this.applyDatatable();
+              }else {
+                  $( '#loadingIcon' ).hide(); $( "#black-overlay" ).hide();
+                  this.displayTable = false;
+                  this.applyDatatable();
+              }
+
+          } );
+
+  }
+  applyDatatable(){
+      setTimeout(() => {
+          $( '#business_place' ).DataTable( {
+              // responsive: true,
+              retrieve: true,
+              "language": {
+                  "emptyTable": "No data available",
+                  "info": "Showing page _PAGE_ of _PAGES_",
+                  "infoFiltered": "(filtered from _MAX_ total records)"
+              },
+              columnDefs: [{
+                  targets: [0, 1, 2, 3],
+
+                  //    render: $.fn.dataTable.render.ellipsis()
+                  render: function( data, type, row ) {
+                      return data.length > 25 ? data.substr( 0, 26 ) + '...' : data;
+                  }
+              }, {
+                  "bSortable": false,
+                  "aTargets": [5]
+              }],
+              "fnDrawCallback": function( oSettings ) {
+                  if ( 10 >= oSettings.fnRecordsDisplay() ) {
+                      $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                      // $(oSettings.nTableWrapper).find('.dataTables_filter').hide();
+                      $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                      //$(oSettings.nTableWrapper).find('.dataTables_length').hide();
+                  } else {
+                      $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                      // $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                      $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                      //  $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                  }
+              }
+
+          } );
+
+
+          $( "div" ).removeClass( 'container-fluid' )
+
+      }, 500 );
+
+      setTimeout(() => {
+          $( ".dataTables_scrollHeadInner" ).css( { "width": "100%" } );
+
+          $( ".table " ).css( { "width": "100%" } );
+
+      }, 600 );
+  }
+  addBusinessPartner(){
+      this.title="Add Business Partner";
+      this.bpFlag=false;
+      this.myForm.reset();
+      $("#bussinessModal").modal("show");
+  }
+  closeModal(id){
+      $("#"+id).modal("hide");
+  }
+  editBranchDetails(items,view){
+      $( "#loadingIcon" ).show();
+      $( "#black-overlay" ).show();
+     let url:any=this.environment.getRequiredApi("edit_bp_list")+"?" 
+     url=url.replace("{bp_id}",items.bpId);
+     this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+        if(response.status==0){
+            this.title=view;
+            $( "#loadingIcon" ).hide();
+            $( "#black-overlay" ).hide();
+            this.editBpList=response["data"];
+            console.log(this.editBpList);
+            this.getCitiesList(this.editBpList.stateId);
+            
+            $("#bussinessModal").modal("show");
+            if(view=='Business Partner Details'){
+                this.bpFlag=true;
+            }else{
+                this.bpFlag=false;
+            }
+        }else{
+            $( "#loadingIcon" ).hide();
+            $( "#black-overlay" ).hide();
+            this.commonService.responseMessages("", response.message, "warning");
+        } 
+     });
+  }
+  getCitiesList(stateId){
+      let citiesUrl:any = this.environment.getRequiredApi( "dropdown_list_byid" )+ "?";
+  citiesUrl=citiesUrl.replace("{obj_name}","cities");
+  citiesUrl=citiesUrl.replace("{obj_id}","");
+  this.commonService.getData( citiesUrl, "GET", "", this.accessObjectId).subscribe(( response ) => {
+      if(response.status==0){
+          this.cities  = response["data"].objs;
+      }
+  });
+  }
+ submitAddBusinessPartner(view){
+     $( "#loadingIcon" ).show();
+     $( "#black-overlay" ).show();
+     let response:any;
+     let method:any="POST"
+         if(view=='Add Business Partner'){
+             method="POST";
+             this.myForm.value['country']=$("#country_id option:selected").text().trim();
+             this.myForm.value['state']=$("#state_id option:selected").text().trim();
+             this.myForm.value['locationId']=$("#locationId").val();
+             response=this.myForm.value;
+         }else{
+             method="PUT";
+             response=this.editBpList;
+             this.editBpList['locationId']=$("#locationId").val();
+         }
+     response["gstinStatus"]="Active";
+     let url:any=this.environment.getRequiredApi("add_bp_org")+"?";
+     url=url.replace("{org_id}",this.orgId);
+     this.commonService.getData(url, method, response, this.accessObjectId).subscribe((response)=>{
+        if(response.status==0){
+            $( "#loadingIcon" ).hide();
+            $( "#black-overlay" ).hide();
+            this.commonService.responseMessages("", response.message, "success");
+            $("#bussinessModal").modal("hide");
+            this.getDisplayInformation();
+        }else{
+            $( "#loadingIcon" ).hide();
+            $( "#black-overlay" ).hide();
+            this.commonService.responseMessages("", response.message, "warning");
+        } 
+     });
+  }
+ removeBranchDetails( items ) {
+     swal( {
+         title: "Do you want to remove this business place?",
+         //text: "Do you want to delete branch?",
+         showCancelButton: true,
+         cancelButtonClass: "cancel-button-export btn-primary-custom",
+         confirmButtonClass: "login-button-export btn-primary-custom",
+         confirmButtonText: "Ok",
+         closeOnConfirm: true
+     },
+         () => {
+                 $( '#loadingIcon' ).show();
+                 $( "#black-overlay" ).show();
+                 let url:any=this.environment.getRequiredApi("add_bp_org")+"?";
+                 url=url.replace("{org_id}",this.orgId);
+                 let body = {
+                             "bpList": [
+                                            items.bpId
+                                         ],
+                             "orgId": this.orgId,
+                             };
+                 this.commonService.getData( url, "DELETE", body, this.accessObjectId)
+                     .subscribe(( response ) => {
+                         if(response.status==0){
+                             $( "#business_place" ).DataTable().destroy()
+                             this.getDisplayInformation();
+                             $( '#loadingIcon' ).hide();
+                             $( "#black-overlay" ).hide();
+                             this.commonService.responseMessages( '', response.message, 'success' );
+                         }else{
+                             $( '#loadingIcon' ).hide();
+                             $( "#black-overlay" ).hide();
+                             this.commonService.responseMessages( '', response.message, 'warning' );
+                         }
+
+                     })
+                 });
+ }
+}

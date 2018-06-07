@@ -1,0 +1,226 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-outbound-delivery-details',
+  templateUrl: './outbound-delivery-details.component.html',
+  styleUrls: ['./outbound-delivery-details.component.css']
+})
+export class OutboundDeliveryDetailsComponent implements OnInit {
+
+  createDeliveryForm:FormGroup;
+  checked:boolean=false;
+  indeterminate:boolean=false;
+  outboundMessage:any; 
+    outBoundDelPayload:any={};
+    url:string;
+    bpId:string;
+    orgId:string;
+    outBoundDeliveryList:any;
+    deliveryListItem:any={};
+    
+  constructor(private http: Http, private formBuilder: FormBuilder,private environment:EnvConfigurationService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService) {
+      this.app.isActive=true;
+      this.createDeliveryForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+         'outboundDate': ['', Validators.required],
+         'outboundOrder':['', Validators.required],
+         'frmItem':['', Validators.required],
+         'toItem':['', Validators.required]
+        });
+      this.checked=false;
+      this.indeterminate=false;
+      this.outboundMessage = messagesService.outbound_delivery_msg;
+      this.bpId = localStorage.getItem("bpId");
+      this.orgId =localStorage.getItem("orgId");
+      this.deliveryListItem["deliveryItem"] = "";
+  }
+
+  ngOnInit() {
+      $('#sFiterfromDate').datetimepicker({
+          debug:true,
+       widgetPositioning: {
+         horizontal: 'left'
+       },
+       icons: {
+         time: "fa fa-clock-o",
+         date: "fa fa-calendar",
+         up: "fa fa-arrow-up",
+         down: "fa fa-arrow-down",
+         previous: 'fa fa-arrow-left',
+         next: 'fa fa-arrow-right'
+       },
+       format: 'DD-MM-YYYY'
+     });
+      
+      
+      this.outBoundDelPayload["bp_id"]=this.bpId;
+      this.outBoundDelPayload["org_id"]=this.orgId;
+     
+      
+       
+    /*  setTimeout(() =>{
+          $(".dataTables_scrollHeadInner").css({"width":"100%"});
+          $(".table ").css({"width":"100%"}); 
+          $("#delivery-order-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+          },1100);*/
+      setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },50);
+      
+      this.getSalesOutboundDeliveryList();
+      
+      
+  }
+    
+    getSalesOutboundDeliveryList(){
+       $('#loadingIcon').show();
+       $("#black-overlay").show();
+         this.url = this.environment.getRequiredApi( 'get_sales_outbound_delivery_list' )+"?";
+      
+        this.commonService.getData( this.url, 'POST', this.outBoundDelPayload,localStorage.getItem( 'Outbound Delivery' ))
+            .subscribe(( response ) => {
+               if(response.status == '1'){
+                   this.commonService.responseMessages("", response.message, "warning");
+                   this.outBoundDeliveryList=[];
+               }else{
+                    this.outBoundDeliveryList =response.data.ex_delivery_list
+                
+                console.log(this.outBoundDeliveryList)
+                console.log(response);  
+                 $("#delivery-order-table").DataTable().destroy();
+               
+               }
+                this.applyDataTable();
+              $('#loadingIcon').hide();
+              $("#black-overlay").hide();
+              
+            //    this.edituserDetails( this.result,'adduser');
+            }, err => {
+                  $('#loadingIcon').hide();
+              $("#black-overlay").hide();
+                    console.log(err)   
+                
+               
+                //this.reqdata.responseMessages(err, err.status, 'danger');
+            } );
+    
+    }
+    
+    applyDataTable(){
+        
+       setTimeout(()=>{  
+           $("#delivery-order-table").DataTable({
+           "order": [[1,'asc']],
+           "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+           "fnDrawCallback": function( oSettings ) {
+                        if ( 5 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                            
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                            
+                           
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                          
+                        }
+                    },
+             columnDefs: [ {
+                          "targets": 'no-sort',
+                           "orderable": false
+                     } ],
+          
+      });
+         },400);  
+         setTimeout(() =>{
+          $(".dataTables_scrollHeadInner").css({"width":"100%"});
+          $(".table ").css({"width":"100%"});    
+          },600);
+        
+        
+    }
+    
+    displayDeliveryItemDetails(delNum,items){
+        
+        $("#itemDetailsPopup").modal("show"); 
+        this.deliveryListItem = items;
+        this.deliveryListItem["deliveryItem"] = delNum;
+         console.log(delNum);
+        console.log(items);
+    }
+    
+    
+    
+    
+  editDeliveryOrder(type){
+      let flag:boolean=this.commonService.continueAction(type);
+  if(flag){
+      this.commonService.responseMessages("","Please select atleast one sales order", "warning");
+      return false
+  }
+      this.commonService.saleType='Edit';
+      $("#outboundDeliveryModal").modal("show");  
+  }
+  createDeliveryOrder(type){
+      this.commonService.saleType='Create';
+      $("#outboundDeliveryModal").modal("show");
+  }
+  closeModal(id){
+      $("#"+id).modal("hide");
+      this.createDeliveryForm.reset();
+  }
+  createDeliverySubmit(id){
+      $("#"+id).modal("hide"); 
+      const path:any="obd/createsalesorder";
+      this.router.navigate([path]);
+  }
+  editDeliveryOrderById(){
+      this.commonService.saleType='Edit';
+      const path:any="obd/createsalesorder";
+      this.router.navigate([path]); 
+  }
+  printSelectedReports(type){
+      let flag:boolean=this.commonService.continueAction(type);
+      if(flag){
+          this.commonService.responseMessages("","Please select atleast one sales order", "warning");
+          return false
+      }
+  }
+  selectAll(event,checkAll,tableId){
+      setTimeout(()=>{
+          this.commonService.selectAllCheckBoxes(checkAll,tableId)
+      },300);
+  }
+  getReportList(event,tableId){
+      setTimeout(()=>{let flag:boolean=this.commonService.checkAction(tableId);
+      if(flag){
+          this.indeterminate=false;
+          this.checked=true;
+      }else{
+          this.indeterminate=true;
+      }
+      },400);
+      
+  }
+}

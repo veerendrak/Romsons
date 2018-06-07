@@ -1,0 +1,174 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Outgoing Payment</strong>
+		</span>
+	</div>
+	<div class="card-block db-block mb-1" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+			
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					<form [formGroup]="outgoingPayemnt">
+					 <div class="delivery-form-block col-md-12 row pb-5">
+						<div class="col-md-3 text-align-sales">
+							<label>Vendor Account<sup class="asterick">*</sup></label>
+                            <input type="text" class="form-control" required="required" formControlName="vendAccount"
+                            validateOnBlur [validateFormControl]="outgoingPayemnt.controls['vendAccount']"
+                            >
+                            <span
+											*ngIf="outgoingPayemnt.controls['vendAccount'].touched && outgoingPayemnt.controls['vendAccount'].invalid && outgoingPayemnt.controls['vendAccount'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="outgoingPayemnt.controls['vendAccount'].errors.required">
+											{{outgoingPaymentsMessages.vendAccount_req}}</small>
+										</span>
+						</div>
+						<div class="col-md-3 text-align-sales">
+							   <label>Payment Date<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control datepicker-init" formControlName="paymentDate"
+                            validateOnBlur [validateFormControl]="outgoingPayemnt.controls['paymentDate']">
+							  <span
+											*ngIf="outgoingPayemnt.controls['paymentDate'].touched && outgoingPayemnt.controls['paymentDate'].invalid && outgoingPayemnt.controls['paymentDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="outgoingPayemnt.controls['paymentDate'].errors.required">
+											{{outgoingPaymentsMessages.paymentDate_req}}</small>
+										</span> 
+						</div>
+						<div class="col-md-3 text-align-sales">
+							     <label>Doc Date<sup class="asterick">*</sup></label>
+                                 <input type="text" class="form-control datepicker-init" formControlName="docDate"
+                            validateOnBlur [validateFormControl]="outgoingPayemnt.controls['docDate']">
+                                 <span
+											*ngIf="outgoingPayemnt.controls['docDate'].touched && outgoingPayemnt.controls['docDate'].invalid && outgoingPayemnt.controls['docDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="outgoingPayemnt.controls['docDate'].errors.required">
+											{{outgoingPaymentsMessages.docDate_req}}</small>
+										</span> 
+							
+						</div>
+						<div class="col-md-3 text-align-sales">
+							     <label>Doc Type<sup class="asterick">*</sup></label>
+                                 <input type="text" class="form-control" 
+                                 formControlName="DocType" validateOnBlur [validateFormControl]="outgoingPayemnt.controls['DocType']">
+							<span
+											*ngIf="outgoingPayemnt.controls['DocType'].touched && outgoingPayemnt.controls['DocType'].invalid && outgoingPayemnt.controls['DocType'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="outgoingPayemnt.controls['DocType'].errors.required">
+											{{outgoingPaymentsMessages.docType_req}}</small>
+										</span>
+							 
+						</div>
+						<div class="clear-fix"></div>
+						<div class="col-md-3 text-align-sales">
+						<label>GL Account<sup class="asterick">*</sup></label>
+                        <input type="text" class="form-control" 
+                        formControlName="glAccount" validateOnBlur [validateFormControl]="outgoingPayemnt.controls['glAccount']">
+							<span
+											*ngIf="outgoingPayemnt.controls['glAccount'].touched && outgoingPayemnt.controls['glAccount'].invalid && outgoingPayemnt.controls['glAccount'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="outgoingPayemnt.controls['glAccount'].errors.required">
+											{{outgoingPaymentsMessages.glAccount_req}}</small>
+										</span>
+						</div>
+						<div class="col-md-3 text-align-sales">
+							<label>Payment Mode<sup class="asterick">*</sup></label>
+                            <input type="text" class="form-control"
+                            formControlName="payment" validateOnBlur [validateFormControl]="outgoingPayemnt.controls['payment']">
+							<span
+											*ngIf="outgoingPayemnt.controls['payment'].touched && outgoingPayemnt.controls['payment'].invalid && outgoingPayemnt.controls['payment'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="outgoingPayemnt.controls['payment'].errors.required">
+											{{outgoingPaymentsMessages.payment_req}}</small>
+										</span>
+							  
+						</div>
+						<div class="col-md-3 text-align-sales">
+							<label>Amount<sup class="asterick">*</sup></label>
+                            <input type="text" class="form-control" 
+                            formControlName="amt" validateOnBlur [validateFormControl]="outgoingPayemnt.controls['amt']">
+							<span
+											*ngIf="outgoingPayemnt.controls['amt'].touched && outgoingPayemnt.controls['amt'].invalid && outgoingPayemnt.controls['amt'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="outgoingPayemnt.controls['amt'].errors.required">
+											{{outgoingPaymentsMessages.amt_req}}</small>
+										</span>			 
+						</div>
+						<div class="col-md-3 text-align-sales">
+							     <label>Currency<sup class="asterick">*</sup></label>
+                                 <input type="text" class="form-control"
+								 formControlName="currency" validateOnBlur [validateFormControl]="outgoingPayemnt.controls['currency']">
+
+                                 <span
+											*ngIf="outgoingPayemnt.controls['currency'].touched && outgoingPayemnt.controls['currency'].invalid && outgoingPayemnt.controls['currency'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="outgoingPayemnt.controls['currency'].errors.required">
+											{{outgoingPaymentsMessages.currency_req}}</small>
+										</span>	
+						</div>
+						<div class="clear-fix"></div>
+						<div class="col-md-3 text-align-sales">
+							 <label>Company Code<sup class="asterick">*</sup></label>
+                             <input type="text" class="form-control" 
+                             formControlName="cmpnCode" validateOnBlur [validateFormControl]="outgoingPayemnt.controls['cmpnCode']">
+							<span
+											*ngIf="outgoingPayemnt.controls['cmpnCode'].touched && outgoingPayemnt.controls['cmpnCode'].invalid && outgoingPayemnt.controls['cmpnCode'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="outgoingPayemnt.controls['cmpnCode'].errors.required">
+											{{outgoingPaymentsMessages.cmpnCode_req}}</small>
+										</span> 				  
+						</div>
+						<div class="col-md-3 text-align-sales">
+						 <label>Reference<sup class="asterick">*</sup></label>
+                         <input type="text" class="form-control"    
+                         formControlName="reference" validateOnBlur [validateFormControl]="outgoingPayemnt.controls['reference']">
+							<span
+											*ngIf="outgoingPayemnt.controls['reference'].touched && outgoingPayemnt.controls['reference'].invalid && outgoingPayemnt.controls['reference'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="outgoingPayemnt.controls['reference'].errors.required">
+											{{outgoingPaymentsMessages.reference_req}}</small>
+										</span>
+						</div>
+						<div class="clear-fix col-md-12"></div>
+						<div class="col-md-3 text-align-sales" >
+							      <label>Remarks<sup class="asterick">*</sup></label>
+                                  <textarea  class="form-control"
+                                  formControlName="remarks" validateOnBlur [validateFormControl]="outgoingPayemnt.controls['remarks']"></textarea>
+							<span
+											*ngIf="outgoingPayemnt.controls['remarks'].touched && outgoingPayemnt.controls['remarks'].invalid && outgoingPayemnt.controls['remarks'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="outgoingPayemnt.controls['remarks'].errors.required">
+											{{outgoingPaymentsMessages.remarks_req}}</small>
+										</span>
+						</div>
+					</div>
+					</form>
+					</div>
+					<!-- end chnges -->
+				
+				
+		</div>
+		<div class="outbound-footer mt-1">
+		 <div class="right-block"> 
+			<div class="pull-left">
+			<button class="save-icon-btn">
+				<i class="fa save-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Save</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Cancel</div>
+				</i>
+			</button>
+		</div>
+		 </div> 
+		 </div>
+	</div>
+	
+	</div>
+	
+</div>
+</section>

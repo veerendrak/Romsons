@@ -1,0 +1,115 @@
+
+.mat-form-field{
+	width:100%;
+}
+
+
+.table thead th{
+	vertical-align:middle;
+}
+.txt-msg-block{
+	border:1px solid #ccc;
+	padding:5px;
+}
+.txt-msg-block p{
+	margin-bottom:0px;
+	font-size:12px;
+}
+.outbound-input{
+	width:60px;
+}
+.outbound-footer{
+	background:linear-gradient(to top, #fff 50%, #E7E3E3 150%) !important;
+	padding:10px 7px 7px 7px !important;
+	border:1px solid #ccc;
+	position:absolute;
+	bottom:0px;
+	width:100%;
+}
+
+.left-block{
+	max-width: 80%;
+    float: left;
+}
+.right-block{
+	margin-right: 0%;
+    float: right;
+    text-align: right;
+    max-width: 100%;
+}
+.cat__wizard .steps ul li{
+	
+	    -webkit-box-flex: 200;
+    -ms-flex-positive: 200;
+    flex-grow: 200;
+    float: none;
+    width: auto;
+    position: relative;
+    list-style-type: none;
+}
+.cat__wizard .steps ul li.disabled:before, .cat__wizard .steps ul li.disabled:after {
+    background: #bfc0c0;
+}
+.cat__wizard .steps ul li.disabled .cat__wizard__steps__icon, .cat__wizard .steps ul li.disabled .number {
+    border-color: #fff;
+    background: #bfc0c0;
+    color: #000;
+}
+.disabled > a > i{
+	color:#000;
+	font-weight:600;	
+}
+/*@media only screen and (min-width: 1200px){
+.cat__wizard .steps ul{
+    width: 1200px;
+    margin-left: 25px;
+}
+}
+
+@media only screen and (max-width: 1024px){
+.cat__wizard .steps ul{
+    width: 1024px;
+    margin-left: 25px;
+}
+}
+*/
+@media only screen and (max-width: 767px){
+.cat__wizard .steps ul li:before, .cat__wizard .steps ul li:after {
+    position: absolute;
+    content: '';
+    display: block;
+    width: 97%;
+    top: 0.7rem;
+    right: 0;
+    height: 0.60rem;
+    background: rgb(34, 190, 239);
+    z-index: 1;
+}
+}
+
+.cat_wizard_steps_title {
+    display: block;
+    text-align: left;
+    color:#02615c;
+    font-family: 'Open Sans';
+    font-size: 14px;
+    font-weight:600;
+}
+.forgotOk{
+	padding:5px 13px 5px 13px;
+}
+.forgotOk:hover{
+	padding:5px 13px 5px 13px;
+}
+.forgotOk:active{
+	padding:5px 13px 5px 13px;
+}
+.create-edit-pop-txt-box{
+	padding: 5px !important;
+}
+.asterick{
+	
+    color: red;
+    font-size: 15px;
+	top: 0 !important;
+}

@@ -1,0 +1,32 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import { DateAdapter } from '@angular/material';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-incoming-payments',
+  templateUrl: './incoming-payments.component.html',
+  styleUrls: ['./incoming-payments.component.css']
+})
+export class IncomingPaymentsComponent implements OnInit {
+
+ incommingPayemnt: FormGroup;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private dateAdapter: DateAdapter<Date>) {
+    this.dateAdapter.setLocale('en-gb');    
+    this.incommingPayemnt = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+        });    
+  }
+
+  ngOnInit() {
+  }
+
+}

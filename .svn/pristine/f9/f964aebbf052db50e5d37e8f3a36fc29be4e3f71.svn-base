@@ -1,0 +1,97 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-sales-order-details',
+  templateUrl: './sales-order-details.component.html',
+  styleUrls: ['./sales-order-details.component.css']
+})
+export class SalesOrderDetailsComponent implements OnInit {
+    createSalesOrderForm:FormGroup;
+    createSalesOrderPage:boolean=false;
+    salesOrderDetails:boolean=false;
+    saleType:any;
+    saleOrderMessages:any
+    
+    
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService) {
+      this.app.isActive=true;
+      this.salesOrderDetails=true;
+      this.createSalesOrderForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+          'customer'   : ['', Validators.required],
+          'orderType' : ['', Validators.required], 
+        });
+      this.saleOrderMessages = messagesService.sales_order_details_msg;
+  }
+    
+      
+
+  ngOnInit() {
+    
+      $("#sales-order-table").DataTable({
+         // bSort:false,
+        //  bPaginate:false,
+          "order": [0],
+          "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+         //  "bInfo":false,
+         //  "bFilter":false,
+           "fnDrawCallback": function( oSettings ) {
+                        if ( 10 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                             
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                              $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                              $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                        }
+                    },
+           "columnDefs": [ {
+                "targets"  : 'no-sort',
+                "orderable": false,
+               } ]
+      });
+      setTimeout(() =>{
+          $(".dataTables_scrollHeadInner").css({"width":"100%"});
+          $(".table ").css({"width":"100%"});    
+          },1100);
+  }
+  createSalesOrder(){
+      this.commonService.saleType='Create';
+       this.commonService.showOrderType=false;
+      $("#createSalesModal").modal("show");
+  }
+  closeModal(id){
+      $("#"+id).modal("hide");
+      this.createSalesOrderForm.reset();
+  }
+  createSalesForm(id){
+      $("#"+id).modal("hide");
+      const path:any="createsalesorder";
+      this.router.navigate([path]);
+  }
+  editSalesOrder(){
+      this.commonService.saleType='Edit';
+      this.commonService.showOrderType=true;
+      $("#createSalesModal").modal("show");
+  }
+  
+}

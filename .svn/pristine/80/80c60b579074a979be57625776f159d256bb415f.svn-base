@@ -1,0 +1,400 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">{{title}}</strong>
+			</span>
+		</div>
+		<!-- Wizard start -->
+		<div class="card-block db-block" id="wizard-block"
+			style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="mb-1">
+						<div class="cat__wizard wizard clearfix row">
+							<div class="steps clearfix col-md-12">
+								<ul id="steps-wizard">
+									<li class="start" class="current"><a
+										href="javascript:void(0)"> <i
+											class="fa  cat__wizard__steps__icon" id="gs-GSTR1"
+											style="display: none;"><span class="font-number">1</span></i>
+											<i class="fa fa-check cat__wizard__steps__icon"
+											id="icon-GSTR1"></i>
+											<div class="cat_wizard_steps_title ell-spa">
+												Purchase Order<span class="" id="GSTR1"></span>
+											</div>
+									</a></li>
+
+									<li style="cursor: text" class="current"><a
+										href="javascript:void(0)"> <i
+											class="fa  cat__wizard__steps__icon" id="gs-GSTR2"
+											style="display: none;"><span class="font-number">2</span></i>
+											<i class="fa fa-check cat__wizard__steps__icon"
+											id="icon-GSTR2"></i>
+											<div class="cat_wizard_steps_title ell-spa">
+												Goods Reciept<span class="" id="GSTR2"></span>
+											</div>
+									</a></li>
+
+									<li style="cursor: text" class="last disabled"><a
+										href="javascript:void(0)"> <i
+											class="fa  cat__wizard__steps__icon" id="gs-GSTR1A"><span
+												class="font-number">3</span></i> <i
+											class="fa fa-check cat__wizard__steps__icon" id="icon-GSTR1A"
+											style="display: none;"></i>
+											<div class="cat_wizard_steps_title ell-spa">
+												Purchase Invoice <span class="" id="GSTR1A"></span>
+											</div>
+									</a></li>
+								</ul>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- wizard end -->
+	</div>
+	<div class="form-align-pur">
+		<form [formGroup]="createInvoiceForm">
+			<div class="card-block db-block mb-1"
+				style="padding: 0px; padding-left: 15px; padding-right: 15px;">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="createSalesBlock">
+							<div class="row">
+								<!-- new changes -->
+								<div class="outbound-content col-md-12">
+									<div class="delivery-form-block col-md-12 row">
+										<div class="col-md-3 text-align-sales">
+											<label>Delivery No<sup class="asterick">*</sup>
+											</label> <input type="text" class="form-control " disabled
+												validateOnBlur
+												[value]="deliveryNumber == undefined ? '': deliveryNumber">
+
+
+										</div>
+										<div class="col-md-3 text-align-sales">
+
+											<label>Invoice Date <sup class="asterick">*</sup>
+											</label> <input type="text" class="form-control datepicker-init"
+												formControlName="invDate" (blur)="removeStyles()"
+												validateOnBlur id="txt_invoicedate"
+												[validateFormControl]="createInvoiceForm.controls['invDate']">
+											<span
+												*ngIf="createInvoiceForm.controls['invDate'].touched && createInvoiceForm.controls['invDate'].invalid "
+												class="error"> <small class="custom-error-class"
+												*ngIf="createInvoiceForm.controls['invDate'].errors.required">
+													{{invoiceMessages.inv_date}} </small>
+											</span>
+										</div>
+										<div class="col-md-3 text-align-sales">
+
+											<label>Posting Date <sup class="asterick">*</sup>
+											</label> <input type="text" class="form-control datepicker-init"
+												formControlName="posDate" (blur)="removeStyles()"
+												validateOnBlur id="txt_postingdate"
+												[validateFormControl]="createInvoiceForm.controls['posDate']">
+											<span
+												*ngIf="createInvoiceForm.controls['posDate'].touched && createInvoiceForm.controls['posDate'].invalid "
+												class="error"> <small class="custom-error-class"
+												*ngIf="createInvoiceForm.controls['posDate'].errors.required">
+													{{invoiceMessages.pos_date}} </small>
+											</span>
+										</div>
+										<div class="col-md-3 text-align-sales" *ngIf="customerData.length !=0">
+
+											<label>Hospital Name<sup class="asterick">*</sup>
+											</label> <input type="text" disabled
+												class="form-control" [value]="customerData">
+											
+										</div>
+										<!-- <div class="col-md-3 text-align-sales">
+											<label>Amount<sup class="asterick">*</sup>
+											</label> <input type="text" class="form-control "
+												formControlName="invAmt" validateOnBlur
+												[validateFormControl]="createInvoiceForm.controls['invAmt']">
+											<span
+												*ngIf="createInvoiceForm.controls['invAmt'].touched && createInvoiceForm.controls['invAmt'].invalid && createInvoiceForm.controls['invAmt'].dirty"
+												class="error"> <small class="custom-error-class"
+												*ngIf="createInvoiceForm.controls['invAmt'].errors.required">
+													{{invoiceMessages.inv_Amt}} </small> <small
+												class="custom-error-class"
+												*ngIf="createInvoiceForm.controls['invAmt'].errors.pattern">
+													{{invoiceMessages.valid_inv_Amt}} </small>
+											</span>
+										</div> -->
+									</div>
+									<div class="clear-fix"></div>
+									<div class="delivery-form-block col-md-12 row pb-1">
+										<div class="col-md-3 text-align-sales">
+											<label>Baseline Date <sup class="asterick">*</sup>
+											</label> <input type="text" class="form-control datepicker-init"
+												formControlName="bslineDate" (blur)="removeStyles()"
+												validateOnBlur id="txt_baselinedate"
+												[validateFormControl]="createInvoiceForm.controls['bslineDate']">
+											<span
+												*ngIf="createInvoiceForm.controls['bslineDate'].touched && createInvoiceForm.controls['bslineDate'].invalid "
+												class="error"> <small class="custom-error-class"
+												*ngIf="createInvoiceForm.controls['bslineDate'].errors.required">
+													{{invoiceMessages.bsline_Date}} </small>
+											</span>
+										</div>
+										<div class="col-md-3 text-align-sales">
+											<label>Header Text</label>
+											<!-- <textarea class="form-control " formControlName="remarks"
+												validateOnBlur id="txt_remarks"
+												[validateFormControl]="createInvoiceForm.controls['remarks']">
+											</textarea> -->
+											<input type="text" class="form-control"
+												formControlName="remarks" validateOnBlur id="txt_remarks"
+												[validateFormControl]="createInvoiceForm.controls['remarks']">
+										</div>
+										<div class="col-md-3 text-align-sales">
+											<label>Price Difference </label> <input type="text"
+												class="form-control " disabled id="txt_pricediff">
+
+
+										</div>
+										<div class="col-md-3 text-align-sales">
+											<label>Vendor Information </label> <input type="text"
+												class="form-control " disabled id="txt_vendorinfo">
+
+
+										</div>
+										<!-- <div class="col-md-3 text-align-sales" rowspan="7">
+											<label></label>
+											<div class="delivery-form-block col-md-12 pt-1">
+												<table
+													class="table table-hover nowrap editable-table">
+													<tr>
+														<th style="min-width: 50px !important;"></th>
+														<th style="min-width: 50px !important;">SGST</th>
+														<th style="min-width: 80px !important;">CGST</th>
+														<th style="min-width: 50px !important;">IGST</th>
+														<th style="min-width: 80px !important;">Total Value</th>
+													</tr>
+													<tr>
+														<td>Total</td>
+														<td>{{totalSgstVal | PriceInd}}</td>
+														<td>{{totalCgstVal | PriceInd}}</td>
+														<td>{{totalIgstVal | PriceInd}}</td>
+														<td>{{totalGrossVal | PriceInd}}</td>
+													</tr>
+												</table>
+											</div>
+										</div> -->
+
+										<div class="col-md-12 text-align-sales pb-0 mt-13">
+											<table
+												class="table table-hover nowrap editable-table totalTable"
+												style="display: inline-table; margin-bottom: 0px;">
+												<tbody>
+													<tr>
+														<td style="background: #e4e9f0;">Total Amounts :</td>
+
+
+														<td>
+															<div class="pull-left">IGST:</div>
+															<div class="pull-right">{{totalIgstVal | PriceInd}}</div>
+														</td>
+														<td>
+															<div class="pull-left">S/UGST :</div>
+															<div class="pull-right">{{totalSgstVal | PriceInd}}</div>
+														</td>
+
+														<td>
+															<div class="pull-left">CGST:</div>
+															<div class="pull-right">{{totalCgstVal | PriceInd}}</div>
+														</td>
+														<td>
+															<div class="pull-left">Total Value :</div>
+															<div class="pull-right">{{totalGrossVal |
+																PriceInd}}</div>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+
+										</div>
+									</div>
+									<div class="clear-fix"></div>
+									<div class="delivery-form-block col-md-12 row pb-1"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="col-md-12 mt-1 mb-5">
+		<div class="stock-table table-responsive">
+			<table class="table table-hover nowrap editable-table checkBoxTable"
+				width="100%" id="create-invoice-order-table">
+				<thead>
+					<tr>
+						<!-- <th class="no-sort" style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></th> -->
+						<th rowspan="2" style="min-width: 90px !important;">Material</th>
+						<th rowspan="2" style="min-width: 130px !important;">Description</th>
+						<th rowspan="2" style="min-width: 60px !important;">UOM</th>
+						<th rowspan="2" style="min-width: 60px !important;">QTY</th>
+						<th rowspan="2" style="min-width: 80px !important;">Price</th>
+						<th rowspan="2" style="min-width: 50px !important;">PO No.</th>
+						<th rowspan="2" style="min-width: 80px !important;">Del No</th>
+						<th rowspan="2" style="min-width: 80px !important;">GR No</th>
+						<!-- <th rowspan="2" style="min-width: 80px !important;">Dis Amt</th> -->
+						<th rowspan="2" style="min-width: 100px !important;">Net Val</th>
+						<th colspan="2" class="align-center">S/U GST</th>
+						<th colspan="2" class="align-center">CGST</th>
+						<th colspan="2" class="align-center">IGST</th>
+						<th rowspan="2" style="min-width: 77px !important;">Total Val</th>
+
+					</tr>
+					<tr>
+						<th style="min-width: 50px !important;">Rate</th>
+						<th style="min-width: 80px !important;">Value</th>
+						<th style="min-width: 50px !important;">Rate</th>
+						<th style="min-width: 80px !important;">Value</th>
+						<th style="min-width: 50px !important;">Rate</th>
+						<th style="min-width: 80px !important;">Value</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let listItems of genDisplayInvoiceDetArray">
+						<td>{{listItems.material_code}}</td>
+						<td>{{listItems.material_name}}</td>
+						<td>{{listItems.uom}}</td>
+						<td>{{listItems.quantity | customround}}</td>
+						<td align="right">{{listItems.value/listItems.quantity |
+							PriceInd}}</td>
+						<td>{{listItems.po_no }}</td>
+						<td>{{listItems.delivery_no }}</td>
+						<td align="right"><span>{{listItems.gr_no }}</span></td>
+						<td align="right"><span>{{listItems.value | PriceInd}}</span></td>
+						<td>{{listItems.sgst_rate | customround}}</td>
+						<td align="right"><span *ngIf="listItems.sgst_amt !='' ">
+								{{listItems.sgst_amt | PriceInd}}</span></td>
+						<td>{{listItems.cgst_rate | customround}}</td>
+						<td align="right"><span *ngIf="listItems.cgst_amt !='' ">
+								{{listItems.cgst_amt | PriceInd}}</span></td>
+						<td>{{listItems.igst_rate | customround}}</td>
+						<td align="right"><span *ngIf="listItems.igst_amt !='' ">
+								{{listItems.igst_amt | PriceInd}}</span></td>
+						<td align="right">{{listItems.net_amount | PriceInd}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<!-- end chnges -->
+	<div class="outbound-footer mt-3">
+		<div class="left-block">
+			<div class="pull-left" style="max-width: 47%">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="redirectToListView()">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+		<div class="right-block">
+			<!-- <div class="pull-left">
+				<button title="Print / Preview" class="login-button-export"
+					style="padding-left: 8px">
+					<i class="fa print-icon"
+						style="margin-right: 0px; width: 24px; height: 24px;"> </i>
+				</button>
+			</div> -->
+			<!-- <div class="pull-left" style="display: none">
+				<button title="Upload Excel" style="padding-left: 8px;"
+					class="login-button-export Btn-margin" style="padding-left:4px;">
+					<i class="fa upexcel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div> -->
+			<div class="pull-left">
+				<button class="save-icon-btn" (click)="createInvoiceDetails()"
+					[disabled]="!createInvoiceForm.valid">
+					<i class="fa save-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Save</div>
+					</i>
+				</button>
+			</div>
+			<!-- <div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;">
+					<i class="fa cancel-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Cancel PI</div>
+					</i>
+				</button>
+			</div> -->
+		</div>
+	</div>
+</section>
+<!-- Error popup -->
+
+<div class="modal fade modal-size-medium" id="displayErrorsModal"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Display Errors</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('displayErrorsModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body" style="padding: 6px 6px !important;">
+				<div class="col-md-12 row">
+					<table
+						class="table table-hover nowrap editable-table checkBoxTable"
+						width="100%" id="errorTable" style="display: inline-table;">
+						<thead>
+							<tr>
+								<th>Error Code</th>
+								<th>Error Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ng-container *ngFor="let erList of errorLogs; let i=index">
+							<ng-container *ngIf="createFlag">
+							<tr *ngIf="erList.type=='E'">
+								<td>{{erList.number}}</td>
+								<td>{{erList.message}}</td>
+							</tr>
+							</ng-container> <ng-container *ngIf="!createFlag">
+							<tr *ngIf="erList.type=='E'">
+								<td>{{erList.message_v1}}</td>
+								<td>{{erList.message}}</td>
+							</tr>
+							</ng-container> </ng-container>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="row new_row">
+					<div class="pull-right new_right act_foot">
+						<div class="pull-right new_right act_foot closePopUpOk">
+							<button (click)="closeModal('displayErrorsModal')"
+								class="login-button forgotOk">Ok</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

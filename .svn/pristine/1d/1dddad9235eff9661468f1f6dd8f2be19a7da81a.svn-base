@@ -1,0 +1,355 @@
+.button-div{height:0px;}
+.block-width{
+	width:263px;
+}
+.right-back{margin-right:30px;}
+.upload-select{
+	width:200px;
+	margin-top:1%;
+}
+
+#returnsInvoiceDashboard tbody tr td{
+	border:0px !important;
+}
+#returnsInvoiceDashboard thead tr th{
+	border:0px !important;
+}
+.left-bulkaction{
+	 padding-left:1%;
+	 width:50%;
+}
+.paddig-right{padding-right:2%;}
+.left-block{
+	float:left;
+}
+.period-left{
+	/*padding-left:17%;*/
+}
+.left-filter{
+	padding:0px; padding-left:6.5%
+}
+.right-button{
+	magin-left:-4%;padding:0px;
+}
+
+@media only screen and (max-width: 768px) {
+	.ell-spa{
+	overflow: hidden;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    width: 100px !important;
+} 
+	.block-width {
+    width: 235px;
+}
+.button-custom-align{width:25% !important;}
+	#dlchangedId{
+	margin-left: -5%;
+    margin-top: 0.2%;	
+}
+	.olp-3{
+        width:40% !important;
+    }
+    
+    .olp-1{
+    	width:20% !important;
+    }
+    .olp-2{
+    	width:35% !important;
+    }
+    .dataTables_length{
+    	text-align:left !important;
+    }
+    .dataTables_filter{
+    	text-align:left !important;
+    }
+	}
+@media only screen and (max-width: 555px) {
+.left-block{
+	float:left;
+}
+	}
+@media only screen and (max-width: 610px) {
+	#returnsInvoiceDashboard tbody tr td{
+	border:0px !important;
+}
+#returnsInvoiceDashboard thead tr th{
+	border:0px !important;
+}
+	
+   .olp-3{
+        width:40% !important;
+    }
+    .mob-left{
+    	float:left !important;
+    	margin-top:5px;
+    }
+    .olp-1{
+    	width:20% !important;
+    }
+    .olp-2{
+    	width:35% !important;
+    }
+}
+@media only screen and (max-width: 768px) {
+	.ell-spa{
+	overflow: hidden;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    width: 100px !important;
+} 
+.mob-addorg{
+	margin-top:5px;
+	width:155px;
+}
+#userListTable_filter{
+text-align: right !important;
+    margin-top: -4.4%;	
+}
+#dataloadhistory_filter{
+text-align: right !important;
+    margin-top: -4.4%;	
+}
+#availGSTN_filter{
+	text-align: right !important;
+    margin-top: -4.4%;	
+}
+#availGSTN_filter input{
+	width:95px !important;
+}
+#matched_reportTable_filter{
+	text-align: right !important;
+    margin-top: -4.4%;	
+}
+#missMtach-1_filter{
+	text-align: right !important;
+    margin-top: -4.4%;	
+}
+#missMtach-2_filter{
+	text-align: right !important;
+    margin-top: -4.4%;
+}
+#example1_filter{text-align: right !important;
+    margin-top: -4.4%;}
+.nav-tabs-horizontal[_ngcontent-c3]   .nav-tabs[_ngcontent-c3]   .nav-item[_ngcontent-c3]   .nav-link.active[_ngcontent-c3], .nav-tabs-horizontal[_ngcontent-c3]   .nav-tabs[_ngcontent-c3]   .nav-item[_ngcontent-c3]   .nav-link[_ngcontent-c3]:focus{padding:5px 5px !important;}
+	}
+@media only screen and (max-width: 1237px) {
+.left-bulkaction {
+    padding-left: 2%;
+    width: 30%;
+}
+}
+@media only screen and (max-width: 1020px) {
+.button-div{height:30px;}
+.ellipsis-label{
+	width: 100px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+} 
+	}	
+@media only screen and (max-width: 980px) {
+.ellipsis-label{
+	width: 100px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+} 
+	}	
+@media only screen and (max-width: 320px) {
+.left-bulkaction {
+    padding-left: 2%;
+    width: 30%;
+}
+#updateDoc{width:55px !important;}
+.mob-table{width:80%;}
+.mob-button{width:24% !important;}
+.role-elipsis{
+	text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100px;
+    display: block;
+    overflow: hidden;
+}
+.child-accessObject{
+	padding: 5px 5px 5px 40px !important; height:30px;
+}
+#userListTable_filter{
+text-align: right !important;
+    margin-top: -10.4% !important;	
+}
+#userListTable_filter input{
+	width:95px !important;
+}
+#dataloadhistory_filter{
+text-align: right !important;
+    margin-top: -10.4% !important;	
+}
+#dataloadhistory_filter input{
+	width:95px !important;
+}
+#matched_reportTable_filter{
+	text-align: right !important;
+    margin-top: -10.4% !important;	
+}
+#matched_reportTable_filter input{
+	width:95px !important;
+}
+#availGSTN_filter{
+	text-align: right !important;
+    margin-top: -10.4% !important;	
+}
+#availGSTN_filter input{
+	width:95px !important;
+}
+#missMtach-1_filter{
+	text-align: right !important;
+    margin-top: -10.4% !important;		
+}
+#missMtach-1_filter input{
+	width:95px !important;
+}
+#missMtach-2_filter{
+	text-align: right !important;
+    margin-top: -10.4% !important;
+}
+#missMtach-2_filter input{
+	width:95px !important;
+}
+#example1_filter{text-align: right !important;
+    margin-top: -10.4% !important;}
+#example1_filter input{
+	width:95px !important;
+}
+	
+	}
+@media only screen and (max-width: 420px) {
+.ell-spa{
+	overflow: hidden;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    width: 70px !important;
+} 
+.download-link{padding-left:0px !important;}
+#userListTable_filter{
+text-align: right !important;
+    margin-top: -10.4%;	
+}
+.image-preview{margin-left:-2% !important;}
+#dlName{margin-left:-5% !important;}
+#stRowData1{margin-left:-5% !important;}
+
+#userListTable_filter input{
+	width:95px !important;
+}
+#dataloadhistory_filter{
+text-align: right !important;
+    margin-top: -10.4%;	
+}
+#dataloadhistory_filter input{
+	width:95px !important;
+}
+#matched_reportTable_filter{
+	text-align: right !important;
+    margin-top: -10.4%;	
+}
+#matched_reportTable_filter input{
+	width:95px !important;
+}
+#availGSTN_filter{
+	text-align: right !important;
+    margin-top: -10.4%;	
+}
+#availGSTN_filter input{
+	width:95px !important;
+}
+#missMtach-1_filter{
+	text-align: right !important;
+    margin-top: -10.4%;		
+}
+#missMtach-1_filter input{
+	width:95px !important;
+}
+#missMtach-2_filter{
+	text-align: right !important;
+    margin-top: -10.4%;
+}
+#missMtach-2_filter input{
+	width:95px !important;
+}	
+#example1_filter{text-align: right !important;
+    margin-top: -10.4%;}
+#example1_filter input{
+	width:95px !important;
+}	
+}
+@media only screen and (max-width: 375px) {
+	.ell-spa{
+	overflow: hidden;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    width: 70px !important;
+} 
+	#example1_filter{text-align: right !important;
+    margin-top: -9.4%;}
+#example1_filter input{
+	width:95px !important;
+}
+#userListTable_filter{
+text-align: right !important;
+    margin-top: -9.4%;	
+}
+#userListTable_filter input{
+	width:95px !important;
+}
+#dataloadhistory_filter{
+text-align: right !important;
+    margin-top: -9.4%;	
+}
+#dataloadhistory_filter input{
+	width:95px !important;
+}
+#matched_reportTable_filter{
+	text-align: right !important;
+    margin-top: -9.4%;	
+}
+#matched_reportTable_filter input{
+	width:95px !important;
+}
+#availGSTN_filter{
+	text-align: right !important;
+    margin-top: -9.4%;	
+}
+#availGSTN_filter input{
+	width:95px !important;
+}
+#missMtach-1_filter{
+	text-align: right !important;
+    margin-top: -9.4% ;		
+}
+#missMtach-1_filter input{
+	width:95px !important;
+}	
+#missMtach-2_filter{
+	text-align: right !important;
+    margin-top: -9.4%;
+}
+#missMtach-2_filter input{
+	width:95px !important;
+}
+}
+.table thead th{white-space:nowrap !important;}
+
+@media (max-width: 767px) {
+div.dataTables_wrapper div.dataTables_filter{
+    text-align: center;
+    float: right;
+    margin-top: -4px;
+}
+}
+@media (max-width: 767px) {
+.mob-left {float: left !important; margin-top: 5px; width:100%}
+.mob-left .btn-primary-custom{float: left !important;margin-bottom: 5px; margin-top: 5px !important;  width:75% !important; margin-left: 1px;}
+.cat__core__title{width:100%; clear:both;}
+.cat_wizard_steps_title {display: block; text-align: left;  position: absolute; width: 150px; }
+}

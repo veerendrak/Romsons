@@ -1,0 +1,125 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">In
+					Transit Details</strong>
+			</span>
+		</div>
+	</div>
+	<div class="">
+		<div class="card-block db-block mb-1"
+			style="padding: 0px; padding-left: 15px; padding-right: 15px;">
+			<div class="col-md-12 mt-2 form-align-inv">
+
+				<form [formGroup]="inintransitForm" autocomplete="off">
+					<div class="delivery-form-block col-md-12 row filter-align-box">
+						<div class="col-md-3 text-align-sales">
+							<label><b>From Date</b></label> <input type="text"
+								style="padding: 5px !important;" placeholder="From Date"
+								id="frmDate" class="form-control datepicker-init"
+								formControlName="frmDate" validateOnBlur
+								(blur)="changeTodatePicker()"
+								[validateFormControl]="inintransitForm.controls['frmDate']" />
+
+							<span
+								*ngIf="inintransitForm.controls['frmDate'].touched && inintransitForm.controls['frmDate'].invalid && inintransitForm.controls['frmDate'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="inintransitForm.controls['frmDate'].errors.required">
+									Please select From Date </small>
+							</span>
+						</div>
+
+						<div class="col-md-3 text-align-sales toDatepic">
+							<label><b>To Date</b></label> <input type="text"
+								style="padding: 5px !important;" placeholder="To Date"
+								class="form-control datepicker-init2" id="toDate"
+								formControlName="toDate" validateOnBlur (blur)="removeStyles()"
+								[validateFormControl]="inintransitForm.controls['toDate']" /> <span
+								*ngIf="inintransitForm.controls['toDate'].touched && inintransitForm.controls['toDate'].invalid && inintransitForm.controls['toDate'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="inintransitForm.controls['toDate'].errors.required">
+									Please select To Date </small>
+							</span>
+						</div>
+						<div class="col-md-2 text-align-sales">
+							<button type="submit" class="login-button-export"
+								[disabled]="inintransitForm.invalid"
+								(click)="getintransitdetailslist();"
+								style="position: relative; top: 26px;">
+								<i class="fa submit-icon"
+									style="margin-right: 4px; padding-right: 4px;"> <span
+									class="icon-text" style="right: -4px;">Submit</span>
+								</i>
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="col-lg-12">
+				<div class="createSalesBlock">
+					<div class="row">
+						<!-- new changes -->
+						<div class="col-md-12 mt-1 mb-3">
+							<div class="stock-table table-responsive">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable table-responsive"
+									width="100%" style="overflow-x: auto; overflow-y: hidden;"
+									id="cust-info-table">
+									<thead>
+										<tr>
+											<th style="min-width: 130px !important;">PO No</th>
+											<th style="min-width: 130px !important;">PO Date</th>
+											<th style="min-width: 130px !important;">Vendor Code</th>
+											<th style="min-width: 130px !important;">Vendor Name</th>
+											<th style="min-width: 130px !important;">Delivery Note</th>
+											<th style="min-width: 130px !important;">Delivery Date</th>
+											<th style="min-width: 130px !important;">Billing No</th>
+											<th style="min-width: 130px !important;">Billing Date</th>
+											<th style="min-width: 130px !important;">GRN No</th>
+											<th style="min-width: 130px !important;">GRN Date</th>
+
+										</tr>
+									</thead>
+									<tbody>
+										<tr *ngFor="let ild of intransitdetailslist let i=index;">
+											<td>{{ild.ebeln}}</td>
+											<td>{{ild.aedat | date :'dd-MM-yyyy'}}</td>
+											<td>{{ild.lifnr}}</td>
+											<td>{{ild.name1}}</td>
+											<td><a class="link-order"
+												(click)="displayDetails(ild.xblnr,ild.grn_no)"
+												href="javascript:void(0)">{{ild.xblnr}}</a></td>
+											<td><span *ngIf="ild.bldat!='0000-00-00'">{{ild.bldat
+													| date :'dd-MM-yyyy'}}</span></td>
+											<td>{{ild.vbeln_billing}}</td>
+											<td><span *ngIf="ild.erdat!='0000-00-00'">{{ild.erdat
+													| date :'dd-MM-yyyy'}}</span></td>
+											<td>{{ild.grn_no}}</td>
+											<td><span *ngIf="ild.budat!='0000-00-00'">{{ild.budat
+													| date :'dd-MM-yyyy'}}</span></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- end chnges -->
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="outbound-footer mt-3">
+			<div class="right-block">
+				<div class="pull-left">
+					<button class="login-button-export" title="Export Excel"
+						style="padding-left: 8px;" (click)="exportExcel()">
+						<i class="fa excel-icon"
+							style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+

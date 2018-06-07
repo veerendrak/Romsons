@@ -1,0 +1,75 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-billing',
+  templateUrl: './billing.component.html',
+  styleUrls: ['./billing.component.css']
+})
+export class BillingComponent implements OnInit {
+   createBillingForm:FormGroup;
+   billingDetailsPage:boolean=false;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,
+          private commonService:CommonService) {
+      this.app.isActive=true;
+      this.billingDetailsPage=true;
+      this.createBillingForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+        });
+  }
+
+  ngOnInit() {
+      console.log("billing--");
+      setTimeout(()=>{
+          $("#outbound-delivery-table").DataTable().destroy();
+          
+          
+           $("#outbound-delivery-table").DataTable({
+           "order": [0],
+          "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+          lengthMenu: [
+                    [ 5, 10,15,25,50, -1 ],
+                    [ '5', '10', '15', '25', '50','Show all' ]
+                ],
+           "fnDrawCallback": function( oSettings ) {
+                        if ( 5 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                            
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                            
+                            
+                           
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                            $(oSettings.nTableWrapper).find('.sorting_asc').show();
+                        }
+                    },
+           
+           "columnDefs": [ {
+                "targets"  : 'no-sort',
+                "orderable": false,
+               } ]
+      });
+          
+          
+          
+      },500);
+  }
+}

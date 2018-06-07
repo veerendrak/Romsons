@@ -1,0 +1,97 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+
+import { AppComponent } from '../../app.component';
+
+@Component({
+  selector: 'app-user-management',
+  templateUrl: './user-management.component.html',
+  styleUrls: ['./user-management.component.css']
+})
+export class UserManagementComponent implements OnInit {
+
+    opendiv:boolean;
+    public orgUsers: any;
+    public userRole:string;
+     public addUserForm: FormGroup;
+    public isAddUser:boolean;
+    public orgRoles=[];
+    public isBranchUser=false;
+     
+  constructor(private http: Http, private formBuilder: FormBuilder,
+			 private router: Router,private ref: ChangeDetectorRef,private app:AppComponent) {
+    this.app.isActive=true;
+      this.opendiv= false;
+      this.addUserForm = new FormBuilder().group(
+            {
+
+                'email': ['', [Validators.required, Validators.pattern( '^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$' )]],
+                'firstName': ['', Validators.required],
+                'lastName': ['', Validators.required],
+                'mobile': ['', [Validators.required, Validators.pattern( '^[789]{1}[0-9]{9}$' )]],
+                'roleId': ['', Validators.required],
+                'logonId': [''],
+                'role': [''],
+                'userId': [''],
+                'bpId': [''],
+                'bpLegalName': [''],
+                'userType': ['REG_USERS']
+            }
+        );
+  }
+
+  ngOnInit() { 
+  this.orgUsers = 
+      [{"userId":"732a978b-44d0-4325-a283-39ee5942d169","logonId":"xyz@gmail.com","email":"xyz@gmail.com",
+      "firstName":"xyz","lastName":"K","mobile":"7779077577","bpId":"d8bd2279-08a3-4240-800f-62a867dd33ba",
+      "bpLegalName":"xyz","role":"Organization Admin",
+      "roleId":"1","userType":"REG_USERS","isSubscriber":false}
+          ];
+      this.userRole="Organization Admin";
+      this.isAddUser=true;
+  }
+    
+    
+    openModal(){
+        $( '#addUser' ).modal( 'show' );
+    }
+    
+    resetPassword(userId){
+        
+    }
+    
+    edituserDetails(obj,modName){
+    
+    }
+    deleteUser(obj){
+        
+    }
+    
+    submituserDetails(){
+        
+    }
+    
+    finduserByLogonId(email){
+       this.opendiv = true;
+    }
+    reset(){
+         $( '#addUser' ).modal( 'hide' );
+        this.addUserForm.reset;
+    }
+    validateBussiness(){
+        
+    }
+    getUser(){
+        
+    }
+
+    cancelPopup(id){
+        
+    }
+}

@@ -1,0 +1,48 @@
+
+.outbound-content{
+	padding:0px;
+}
+.mat-placeholder-required{
+	color:red;
+}
+.mat-form-field{
+	width:100%;
+}
+.delivery-form-block{
+	padding:0px;
+}
+
+.add-qty{
+	color: #004f4b;
+    font-size: 20px;
+}
+.left-block{
+	max-width: 80%;
+    float: left;
+}
+.right-block{
+	margin-right: 0%;
+    float: right;
+    text-align: right;
+    max-width: 100%;
+}
+.asterick{
+	color: red;
+   font-size: 15px;
+top: 0 !important;
+}
+.text-align-sales{
+   padding-bottom: 10px;
+} 
+.text-align-sales{
+   padding-bottom: 10px;
+} 
+
+.delivery-form-block input{
+	padding:5px 5px 5px 5px !important;
+}
+.btn-disabled{
+	cursor: not-allowed;
+}
+.card-header-adjustments {margin: -21px 15px 0;}
+.page-title {margin-left: -4px;}

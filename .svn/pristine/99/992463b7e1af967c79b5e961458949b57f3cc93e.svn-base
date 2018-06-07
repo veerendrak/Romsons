@@ -1,0 +1,236 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Sales Order</strong>
+		</span>
+	</div>
+	<div class="card-block db-block" style="padding:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+					<!-- new changes -->
+					<div class="col-md-12 mt-1">
+							<div class="stock-table table-responsive">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="sales-order-table">
+								<thead>
+									<tr>
+										<th  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></th>
+										<th>SO No.</th>
+										<th>Order Date</th>
+										<th>Re Del Date</th>
+										<th>Customer Name</th>
+										<th>Ship to Party</th>
+										<th>Sale to Party</th>
+										<th>Sales Persons</th>
+										<th>Total Amount</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>S0122</td>
+										<td>02/02/2018</td>
+										<td>02/02/2018</td>
+										<td>Metro Medical Service Ltd</td>
+										<td>Metro Medical</td>
+										<td>Metro Medical</td>
+										<td>Administrator</td>
+										<td>1000,00</td>
+										<td>Build</td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>S0123</td>
+										<td>02/02/2018</td>
+										<td>02/02/2018</td>
+										<td>Metro Medical Service Ltd</td>
+										<td>Metro Medical</td>
+										<td>Metro Medical</td>
+										<td>Administrator</td>
+										<td>1000,00</td>
+										<td>Pending</td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>S0124</td>
+										<td>02/02/2018</td>
+										<td>02/02/2018</td>
+										<td>Metro Medical Service Ltd</td>
+										<td>Metro Medical</td>
+										<td>Metro Medical</td>
+										<td>Administrator</td>
+										<td>1000,00</td>
+										<td>Build</td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>S0125</td>
+										<td>02/02/2018</td>
+										<td>02/02/2018</td>
+										<td>Metro Medical Service Ltd</td>
+										<td>Metro Medical</td>
+										<td>Metro Medical</td>
+										<td>Administrator</td>
+										<td>1000,00</td>
+										<td>Build</td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>S0126</td>
+										<td>02/02/2018</td>
+										<td>02/02/2018</td>
+										<td>Metro Medical Service Ltd</td>
+										<td>Metro Medical</td>
+										<td>Metro Medical</td>
+										<td>Administrator</td>
+										<td>1000,00</td>
+										<td>Build</td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>S0127</td>
+										<td>02/02/2018</td>
+										<td>02/02/2018</td>
+										<td>Metro Medical Service Ltd</td>
+										<td>Metro Medical</td>
+										<td>Metro Medical</td>
+										<td>Administrator</td>
+										<td>1000,00</td>
+										<td>Delivered</td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>S0128</td>
+										<td>02/02/2018</td>
+										<td>02/02/2018</td>
+										<td>Metro Medical Service Ltd</td>
+										<td>Metro Medical</td>
+										<td>Metro Medical</td>
+										<td>Administrator</td>
+										<td>1000,00</td>
+										<td>Delivered</td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>S0129</td>
+										<td>02/02/2018</td>
+										<td>02/02/2018</td>
+										<td>Metro Medical Service Ltd</td>
+										<td>Metro Medical</td>
+										<td>Metro Medical</td>
+										<td>Administrator</td>
+										<td>1000,00</td>
+										<td>Pending</td>
+									</tr>
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+<div class="outbound-footer mt-3">
+		<div class="left-block">
+		<!-- <div class="pull-left" style="max-width:47%">
+			<button class="btn login-button">
+			<i class="fa fa-plus" style="margin-right:4px;"></i> Add Lines</button>
+		</div>
+		<div class="pull-left" style="max-width:50%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Remove Line</button>
+			</div> -->
+		</div>
+		<div class="right-block">
+			<div class="pull-left" style="max-width:29%">
+			<button class="btn login-button">
+			<i class="fa fa-print" style="margin-right:4px;"></i>Print</button>
+			</div>
+			<div class="pull-left" style="max-width:26.7%">
+			<button class="btn login-button">
+			<i class="fa fa-file-excel-o" style="margin-right:4px;"></i>Export Excel</button>
+			</div>
+			<div class="pull-left" style="max-width:30%">
+			<button class="btn login-button">
+			<i class="fa fa-ambulance" style="margin-right:4px;"></i>Create Delivery</button>
+			</div>
+			<div class="pull-left" style="max-width:13.4%">
+			<button class="btn login-button" (click)="editSalesOrder()">
+			<i class="fa fa-edit" style="margin-right:4px;"></i>Edit</button>
+			</div>
+			<div class="pull-left" style="max-width:12.4%">
+			<button class="btn login-button" (click)="createSalesOrder()">
+			<i class="fa fa-file-o" style="margin-right:4px;"></i>Create</button>
+			</div>
+		</div>
+	</div>
+</section>
+<!--create sales order -->
+
+					<div class="modal fade modal-size-medium" id="createSalesModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									Create Sales Order
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('createSalesModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;">
+								<form [formGroup]="createSalesOrderForm">
+									<div class="col-md-12 row">
+									<div class="col-md-6">
+									<mat-form-field 
+						      			[floatLabel]="createSalesOrderForm.value.floatLabel">
+										    <mat-select required>
+										      <mat-option>-- None --</mat-option>
+										      <mat-option value="option">Option</mat-option>
+										    </mat-select>
+										    <mat-placeholder>Order Type</mat-placeholder>
+									</mat-form-field>
+									</div>
+									<div class="col-md-6">
+									<mat-form-field 
+						      			[floatLabel]="createSalesOrderForm.value.floatLabel">
+									      <mat-label>Customer</mat-label>
+									    <input matInput placeholder="Customer" required>
+									  </mat-form-field>
+									</div>
+									
+									</div>
+									</form>
+								</div>
+
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<button (click)="createSalesForm('createSalesModal')"
+											class="btn login-button forgotOk"
+											>Ok</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<!-- End of create sales order-->

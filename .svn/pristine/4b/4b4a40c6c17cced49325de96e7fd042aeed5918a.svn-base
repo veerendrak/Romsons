@@ -1,0 +1,97 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-outbound-delivery-details',
+  templateUrl: './outbound-delivery-details.component.html',
+  styleUrls: ['./outbound-delivery-details.component.css']
+})
+export class OutboundDeliveryDetailsComponent implements OnInit {
+
+  createDeliveryForm:FormGroup;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,
+          private commonService:CommonService) {
+      this.app.isActive=true;
+      this.createDeliveryForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+        });
+  }
+
+  ngOnInit() {
+     
+      $( '.datepicker-init' ).datetimepicker( {
+
+                widgetPositioning: {
+                    horizontal: 'left'
+                },
+                icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down",
+                    previous: 'fa fa-arrow-left',
+                    next: 'fa fa-arrow-right'
+                },
+                format: 'LL',
+                
+            } );
+      
+       $("#delivery-order-table").DataTable({
+          "order": [0],
+          "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+           "fnDrawCallback": function( oSettings ) {
+                        if ( 10 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                            $(oSettings.nTableWrapper).find('.dataTables_length').hide();
+                             $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                              $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                              $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                        }
+                    },
+           "columnDefs": [ {
+                "targets"  : 'no-sort',
+                "orderable": false,
+               } ]
+      });
+      setTimeout(() =>{
+          $(".dataTables_scrollHeadInner").css({"width":"100%"});
+          $(".table ").css({"width":"100%"});    
+          },1100);
+      
+      
+      
+  }
+  editDeliveryOrder(){
+      this.commonService.saleType='Edit';
+      $("#outboundDeliveryModal").modal("show");  
+  }
+  createDeliveryOrder(){
+      this.commonService.saleType='Create';
+      $("#outboundDeliveryModal").modal("show");
+  }
+  closeModal(id){
+      $("#"+id).modal("hide");
+  }
+  createDeliverySubmit(id){
+      $("#"+id).modal("hide"); 
+      const path:any="createsalesorder";
+      this.router.navigate([path]);
+  }
+}

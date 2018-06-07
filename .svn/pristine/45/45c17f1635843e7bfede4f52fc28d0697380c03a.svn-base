@@ -1,0 +1,288 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router, ActivatedRoute, Params} from '@angular/router';
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+import { CommonService } from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import { AppComponent } from '../../app.component';
+
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+
+
+@Component({
+    selector: 'app-customer-details',
+    templateUrl: './customer-details.component.html',
+    styleUrls: ['./customer-details.component.css']
+})
+export class CustomerDetailsComponent implements OnInit {
+
+    customerDetailsForm: FormGroup;
+    customerDetailMsg: any;
+    url: string;
+    states: any;
+    bpId: any;
+    orgId: any;
+    cust_type: any;
+    accessObjectId: any;
+    customerpayload: any;
+    cust_id: any;
+    cdlist: any = [];
+    public payload: any;
+    title: any;
+    displayFlag: any;
+    cdListLength: any;
+    public customertypeList: any;
+    public typeListid: any = {};
+    public emptyFlag: boolean = false;
+    public formtype: any;
+    fromDisplayFlag: any;
+    custmrCities: any = [];
+    constructor(private http: Http, private formBuilder: FormBuilder, private environment: EnvConfigurationService,
+        private commonService: CommonService, private messagesService: MessagePropertiesService,
+        private router: Router, private activatedRoute: ActivatedRoute, private ref: ChangeDetectorRef, private app: AppComponent) {
+        this.app.isActive = true;
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjectId = localStorage.getItem("Customer Details");
+        this.cdListLength = 0;
+        this.fromDisplayFlag = false;
+        this.customerDetailsForm = new FormBuilder().group(
+            {
+                'cust_type': ['', Validators.required],
+                'cust_name': ['', [Validators.required, this.noWhitespaceValidator]],
+                'cust_name_2': [''],
+                'telephone': ['', [Validators.maxLength(15), Validators.minLength(10)]], //[Validators.required, Validators.pattern('^[789]{1}[0-9]{9}$')]],
+                'email': ['', [Validators.required, Validators.pattern('^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$')]],
+                'credit_limit': ['0'],//, [Validators.required]],
+                'status': ['', Validators.required],
+                'gstin': ['', [Validators.pattern('^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9]{1}[Z][0-9A-Z]{1}$')]],
+                'panno': ['', [Validators.required, Validators.pattern('^[A-Z]{5}[0-9]{4}[A-Z]{1}$')]],
+                'dl_no': ['', Validators.required],
+                'dno': [''],//, Validators.required],
+                'street': ['', [Validators.required, this.noWhitespaceValidator]],
+                'str_suppl1': [''],
+                'str_suppl2': [''],
+                'city': ['', [Validators.required, this.noWhitespaceValidator]],
+                'state': ['', Validators.required],
+                'pin_code': ['', [Validators.required, Validators.pattern('^[1-9][0-9]{5}$')]]
+            }
+            /* gstnum*Validators.pattern( '^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9]{1}[Z][0-9A-Z]{1}$' )]*/
+        );
+        this.customerDetailMsg = messagesService.customer_details_msg;
+        this.formtype = "Create";
+        this.activatedRoute.queryParams.subscribe(params => {
+            if (params['action'] == "DIS") {
+                this.title = " / Display (" + params["customerid"] + " )";
+                this.displayFlag = true;
+                this.formtype = "Display";
+                this.fromDisplayFlag = true;
+
+            }
+            this.cust_id = params["customerid"];
+            this.getCustomerDetails();
+            if (params['action'] == "Edit") {
+                this.formtype = "Edit";
+                this.displayFlag = true;
+                this.fromDisplayFlag = false;
+                $("#txt_credit_limit").prop("disabled", false);
+                $("#btn_edit_customer_save").css("display", 'block');
+                this.title = " / Edit (" + params["customerid"] + " )";
+                $("#btn_edit_details").css("display", 'none');
+                // setTimeout(() => { $("#txt_credit_limit").removeAttr('disabled') }, 500);
+            }
+        });
+        this.custmrCities = [];
+    }
+    ngOnInit() {
+        $(() => {
+            $(document).on("input", ".numbersOnly", function() {
+                this.value = this.value.replace(/[^\d\.]/g, '');
+            });
+        });
+       
+        this.getCustomertypesList();
+        let stateUrl: any = this.environment.getRequiredApi("dropdown_list_byid") + "?";
+        stateUrl = stateUrl.replace("{obj_name}", "sap_states");
+        stateUrl = stateUrl.replace("{obj_id}", 1);
+        this.commonService.getData(stateUrl, "GET", "", this.accessObjectId).subscribe((response) => {
+            if (response.status == 0) {
+                this.states = response["data"].objs;
+            }
+        });
+        setTimeout(() => {
+            var width = $("#mainContent").css("width");
+            $(".outbound-footer").css("width", width);
+            $(".outbound-footer").show();
+        }, 500);
+
+    }
+    getCustomertypesList() {
+        let url = this.environment.getRequiredApi('header_dropdown') + "?group=CUSTTYPS&";
+        this.commonService.getData(url, "GET", '', "")
+            .subscribe((response) => {
+                console.log(response);
+                this.customertypeList = response.data.configValues;
+                this.emptyFlag = false;
+            });
+    }
+    saveCustomerDetails() {
+        $("#loadingIcon").show();
+        $("#black-overlay").show();
+        console.log(this.customerDetailsForm.value);
+        this.url = this.environment.getRequiredApi('customer_manage') + "?";
+        if(this.customerDetailsForm.value['credit_limit']=="" || this.customerDetailsForm.value['credit_limit']==undefined){
+            this.customerDetailsForm.value['credit_limit']=0; 
+        }
+        this.customerpayload = this.customerDetailsForm.value;
+        this.customerpayload.bp_id = this.bpId;
+        this.customerpayload.org_id = this.orgId;
+        if (this.formtype == "Edit") {
+            this.customerpayload.action = "U";
+            this.customerpayload.cust_code = $('#hdn_cust_id').val();
+        }
+        else {
+            this.customerpayload.action = "C";
+            let custtype: any = $('#cust_type option:selected').text().trim();
+            if (custtype == "Please Select Type") {
+                this.commonService.responseMessages('', "Select Customer Type", 'warning');
+            }
+            else {
+                this.customerpayload.cust_type = $('#cust_type').val() + "," + $('#cust_type option:selected').text().trim();
+                let stateval: any = $('#state_id option:selected').text()
+                this.customerpayload.state = $('#state_id').val() + "," + stateval.trim();
+            }
+        }
+        this.commonService.getData(this.url, "POST", this.customerpayload, this.accessObjectId).subscribe((response) => {
+            if (response.status == 1) {
+                $("#loadingIcon").hide();
+                $("#black-overlay").hide();
+                this.commonService.responseMessages('', response.message, 'warning');
+            } else {
+                $("#loadingIcon").hide();
+                $("#black-overlay").hide();
+                this.commonService.responseMessages('', response.message, 'success');
+                this.customerDetailsForm.reset();
+                this.formclear();
+                this.redirectCustomerlist();
+                if (this.formtype == "Edit") {
+                    this.redirectCustomerlist();
+                }
+            }
+        });
+    }
+    //    editCustomerDetails() {
+    //        $("#loadingIcon").show();
+    //        $("#black-overlay").show();
+    //        console.log(this.customerDetailsForm.value);
+    //        this.url = this.environment.getRequiredApi('customer_manage') + "?";
+    //        this.customerpayload = this.customerDetailsForm.value;
+    //        this.customerpayload.bp_id = this.bpId;
+    //        this.customerpayload.org_id = this.orgId;
+    //
+    //        this.commonService.getData(this.url, "POST", this.customerpayload, this.accessObjectId).subscribe((response) => {
+    //            if (response.status == 1) {
+    //                $("#loadingIcon").hide();
+    //                $("#black-overlay").hide();
+    //                this.commonService.responseMessages('', response.message, 'warning');
+    //            } else {
+    //                $("#loadingIcon").hide();
+    //                $("#black-overlay").hide();
+    //                this.commonService.responseMessages('', response.message, 'success');
+    //                this.customerDetailsForm.reset();
+    //                this.redirectCustomerlist();
+    //            }
+    //        });
+    //    }
+    formclear() {
+        $('#txt_credit_limit').val(0);
+        $("#cust_type").prop('selectedIndex', 0);
+        $("#slct_status").prop('selectedIndex', 0);
+        $("#state_id").prop('selectedIndex', 0);
+    }
+    getCustomerDetails() {
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        let response: any = {}
+        response["address"] = true;
+        response["bp_id"] = this.bpId;
+        response["compliance"] = true;
+        response["incoterms"] = true;
+        response["org_id"] = this.orgId;
+        response["cust_id"] = this.cust_id;
+        let url: any = this.environment.getRequiredApi("get_customer_details") + "?";
+        this.commonService.getData(url, "POST", response, this.accessObjectId).subscribe(response => {
+            $('#loadingIcon').hide();
+            $("#black-overlay").hide();
+            if (response.status == 0) {
+                this.cdlist = response["data"];
+                this.cdListLength = Object.keys(this.cdlist).length;
+                this.customerDetailsForm.controls['cust_type'].setValue(this.cdlist['ex_address'].cust_grp);
+                this.customerDetailsForm.controls['cust_name'].setValue(this.cdlist['ex_address'].cust_name);
+                this.customerDetailsForm.controls['cust_name_2'].setValue(this.cdlist['ex_address'].name2);
+                this.customerDetailsForm.controls['telephone'].setValue(this.cdlist['ex_address'].telefone);
+                this.customerDetailsForm.controls['email'].setValue(this.cdlist['ex_address'].email);
+                this.customerDetailsForm.controls['credit_limit'].setValue(this.cdlist['ex_address'].credit_limit);
+                this.customerDetailsForm.controls['status'].setValue(this.cdlist['ex_address'].cust_status);
+                this.customerDetailsForm.controls['street'].setValue(this.cdlist['ex_address'].street);
+                this.customerDetailsForm.controls['str_suppl1'].setValue(this.cdlist['ex_address'].street2);
+                this.customerDetailsForm.controls['str_suppl2'].setValue(this.cdlist['ex_address'].street3);
+                this.customerDetailsForm.controls['state'].setValue(this.cdlist['ex_address'].region);
+                this.customerDetailsForm.controls['city'].setValue(this.cdlist['ex_address'].city);
+                this.customerDetailsForm.controls['pin_code'].setValue(this.cdlist['ex_address'].post_code);
+                this.customerDetailsForm.controls['gstin'].setValue(this.cdlist['ex_compliance'].gstin);
+                this.customerDetailsForm.controls['panno'].setValue(this.cdlist['ex_compliance'].pan_no);
+                this.customerDetailsForm.controls['dl_no'].setValue(this.cdlist['ex_compliance'].lst_no);
+                console.log(this.cdlist);
+                if (this.formtype == "Edit") {
+                    $("#txt_credit_limit").prop("disabled", false);
+                    $("#btn_edit_customer_save").css("display", 'block');
+                    $("#btn_edit_details").css("display", 'none');
+                }
+            } else {
+                this.commonService.responseMessages("", response.message, "warning");
+            }
+        })
+    }
+    redirectCustomerlist() {
+        const path: any = 'custdet';
+        this.router.navigate([path]);
+    }
+    get_editCustomerDetails() {
+        //        $("#txt_credit_limit").prop("disabled", false);
+        //        $("#btn_edit_customer_save").css("display", 'block');
+        if (this.cust_id == "undefined") {
+            this.commonService.responseMessages("", "Customer not approved", "warning");
+        }
+        else {
+            this.title = " / Edit (" + this.cust_id + " )";
+            //        $("#btn_edit_details").css("display", 'none');
+            this.formtype = "Edit";
+            this.displayFlag = true;
+            this.fromDisplayFlag = false;
+        }
+    }
+    getCitiesList(stateId) {
+        console.log("state ID -->" + stateId);
+        this.customerDetailsForm.controls["city"].setValue("");
+
+        let citiesUrl: any = this.environment.getRequiredApi("dropdown_list_byid") + "?";
+        citiesUrl = citiesUrl.replace("{obj_name}", "cities");
+        citiesUrl = citiesUrl.replace("{obj_id}", stateId);
+        this.commonService.getData(citiesUrl, "GET", "", this.accessObjectId).subscribe((response) => {
+            if (response.status == 0) {
+                this.custmrCities = response["data"].objs;
+            }
+        });
+    }
+
+    public noWhitespaceValidator(control: FormControl) {
+
+        let isWhitespace = (control.value || '').trim().length === 0;
+        let isValid = !isWhitespace;
+        return isValid ? null : { 'whitespace': true }
+    }
+
+}

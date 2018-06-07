@@ -1,0 +1,184 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Delivery
+					Report</strong>
+			</span>
+			<div class="pull-right">
+			<div class="row pull-left icon-filter-align">
+						<span class="" (click)="showFilters();" title="Advance Filters">
+						 <i class="fa fa-sliders"> </i>
+						</span>
+				  </div>
+			</div>
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv" id="filter-block">
+							<form [formGroup]="poreportdetailsForm">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+										<div class="col-md-2 text-align-sales" style="min-width:20%;">
+										<label>Ship to Party</label> <input type="text"
+											autocomplete="off" list="customerNamesList"
+											class="form-control ajax-list"
+											(keyup)="extractData('cust-name','spinner-search','filetrajaxListBlock',$event)"
+											id="cust-name" formControlName="custName"
+											placeholder="customer name" validateOnBlur
+											[validateFormControl]="poreportdetailsForm.controls['custName']"
+											placeholder="Ship to Party" style="height:30px;width:230px;"/> <i
+											class="fa fa-spinner fa-spin spinner-icon"
+											id="spinner-search" style="display: none;margin-top:-10%;margin-right:-1%;"></i> <input
+											type="hidden" name="customerId" id="filterCustomerId"
+											value="" />
+										<div class="ajax-searchlist"
+											style="display: none; width: 100%;" id="filetrajaxListBlock">
+											<ul id="customerNamesBlock" class="custmore-list ajax-list">
+												<ng-container *ngIf="customerNames.length>0">
+												<li *ngFor="let cstList of customerNames; let i = index;"
+													id="list-{{i}}" value="{{cstList.cust_id}}"
+													class="ajax-list"
+													(click)="selectedItem(cstList,'filetrajaxListBlock','cust-name','filterCustomerId')"><span
+													class="pull-left" style="font-weight: 600;">{{cstList.cust_name}}</span>
+													<span class="pull-right">{{cstList.cust_id}}</span></li>
+												</ng-container>
+												<ng-container *ngIf="customerNames.length==0">
+												<li>Customers are not found</li>
+												</ng-container>
+											</ul>
+										</div>
+										<span
+											*ngIf="poreportdetailsForm.controls['custName'].touched && poreportdetailsForm.controls['custName'].invalid && poreportdetailsForm.controls['custName'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['custName'].errors.required">
+												{{pendingReportMessages.customer_name}}</small>
+										</span>
+
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<label><b>From Period</b><sup class="asterick">*</sup></label>
+										<input type="text" style="padding: 5px !important;"
+											placeholder="From Period" id="frmDate"
+											class="form-control datepicker-init"
+											formControlName="frmDate" validateOnBlur
+											(blur)="changeTodatePicker('#frmDate')"
+											[validateFormControl]="poreportdetailsForm.controls['frmDate']" />
+										<span
+											*ngIf="poreportdetailsForm.controls['frmDate'].touched && poreportdetailsForm.controls['frmDate'].invalid && poreportdetailsForm.controls['frmDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['frmDate'].errors.required">
+												Please select From Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales toDatepic">
+										<label><b>To Period</b><sup class="asterick">*</sup></label> <input
+											type="text" style="padding: 5px !important;"
+											placeholder="To Period" class="form-control datepicker-init2"
+											id="toDate" formControlName="toDate" validateOnBlur
+											(blur)="removeStyles()"
+											[validateFormControl]="poreportdetailsForm.controls['toDate']" />
+										<span
+											*ngIf="poreportdetailsForm.controls['toDate'].touched && poreportdetailsForm.controls['toDate'].invalid && poreportdetailsForm.controls['toDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['toDate'].errors.required">
+												Please select To Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<button type="submit" class="login-button-export"
+											[disabled]="poreportdetailsForm.invalid"
+											(click)="getpoReportDetails();"
+											style="position: relative; top: 26px;">
+											<i class="fa submit-icon"
+												style="margin-right: 4px; padding-right: 4px;"> <span
+												class="icon-text" style="right: -4px;">Submit</span>
+											</i>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+						
+						<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table " id="">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable table-responsive table-divs"
+									width="100%" id="delivery-order-table">
+									<thead>
+										<tr>
+											<th style="width: 80px !important; min-width: 122px;">Del
+												Number</th>
+											<th style="width: 100px !important; min-width: 102px;">Status</th>
+											<th style="width: 100px !important; min-width: 107px;">Doc
+												Category</th>
+											<th style="width: 120px !important;">Del Date</th>
+											<th style="width: 150px !important;">Ship To Party</th>
+											<th style="min-width: 90px !important;">Material</th>
+											<th style="min-width: 130px !important;">Description</th>
+											<th style="min-width: 80px !important;">Qty</th>
+											<th style="min-width: 60px !important;">Batch</th>
+											<th style="min-width: 60px !important;">UOM</th>
+											<th style="min-width: 140px !important;">SO Number</th>
+										</tr>
+									</thead>
+									<tbody>
+										<ng-container
+											*ngFor="let HeaderList of deliveryreportdetailsList">
+										<ng-container
+											*ngFor="
+											let ItemList of HeaderList.item;">
+										<tr>
+											<td>{{HeaderList.del_num}}</td>
+											<td>{{HeaderList.status}}</td>
+											<td>{{HeaderList.doc_category}}</td>
+											<td>
+											<span class="hide">{{HeaderList.del_date | date :'yyyyMMdd'}}</span>
+											{{HeaderList.del_date | date :'dd-MM-yyyy'}}</td>
+											<td><div class="text-name-elipsis"
+													title="{{HeaderList.ship_to}}">{{HeaderList.ship_to}}</div></td>
+											<td>{{ItemList.matnr}}</td>
+											<td><div class="text-name-elipsis"
+													title="{{ItemList.arktx}}">{{ItemList.arktx}}</div></td>
+											<td align="right">{{ItemList.lfimg | customround}}</td>
+											<td>{{ItemList.charg}}</td>
+											<td>{{ItemList.meins}}</td>
+											<td>{{ItemList.vgbel}}</td>
+										</tr>
+										</ng-container> </ng-container>
+
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3" style="width: 94%;">
+		<div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export" title="Export Excel"
+					style="padding-left: 8px;" (click)="exportExcel()">
+					<i class="fa excel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+</section>

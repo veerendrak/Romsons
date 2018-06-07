@@ -1,0 +1,33 @@
+{
+  "name": "project",
+  "version": "2.1.0",
+  "authors": [
+    "Mediatec Software http://www.mediatec.org <hello@mediatec.com>"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules"
+  ],
+  "dependencies": {
+    "bootstrap": "v4.0.0-alpha.6",
+    "jquery": "3.1.1",
+    "tether": "1.4.0",
+    "jquery-mousewheel": "3.1.13",
+    "jscrollpane": "2.0.23",
+    "ladda": "1.0.0",
+    "bootstrap-select": "1.12.2",
+    "html5-form-validation": "1.5.4",
+    "jquery-typeahead": "2.7.6",
+    "bootstrap-show-password": "1.0.3",
+    "eonasdan-bootstrap-datetimepicker": "4.17.47",
+    "bootstrap-sweetalert": "1.0.1",
+    "remarkable-bootstrap-notify": "3.1.3",
+    "datatables-responsive": "2.1.1",
+    "datatables-fixedcolumns": "3.2.2",
+    "c3": "0.4.11",
+    "nprogress": "0.2.0",
+    "jquery-ui": "1.12.1",
+    "jquery-steps": "1.1.0",
+    "jquery-table2excel": "^1.1.1"
+  }
+}

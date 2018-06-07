@@ -1,0 +1,63 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-sales-order-details',
+  templateUrl: './sales-order-details.component.html',
+  styleUrls: ['./sales-order-details.component.css']
+})
+export class SalesOrderDetailsComponent implements OnInit {
+    createSalesOrderForm:FormGroup;
+    createSalesOrderPage:boolean=false;
+    salesOrderDetails:boolean=false;
+    saleType:any;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,
+          private commonService:CommonService) {
+      this.app.isActive=true;
+      this.salesOrderDetails=true;
+      this.createSalesOrderForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+        });
+  }
+
+  ngOnInit() {
+      $("#sales-order-table").DataTable({
+          bSort:false,
+          bPaginate:false,
+          "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+           "bInfo":false,
+           "bFilter":false
+      });
+  }
+  createSalesOrder(){
+      this.commonService.saleType='Create';
+      $("#createSalesModal").modal("show");
+  }
+  closeModal(id){
+      $("#"+id).modal("hide");
+  }
+  createSalesForm(id){
+      $("#"+id).modal("hide");
+      const path:any="createsalesorder";
+      this.router.navigate([path]);
+  }
+  editSalesOrder(){
+      this.commonService.saleType='Edit';
+      $("#createSalesModal").modal("show");
+  }
+  
+}

@@ -1,0 +1,15 @@
+import { Component, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'app-delarship-details',
+  templateUrl: './delarship-details.component.html',
+  styleUrls: ['./delarship-details.component.css']
+})
+export class DelarshipDetailsComponent implements OnInit {
+
+  constructor() { }
+
+  ngOnInit() {
+  }
+
+}

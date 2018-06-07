@@ -1,0 +1,201 @@
+<nav class="cat__menu-left">
+    <div class="cat__menu-left__lock cat__menu-left__action--menu-toggle">
+		<i class="fa fa-2x fa-align-justify" id="justify" style="color: #f3bb42;font-size: 1.5rem;display:none;" (click)="showLeftBar('#justify','#arrow')"></i>
+        <i class="fa fa-remove" id="arrow" style="color: #f3bb42;font-size: 1.5rem;" (click)="showLeftBar('#arrow','#justify')"></i>
+    </div>
+	<div class="cat__menu-left__logo">
+		<img src="assets/modules/dummy-assets/common/img/logo.png"
+							style="display: block;">
+    </div>
+	<div class="cat__menu-left__inner">
+        <ul class="cat__menu-left__list cat__menu-left__list--root">
+			<li class="cat__menu-left__item cat__menu-left__submenu" [routerLinkActive]="['cat__menu-left__item--active']" >
+				<a href="javascript: void(0);">
+			                    <i class="fa fa-tachometer cat_menu_icons_left"></i>
+			                   Dashbord 
+			                </a> 
+				<ul class="cat__menu-left__list">
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a routerLink="dashboard">
+                            <i class="fa fa-chart-bar cat_menu_icons_left"></i>
+                           	Quick stats
+                        </a> 
+					</li>
+				</ul>
+			</li>
+			<li class="cat__menu-left__item cat__menu-left__submenu" [routerLinkActive]="['cat__menu-left__item--active']" >
+				<a href="javascript: void(0);">
+			                    <i class="fa fa-cart-plus cat_menu_icons_left"></i>
+			                    Sales
+			                </a> 
+				<ul class="cat__menu-left__list">
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a routerLink="salesorder">
+                            <i class="fa fa-sitemap cat_menu_icons_left"></i>
+                           	Sales Order
+                        </a> 
+					</li>
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a routerLink="outbounddelivery">
+                            <i class="fa fa-sitemap cat_menu_icons_left"></i>
+                           	Outbound delivery
+                        </a> 
+					</li>
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a href="javascript: void(0);">
+                            <i class="fa fa fa-archive cat_menu_icons_left"></i>
+                           	Post Goods issue
+                        </a> 
+					</li>
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a routerLink="billing">
+                            <i class="fa fa-file-o cat_menu_icons_left"></i>
+                           	Billing
+                        </a> 
+					</li>
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a routerLink="billing">
+                            <i class="fa fa-file-o cat_menu_icons_left"></i>
+                           	Incoming Payment
+                        </a> 
+					</li>
+				
+		</ul>
+			</li>
+			<li class="cat__menu-left__item cat__menu-left__submenu" [routerLinkActive]="['cat__menu-left__item--active']" >
+				<a href="javascript: void(0);">
+			                    <i class="fa fa-shopping-cart cat_menu_icons_left"></i>
+			                   Purchases 
+			                </a> 
+				<ul class="cat__menu-left__list">
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a href="javascript: void(0);">
+                            <i class="fa fa-sitemap cat_menu_icons_left"></i>
+                           	View Purchases
+                        </a> 
+					</li>
+				</ul>
+			</li>
+			<li class="cat__menu-left__item cat__menu-left__submenu" [routerLinkActive]="['cat__menu-left__item--active']" >
+				<a href="javascript: void(0);">
+			                    <i class="fa fa-cubes cat_menu_icons_left"></i>
+			                    Inventory 
+			                </a> 
+				<ul class="cat__menu-left__list">
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a routerLink="stockbalance">
+                            <i class="fa fa-sitemap cat_menu_icons_left"></i>
+                           	Opening Stock Balance 
+                        </a> 
+					</li>
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a routerLink="stockdetails">
+                            <i class="fa fa-sitemap cat_menu_icons_left"></i>
+                           	Stock Details
+                        </a> 
+					</li>
+				</ul>
+			</li>
+			<li class="cat__menu-left__item cat__menu-left__submenu" [routerLinkActive]="['cat__menu-left__item--active']" >
+				<a href="javascript: void(0);">
+			                    <i class="fa fa-file-text-o cat_menu_icons_left"></i>
+			                    Report 
+			                </a> 
+				<ul class="cat__menu-left__list">
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a href="javascript: void(0);">
+                            <i class="fa fa-sitemap cat_menu_icons_left"></i>
+                           	View Sales Reports
+                        </a> 
+					</li>
+				</ul>
+			</li>
+			<li class="cat__menu-left__item cat__menu-left__submenu" [routerLinkActive]="['cat__menu-left__item--active']" >
+				<a href="javascript: void(0);">
+			                    <i class="fa fa-user cat_menu_icons_left"></i>
+			                    Support
+			                </a> 
+				<ul class="cat__menu-left__list">
+					<li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']"
+                    >
+                        <a href="javascript: void(0);">
+                            <i class="fa fa-sitemap cat_menu_icons_left"></i>
+                           	View Sales Reports
+                        </a> 
+					</li>
+				</ul>
+			</li>
+			<!-- 
+			<li class="cat__menu-left__item cat__menu-left__submenu" [routerLinkActive]="['cat__menu-left__item--active']"  *ngFor = "let list of leftMenu" 
+            >
+               <div *ngIf="list.childLength; then thenBlock else elseBlock"></div>
+					<ng-template #thenBlock>
+			                <a href="javascript: void(0);" *ngIf="list.permissionLevel==1">
+			                    <i class="fa {{list.menuIcon}} cat_menu_icons_left"></i>
+			                    {{list.parentObjName}}
+			                </a> 
+					<ul class="cat__menu-left__list">
+                    
+                    <li class="cat__menu-left__item menu-custom-left" [routerLinkActive]="['cat__menu-left__item--active']" *ngFor = "let childlist of list.childObjs"
+                    >
+                        <a [routerLink]="[childlist.childUrl | lowercase]" *ngIf="childlist.permissionLevel==1 && childlist.childUrl != 'MySupportTickets' && childlist.childUrl != 'HelpDocs' && childlist.childUrl != 'ASPTaxCommunity' && childlist.childUrl != 'ManageOTP' && childlist.childUrl != 'Reportabug' && childlist.childUrl != 'Contactus'" >
+                            <i class="fa {{childlist.menuIcon}} cat_menu_icons_left"></i>
+                           {{childlist.objName}}
+                        </a>
+                        <a href="https://support.asptax.com" target="_blank" *ngIf="childlist.permissionLevel==1 && childlist.childUrl == 'MySupportTickets'">
+                            <i class="fa {{childlist.menuIcon}} cat_menu_icons_left"></i>
+                           {{childlist.objName}}
+                        </a> 
+                         <a href="https://support.asptax.com" target="_blank" *ngIf="childlist.permissionLevel==1 && childlist.childUrl == 'Reportabug'">
+                            <i class="fa {{childlist.menuIcon}} cat_menu_icons_left"></i>
+                           {{childlist.objName}}
+                        </a> 
+                        
+                       <a href="mailto:contactus@asptax.com" target="_blank" *ngIf="childlist.permissionLevel==1 && childlist.childUrl == 'Contactus'">
+                            <i class="fa {{childlist.menuIcon}} cat_menu_icons_left"></i>
+                           {{childlist.objName}}
+                        </a> 
+                        <a href="https://help.asptax.com/" target="_blank" *ngIf="childlist.permissionLevel==1 && childlist.childUrl == 'HelpDocs'">
+                       	
+                           <i class="fa {{childlist.menuIcon}} cat_menu_icons_left"></i>
+                          {{childlist.objName}}
+                       </a>
+                       <a href="https://groups.google.com/d/forum/asptax" target="_blank" *ngIf="childlist.permissionLevel==1 && childlist.childUrl == 'ASPTaxCommunity'">
+                           <i class="fa {{childlist.menuIcon}} cat_menu_icons_left"></i>
+                          {{childlist.objName}}
+                       </a>
+                       <a href="javascript:void(0)"  (click)="updateOtp()" *ngIf="childlist.permissionLevel==1 && childlist.childUrl == 'ManageOTP'">
+                           <i class="fa {{childlist.menuIcon}} cat_menu_icons_left"></i>
+                          {{childlist.objName}}
+                       </a>
+                        
+                    </li>
+                    
+                    
+                </ul>
+                
+					</ng-template>
+					<ng-template #elseBlock>
+					 <a [routerLink]="[list.menuUrl | lowercase]"  class="no-sub-menu">
+			                    <i class="fa {{list.menuIcon}} cat_menu_icons_left"></i>
+			                    {{list.parentObjName}}
+			                </a>
+					</ng-template> 
+                </li>
+            <li class="cat__menu-left__divider"></li>
+			
+			 -->
+		</ul>
+		
+			</div>
+</nav>

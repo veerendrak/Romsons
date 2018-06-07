@@ -1,0 +1,252 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router,ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+declare var XLSX:any;
+declare var XLS:any;
+@Component({
+  selector: 'app-edit-outbound-delivery',
+  templateUrl: './edit-outbound-delivery.component.html',
+  styleUrls: ['./edit-outbound-delivery.component.css']
+})
+export class EditOutboundDeliveryComponent implements OnInit {
+        
+     deliveryForm: FormGroup;
+    outboundDeliveryMsg:any;
+    title:any;
+    deliveryNum:any;
+    
+    outBoundDelPayload:any={};
+    
+    docDate:any;
+    giDate:any;
+    delDate;
+    disableFlag:boolean;
+    outBoundDeliveryFormObject:any=[];  
+    bpId:any;
+    orgId:any;
+    numOfPackage:any;
+    itemNumbers:any;
+    outboundDelievryItemsList:any;
+    accessObjectId:any;
+    deliveryList:any;
+    saveBtn:boolean=false;
+  constructor(private http: Http, private formBuilder: FormBuilder,private messagesService:MessagePropertiesService,private environment:EnvConfigurationService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private commonService:CommonService,private activatedRoute:ActivatedRoute) { 
+      this.app.isActive=true;
+      this.deliveryForm = formBuilder.group({
+        
+          'shippingPoint': ['', Validators.required],
+          'date': ['', Validators.required],
+          'orderNum': ['', Validators.required],
+          'DocDate': ['', Validators.required],
+          'GiDate': ['', Validators.required],
+          'NoPackage': ['', Validators.required],
+          'totWeight': ['', Validators.required],
+        });
+      this.outboundDeliveryMsg = messagesService.outbound_delivery_msg;
+      this.disableFlag=true;
+       this.bpId=localStorage.getItem("bpId");
+        this.orgId=localStorage.getItem("orgId");
+        this.itemNumbers=[];
+        this.outboundDelievryItemsList=[];
+        this.accessObjectId=localStorage.getItem('Outbound Delivery');
+        this.deliveryList={};
+        this.saveBtn=false;
+  }
+
+  ngOnInit() {
+      this.activatedRoute.queryParams.subscribe(params => {
+      if(this.router.url.includes("obd")){
+        this.deliveryNum=  params['orderNum'];
+        this.commonService.deliveryNum=this.deliveryNum;
+        if(params['action']=="U"){
+            this.disableFlag=false;
+        }
+        this.getSalesOutboundDeliveryList();
+      
+      }
+  });
+      
+      setTimeout(()=>{
+      
+          if(this.deliveryForm.value["orderNum"].length == 0){
+              $( '.datepicker-init' ).datetimepicker( {
+
+                widgetPositioning: {
+                    horizontal: 'left'
+                },
+                icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down",
+                    previous: 'fa fa-arrow-left',
+                    next: 'fa fa-arrow-right'
+                },
+                format: 'LL',
+                
+            } );
+          }
+          
+      },500);
+      setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },50);
+      
+     
+      
+  }
+
+     getSalesOutboundDeliveryList(){
+         $('#loadingIcon').show();
+         $("#black-overlay").show();
+          this.outBoundDelPayload["bp_id"]=this.bpId;
+          this.outBoundDelPayload["org_id"]=this.orgId;
+         this.outBoundDelPayload["del_num"]=this.deliveryNum;
+         
+         let url = this.environment.getRequiredApi( 'get_sales_outbound_delivery_list' )+"?";
+      
+        this.commonService.getData( url, 'POST', this.outBoundDelPayload,this.accessObjectId)
+            .subscribe(( response ) => {
+                this.outBoundDeliveryFormObject = response.data.ex_delivery_list[0];
+                let weight:any=this.outBoundDeliveryFormObject.total_weight+" "+this.outBoundDeliveryFormObject.unit;
+                this.docDate="";
+                if(this.outBoundDeliveryFormObject.del_date!="0000-00-00"){
+                    this.docDate=this.outBoundDeliveryFormObject.del_date;
+                }
+                this.giDate="";
+                if(this.outBoundDeliveryFormObject.del_date!="0000-00-00"){
+                    this.giDate=this.outBoundDeliveryFormObject.gi_date;
+                }
+                  this.deliveryForm.setValue(
+                      {
+                          shippingPoint: this.outBoundDeliveryFormObject.ship_to,
+                          date: this.docDate,
+                          orderNum: this.outBoundDeliveryFormObject.del_num,
+                          DocDate: this.docDate,
+                          GiDate: this.giDate,
+                          NoPackage: this.outBoundDeliveryFormObject.num_pkg,
+                          totWeight: weight,
+
+                      });
+                  this.docDate = this.outBoundDeliveryFormObject.doc_date
+                  this.giDate = this.outBoundDeliveryFormObject.gi_date;
+                  this.delDate = this.outBoundDeliveryFormObject.del_date;
+                  this.numOfPackage = this.outBoundDeliveryFormObject.num_pkg;
+                  
+                  
+                  
+                  if(this.numOfPackage.charAt(0)=="0"){
+                    this.numOfPackage="0";
+                    }
+                  this.outBoundDeliveryFormObject["item"].forEach(currentItem=>{
+                      currentItem.updateFlag="U";
+                      currentItem.displayRow=true;
+                      if(this.itemNumbers.length==0){
+                          this.itemNumbers.push(currentItem.so_item);
+                      }else{
+                          if(this.itemNumbers.indexOf(currentItem.so_item)==-1){
+                              this.itemNumbers.push(currentItem.so_item);
+                          }
+                      }
+                  });
+                  let countItm:any=0;
+                  for(let index of this.itemNumbers){
+                      let commonIndex:any=null;
+                  this.outBoundDeliveryFormObject["item"].forEach(currentItem=>{
+                          if(currentItem.so_item==index){
+                              if(commonIndex==null){
+                                  commonIndex=index;
+                                  currentItem['batchNum']="";
+                              }else{
+                                 if(commonIndex==currentItem.so_item){
+                                 } currentItem['batchNum']="batch-"+currentItem.so_item;
+                              }
+                              this.outboundDelievryItemsList.push(currentItem);
+                          }
+                      });
+                  }
+                  let vgPos:any=null;
+                  let delvQty:any=null;
+                  let batchLength:any=0;
+                  for(let index of this.itemNumbers){
+                      this.outboundDelievryItemsList.forEach(currentItem=>{
+                              if(index==currentItem.so_item && currentItem.batchNum!=""){
+                                  if(delvQty==null){
+                                      delvQty=parseFloat(currentItem.del_qty);
+                                  }else{
+                                      delvQty=delvQty+parseFloat(currentItem.del_qty);
+                                  }
+                                  this.outboundDelievryItemsList[countItm].del_qty=delvQty;
+                                  batchLength++;
+                              }
+                      });
+                      countItm++;
+                      countItm=countItm+batchLength;
+                      delvQty=null;
+                  }
+                  $('#loadingIcon').hide();
+                  $("#black-overlay").hide();
+            }, err => {
+                  
+                    console.log(err)   
+                
+               
+                //this.reqdata.responseMessages(err, err.status, 'danger');
+            } );
+    
+    }
+    
+    redirectToOutBoundDelivery(){
+        const path:any='obd';
+         this.router.navigate([path]);
+    
+    }
+    expandChildRows(childrow,itemId,icon,index){
+        if($("#plus-"+index).is(":visible")){
+            $("#plus-"+index).hide();
+            $("#minus-"+index).show();
+            $("."+childrow+"-"+itemId).show();
+        }else{
+            if($("#minus-"+index).is(":visible")){
+                $("#plus-"+index).show();
+                $("#minus-"+index).hide();
+            }
+            $("."+childrow+"-"+itemId).hide(); 
+        }
+        
+    }
+    expandAllrows(){
+        if($(".child-row").is(":visible")){
+            $(".child-row").hide();
+            $(".plus-circle-icon").show();
+            $(".minus-circle-icon").hide();
+        }else{
+            $(".child-row").show();
+            $(".plus-circle-icon").hide();
+            $(".minus-circle-icon").show(); 
+        }
+    } 
+removeLineSelectedItems(){
+    
+}
+displayAddSalesModal(){
+    
+}
+createDelivery(){
+    
+}
+redirectDelievryList(){
+    
+}
+}

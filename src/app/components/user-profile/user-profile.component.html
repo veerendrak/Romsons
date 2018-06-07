@@ -1,0 +1,406 @@
+<!-- <ol class="breadcrumb">
+  <li class="breadcrumb-item breadcrumb-arrow active">My Account</li>
+  <li class="breadcrumb-arrow   active">profile</li>
+</ol> -->
+<section class="card" id="mainContent">
+
+	<div class="card-header">
+		<span class="cat__core__title"> <strong class="page-title">My
+				Profile</strong>
+		</span>
+	</div>
+	<div class="card-block">
+
+		<section class="card ">
+			<div class="card-block text-center">
+				<a
+					class="cat__core__avatar cat__core__avatar--border-white cat__core__avatar--110"
+					href="javascript:void(0);"> <img
+					src="assets/modules/dummy-assets/common/img/avatars/1.jpg"
+					alt="Alternative text to the image">
+				</a> <br /> <br />
+				<div class="btn-group btn-group-justified" aria-label=""
+					role="group">
+					<div class="btn-group">
+						<button type="button" (click)="getuserDetails()"
+							class="btn btn-primary width-150 swal-btn-success cursor-hand-custom alter-color"
+							data-toggle="modal" data-target="#editProfile"
+							>
+							..<i class="icmn-pencil"> </i> Edit Profile
+						</button>
+					</div>
+					<div class="btn-group">
+						<button type="button"
+							class="btn width-150 swal-btn-success cursor-hand-custom alter-color"
+							data-toggle="modal" data-target="#changePassword">Change
+							Password</button>
+					</div>
+				</div>
+
+			</div>
+			<section class="" *ngIf="userDetails!=null">
+				<div class="card-block pull-left" style="width: 50%;">
+					<h5 class="mb-3 text-black">
+						<strong>Information</strong>
+					</h5>
+					<div class="row">
+						<div class="col-md-8">
+							<div class="col-md-4 pull-left">E-mail:</div>
+							<div class="col-md-4 pull-left">{{userDetails.email}}</div>
+						</div>
+
+						<div class="col-md-8">
+							<div class="col-md-4 pull-left">First name :</div>
+							<div class="col-md-4 pull-left">{{userDetails.firstName}}</div>
+						</div>
+
+						<div class="col-md-8">
+							<div class="col-md-4 pull-left">Last name :</div>
+							<div class="col-md-4 pull-left">{{userDetails.lastName}}</div>
+						</div>
+
+						<div class="col-md-8">
+							<div class="col-md-4 pull-left">Mobile :</div>
+							<div class="col-md-4 pull-left">{{userDetails.mobile}}</div>
+						</div>
+					</div>
+
+					
+				</div>
+				
+				
+				<div class="card-block pull-right" style="width: 50%;">
+					<h5 class="mb-3 text-black">
+						<strong>Company Information</strong>
+					</h5>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="col-md-5 pull-left">Business Parnter Name  :</div>
+							<div class="col-md-4 pull-left">{{bsnName}}</div>
+						</div>
+
+						<div class="col-md-12">
+							<div class="col-md-5 pull-left">Drug Licence  :</div>
+							<div class="col-md-4 pull-left">{{drugLicence}}</div>
+						</div>
+
+						
+					</div>
+
+					
+				</div>
+			</section>
+		</section>
+	</div>
+</section>
+
+
+<div class="modal fade modal-size-medium" id="editProfile" tabindex="-1"
+	data-backdrop="static" data-keyboard="false" role="dialog"
+	aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content" style="max-width: 75%;">
+			<form [formGroup]="editProfileForm" (ngSubmit)="submituserDetails()">
+				<!-- <div class="modal-header">
+				<h4 class="" id="myModalLabel">Edit
+					profile</h4>
+					 <button type="button" class="close"  id="closeuser" (click)="closeprofileDetailsPopupTop()"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						<i class="fa fa-times fa" aria-hidden="true"></i>
+					</button>
+			</div> -->
+
+				<div class="modal-header">
+					<div class="row new_row">
+						<div class="pull-left new_left">
+							<h4 id="myModalLabel">Edit profile</h4>
+						</div>
+						<div class="pull-right new_right">
+							<button type="button" class="close" id="closeuser"
+								(click)="closeprofileDetailsPopupTop()" aria-label="Close">
+								<i class="fa fa-times fa" aria-hidden="true"></i>
+							</button>
+						</div>
+					</div>
+
+
+				</div>
+				<div class="modal-body" style="padding: 0px 6px !important;">
+					<div class="card-block addrole-block">
+						<div class="row">
+							<div class="col-lg-12">
+								<div>
+									<!-- Popup Form Validation -->
+									<div>
+									<div class="col-md-6">
+									<label>Logon Id<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box"
+									formControlName="email"  validateOnBlur [validateFormControl]="editProfileForm.controls['logonId']"
+										 style="width: 342px !important;" disabled> 
+										 <span
+												*ngIf="editProfileForm.controls['logonId'].touched && !editProfileForm.controls['logonId'].valid && editProfileForm.controls['logonId'].dirty"
+												class="error"> <small
+												*ngIf="editProfileForm.controls['logonId'].errors.required">
+													{{emailMessage}} </small> <small
+												*ngIf="editProfileForm.controls['logonId'].errors.pattern">
+													{{emailInvalidMessage}} </small>
+											</span>
+							</div>
+							
+										<div class="col-md-6">
+									<label>E-mail<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box"
+									formControlName="email"  validateOnBlur [validateFormControl]="editProfileForm.controls['email']"
+										 style="width: 342px !important;"> 
+										 <span
+												*ngIf="editProfileForm.controls['email'].touched && !editProfileForm.controls['email'].valid && editProfileForm.controls['email'].dirty"
+												class="error"> <small
+												*ngIf="editProfileForm.controls['email'].errors.required">
+													{{editUserDetMsg.email_req}} </small> <small
+												*ngIf="editProfileForm.controls['email'].errors.pattern">
+													{{editUserDetMsg.email_req_error}} </small>
+											</span>
+							</div>
+										<div class="user-next-block">
+											<div class="col-md-6">
+									<label>Firstname<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box"
+									formControlName="firstName"  validateOnBlur [validateFormControl]="editProfileForm.controls['firstName']"
+										 style="width: 342px !important;"> 
+										 <span
+												*ngIf="editProfileForm.controls['firstName'].touched && !editProfileForm.controls['firstName'].valid && editProfileForm.controls['firstName'].dirty"
+													class="error"> <small
+													*ngIf="editProfileForm.controls['firstName'].errors.required">
+														{{editUserDetMsg.firstName_req}} </small>
+											</span>
+							</div>
+												<div class="col-md-6">
+									<label>Lastname<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box"
+									formControlName="lastName"  validateOnBlur [validateFormControl]="editProfileForm.controls['lastName']"
+										 style="width: 342px !important;"> 
+										 <span
+												*ngIf="editProfileForm.controls['lastName'].touched && !editProfileForm.controls['lastName'].valid && editProfileForm.controls['lastName'].dirty"
+													class="error"> <small
+													*ngIf="editProfileForm.controls['lastName'].errors.required">
+														{{editUserDetMsg.lastName_req}} </small>
+											</span>
+							</div>
+												<div class="col-md-6">
+									<label>Mobile<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box"
+									formControlName="mobile"  validateOnBlur [validateFormControl]="editProfileForm.controls['mobile']"
+										 style="width: 342px !important;"> 
+										 <span
+													*ngIf="editProfileForm.controls['mobile'].touched && !editProfileForm.controls['mobile'].valid && editProfileForm.controls['mobile'].dirty"
+													class="error"> <small
+													*ngIf="editProfileForm.controls['mobile'].errors.required">
+														{{editUserDetMsg.mobile_req}}</small> <small
+													*ngIf="editProfileForm.controls['mobile'].errors.pattern">
+														{{editUserDetMsg.mobile_err_req}}</small>
+												</span>
+							</div>
+											
+										</div>
+									</div>
+
+									<!-- [disabled]="!editProfileForm.valid"  -->
+									<!-- <div class="form-actions role-buttons" style="float:right;">
+										<button type="submit" [disabled]="!editProfileForm.valid"
+											class="btn btn-primary btn-primary-custom " id="edit_details">Submit</button>
+										<button type="button"
+											class="btn btn-danger btn-danger-custom cursor-hand-custom"
+											id="cancelEditProfile" (click)="closePopup('cancelEditProfile','editProfile')">
+											Cancel</button>
+									</div> -->
+
+									<!-- End Popup Form Validation -->
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+				<div class="modal-footer">
+					<div class="row new_row">
+						<div class="pull-right act_foot" style="margin-right: -18px !important;">
+							<!--<button type="submit" [disabled]="!editProfileForm.valid"
+								class="btn btn-primary btn-primary-custom new_mr_5" id="edit_details" (click)="saveUserdetails();">Submit</button>
+							 <button type="button"
+								class="fa cancel-icon"
+								id="cancelEditProfile"
+								(click)="closePopup('cancelEditProfile','editProfile')">
+								Cancel</button> -->
+								<button class="login-button-export" style="padding-left:0px;" (click)="saveUserdetails();" [disabled]="!editProfileForm.valid">
+				<i class="fa save-icon " style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Save</div>
+				</i>
+			</button>
+								<button class="cancel-button-export" style="padding-left:0px;" (click)="closePopup('cancelEditProfile','editProfile')" id="cancelEditProfile">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Cancel</div>
+				</i>
+			</button>
+						</div>
+					</div>
+
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade modal-size-medium" id="changePassword"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content" style="max-width: 75%;">
+			<form [formGroup]="resetForm">
+				<div class="row pwd_tool_tip" style="display: none" id="pwd_policy">
+					<div class="col-md-12">
+						<div class="left-arrow_pol bulb_sty">
+							<p (click)="closePP()" class="clo_sty">
+								<i class="fa fa-window-close" aria-hidden="true"></i>
+							</p>
+							<p class="p_sty"></p>
+							<p class="p_sty"></p>
+
+						</div>
+					</div>
+				</div>
+				<div class="modal-header">
+					<div class="row new_row">
+						<div class="pull-left new_left">
+							<h4 id="myModalLabel">
+								Change Password 
+							</h4>
+						</div>
+						<div class="pull-right" style="margin-right: -10px;">
+							<button type="button" class="close"  (click)="closeModal()"
+								aria-label="Close">
+								<i class="fa fa-times fa" aria-hidden="true"></i>
+							</button>
+						</div>
+					</div>
+
+
+				</div>
+				<!-- <div class="modal-header">
+				<h4 class="" id="myModalLabel" >Change
+					Password  
+					<span *ngIf="!this.showInitialValidations" style="margin-left: 4px; cursor: pointer;" title="Password Policy" (click)="passwordPolicy()">
+					<i class="fa fa-info-circle" aria-hidden="true" style="color:orange;">
+					</i></span>
+					
+				</h4>
+				 <button type="button" class="close"  data-dismiss="modal" 
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						<i class="fa fa-times fa" aria-hidden="true"></i>
+					</button>
+			</div> -->
+				<div class="modal-body addrole-body">
+					<div class="card-block addrole-block">
+						<div class="row">
+							<div class="col-lg-12">
+								<div>
+									<!-- Popup Form Validation -->
+
+									<div style="min-height: 100px;">
+									
+									<div class="col-md-6">
+										<label class="form-label">Old Password<sup class="asterick">*</sup></label> 
+										
+										<input
+											class="form-control login-text" formControlName="oldPassword" 
+											validateOnBlur [validateFormControl]="resetForm.controls['oldPassword']"
+											type="password" placeholder="Old Password" style="width: 342px !important;">
+											
+											 <span
+									*ngIf="resetForm.controls['oldPassword'].touched && (!resetForm.controls['oldPassword'].valid)
+									 && ((!resetForm.controls['oldPassword'].pristine) ||  (resetForm.controls['oldPassword'].touched) ) ">
+									 <small class="custom-error-class">
+									 Please enter old password
+									</small>
+								</span> 
+
+								</div> 
+								
+										<div class="col-md-6">
+									<label>New Password<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box" (blur)="checkPassword()"
+									formControlName="password"  validateOnBlur [validateFormControl]="resetForm.controls['password']"
+												type="password" placeholder="New Password" #password
+										 style="width: 342px !important;"> 
+										 <span
+												*ngIf="resetForm.controls['password'].touched && !resetForm.controls['password'].valid && resetForm.controls['password'].dirty"
+												class="error"> <small
+												*ngIf="resetForm.controls['password'].errors.required">
+													Please enter new password </small> 
+											</span>
+							</div>
+										<div class="col-md-6">
+									<label>Confirm Password<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box" (blur)="checkPassword()"
+									formControlName="confirmPassword"  validateOnBlur [validateFormControl]="resetForm.controls['confirmPassword']"
+												type="password" placeholder="Confirm Password" #Confirm Password
+										 style="width: 342px !important;">
+										  <span
+												*ngIf="resetForm.controls['confirmPassword'].value =='' && resetForm.controls['confirmPassword'].touched && (!resetForm.controls['confirmPassword'].valid) && ((!resetForm.controls['confirmPassword'].pristine) ||  (resetForm.controls['confirmPassword'].touched) ) ">
+												<small style="color: red">Please enter confirm
+													password</small>
+											</span>
+											<div class='form-text error' style="width: 300px;"
+												*ngIf="resetForm.controls['confirmPassword'].value !='' && resetForm.controls['confirmPassword'].touched">
+												<div style="color: red"
+													*ngIf="resetForm.hasError('mismatchedPasswords')">
+													<small>{{resetPwdMsg.error_passwords_match}}</small>
+												</div>
+											</div>
+										</div>
+										
+									</div>
+									<!-- <div class="form-actions role-buttons" style="float:right;">
+										<button type="submit" [disabled]="!resetForm.valid && password!=confirmPassword"
+											data-dismiss="modal" class="btn btn-primary btn-primary-custom" (click)=resetPassword(password.value) id="re_pwd">Submit</button>
+										<button type="button" id="changePwdCancel"  data-dismiss="modal"
+											class="btn btn-danger btn-danger-custom cursor-hand-custom" 
+											 (click)="resetPwd()">
+											Cancel</button>
+									</div> -->
+
+									<!-- End Popup Form Validation -->
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			
+				
+				<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot" style="margin-right: -18px !important;">
+									<button type="submit"  [disabled]="!resetForm.valid"
+									(click)="resetPassword()"	
+									 class="login-button-export" id="re_pwd" style="position:relative;top:0px;margin-right: 2px;">
+										<i class="fa submit-icon" style="margin-right:4px;padding-right:4px;">
+										<div class="icon-text" style="right:-4px;">Submit</div>
+										</i>
+									</button>
+									<button class="cancel-button-export" style="padding-left:0px;" id="changePwdCancel" (click)="closeModal()">
+										<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+										<div class="icon-text" style="right:-4px;">close</div>
+										</i>
+									</button>
+								</div>
+								</div>
+							</div>
+				
+				
+				
+			</form>
+		</div>
+	</div>
+</div>

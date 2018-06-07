@@ -1,0 +1,223 @@
+<div>
+	<div class="card-block db-block mb-1" style="padding-left:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+						<div class="billing-details">
+						<!-- <div class="col-md-12">
+							<label>Doc Type :</label><strong style="letter-spacing:1px;font-size:13px;"> <span style="margin-left: 6px;">{{billingHeaders.bill_type}}</span></strong>
+						</div> -->
+						<div class="col-md-12">
+							<label> Del Date :</label><strong style="letter-spacing:1px;font-size:13px;"><span style="margin-left: 6px;" *ngIf="billingHeaders.bill_date != ''">{{billingHeaders.bill_date  | date :'dd-MM-yyyy'}}</span></strong>
+						</div>
+						<div class="col-md-12 row">
+							<div class="col-md-3">
+							<label>Sold To Party:</label>
+							 <div class="txt-msg-block">
+							  	<p> {{billingHeaders.sold_to_name}},{{billingHeaders.sold_to_country}}</p>
+							  </div>
+							</div>
+							<div class="col-md-3">
+							<label>Ship To Party:</label>
+							 <div class="txt-msg-block">
+							  	<p> {{billingHeaders.ship_to_name}},{{billingHeaders.ship_to_country}}
+							  	</p>
+							  </div>
+							</div>
+							
+								<div class="col-md-3" *ngIf="actionType != 'DIS'">
+									<label>Header Text:</label> <select #headerKey class="form-control" (change)="addTextBox(headerKey.value);"
+										 id="header_Text">
+										<option value="">Please Select Header Text</option>
+										<ng-container *ngFor="let header of headerTextList">
+										<option value={{header.key}} >{{header.value}}</option>
+										</ng-container>
+									</select>
+
+
+								</div>
+								<ng-container *ngFor="let header of headerTextList">
+								<div class="col-md-3" id="header_{{header.key}}" style="display:none">
+								<label>Enter Text</label>
+									<input	type="text" class="form-control create-edit-pop-txt-box" (change)="onChange($event,header.key)">
+									
+								</div>
+								</ng-container>
+							
+						</div>
+						</div>
+					</div>
+					<div class="col-md-12 mt-1" style="margin-top: 14px !important;">
+							<div class="stock-table table-responsive">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="outbound-delivery-table">
+								<thead>
+									<tr>
+										<!-- <th class="no-sort" style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></th> -->
+										<th rowspan="2" style="min-width:90px !important;">Material</th>
+										<th rowspan="2" style="min-width:60px !important;">UOM</th>
+										<th rowspan="2" style="min-width:60px !important;">QTY</th>
+										
+										<th rowspan="2" style="min-width:130px !important;">Description</th>
+										<th rowspan="2" style="min-width:80px !important;">Price</th>
+										<th rowspan="2" style="min-width:50px !important;">Fix.Sch.</th>
+										<th rowspan="2" style="min-width:80px !important;">Sch.Val</th>
+										
+										<th rowspan="2" style="min-width:80px !important;">Dis % Val</th>
+										<th rowspan="2" style="min-width:80px !important;">Dis Amt</th>
+										<th rowspan="2" style="min-width:100px !important;">Net Val</th>
+										
+										<th colspan="2" class="align-center">S/U GST</th>
+										<th colspan="2" class="align-center">CGST</th>
+										<th colspan="2" class="align-center">IGST</th>
+										<th rowspan="2" style="min-width:77px !important;">Total Val</th>
+										
+									</tr>
+										<tr>
+										<th style="min-width:50px !important;">Rate</th>
+										<th style="min-width:80px !important;">Value</th>
+										<th style="min-width:50px !important;">Rate</th>
+										<th style="min-width:80px !important;">Value</th>
+										<th style="min-width:50px !important;">Rate</th>
+										<th style="min-width:80px !important;">Value</th>
+										</tr>
+								</thead>
+								<tbody>
+								
+								<tr *ngFor="let billList of billingItemsArray">
+										<td>{{billList.material}}</td>
+										<td>{{billList.uom}}</td>
+										<td>{{billList.qty}}</td>
+										<td>{{billList.mat_desc}}</td>
+										<td align="right">&#8377;{{billList.price | PriceInd}}</td>
+										<td align="right">{{billList.fix_sch}}</td>
+										<td align="right">{{billList.sch_val}}</td>
+										
+										<td align="right">{{billList.dis_val}}%</td>
+										<td align="right">{{billList.dis_amt}}</td>
+										
+										<td align="right">{{billList.net_val | PriceInd}}</td>
+										
+										<td>{{billList.sgst_rate}}</td>
+											<td align="right"><span *ngIf="billList.sgst_amt !='' "> {{billList.sgst_amt | PriceInd}}</span></td>
+											<td>{{billList.cgst_rate}}</td>
+											<td align="right"><span *ngIf="billList.cgst_amt !='' "> {{billList.cgst_amt | PriceInd}}</span></td>
+											<td>{{billList.igst_rate}}</td>
+											<td align="right"><span *ngIf="billList.igst_amt !='' "> {{billList.igst_amt | PriceInd}}</span></td>
+											<td align="right">{{billList.total_amt | PriceInd}}</td>
+								</tr>
+									
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3">
+		<div class="left-block">
+		<!-- <div class="pull-left" style="max-width:47%">
+			<button class="btn login-button">
+			<i class="fa fa-plus" style="margin-right:4px;"></i> Add Lines</button>
+		</div>
+		<div class="pull-left" style="max-width:50%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Remove Line</button>
+			</div> -->
+		</div>
+		<div class="right-block">
+		<div class="pull-left">
+			<button class="login-button-export">
+			<i class="fa print-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Print</div>
+			</i>
+			</button>
+			</div>
+			<div class="pull-left" *ngIf="actionType != 'DIS'">
+			<button class="save-icon-btn" (click)="saveEditBilling();">
+				<i class="fa save-icon" style="margin-right:4px;padding-right:4px;" >
+				<div class="icon-text" style="right:-4px;">Save</div>
+				</i>
+			</button>
+			</div>
+			
+			<div class="pull-left" *ngIf="actionType == 'DIS'">
+			<button class="login-button-export" (click)="navigateToEditBilling()">
+				<i class="fa edit-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Edit</div>
+				</i>
+			</button>
+			</div>
+			
+			
+			<div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;" (click)="backToBillingDetails();">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Cancel</div>
+				</i>
+			</button>
+		</div>
+		</div>
+	</div>
+</div>
+
+<!-- Error popup -->
+
+<div class="modal fade modal-size-medium" id="displayErrorsModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>Display Errors
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('displayErrorsModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;">
+									<div class="col-md-12 row">
+										<table class="table table-hover nowrap editable-table checkBoxTable" width="100%" id="errorTable" style="display:inline-table;">
+											<thead>
+												<tr>
+													<th>Error Code</th>
+													<th>Error Description</th>
+												</tr>
+											</thead>
+											<tbody>
+											 <ng-container *ngFor="let erList of errorLogs; let i=index">
+												<tr *ngIf="erList.type=='E'">
+													<td>{{erList.id}}</td>
+													<td>{{erList.message}}</td>
+												</tr>
+												</ng-container> 
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<button (click)="closeModal('displayErrorsModal')"
+											 Class="login-button forgotOk"
+											>Ok</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+</div>
+<!-- End of error popup -->

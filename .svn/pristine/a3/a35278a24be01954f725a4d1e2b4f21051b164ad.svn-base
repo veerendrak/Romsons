@@ -1,0 +1,902 @@
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import { ExcelService } from '../../services/excel.service';
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+declare var XLSX: any;
+declare var XLS: any;
+var mergeItems = [];
+@Component({
+    selector: 'app-recurring-order-details',
+    templateUrl: './recurring-order-details.component.html',
+    styleUrls: ['./recurring-order-details.component.css']
+})
+export class RecurringOrderDetailsComponent implements OnInit {
+    recOrderList: any;
+    checked: boolean = false;
+    indeterminate: boolean = false;
+    accessObjectId: any;
+    bpId: any;
+    orgId: any;
+    checkboxErrorMsg: any;
+    recuringOrderForm: FormGroup;
+    createPurchaseOrderForm: FormGroup;
+    bPartners: any;
+    configValSampleList: any;
+    configValSampleObj: any;
+    checkedObjects: any;
+    configChildList: any;
+    matnrDetails: any;
+    uploadExcelFlag: boolean = false;
+    saveBtn: boolean = true;
+    calcBtn: boolean = true;
+    boxList: any;
+    configvalarray: any;
+    orderTypes: any;
+    vendorNames: any;
+    constructor(private http: Http, private formBuilder: FormBuilder,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private environment: EnvConfigurationService, private excelService: ExcelService) {
+        this.app.isActive = true;
+        this.checked = false;
+        this.indeterminate = false;
+        this.recOrderList = [];
+        this.configChildList = [];
+        this.checkboxErrorMsg = this.messagesService.check_box_error;
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjectId = localStorage.getItem("Purchase Order");
+        this.recuringOrderForm = formBuilder.group({
+            'grp_name': ['', Validators.required],
+            'grp_desc': ['', Validators.required]
+        });
+        this.configValSampleList = [];
+        this.configValSampleObj = {};
+        this.checkedObjects = [];
+        this.matnrDetails = [];
+        this.calcBtn = true;
+        this.saveBtn = true;
+        this.boxList = [];
+        this.createPurchaseOrderForm = formBuilder.group({
+            hideRequired: false,
+            floatLabel: 'auto',
+            'vendorName': ['', Validators.required],
+            'docType': ['', Validators.required],
+        });
+        this.orderTypes = [];
+        this.vendorNames = [];
+    }
+    ngOnInit() {
+        this.getRecurringOrderList();
+        for (let index = 0; index < 6; index++) {
+            this.configValSampleObj = {};
+            this.configValSampleObj["mat_num"] = "";
+            this.configValSampleObj["desc"] = "";
+            this.configValSampleObj["uom"] = "";
+            this.configValSampleObj["qty"] = "";
+            this.configValSampleObj["boxSize"] = "";
+            this.configValSampleObj["orgId"] = this.orgId;
+            this.configValSampleObj["bpId"] = "";
+            this.configValSampleObj["configValId"] = "";
+            this.configValSampleObj["displayRow"] = true;
+            this.configValSampleObj["mark_as_delete"] = false;
+
+            this.configValSampleList.push(this.configValSampleObj);
+        }
+        let orderTypesUrl: any = this.environment.getRequiredApi("header_dropdown") + "?group=PURTYPS&";
+        this.commonService.getData(orderTypesUrl, "GET", "", this.accessObjectId).subscribe(response => {
+            if (response.status == 0) {
+                this.orderTypes = response["data"].configValues;
+            }
+        });
+        let matrlBoxTypeUrl: any = this.environment.getRequiredApi("header_dropdown") + "?group=MTRLS&";
+        this.commonService.getData(matrlBoxTypeUrl, "GET", "", this.accessObjectId).subscribe(response => {
+            if (response.status == 0) {
+                this.boxList = response["data"].configValues;
+            }
+        });
+        setTimeout(() => {
+            var width = $("#mainContent").css("width");
+            $(".outbound-footer").css("width", width);
+        }, 500);
+        mergeItems = this.configValSampleList;
+
+        $(() => {
+            $(document).on("input", ".numbersOnly", function() {
+                this.value = this.value.replace(/[^\d]/g, '');
+            });
+            $(document).on('click', function(e) {
+                if (!$(e.target).hasClass('ajax-list')) {
+                    $(".ajax-searchlist").hide();
+                }
+            });
+            $("#purchase-order-table").scroll(function() {
+                $(".ajax-searchlist").hide();
+            });
+            $(document).ready(function() {
+                $("input[type=file]").change(function() {
+                    //  mergeItems = [];
+                    var file = this.files[0];
+                    var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+                    var fileName = $("#uploadExcel").val()
+                    fileName = fileName.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, ' ');
+                    $("#loadingIcon").show();
+                    $("#black-overlay").show();
+                    var errorFlag = false;
+                    $("#errorExcelTable").find('tbody').html('');
+                    var xlsxflag = false; /*Flag for checking whether excel is .xls format or .xlsx format*/
+                    if ($("#uploadExcel").val().toLowerCase().indexOf(".xlsx") > 0 || $("#uploadExcel").val().toLowerCase().indexOf(".xls") > 0) {
+                        xlsxflag = true;
+                        if (typeof (FileReader) != "undefined") {
+                            var reader = new FileReader();
+                            reader.onload = function(e: any) {
+                                if (e.target.result.length == 1) {
+                                    $.notify({
+                                        title: '',
+                                        message: "No data available in the uploaded file"
+                                    }, {
+                                            type: "warning"
+                                        });
+                                    $("#loadingIcon").hide();
+                                    $("#black-overlay").hide();
+                                    return false;
+                                }
+
+                                var rowslist = e.target.result;
+                                if (xlsxflag) {
+                                    var workbook = XLSX.read(rowslist, { type: 'binary' });
+                                }
+                                else {
+                                    var workbook = XLS.read(rowslist, { type: 'binary' });
+                                }
+                                /*Gets all the sheetnames of excel in to a variable*/
+                                var sheet_name_list = workbook.SheetNames;
+
+                                var cnt = 0;
+                                sheet_name_list.forEach(function(y) { /*Iterate through all sheets*/
+                                    /*Convert the cell value to Json*/
+                                    if (xlsxflag) {
+                                        var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[y]);
+                                    }
+                                    else {
+                                        var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[y]);
+                                    }
+                                    if (exceljson.length > 200) {
+                                        $.notify({
+                                            title: '',
+                                            message: "Data Items Limit is exceeded"
+                                        }, {
+                                                type: "warning"
+                                            });
+                                        return false;
+                                    }
+                                    if (exceljson.length == 0) {
+                                        $.notify({
+                                            title: '',
+                                            message: "No data available in the uploaded file"
+                                        }, {
+                                                type: "warning"
+                                            });
+                                        return false;
+                                    }
+                                    if (exceljson.length > 0 && cnt == 0) {
+                                        mergeItems = [];
+                                        var columnSet = [];
+                                        for (var i = 0; i < exceljson.length; i++) {
+                                            var rowHash = exceljson[i];
+                                            for (var key in rowHash) {
+                                                if (rowHash.hasOwnProperty(key)) {
+                                                    if ($.inArray(key, columnSet) == -1) {
+                                                        columnSet.push(key);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        var columns = columnSet;
+                                        for (var i = 0; i < exceljson.length; i++) {
+                                            if (exceljson.length > mergeItems.length) {
+                                                var newObject = {
+                                                    "mat_num": "",
+                                                    "qty": "",
+                                                    "uom": "",
+                                                    "desc": "",
+                                                    "configValId": "",
+                                                    "price": 0,
+                                                    "displayRow": true,
+                                                    "mark_as_delete": false,
+                                                    "itemNumber": ''
+                                                }
+                                                mergeItems.push(newObject);
+                                            }
+                                            for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+                                                var cellValue = exceljson[i][columns[colIndex]];
+                                                if (cellValue == null)
+                                                    cellValue = "";
+                                                if (colIndex == 0) {
+                                                    mergeItems[i]['mat_num'] = cellValue;
+                                                }
+                                                else {
+                                                    var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+                                                    if (format.test(cellValue)) {
+                                                        //cellValue=cellValue.replace(/,/g, "");
+                                                        var row$ = $('<tr/>');
+                                                        var rowNum = i + 1;
+                                                        var errorLine = "Special characters are not allowed check this line Item row number " + rowNum + " " + mergeItems[i]['mat_num'] + " and quantity" + cellValue
+                                                        row$.append($('<td/>').html(errorLine));
+                                                        $("#errorExcelTable").find('tbody').append(row$);
+                                                        errorFlag = true;
+                                                    }
+                                                    //cellValue=parseFloat(cellValue);
+                                                    mergeItems[i]['qty'] = cellValue;
+                                                }
+                                            }
+                                        }
+                                        cnt++;
+                                    }
+                                });
+                                if (errorFlag) {
+                                    $("#displayExcelErrorsModal").modal('show');
+                                    return false;
+                                }
+                                $("#mergeItemList").click();
+                                $("#uploadExcel").val("")
+                            }
+                            if (xlsxflag) {/*If excel file is .xlsx extension than creates a Array Buffer from excel*/
+                                reader.readAsArrayBuffer($("#uploadExcel")[0].files[0]);
+                            }
+                            else {
+                                reader.readAsBinaryString($("#uploadExcel")[0].files[0]);
+                            }
+                            $("#loadingIcon").hide();
+                            $("#black-overlay").hide();
+                        } else {
+                            $("#loadingIcon").hide();
+                            $("#black-overlay").hide();
+                            alert("This browser does not support HTML5.");
+                        }
+                    } else {
+                        $("#loadingIcon").hide();
+                        $("#black-overlay").hide();
+                        alert("Please upload a valid CSV file.");
+                    }
+                });
+            });
+        });
+    }
+    getRecurringOrderList() {
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        let group = "PREORDRLIST";
+        let parent_group = $('#grp_orderlist').val();
+        let url = this.environment.getRequiredApi('header_dropdown') + "?group=" + group + "&org_id=" + this.orgId + "&bp_id=" + this.bpId + "&";
+        this.commonService.getData(url, "GET", '', this.accessObjectId)
+            .subscribe((response) => {
+                console.log(response);
+                if (response.status == 1) {
+                    this.commonService.responseMessages("", response.message, "warning");
+                }
+                else {
+                    this.recOrderList = response.data.configValues;
+                }
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+            });
+    }
+    changeOrderType() {
+        this.saveBtn = false;
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        // let url = this.environment.getRequiredApi('header_dropdown') + "?group=PREORDRLISTITMS+ "&bp_id=" + this.bpId;
+        let group = "PREORDRLISTITMS";
+        let parent_group = $('#grp_orderlist').val();
+        this.configvalarray = [];
+        let url = this.environment.getRequiredApi('header_dropdown') + "?group=" + group + "&parent_group=" + parent_group + "&org_id=" + this.orgId + "&";
+        this.commonService.getData(url, "GET", '', this.accessObjectId).subscribe((response) => {
+            console.log(response);
+            let count: any = 0;
+            if (response.status == 1) {
+                this.configValSampleList = [];
+                this.commonService.responseMessages("", response.message, "warning");
+            }
+            else {
+                //mergeItems = [];
+                this.configvalarray = response.data.configValues;
+                let configChildArray = $.extend(true, [], this.configvalarray);
+                this.configValSampleList = configChildArray;
+                this.configValSampleList.forEach((items) => {
+                    items["displayRow"] = true;
+                })
+                this.configvalarray.forEach(currentItem => {
+                    this.configValSampleList[count].mat_num = currentItem.key;
+                    this.configValSampleList[count].qty = currentItem.value;
+                    this.configValSampleList[count].configValId = currentItem.configValId;
+                    count++;
+
+                });
+            }
+            this.checkboxsizecondition();
+            $('#loadingIcon').hide();
+            $("#black-overlay").hide();
+        });
+    }
+    AddMoreLinesOfItems() {
+        for (let index = 0; index < 5; index++) {
+            this.configValSampleObj = {};
+            this.configValSampleObj["mat_num"] = "";
+            this.configValSampleObj["desc"] = "";
+            this.configValSampleObj["uom"] = "";
+            this.configValSampleObj["qty"] = "";
+            this.configValSampleObj["boxSize"] = "";
+            this.configValSampleObj["orgId"] = this.orgId;
+            this.configValSampleObj["configValId"] = "";
+            this.configValSampleObj["bpId"] = "";
+            this.configValSampleObj["displayRow"] = true;
+            this.configValSampleObj["mark_as_delete"] = false;
+            this.configValSampleList.push(this.configValSampleObj);
+        }
+    }
+    extractData(id, spinnerId, ajaxDropdown, event) {
+        let term: any = $("#" + id).val();
+        if (this.vendorNames.length == 0) {
+            if (term.length > 3) {
+                term = term.substring(0, 3);
+            }
+        }
+        if (term.length == 3 && event.keyCode != 38 && event.keyCode != 40 && event.keyCode != 13) {
+            $("#" + spinnerId).show();
+            let url: any = this.environment.getRequiredApi("find_vendors") + "?org_id=" + this.orgId + "&bp_id=" + this.bpId + "&vendor=" + term + "&";
+            this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response => {
+                if (response.status == 0) {
+                    this.vendorNames = response["data"].ex_vendor_list;
+                    $("#" + spinnerId).hide();
+                    $("#" + ajaxDropdown).show();
+                    setTimeout(() => {
+                        $("#" + ajaxDropdown).find('ul').find('li:first').addClass('active');
+                        $("#" + ajaxDropdown).find('ul').find('li:first').focus();
+                    }, 100);
+                } else {
+                    $("#" + spinnerId).hide();
+                    $("#" + ajaxDropdown).show();
+                }
+
+            });
+        } else {
+            if (term == "") {
+                this.vendorNames = [];
+                $("#" + spinnerId).hide();
+            } else {
+                if (event.keyCode != 13 && event.keyCode != 38 && event.keyCode != 40) {
+                    var searchText = term;
+                    searchText = searchText.toUpperCase();
+                    $(".ajax-list").removeClass('active');
+                    $("#" + ajaxDropdown).find('ul > li').each(function() {
+                        var currentLiText = $(this).text();
+                        currentLiText = currentLiText.toUpperCase();
+                        var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                        $(this).toggle(showCurrentLi);
+                    });
+                    $("#" + ajaxDropdown).find('ul').find('li:visible').first().addClass('active');
+                    $("#" + ajaxDropdown).find('ul').find('li:visible').first().focus();
+                }
+            }
+        }
+        if (event.keyCode == 38 || event.keyCode == 40 || event.keyCode == 13) {
+            $("#" + ajaxDropdown).find('ul > li').each(function() {
+                if (event.keyCode == 40) {
+                    if ($(this).hasClass('active')) {
+                        console.log($(this).attr('class'));
+                        if ($(this).next().is(':visible')) {
+                            $(this).removeClass('active');
+                            $(this).next().addClass('active');
+                            $(this).next().focus();
+                            $("#" + ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                            return false;
+                        }
+                    }
+                }
+                if (event.keyCode == 13) {
+                    if ($(this).hasClass('active')) {
+                        $(this).click();
+                    }
+                }
+                if (event.keyCode == 38) {
+                    if ($(this).hasClass('active')) {
+                        if ($(this).prev().is(':visible')) {
+                            $(this).removeClass('active');
+                            $(this).prev().focus();
+                            $(this).prev().addClass('active');
+                            $("#" + ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                            return false;
+                        }
+                    }
+                }
+            });
+        }
+    }
+    selectedItem(response, modalBlock, textInput, hiddenInput) {
+        $("#" + textInput).val(response.vendor_name);
+        $("#" + hiddenInput).val(response.vendor_id);
+        $("#" + modalBlock).hide();
+    }
+    removeLineSelectedItems() {
+        if (this.checkedObjects.length > 0) {
+            swal({
+                title: "Do you want to remove selected lines?",
+                //text: "Do you want to delete branch?",
+                showCancelButton: true,
+                cancelButtonClass: "cancel-button-export btn-primary-custom",
+                confirmButtonClass: "login-button-export btn-primary-custom",
+                confirmButtonText: "Ok",
+                closeOnConfirm: true
+            },
+                () => {
+                    for (let index of this.checkedObjects) {
+                        if (index != undefined && index != null) {
+                            this.configValSampleList[index].displayRow = false;
+                            this.configValSampleList[index].mark_as_delete = true;
+                        }
+                    }
+                    this.checkedObjects = [];
+
+                    this.submit_recurring_orderList_items();
+                });
+        } else {
+            this.commonService.responseMessages("", "Please select atleast one item", "warning");
+        }
+        setTimeout(() => {
+            let flag: boolean = this.commonService.continueAction("rec-order-table");
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = false;
+            }
+            else {
+                this.indeterminate = true;
+            }
+            if ($("#rec-order-table").find('tbody').find('tr').length == 0) {
+                this.indeterminate = false;
+                this.checked = false;
+            }
+
+        }, 200);
+        this.enableButtons();
+    }
+    populateFileds(response, matResponse, matType) {
+        let date = new Date();
+        let day: any = date.setDate(date.getDate() + 1);
+        date = new Date(day);
+        day = date.getDate();
+        if (day < 10) {
+            day = "0" + day;
+        }
+        let month: any = date.getMonth() + 1;
+        let currentDate: any = day + "/0" + month + "/" + date.getFullYear();
+        for (let list of matResponse) {
+            if (matType == 'matNum') {
+                if (response['mat_num'] != "") {
+                    if (list['mat_num'] == response['mat_num'].toUpperCase()) {
+                        response['mat_num'] = list['mat_num'];
+                        response['uom'] = list['uom'];
+                        response['desc'] = list['mat_name'];
+                        response['qty'] = "";
+                        response['boxSize'] = "";
+                        this.getBoxSize(response);
+                        return false;
+                    }
+                }
+            }
+            if (matType == 'desc') {
+                if (response['desc'] != "") {
+                    if (list['mat_name'] == response['desc'].toUpperCase()) {
+                        response['uom'] = list['uom'];
+                        response['mat_num'] = list['mat_num'];
+                        response['desc'] = list['mat_name'];
+                        response['qty'] = "";
+                        response['boxSize'] = "";
+                        this.getBoxSize(response);
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    getBoxSize(response) {
+        if (this.boxList.length > 0) {
+            this.boxList.forEach(currentItem => {
+                if (currentItem.key == response['mat_num']) {
+                    response.boxSize = currentItem.addField2;
+                    response.boxLimit = currentItem.addField3;
+                }
+            });
+        }
+    }
+    changeQtyCalculations(items, id) {
+        if (items.qty == "") {
+            items.qty = 0;
+        }
+        if (items.boxSize !== 0) {
+            this.checkBoxLimit(items, id);
+        }
+    }
+    checkBoxLimit(items, id) {
+        let count: any = 0;
+        let errorFlagBox: boolean = false;
+        let list: any = [];
+        this.configValSampleList.forEach(currentItem => {
+            if (currentItem.mat_num == items.mat_num) {
+                list.push(count);
+                let limit: any;
+                if (parseFloat(items.qty) < parseFloat(currentItem.boxSize)) {
+                    errorFlagBox = true;
+                } else {
+                    if (parseFloat(items.qty) > parseFloat(currentItem.boxSize)) {
+                        limit = parseFloat(items.qty) / parseFloat(currentItem.boxSize);
+                        console.log(limit);
+                        if (typeof limit === 'number') {  // it is a number
+                            if (limit % 1 != 0) {
+                                errorFlagBox = true;
+                            }
+                        }
+                    }
+                }
+            }
+            count++;
+            if (this.configValSampleList.length == count) {
+                if (errorFlagBox) {
+                    $("#qty-" + id).attr('style', 'border:1px solid red');
+                } else {
+                    $("#qty-" + id).removeAttr('style');
+                    items.errorFlagBox = false;
+                }
+                setTimeout(() => { this.enableSaveBtn(); }, 500);
+            }
+
+        });
+    }
+    selectedMatrItem(response, modalBlock, inputId, num, item) {
+        if (inputId == 'desc') {
+            item.desc = response.mat_name;
+        }
+        if (inputId == 'matNum') {
+            item.mat_num = response.mat_num;
+        }
+
+        $("#" + modalBlock + "-" + num).hide();
+        this.populateFileds(item, this.matnrDetails, inputId);
+    }
+    enableButtons() {
+        let flag: boolean = false;
+        for (let item of this.configValSampleList) {
+            if (item.displayRow) {
+                if ((item.qty != "" || item.qty != 0) && item.mat_num != "") {
+                    if (item.net_val < 0) {
+                        // this.calcBtn = true;
+                        this.saveBtn = true;
+                        return false;
+                    }
+                    else {
+                        if (this.uploadExcelFlag) {
+                            if (item.net_val == 0) {
+                                this.calcBtn = false;
+                                this.saveBtn = true;
+                                return false;
+                            }
+                        }
+                        else {
+                            this.calcBtn = false;
+                            this.saveBtn = false;
+                            flag = false;
+                        }
+                    }
+                }
+            }
+        }
+        setTimeout(() => { this.enableSaveBtn(); }, 500);
+    }
+    findMaterialDetails(matnr, response, spinnerId, i, ajaxBlock, event) {
+        let term: any = matnr.value;
+        if (this.matnrDetails.length == 0) {
+            if (term.length > 2) {
+                term = term.substring(0, 2);
+            }
+        }
+        if (term.length == 2 && event.keyCode != 38 && event.keyCode != 40 && event.keyCode != 13) {
+            $("#" + spinnerId + "-" + i).show();
+            let url: any = this.environment.getRequiredApi("find_matnr_num") + "?org_id=" + this.orgId + "&bp_id=" + this.bpId + "&material=" + matnr.value + "&";
+            this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response => {
+                if (response.status == 0) {
+                    this.matnrDetails = [];
+                    $("#" + spinnerId + "-" + i).hide();
+                    this.matnrDetails = response["data"].ex_mat_list;
+                    $("#" + ajaxBlock + "-" + i).show();
+                    setTimeout(() => {
+                        $("#" + ajaxBlock + "-" + i).find('ul').find('li:first').addClass('active');
+                        $("#" + ajaxBlock + "-" + i).find('ul').find('li:first').focus();
+                    }, 100);
+                } else {
+                    $("#" + spinnerId + "-" + i).hide();
+                    $("#" + ajaxBlock + "-" + i).hide();
+                }
+            });
+        } else {
+            if (event.keyCode != 13 && event.keyCode != 38 && event.keyCode != 40) {
+                var searchText = matnr.value;
+                searchText = searchText.toUpperCase();
+                $(".ajax-list").removeClass('active');
+                $("#" + ajaxBlock + "-" + i).find('ul > li').each(function() {
+                    var currentLiText = $(this).text();
+                    currentLiText = currentLiText.toUpperCase();
+                    var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                    $(this).toggle(showCurrentLi);
+                });
+                $("#" + ajaxBlock + "-" + i).find('ul').find('li:visible').first().addClass('active');
+                $("#" + ajaxBlock + "-" + i).find('ul').find('li:visible').first().focus();
+            }
+        }
+        if (event.keyCode == 38 || event.keyCode == 40 || event.keyCode == 13) {
+            $("#" + ajaxBlock + "-" + i).find('ul > li').each(function() {
+                if (event.keyCode == 40) {
+                    if ($(this).hasClass('active')) {
+                        console.log($(this).attr('class'));
+                        if ($(this).next().is(':visible')) {
+                            $(this).removeClass('active');
+                            $(this).next().addClass('active');
+                            $(this).next().focus();
+                            $("#" + ajaxBlock + "-" + i).find("ul").scrollTop($(this).position().top);
+                            return false;
+                        }
+                    }
+                }
+                if (event.keyCode == 13) {
+                    if ($(this).hasClass('active')) {
+                        $(this).click();
+                    }
+                }
+                if (event.keyCode == 38) {
+                    if ($(this).hasClass('active')) {
+                        if ($(this).prev().is(':visible')) {
+                            $(this).removeClass('active');
+                            $(this).prev().focus();
+                            $(this).prev().addClass('active');
+                            $("#" + ajaxBlock + "-" + i).find("ul").scrollTop($(this).position().top);
+                            return false;
+                        }
+                    }
+                }
+            });
+        }
+    }
+    mergeItemsList() {
+        let mergeArray: any = [];
+        for (let index of this.configValSampleList) {
+            if (index.mat_num != "" && index.qty != "") {
+                mergeArray.push(index);
+            }
+        }
+        if (mergeArray.length > 0) {
+            this.uploadExcelFlag = false;
+        } else {
+            this.uploadExcelFlag = true;
+        }
+        this.configValSampleList = mergeArray.concat(mergeItems);
+        this.checkboxsizecondition();
+        //        setTimeout(() => {
+        //            this.enableSaveBtn();
+        //            this.enableButtons();
+        //        }, 100);
+    }
+    checkboxsizecondition() {
+        for (let index of this.configValSampleList) {
+            if (index.mat_num != "" && index.qty != "") {
+                index.errorFlagBox = false;
+                let date = new Date();
+                let day: any = date.setDate(date.getDate() + 1);
+                date = new Date(day);
+                day = date.getDate();
+                if (day < 10) {
+                    day = "0" + day;
+                }
+                let month: any = date.getMonth() + 1;
+                let currentDate: any = day + "/0" + month + "/" + date.getFullYear();
+                index.deldate = currentDate;
+                if (this.boxList.length > 0) {
+                    this.boxList.forEach(currentItem => {
+                        if (currentItem.key == index['mat_num']) {
+                            let limit: any;
+                            index.boxSize = currentItem.addField2;
+                            index.boxLimit = currentItem.addField3;
+                            if (parseFloat(index.qty) < parseFloat(index.boxSize)) {
+                                index.errorFlagBox = true;
+                            } else {
+                                if (parseFloat(index.qty) > parseFloat(index.boxSize)) {
+                                    limit = parseFloat(index.qty) / parseFloat(index.boxSize);
+                                    if (typeof limit === 'number') {  // it is a number
+                                        if (limit % 1 != 0) {
+                                            index.errorFlagBox = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+        setTimeout(() => {
+            this.enableSaveBtn();
+            this.enableButtons();
+        }, 100);
+    }
+    enableSaveBtn() {
+        var flag = false;
+        $('.qty').each(function() {
+            if ($(this).css('border') == '1px solid rgb(255, 0, 0)') {
+                flag = true;
+            }
+        });
+        if (flag) {
+            console.log('calling');
+            this.commonService.responseMessages("", "Invalid quantity, it should be convertible to boxes", "warning");
+            this.saveBtn = true;
+            return false;
+        } else {
+            this.saveBtn = false;
+        }
+    }
+    uploadExcel() {
+        $("#uploadExcel").click();
+    }
+    selectAll(event, checkAll, tableId) {
+        setTimeout(() => {
+            if ($("#" + checkAll).is(":checked")) {
+                this.commonService.selectAllCheckBoxes(checkAll, tableId);
+                let count: any = 0;
+                this.configValSampleList.forEach(response => {
+                    if (response.displayRow) {
+                        this.checkedObjects.push(count);
+                    }
+                    count++;
+                });
+            } else {
+                this.commonService.selectAllCheckBoxes(checkAll, tableId);
+                this.checkedObjects = [];
+            }
+        }, 300);
+    }
+    getReportList(event, tableId, i) {
+        setTimeout(() => {
+            let flag: boolean = this.commonService.checkAction(tableId);
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = true;
+            }
+            else {
+                this.indeterminate = true;
+            }
+        }, 400);
+        setTimeout(() => {
+            if ($("#checkbox-" + i + "-input").is(":checked")) {
+                this.checkedObjects.push(i);
+            }
+            else {
+                if (this.checkedObjects.length > 0) {
+                    let count: any = 0;
+                    for (let index of this.checkedObjects) {
+                        if (index == i) {
+                            delete this.checkedObjects[count];
+                        }
+                        count++;
+                    }
+                }
+                setTimeout(() => {
+                    let flag: boolean = this.commonService.continueAction(tableId);
+                    if (flag) {
+                        this.indeterminate = false;
+                        this.checked = false;
+                    }
+                    else {
+                        this.indeterminate = true;
+                    }
+                }, 200);
+            }
+        }, 300);
+    }
+    closeModal(id) {
+        $("#" + id).modal("hide");
+        this.recuringOrderForm.reset();
+    }
+    Add_newList() {
+        $("#bussinessModal").modal("show");
+    }
+    submit_recurring_orderList() {
+        let saveArray: any = [];
+        let message: string = "Please select parent id";
+        let bflag: boolean = true;
+        let group = "PREORDRLIST";
+        let code = $('#txt_code').val();
+        let name = $('#txt_name').val();
+        saveArray.push({ 'bpId': this.bpId, 'orgId': this.orgId, 'configGroupId': group, 'key': code, 'value': name });
+        let payload = {};
+        let payLoadArray = saveArray;
+        payload["configValues"] = payLoadArray;
+        console.log(payload)
+        let url = this.environment.getRequiredApi('config_grp_list') + "?";
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        this.commonService.getData(url, 'POST', payload, '')
+            .subscribe((response) => {
+                console.log(response)
+                if (response.status == 0) {
+                    this.commonService.responseMessages("", response.message, "success");
+                }
+                if (response.status == 1) {
+                    this.commonService.responseMessages("", response.message, "warning");
+                    console.log(this.configValSampleList)
+                }
+                console.log(this.configValSampleList)
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+            }, err => {
+                console.log(err)
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+            });
+    }
+    submit_recurring_orderList_items() {
+        let saveArray: any = [];
+        let message: string = "Please select parent id";
+        let bflag: boolean = true;
+        let group = "PREORDRLISTITMS";
+        let parent_valid = $('#grp_orderlist').val();
+        for (let items of this.configValSampleList) {
+            //  if (items.displayRow) {
+            if (items.mat_num != "" && items.qty != "") {
+                saveArray.push({ 'bpId': this.bpId, 'orgId': this.orgId, 'configGroupId': group, 'parentValId': parent_valid, 'configValId': items.configValId, 'key': items.mat_num, 'value': items.qty, 'mark_as_delete': items.mark_as_delete });
+            }
+            // }
+        }
+        let payload = {};
+        let payLoadArray = saveArray;
+        payload["configValues"] = payLoadArray;
+        console.log(payload)
+        let url = this.environment.getRequiredApi('config_value_list') + "?";
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        this.commonService.getData(url, 'POST', payload, '')
+            .subscribe((response) => {
+                console.log(response)
+                if (response.status == 0) {
+                    this.commonService.responseMessages("", response.message, "success");
+                }
+                if (response.status == 1) {
+                    this.commonService.responseMessages("", response.message, "warning");
+                    console.log(this.configValSampleList)
+                }
+                console.log(this.configValSampleList)
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+            }, err => {
+                console.log(err)
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+            });
+    }
+    createNewPO() {
+        $("#createPurchaseModal").modal("show");
+    }
+    createPurchaseForm(id) {
+        let orderType: any = $("#orderTypes").val();//ZNB
+        let orderList: any = $("#grp_recur_orderlist").val();
+        $("#" + id).modal("hide");
+        const path: any = "purchaseorder/savepurchaseorder";
+        let vendorId: any = $("#modal-searchInput").val();
+        this.router.navigate([path], { queryParams: { "orderType": orderType, "orderList": orderList, "vendorId": vendorId, "action": "Cr", frompage: "PO" } });
+    }
+}

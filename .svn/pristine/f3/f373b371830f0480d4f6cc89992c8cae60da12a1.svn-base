@@ -1,0 +1,198 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Stock Details</strong>
+		</span>
+	</div>
+	<div class="card-block db-block" style="padding-left:0px; padding-right:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+					<!-- new changes -->
+					<div class="col-lg-12" style="padding-left:0px; padding-right:0px;">
+						<div class="col-md-12">
+							<div class="stock-table table-responsive">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="stock-balance-table">
+								<thead>
+									<tr>
+										<th>Sno.</th>
+										<th>Material Group</th>
+										<th>Description</th>
+										<th>Material Code</th>
+										<th>Description</th>
+										<th>UOM</th>
+										<th>Qty</th>
+										<th>Price</th>
+										<th>Value</th>
+										
+									</tr>
+								</thead>
+								<tbody>
+								<tr>
+									<td>  
+									1</td>
+									<td><div class="div_align">
+									<p class="icon_mt">RSI00001</p>
+									<i class="fa fa-plus expand pull-right" style="margin-top: -29px;" id="icon1" (click)="expandmodal('showRow','icon1')"></i>
+									</div>
+									</td>
+									<!--  <div style="display:none" class="showRow div_align">MC-13</div></td> -->
+									<td>
+										<div  class="div_align">Urology</div> 
+										<!-- <div  style="display:none" class="showRow div_align">Lorem ipsum dolor..</div>  -->
+									</td>
+									<td>
+									<div class="div_align">MARA</div> 
+									<!-- <div  style="display:none" class="showRow div_align">R1000</div> -->
+									</td>
+									<td>
+									<div class="div_align">MAKT</div> 
+									<!-- <div  style="display:none" class="showRow div_align">100</div> -->
+									</td>
+									<td>
+									<div class="div_align">Box</div>
+									</td>
+									<td align="right">
+									<div class="div_align">200</div>
+									<!--  <div  style="display:none" class="showRow div_align">1000.00</div> -->
+									</td>
+									<td align="right">
+									<div class="div_align">1000.00</div> 
+									<!-- <div  style="display:none" class="showRow div_align">5000.00</div> -->
+									</td>
+									<td align="right">
+									<div class="div_align">20,00,000.00</div> 
+									<!-- <div  style="display:none" class="showRow div_align">5000.00</div> -->
+									</td>
+									
+								</tr>
+								<tr style="display:none" class="showRow div_align">
+								<td colspan="2"></td>
+								<td colspan="6">
+									<table
+													class="table table-hover nowrap editable-table  stock-balance-inner-table checkBoxTable"
+													width="100%" id="">
+													<thead>
+														<tr>
+															<th class="inner_th_color">Batch No.</th>
+															<th class="inner_th_color">Exp. Date</th>
+															<th class="inner_th_color">Qty</th>
+															<th class="inner_th_color">Price</th>
+															<th class="inner_th_color">Value</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td>R40000</td>
+															<td>30/02/2020</td>
+															<td>100</td>
+															<td align="right">100.00</td>
+															<td align="right">10,00,000</td>
+														</tr>
+														<tr>
+															<td>R40000</td>
+															<td>30/02/2020</td>
+															<td>100</td>
+															<td align="right">100.00</td>
+															<td align="right">10,00,000</td>
+														</tr>
+													</tbody>
+												</table>
+
+								</td>
+								<td style="display:none"></td>
+								<td style="display:none"></td>
+								<td style="display:none"></td>
+								<td style="display:none"></td>
+								<td style="display:none"></td>
+								<td style="display:none"></td>
+								
+								
+								<td style=""></td>
+								
+								</tr>
+								<tr>
+									<td>2</td>
+									<td>RSI00002</td>
+									<td>Syringe</td>
+									<td>MARA</td>
+									<td>MAKT</td>
+									<td>Box</td>
+									<td align="right">100</td>
+									<td align="right">1000.00</td>
+									<td align="right">10,00,000.00</td>
+								</tr>
+								<tr>
+									<td>3</td>
+									<td>RSI00002</td>
+									<td>Syringe</td>
+									<td>MARA</td>
+									<td>MAKT</td>
+									<td>Box</td>
+									<td align="right">100</td>
+									<td align="right">1000.00</td>
+									<td align="right">10,00,000.00</td>
+								</tr>
+								<tr>
+									<td>4</td>
+									<td>RSI00002</td>
+									<td>Syringe</td>
+									<td>MARA</td>
+									<td>MAKT</td>
+									<td>Box</td>
+									<td align="right">100</td>
+									<td align="right">1000.00</td>
+									<td align="right">10,00,000.00</td>
+								</tr>
+								
+								<tr>
+									<td colspan="6">Total</td>
+									<td style="display:none"></td>
+									<td style="display:none"></td>
+									<td style="display:none"></td>
+									<td style="display:none"></td>
+									<td style="display:none"></td>
+									<td colspan="2" ><div style=" margin-left: 38px;">500</div></td>										   
+
+									<td style="display:none"></td>
+									<td  align="right">50,000.00</td>
+								</tr>
+								
+								
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3">
+		<div class="left-block">
+		
+		</div>
+		<div class="right-block">
+			<div class="pull-right">
+			<button class="login-button-export">
+			<i class="fa excel-icon" style="margin-right:4px;">
+				<div class="icon-text">Export Excel</div>
+			</i>
+			</button>
+			</div>
+			
+			<div class="pull-right">
+				<button class="login-button-export">
+					<i class="fa print-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Print</div>
+					</i>
+				</button>
+			</div>
+			
+			
+		</div>
+	</div>
+
+</section>

@@ -1,0 +1,137 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Goods Receipt</strong>
+		</span>
+	</div>
+	<div class="card-block db-block" style="padding:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+					<!-- new changes -->
+					<div class="col-md-12 mt-2 mb-1">
+							<div class="stock-table">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="goods-receipt-order-table">
+								<thead>
+									<tr>
+										<th class="no-sort"  style="width:50px;text-align:center;">
+											<mat-checkbox class="example-margin" 
+											[(ngModel)]="checked"
+											[checked]="checked"
+											[(indeterminate)]="indeterminate"
+											 (click)="selectAll($event,'mat-checkbox-1-input','goods-receipt-order-table')"></mat-checkbox>
+											 </th>
+										<th style="width: 62px;">Goods Issue No.</th>
+										<th>Goods Issue Date</th>
+										<th>Purchase Order No.</th>
+										<th>Vendor Name</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td align="center">
+											<mat-checkbox  (click)="getReportList($event,'goods-receipt-order-table')"></mat-checkbox>
+											
+										</td>
+										<td><a href="javascript:void(0)" class="sales-num-anchor" (click)="editGoodsReceipt()">G0122</a></td>
+										<td>02/02/2018</td>
+										<td>PO12345</td>
+										<td>Metro Medical Service Ltd</td>
+									</tr>
+									<tr>
+										<td align="center">
+											<mat-checkbox  (click)="getReportList($event,'goods-receipt-order-table')"></mat-checkbox>
+											
+										</td>
+										<td><a href="javascript:void(0)" class="sales-num-anchor" (click)="editGoodsReceipt()">G0122</a></td>
+										<td>02/02/2018</td>
+										<td>PO12345</td>
+										<td>Metro Medical Service Ltd</td>
+									</tr>
+									<tr>
+										<td align="center">
+											<mat-checkbox  (click)="getReportList($event,'goods-receipt-order-table')"></mat-checkbox>
+											
+										</td>
+										<td><a href="javascript:void(0)" class="sales-num-anchor" (click)="editGoodsReceipt()">G0122</a></td>
+										<td>02/02/2018</td>
+										<td>PO12345</td>
+										<td>Metro Medical Service Ltd</td>
+									</tr>
+									<tr>
+										<td align="center">
+											<mat-checkbox  (click)="getReportList($event,'goods-receipt-order-table')"></mat-checkbox>
+											
+										</td>
+										<td><a href="javascript:void(0)" class="sales-num-anchor" (click)="editGoodsReceipt()">G0122</a></td>
+										<td>02/02/2018</td>
+										<td>PO12345</td>
+										<td>Metro Medical Service Ltd</td>
+									</tr>
+									<tr>
+										<td align="center">
+											<mat-checkbox  (click)="getReportList($event,'goods-receipt-order-table')"></mat-checkbox>
+											
+										</td>
+										<td><a href="javascript:void(0)" class="sales-num-anchor" (click)="editGoodsReceipt()">G0122</a></td>
+										<td>02/02/2018</td>
+										<td>PO12345</td>
+										<td>Metro Medical Service Ltd</td>
+									</tr>
+									<tr>
+										<td align="center">
+											<mat-checkbox  (click)="getReportList($event,'goods-receipt-order-table')"></mat-checkbox>
+											
+										</td>
+										<td><a href="javascript:void(0)" class="sales-num-anchor"  (click)="editGoodsReceipt()">G0122</a></td>
+										<td>02/02/2018</td>
+										<td>PO12345</td>
+										<td>Metro Medical Service Ltd</td>
+									</tr>
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+<div class="outbound-footer mt-3">
+		<div class="left-block">
+		<!-- <div class="pull-left" style="max-width:47%">
+			<button class="btn login-button">
+			<i class="fa fa-plus" style="margin-right:4px;"></i> Add Lines</button>
+		</div>
+		<div class="pull-left" style="max-width:50%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Remove Line</button>
+			</div> -->
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+			<button class="login-button-export" (click)="printSelectedReports('goods-receipt-order-table')">
+			<i class="fa print-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Print</div>
+			</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export">
+			<i class="fa excel-icon" style="margin-right:4px;">
+				<div class="icon-text">Export Excel</div>
+			</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export" (click)="createGoodsReceipt('goods-receipt-order-table')">
+				<i class="fa create-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Create</div>
+				</i>
+			</button>
+			</div>
+		</div>
+	</div>
+</section>

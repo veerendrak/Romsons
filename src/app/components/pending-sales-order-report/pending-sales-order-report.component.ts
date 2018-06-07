@@ -1,0 +1,493 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router,ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { ExcelService } from '../../services/excel.service';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+import {Observable} from 'rxjs/Observable';
+import {of} from 'rxjs/observable/of';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/distinctUntilChanged';
+import 'rxjs/add/operator/do';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/merge';
+
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-pending-sales-order-report',
+  templateUrl: './pending-sales-order-report.component.html',
+  styleUrls: ['./pending-sales-order-report.component.css']
+})
+export class PendingSalesOrderReportComponent implements OnInit {
+
+  filterVl10cReportForm:FormGroup;
+  customerNames:any;
+  bpId:any;
+  orgId:any;
+  accessObjectId:any;
+  pendingReportMessages:any;
+  pendingSalesRptList:any;
+  errorLogs:any;
+  materialList:any;
+  fromPage:any;
+  openQty:any;
+  orderQty:any;
+  dlvQty:any;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private environment:EnvConfigurationService,private excelService: ExcelService,
+          private activatedRoute:ActivatedRoute) { 
+    this.app.isActive=true;
+     this.filterVl10cReportForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+          'dlvDate' : [''],
+          'dlvFromDate':['',Validators.required],
+          'custName' : [''], 
+          'sonum' : [''], 
+          'materialNum' :['']
+        });
+     this.bpId=localStorage.getItem("bpId");
+     this.orgId=localStorage.getItem("orgId");
+     this.accessObjectId=localStorage.getItem("Reports Gallery");
+     this.customerNames=[];
+     this.pendingReportMessages = messagesService.delarwisereposrt_msg;
+     this.pendingSalesRptList=[];
+     this.errorLogs=[];
+     this.materialList=[];
+     this.fromPage="";
+     this.openQty=0;
+     this.orderQty=0;
+     this.dlvQty=0;
+}
+
+  ngOnInit() {
+    $( '.datepicker-init-sale' ).datetimepicker( {
+              widgetPositioning: {
+                  horizontal: 'left'
+              },
+              icons: {
+                  time: "fa fa-clock-o",
+                  date: "fa fa-calendar",
+                  up: "fa fa-arrow-up",
+                  down: "fa fa-arrow-down",
+                  previous: 'fa fa-arrow-left',
+                  next: 'fa fa-arrow-right'
+              },
+              format: 'DD/MM/YYYY',
+          } );
+    $(function() {
+          $(document).on('click', function (e) {
+            if (!$(e.target).hasClass('ajax-list')) {
+                  $(".ajax-searchlist").hide();
+              }
+           });
+        });
+    this.applyDataTable();
+    this.activatedRoute.queryParams.subscribe(params => {
+        if(params['frompage']=='SO'){
+           this.fromPage=params['frompage'];
+           let fromDate:any=localStorage.getItem("fromDate");
+           let toDate:any=localStorage.getItem("toDate");
+           let custName:any=localStorage.getItem('custName');
+           let custId:any=localStorage.getItem('custId');
+           let soNum:any=localStorage.getItem('soNum');
+           let matNum:any=localStorage.getItem('matNum');
+           setTimeout(()=>{
+               $("#dlv-date").val(toDate);
+               $("#dlv-from-date").val(fromDate);
+               $("#cust-name").val(custName);
+               $("#filterCustomerId").val(custId);
+               $("#sonum").val(soNum);
+               $("#matNum").val(matNum);
+               this.getFilterData();
+           },200);
+           
+        }
+    });
+   
+  }
+applyDataTable(){
+      setTimeout(()=>{
+          var table = $('#pendingSalesReport-table').DataTable({
+             "order": [[1,'desc']],
+             "bPaginate": false,
+             "bInfo": false,
+             retrieve:true,
+             "language": {
+                 "emptyTable": "No data available",
+                 "info": "Showing page _PAGE_ of _PAGES_",
+                 "infoFiltered": "(filtered from _MAX_ total records)",
+                // "searchPlaceholder" : "Search..."
+               },
+             columnDefs: [ {
+                          "targets": 'no-sort',
+                           "orderable": false
+                     } ],
+             "fnDrawCallback": function(oSettings) {
+                 if (10 >= oSettings.fnRecordsDisplay()) {
+                   $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+              //     $(oSettings.nTableWrapper).find('.dataTables_filter').hide();
+                   $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                   //$(oSettings.nTableWrapper).find('.dataTables_length').hide();
+                 } else {
+               $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+             //    $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                 $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                   //  $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                 }
+               },
+                   });
+          $('#pendingSalesReport-table_filter input').val();
+          $("#searchStock").remove();
+         // $("#sales-order-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+          $("#sales-table").show();
+          setTimeout(()=>{
+              var width=$("#mainContent").css("width");
+              $(".outbound-footer").css("width",width);
+              $(".outbound-footer").show();
+          },50);
+      },500);
+      setTimeout(() =>{
+          $(".dataTables_scrollHeadInner").css({"width":"100%"});
+          $(".table ").css({"width":"100%"});    
+          },600);
+  }
+changeValidate(id){
+        let date:any=$("#"+id).val();
+    if(id=='dlv-date'){
+        this.filterVl10cReportForm.controls['dlvDate'].setValue(date);
+     }else{
+    if(id=='dlv-from-date'){
+       this.filterVl10cReportForm.controls['dlvFromDate'].setValue(date); 
+    }   
+    }
+}
+extractData(id,spinnerId,ajaxDropdown,event){
+    let term:any=$("#"+id).val();
+    if(this.customerNames.length==0){
+         if(term.length>3){
+              term=term.substring(0,3);  
+         }   
+    }
+    if(term.length ==3 && event.keyCode!=38 && event.keyCode!=40 && event.keyCode!=13){
+        $("#"+spinnerId).show();
+        let url:any=this.environment.getRequiredApi("find_customers")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&cust_name="+term+"&";
+    this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+        if(response.status==0){
+            this.customerNames=response["data"].ex_cust_list;
+            $("#"+spinnerId).hide();
+            $("#"+ajaxDropdown).show();
+            setTimeout(()=>{
+               $("#"+ajaxDropdown).find('ul').find('li:first').addClass('active');
+               $("#"+ajaxDropdown).find('ul').find('li:first').focus();
+            },100);
+        }else{
+            $("#"+spinnerId).hide();
+            $("#"+ajaxDropdown).show();
+        }
+    });
+    }else{
+       if(term==""){
+           this.customerNames=[];
+           $("#"+spinnerId).hide();
+           $("#filterCustomerId").val("");
+       }else{
+        if(event.keyCode!=13 && event.keyCode!=38 && event.keyCode!=40){
+           var searchText=term;
+           searchText=searchText.toUpperCase();
+           $(".ajax-list").removeClass('active');
+           $("#"+ajaxDropdown).find('ul > li').each(function(){
+                var currentLiText = $(this).text();
+                currentLiText=currentLiText.toUpperCase();
+                 var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                $(this).toggle(showCurrentLi);
+            });
+           $("#"+ajaxDropdown).find('ul').find('li:visible').first().addClass('active');
+           $("#"+ajaxDropdown).find('ul').find('li:visible').first().focus();
+        }
+       }
+    }
+    if(event.keyCode==38 || event.keyCode==40 || event.keyCode==13){
+        $("#"+ajaxDropdown).find('ul > li').each(function(){
+              if(event.keyCode==40){
+                  if($(this).hasClass('active')){
+                    console.log($(this).attr('class'));
+                    if($(this).next().is(':visible')){
+                        $(this).removeClass('active');
+                        $(this).next().addClass('active');
+                        $(this).next().focus();
+                        $("#"+ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                        return false;
+                      }
+                 }
+              } 
+            if(event.keyCode==13){
+                  if($(this).hasClass('active')){
+                    $(this).click();
+                 }
+              } 
+            if(event.keyCode==38){
+                  if($(this).hasClass('active')){
+                    if($(this).prev().is(':visible')){
+                        $(this).removeClass('active');
+                        $(this).prev().focus();
+                        $(this).prev().addClass('active');
+                        $("#"+ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                        return false;
+                      }
+                 }
+              } 
+        });
+    }
+}
+selectedItem(response,modalBlock,textInput,hiddenInput){
+    if(response.cust_name==null && response.cust_name==undefined){
+        $("#"+textInput).val(response.cust_id);
+    }else{
+        let cutname:any=response.cust_id+"-"+response.cust_name;
+        $("#"+textInput).val(cutname);    
+    }
+    
+    $("#"+hiddenInput).val(response.cust_id);
+    $("#"+modalBlock).hide();
+}
+extractData1(id,spinnerId,ajaxDropdown,event){
+    let term:any=$("#"+id).val();
+    if(this.materialList.length==0){
+         if(term.length>3){
+              term=term.substring(0,3);  
+         }   
+    }
+    if(term.length ==3 && event.keyCode!=38 && event.keyCode!=40 && event.keyCode!=13){
+        $("#"+spinnerId).show();
+        let url:any=this.environment.getRequiredApi("find_matnr_num")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&material="+term+"&";
+        this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+        if(response.status==0){
+            this.materialList=response["data"].ex_mat_list;
+            $("#"+spinnerId).hide();
+            $("#"+ajaxDropdown).show();
+            setTimeout(()=>{
+               $("#"+ajaxDropdown).find('ul').find('li:first').addClass('active');
+               $("#"+ajaxDropdown).find('ul').find('li:first').focus();
+            },100);
+        }else{
+            $("#"+spinnerId).hide();
+            $("#"+ajaxDropdown).show();
+        }
+    });
+    }else{
+       if(term==""){
+           this.materialList=[];
+           $("#"+spinnerId).hide();
+           $("#filterMaterialId").val("");
+       }else{
+        if(event.keyCode!=13 && event.keyCode!=38 && event.keyCode!=40){
+           var searchText=term;
+           searchText=searchText.toUpperCase();
+           $(".ajax-list").removeClass('active');
+           $("#"+ajaxDropdown).find('ul > li').each(function(){
+                var currentLiText = $(this).text();
+                currentLiText=currentLiText.toUpperCase();
+                 var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                $(this).toggle(showCurrentLi);
+            });
+           $("#"+ajaxDropdown).find('ul').find('li:visible').first().addClass('active');
+           $("#"+ajaxDropdown).find('ul').find('li:visible').first().focus();
+        }
+       }
+    }
+    if(event.keyCode==38 || event.keyCode==40 || event.keyCode==13){
+        $("#"+ajaxDropdown).find('ul > li').each(function(){
+              if(event.keyCode==40){
+                  if($(this).hasClass('active')){
+                    console.log($(this).attr('class'));
+                    if($(this).next().is(':visible')){
+                        $(this).removeClass('active');
+                        $(this).next().addClass('active');
+                        $(this).next().focus();
+                        $("#"+ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                        return false;
+                      }
+                 }
+              } 
+            if(event.keyCode==13){
+                  if($(this).hasClass('active')){
+                    $(this).click();
+                 }
+              } 
+            if(event.keyCode==38){
+                  if($(this).hasClass('active')){
+                    if($(this).prev().is(':visible')){
+                        $(this).removeClass('active');
+                        $(this).prev().focus();
+                        $(this).prev().addClass('active');
+                        $("#"+ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                        return false;
+                      }
+                 }
+              } 
+        });
+    }
+}
+selectedItemMatr(response,modalBlock,textInput,hiddenInput){
+   $("#"+textInput).val(response.mat_num);
+    $("#"+hiddenInput).val(response.mat_num);
+    $("#"+modalBlock).hide();
+}
+getFilterData(){
+    this.openQty=0;
+    this.orderQty=0;
+    this.dlvQty=0;
+    $('#loadingIcon').show();
+    $("#black-overlay").show();
+    let payload:any={};
+    let dlvDate:any=null;
+    let convertDate:any=null;
+    dlvDate=$("#dlv-date").val();
+    if(dlvDate!=undefined && dlvDate!=""){
+        dlvDate=dlvDate.split('/'); 
+        convertDate=dlvDate[2]+""+dlvDate[1]+""+dlvDate[0];       
+    }
+    payload['to_deliv_date']=convertDate;
+    let fromDate:any=null;
+    let fromConvertdate:any=null;
+    fromDate=$("#dlv-from-date").val();
+    if(fromDate!=undefined && fromDate!=""){
+        fromDate=fromDate.split("/");   
+        fromConvertdate=fromDate[2]+""+fromDate[1]+""+fromDate[0]; 
+    }
+    payload['from_deliv_date']=fromConvertdate;
+    //payload['ship_ponits']=[];
+    //payload['ship_ponits'].push($("#plant").val());
+    payload['ship_parties']=[];
+    if($("#filterCustomerId").val()!="" && $("#filterCustomerId").val()!=undefined){
+        payload['ship_parties'].push($("#filterCustomerId").val());
+    }
+    payload['sales_orders']=[];
+    if($("#sonum").val()!="" && $("#sonum").val()!=undefined){
+        payload['sales_orders'].push($("#sonum").val());    
+    }
+    payload['materials']=[];
+    if($("#matNum").val()!="" && $("#matNum").val()!=undefined){
+        payload['materials'].push($("#matNum").val());        
+    }
+    payload['bp_id']=this.bpId;
+    payload['org_id']=this.orgId;
+    let url:any=this.environment.getRequiredApi("get_vl10c_report")+"?";
+    this.commonService.getData(url, "POST", payload, this.accessObjectId).subscribe((response)=>{
+          if(response.status==0){
+              if(response['data'].hasOwnProperty('ex_so_list')){
+                  response['data'].ex_so_list.forEach(currentItem=>{
+                     currentItem.ord_qty=Math.round(parseFloat(currentItem.ord_qty));
+                     currentItem.dlv_qty=Math.round(parseFloat(currentItem.dlv_qty));
+                     currentItem.open_qty=Math.round(parseFloat(currentItem.open_qty)); 
+                     this.openQty=this.openQty+currentItem.open_qty;
+                     this.orderQty=this.orderQty+currentItem.ord_qty;
+                     this.dlvQty=this.dlvQty+currentItem.dlv_qty;
+                  });
+                this.pendingSalesRptList=response['data'].ex_so_list;
+                $("#filter-block").hide();
+               }
+              if(response['data'].hasOwnProperty('ex_return')){
+                for(let index of response.data.ex_return){
+                        if (index.type=="E") {
+                            this.errorLogs = response.data.ex_return;
+                            $("#delarwiseReport-errors").modal("show");
+                            $('#loadingIcon').hide();
+                            $("#black-overlay").hide();
+                            //this.filterVl10cReportForm.reset();
+                            //$("#filterCustomerId").val("");
+                            //$("#filterMaterialId").val("");
+                            return false;
+                           }
+                        }    
+              }
+              //this.filterVl10cReportForm.reset();
+              //$("#filterCustomerId").val("");
+              //$("#filterMaterialId").val("");
+          }else{
+            this.pendingSalesRptList=[];
+            this.commonService.responseMessages("", response.message, "warning")    
+          }
+        
+        $('#loadingIcon').hide();
+        $("#black-overlay").hide();
+        $('#pendingSalesReport-table').DataTable().destroy();
+        this.applyDataTable();
+     });    
+}
+closeModal(id){
+      $("#"+id).modal("hide");
+}
+navigateToSO(soNum){
+   localStorage.setItem('fromDate',$("#dlv-from-date").val());
+   localStorage.setItem('toDate',$("#dlv-date").val());
+   localStorage.setItem('custName',$("#cust-name").val());
+   localStorage.setItem('custId',$("#filterCustomerId").val());
+   localStorage.setItem('soNum',$("#sonum").val());
+   localStorage.setItem('matNum',$("#matNum").val());
+   const path:any="salesorder/editsalesorder";
+   this.router.navigate([path],{ queryParams: {"orderNum":soNum,"dlvrNum":"","action":"U",frompage:"PSR"} });     
+}
+navigateToRepGallery(){
+    const path: any = "rptsgallery";
+    this.router.navigate([path]);
+    }
+exportExcel(){
+    if(this.pendingSalesRptList.length>0){
+    for(let index of this.pendingSalesRptList){
+        if(!index.hasOwnProperty('ship_to')){
+            index.ship_to="";
+        }
+        if(!index.hasOwnProperty('po_num')){
+            index.po_num="";
+        }
+        if(!index.hasOwnProperty('ord_num')){
+            index.ord_num="";
+        }
+        if(!index.hasOwnProperty('ord_date')){
+            index.ord_date="";
+        }
+        if(!index.hasOwnProperty('item_num')){
+            index.item_num="";
+        }
+        if(!index.hasOwnProperty('material')){
+            index.material="";
+        }
+        if(!index.hasOwnProperty('description')){
+            index.description="";
+        }
+        if(!index.hasOwnProperty('ord_qty')){
+            index.ord_qty="";
+        }
+        if(!index.hasOwnProperty('dlv_qty')){
+            index.dlv_qty="";
+        }
+        if(!index.hasOwnProperty('open_qty')){
+            index.open_qty="";
+        }
+    }
+    let jsonArrrayData: any = [];
+    let columnHeaders:any=['Sold to party','PO Number','Order Number','Order Date','Item','Material','Description','Order Qty','Delivery Qty','Open Qty'];
+    let columns:any=['ship_to','po_num','ord_num','ord_date','item_num','material','description','ord_qty','dlv_qty','open_qty']
+    jsonArrrayData=this.pendingSalesRptList;
+    let jsonData: any = JSON.stringify(jsonArrrayData);
+this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "VL10c Report", columns, columnHeaders, 'VL10c_Report');  
+    }else{
+        this.commonService.responseMessages("", "No Data Available To Export", "warning")  
+    }
+}
+showFilters(){
+    $("#filter-block").slideToggle();  
+}
+}

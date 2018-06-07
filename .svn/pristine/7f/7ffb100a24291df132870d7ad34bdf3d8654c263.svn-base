@@ -1,0 +1,627 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+import { ExcelService } from '../../services/excel.service';
+
+declare var $: any;
+declare var jQuery: any;
+
+@Component({
+  selector: 'app-stock-details',
+  templateUrl: './stock-details.component.html',
+  styleUrls: ['./stock-details.component.css']
+})
+export class StockDetailsComponent implements OnInit {
+
+     url:string;
+     bpId:string;
+     orgId:string;
+     stockDetailList:any;
+     stockBatchDetails:any;
+     quantity =0;
+     totPrice =0;
+    tableView:boolean =false;
+    serialNum:any;
+     public filterStockDetailsForm: FormGroup;
+     public hideFilter:boolean;
+     accessObjectId:string;
+    material:any;
+    ajaxDropdown=false;
+    screenType:string="";
+    qtyFlag:boolean=true;
+    matGrps:any=[];
+    public footerPgFlag=false;
+  constructor(private http: Http, private formBuilder: FormBuilder,private environment:EnvConfigurationService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private excelService: ExcelService) { 
+      this.bpId = localStorage.getItem("bpId");
+      this.orgId =localStorage.getItem("orgId");
+      this.accessObjectId = localStorage.getItem("Reports Gallery");
+      
+      this.filterStockDetailsForm = new FormBuilder().group(
+            {
+
+                'matGrp':[''],
+                'matCode':['']
+            }
+        );
+      this.hideFilter = false;
+      this.qtyFlag=true;
+      this.matGrps=[];
+  }
+    
+
+  ngOnInit() {
+      this.footerPgFlag = this.commonService.reportFlag;
+      if(this.footerPgFlag){
+          this.commonService.reportFlag = !this.footerPgFlag;
+      }
+      
+      
+      setTimeout(() => {
+          var width = $("#mainContent").css("width");
+          $(".outbound-footer").css("width", width);
+      }, 50);
+
+      
+      $(window).click(function() {
+          if($("#ajaxList").is(":visible")){
+            $("#ajaxList").hide();
+                
+          }
+         
+      })
+       this.stockDetailList = []; 
+
+      
+        
+      this.applyDataTable();  
+      $("#popwise-table").show();
+      $("#batch-wise-table").hide();
+      this.getStockDetails();
+      
+  }
+
+    expandmodal(materialId,icon,i){
+          //$("#stock-balance-table").DataTable().destroy();
+       
+        var cls = $("#" + icon+i).attr('class');
+       /* if (cls == 'fa minus-circle-icon  expand pull-right') {
+            $("#" + icon+i).attr('class', 'fa plus-circle-icon  expand pull-right');
+
+        } else {
+            $("#" + icon+i).attr('class', 'fa minus-circle-icon  expand pull-right');
+        }*/
+        $("#" + materialId+i).modal("show"); 
+        }
+    
+   applyDataTable(){
+         
+       //  $(".col-sm-12").attr("overflow","auto");
+       let klass="";
+       if(this.tableView){
+            
+           klass = "sb-batch-wise-table";
+       }else{
+        klass="sb-popwise-table";   
+       }
+       
+        setTimeout(()=>{
+          $("."+klass).DataTable({
+           
+           "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+              retrieve: true,
+           
+           "fnDrawCallback": function( oSettings ) {
+                        if ( 5 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                            
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                           $("."+klass).removeClass("table-responsive")
+                           
+                            
+                            
+                           
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                            $("."+klass).addClass("table-responsive")
+                            
+                        }
+                         if(klass == "sb-batch-wise-table"){
+                             if(oSettings.fnRecordsDisplay() == 0){
+                                 $("."+klass).css("display","inline-table")
+                             }else{
+                            $("."+klass).css("display","inline-block")     
+                             }
+                                
+                            }else{
+                                $("."+klass).css("display","inline-table")
+                            }
+               
+                    },
+          
+           
+         
+          
+      });
+            $(".sb-popwise-table ").children('thead').children('tr:first').children('th:first').removeClass("sorting_asc")  
+      },500);
+      
+      
+       
+     
+  }
+    
+     getStockDetails(){
+       $('#loadingIcon').show();
+       $("#black-overlay").show();
+         
+         this.url = this.environment.getRequiredApi( 'get_inventory_stock' )+"?bp_id="+this.bpId+"&org_id="+this.orgId+"&";
+         
+         if(this.filterStockDetailsForm.value.matGrp.length != 0 && this.filterStockDetailsForm.value.matCode.length == 0){
+             this.url = this.url +"mat_grp="+this.filterStockDetailsForm.value.matGrp+"&";
+         }
+         if(this.filterStockDetailsForm.value.matCode.length != 0 && this.filterStockDetailsForm.value.matGrp.length == 0){
+             this.url = this.url +"mat_num="+this.filterStockDetailsForm.value.matCode+"&";
+         }
+         if(this.filterStockDetailsForm.value.matCode.length != 0 && this.filterStockDetailsForm.value.matGrp.length != 0){
+             
+             this.url = this.url +"mat_num="+this.filterStockDetailsForm.value.matCode+"&mat_grp="+this.filterStockDetailsForm.value.matGrp+"&";
+         }
+         
+        // this.url = this.environment.getRequiredApi( 'get_inventory_stock' )+"?bp_id="+this.bpId+"&org_id="+this.orgId+"&";
+      
+        this.commonService.getData( this.url, 'GET','',this.accessObjectId)
+            .subscribe(( response ) => {
+             
+                 $(".sb-batch-wise-table").DataTable().destroy();
+                    $(".sb-popwise-table").DataTable().destroy();
+               
+                if (response.status == '1') {
+                    this.commonService.responseMessages("", response.message, "warning");
+                    this.stockDetailList = [];
+                   
+                   
+
+                    this.applyDataTable();
+                     if (this.tableView) {
+                        $("#popwise-table").hide();
+                        $("#batch-wise-table").show();
+                    } else {
+                        $("#popwise-table").show(); $("#batch-wise-table").hide();
+                    }
+
+                    this.quantity = 0
+                    this.totPrice = 0.0;
+
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                } else {
+
+              
+                    this.stockDetailList = [];
+                    this.stockDetailList = response.data.ex_stock_dets;
+                    this.quantity = 0; this.totPrice = 0;
+                   
+
+                    for (let total of this.stockDetailList) {
+                        
+                        this.quantity = this.quantity + total.total_quantity;
+                        this.totPrice = this.totPrice + total.total_price;
+                    }
+                   
+                    this.qtyFlag =false;
+                    
+                   /* if (this.tableView) {
+                        $("#popwise-table").hide();
+                        $("#batch-wise-table").show();
+                    } else {
+                        $("#popwise-table").show(); $("#batch-wise-table").hide();
+                    }
+                    */
+                    this.applyDataTable();
+                
+                    
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide(); 
+               }
+                 
+              
+            
+            }, err => {
+               
+                  $('#loadingIcon').hide();
+              $("#black-overlay").hide();
+                    console.log(err)   
+            
+            } );
+    
+    }
+     
+     closeModal(id,index){
+      $("#"+id+index).modal("hide");
+      
+  }
+    selectScreen(typeVal){
+       
+        this.screenType=typeVal;
+       
+        if(typeVal == "T"){
+        this.tableView = true;  
+            $("#popwise-table").hide();
+           $("#batch-wise-table").show();
+            
+        }else{
+        this.tableView = false;  
+             $("#popwise-table").show(); $("#batch-wise-table").hide();
+            
+        }
+        
+        this.applyDataTable();
+        
+    }
+    trackByFn(index,list){
+    return  list["serialNo"]=index+1 ;  
+    }
+
+    getStockDetailsWithFilters(){
+        $("#stockBalanceTable").DataTable().destroy();
+       /*  if(this.screenType.length == 0){
+            $(".custom-error-class").text("Please select Layout Type");
+             setTimeout(()=>{
+                 $(".custom-error-class").text("");
+             },1500)
+            return false;
+        }*/
+        
+        let mat_num=this.filterStockDetailsForm.value.matCode;
+        let mat_grp=this.filterStockDetailsForm.value.matGrp;
+        
+        
+        
+        this.getStockDetails();
+        
+        if (this.screenType == "T") {
+            this.tableView = true;
+            $("#popwise-table").hide();
+            $("#batch-wise-table").show();
+
+        } else {
+            this.tableView = false;
+            $("#popwise-table").show(); $("#batch-wise-table").hide();
+
+        }
+        this.applyDataTable();
+
+        
+        console.log(this.filterStockDetailsForm.value)
+    
+    }
+
+    showFilters(){
+        /*if(!this.hideFilter){
+        this.hideFilter = true;
+        }else{
+        this.hideFilter = false;    
+        }*/
+        $(".toggle-filter").toggle(500);
+        
+    }
+    
+    extractData(id,spinnerId,ajaxDropdown,event){
+    let term:any=$("#"+id).val();
+    if(this.material.length==0){
+         if(term.length>3){
+              term=term.substring(0,3);  
+         }   
+    }
+    if(term.length ==2 && event.keyCode!=38 && event.keyCode!=40 && event.keyCode!=13){
+        $("#"+spinnerId).show();
+        let url:any=this.environment.getRequiredApi("find_matnr_num")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&material="+term+"&";
+    this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+        if(response.status==0){
+            this.material=response["data"].ex_mat_list;
+                 $("#"+spinnerId).hide();
+                 $("#"+ajaxDropdown).show();
+                this.ajaxDropdown =true;
+             setTimeout(()=>{
+               $("#"+ajaxDropdown).find('ul').find('li:first').addClass('active');
+               $("#"+ajaxDropdown).find('ul').find('li:first').focus();
+            },100);
+        }else{
+            $("#"+spinnerId).hide();$("#"+ajaxDropdown).show();
+            this.ajaxDropdown =false;
+        }
+       
+    });
+    }else{
+       if(term==""){
+           this.material=[];
+           $("#"+spinnerId).hide();
+       }else{
+         if(event.keyCode!=13 && event.keyCode!=38 && event.keyCode!=40){
+            var searchText=term;
+            searchText=searchText.toUpperCase();
+            $(".ajax-list").removeClass('active');
+           $("#"+ajaxDropdown).find('ul > li').each(function(){
+                var currentLiText = $(this).text();
+                currentLiText=currentLiText.toUpperCase();
+                var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                $(this).toggle(showCurrentLi);
+            });
+           $("#"+ajaxDropdown).find('ul').find('li:visible').first().addClass('active');
+           $("#"+ajaxDropdown).find('ul').find('li:visible').first().focus();
+          }     
+       } 
+    }
+    if(event.keyCode==38 || event.keyCode==40 || event.keyCode==13){
+        $("#"+ajaxDropdown).find('ul > li').each(function(){
+              if(event.keyCode==40){
+                  if($(this).hasClass('active')){
+                    console.log($(this).attr('class'));
+                    if($(this).next().is(':visible')){
+                        $(this).removeClass('active');
+                        $(this).next().addClass('active');
+                        $(this).next().focus();
+                        $("#"+ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                        return false;
+                      }
+                 }
+              } 
+            if(event.keyCode==13){
+                  if($(this).hasClass('active')){
+                    $(this).click();
+                 }
+              } 
+            if(event.keyCode==38){
+                  if($(this).hasClass('active')){
+                    if($(this).prev().is(':visible')){
+                        $(this).removeClass('active');
+                        $(this).prev().focus();
+                        $(this).prev().addClass('active');
+                        $("#"+ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                        return false;
+                      }
+                 }
+              } 
+        });
+    }   
+}
+    
+    selectedItem(response, modalBlock, textInput, hiddenInput) {
+        $("#" + textInput).val(response.mat_num);
+        $("#" + hiddenInput).val(response.mat_num);
+        $("#" + modalBlock).hide();
+        this.filterStockDetailsForm.value["matCode"]=response.mat_num;
+    }
+    
+   
+     exportExcel(){
+          let jsonArrrayData:any=[];
+          let columns:any;
+         let columnHeaders:any;
+         
+         if(this.screenType != "T"){
+             for (let index of this.stockDetailList) {
+                 if (!index.hasOwnProperty('mat_grp')) {
+                     index.mat_grp = "  "
+                 }
+                 if (!index.hasOwnProperty('mat_grp_name')) {
+                     index.mat_grp_name = "  "
+                 }
+                 if (!index.hasOwnProperty('mat_no')) {
+                     index.mat_no = ' ';
+                 }
+                 if (!index.hasOwnProperty('mat_desc')) {
+                     index.mat_desc = ' ';
+                 }
+                 if (!index.hasOwnProperty('uom')) {
+                     index.uom = " ";
+                 }
+                 if (!index.hasOwnProperty('total_quantity')) {
+                     index.total_quantity = " ";
+                 }
+                 if (!index.hasOwnProperty('price')) {
+                     index.price = " ";
+                 } else {
+                     if (index.price == 0) {
+                         index.price = 0.0;
+                     }
+                 }
+                 if (!index.hasOwnProperty('total_price')) {
+                     index.total_price = " ";
+                 } else {
+                     if (index.total_price == 0) {
+                         index.total_price = 0.0;
+                     }
+
+                 }
+                jsonArrrayData.push(index);
+             }
+             columns = ['mat_grp', 'mat_grp_name', 'mat_no', 'mat_desc', 'uom', 'total_quantity', 'price', 'total_price']
+             columnHeaders = ['Material Group', 'Material Group Name', 'Material Number', 'Material Description ', 'UOM', 'Total Quantity', 'Price', 'Value']
+             
+         }else{
+             
+              let count = 0;
+              for(let index of this.stockDetailList){
+                  
+                  for(let items of this.stockDetailList[count].batch_stock){
+                       let listObj:any={};
+                    
+                          if (!index.hasOwnProperty('mat_grp')) {
+                              listObj.mat_grp = "  "
+                          } else {
+                              listObj.mat_grp = index.mat_grp;
+                          }
+                          if (!index.hasOwnProperty('mat_grp_name')) {
+                              listObj.mat_grp_name = "  "
+                          }else {
+                              listObj.mat_grp_name = index.mat_grp_name;
+                          }
+                          if (!index.hasOwnProperty('mat_no')) {
+                              listObj.mat_no = ' ';
+                          }else {
+                              listObj.mat_no = index.mat_no;
+                          }
+                          if (!index.hasOwnProperty('mat_desc')) {
+                              listObj.mat_desc = ' ';
+                          }else {
+                              listObj.mat_desc = index.mat_desc;
+                          }
+                          if (!index.hasOwnProperty('uom')) {
+                              listObj.uom = " ";
+                          }else {
+                              listObj.uom = index.uom;
+                          }
+
+                          if (!items.hasOwnProperty('batch_no')) {
+                              listObj.batch_no = " ";
+                          } else {
+                              listObj.batch_no = items.batch_no;
+                          }
+                          if (!items.hasOwnProperty('exp_date')) {
+                              listObj.exp_date = " ";
+                          } else {
+                              if( items.exp_date != "0000-00-00")
+                              listObj.exp_date = items.exp_date;
+                              else
+                                  listObj.exp_date ="";
+                          }
+
+
+                          if (!items.hasOwnProperty('batch_tot_qty')) {
+                              listObj.batch_tot_qty = " ";
+                          }else {
+                              listObj.batch_tot_qty = items.batch_tot_qty;
+                          }
+                          if (!index.hasOwnProperty('price')) {
+                              listObj.price = " ";
+                          }else{
+                              if(index.price == 0){
+                                  listObj.price = 0.0;
+                              } else {
+                                  listObj.price = index.price;
+                              }
+                          }
+                          if (!items.hasOwnProperty('batch_tot_price')) {
+                              listObj.batch_tot_price = " ";
+                          }else{
+                              if(items.batch_tot_price== 0){
+                                  listObj.batch_tot_price = 0.0;
+                              }else {
+                                  listObj.batch_tot_price = items.batch_tot_price;
+                              }
+                              
+                          }
+                       jsonArrrayData.push(listObj);
+                  }
+                  count++;
+                 
+              }
+              columns=['mat_grp','mat_grp_name','mat_no','mat_desc','uom','batch_no','exp_date','batch_tot_qty','price','batch_tot_price']
+              columnHeaders=['Material Group','Material Group Name','Material Number','Material Description ','UOM','Batch Number','Exp Date',' Quantity','Price','Value']
+             
+             
+         }
+         let jsonData: any = JSON.stringify(jsonArrrayData);
+         this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "Stock In-hand report", columns, columnHeaders, 'Stock-Details-report');
+        
+          } 
+    
+    
+    findByMatGroup(id, spinnerId, ajaxDropdown,event) {
+        let term: any = $("#" + id).val();
+        if(term.length ==3 && event.keyCode!=38 && event.keyCode!=40 && event.keyCode!=13){
+            $("#" + spinnerId).show();
+            let url: any = this.environment.getRequiredApi("find_by_mat_grp") + "?org_id=" + this.orgId + "&bp_id=" + this.bpId + "&matr_grp=" + term + "&";
+            this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response => {
+                if (response.status == 0) {
+                    this.matGrps = response["data"].ex_mat_grp;
+                    $("#" + spinnerId).hide();
+                    $("#" + ajaxDropdown).show();
+                    setTimeout(()=>{
+               $("#"+ajaxDropdown).find('ul').find('li:first').addClass('active');
+               $("#"+ajaxDropdown).find('ul').find('li:first').focus();
+            },100);
+                } else {
+                    $("#" + spinnerId).hide();
+                    $("#" + ajaxDropdown).show();
+                     $("#cust-not-found").show();
+                }
+
+            });
+        } else {
+            if (term == "") {
+                this.matGrps = [];
+                $("#" + spinnerId).hide();
+            } else {
+                if(event.keyCode!=13 && event.keyCode!=38 && event.keyCode!=40){
+                var searchText = term;
+                $("#" + ajaxDropdown).find('ul > li').each(function() {
+                    var currentLiText = $(this).text(),
+                        showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                    $(this).toggle(showCurrentLi);
+                });
+               }
+            }
+        }
+        if(event.keyCode==38 || event.keyCode==40 || event.keyCode==13){
+        $("#"+ajaxDropdown).find('ul > li').each(function(){
+              if(event.keyCode==40){
+                  if($(this).hasClass('active')){
+                    console.log($(this).attr('class'));
+                    if($(this).next().is(':visible')){
+                        $(this).removeClass('active');
+                        $(this).next().addClass('active');
+                        $(this).next().focus();
+                        $("#"+ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                        return false;
+                      }
+                 }
+              } 
+            if(event.keyCode==13){
+                  if($(this).hasClass('active')){
+                    $(this).click();
+                 }
+              } 
+            if(event.keyCode==38){
+                  if($(this).hasClass('active')){
+                    if($(this).prev().is(':visible')){
+                        $(this).removeClass('active');
+                        $(this).prev().focus();
+                        $(this).prev().addClass('active');
+                        $("#"+ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                        return false;
+                      }
+                 }
+              } 
+        });
+    }
+    }
+    
+    selectedGrpItem(response, modalBlock, textInput, hiddenInput) {
+        $("#" + textInput).val(response.mat_group_id);
+        $("#" + hiddenInput).val(response.mat_group_id);
+        $("#" + modalBlock).hide();
+        this.filterStockDetailsForm.value["matGrp"]=response.mat_group_id;
+    }
+    
+    navigateToRepGallery(){
+    const path: any = "rptsgallery";
+    this.router.navigate([path]);
+    }
+    
+}

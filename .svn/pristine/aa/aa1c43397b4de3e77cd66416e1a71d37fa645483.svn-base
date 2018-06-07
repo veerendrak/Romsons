@@ -1,0 +1,172 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+
+	<div class="card-header card-header-adjustments">
+			<div class="cat__core__title stock-header-block-w">
+			 <strong class="page-title" >Stock Details</strong>
+			</div>
+	
+		
+	</div>
+	
+	<div style="clear:both"></div>
+	
+		
+	<div class="card-block db-block" style="padding-left:0px; padding-right:0px;">
+		<div class="row">
+			
+		
+		
+			<div class="col-lg-12">
+				<div class="row">
+				
+				<div class="col-md-12 mt-2 form-align-inv" >
+				
+					 <form [formGroup]="inventoryStockForm">
+					 <div class="delivery-form-block col-md-12 row filter-align-box">
+					 
+					 			<div class="col-md-3 text-align-sales">
+									<label><b>Material Code</b></label> <input type="text" style="padding: 5px !important;" list="materialCodeList"
+										placeholder="Material Code" class="form-control" (keyup)="extractData('material-code','spinner-search','ajaxList')" id="material-code"
+										 autocomplete="off"/>
+								
+								 <i class="fa fa-spinner fa-spin spinner-icon"
+										id="spinner-search" style="display: none"></i> 
+										<input 
+										type="hidden" name="customerId" id="filterCustomerId" value="" />
+									<div class="ajax-searchlist" style="display:none;width:93%;"
+										id="ajaxList">
+									
+										<ul id="" class="custmore-list">
+											
+											<li *ngFor="let matnr of material; let i = index;" style="width:100%" (click)="selectedItem(matnr,'ajaxList','material-code','filterCustomerId')"
+											><span class="pull-left" style=";font-weight:600;">{{matnr.mat_num}}</span>
+											
+											</li>
+											
+										</ul>
+									
+									</div>
+									
+									
+									
+								</div>
+					 
+								<div class="col-md-3 text-align-sales">
+									<label><b>From Date</b></label> 
+									<input type="text"
+										style="padding: 5px !important;" placeholder="From Date" id="frmDate"
+										class="form-control datepicker-init" formControlName="frmDate" validateOnBlur (blur)="changeTodatePicker()"
+										[validateFormControl]="inventoryStockForm.controls['frmDate']" />
+
+									<span
+										*ngIf="inventoryStockForm.controls['frmDate'].touched && inventoryStockForm.controls['frmDate'].invalid && inventoryStockForm.controls['frmDate'].dirty"
+										class="error"> <small class="custom-error-class"
+										*ngIf="inventoryStockForm.controls['frmDate'].errors.required">
+											Please select From Date </small>
+									</span>
+
+								</div>
+
+								<div class="col-md-3 text-align-sales toDatepic">
+									<label><b>To Date</b></label>
+									 <input type="text"
+										style="padding: 5px !important;" 
+										placeholder="To Date" class="form-control datepicker-init2" id="toDate"
+										formControlName="toDate" validateOnBlur (blur)="removeStyles()"
+										[validateFormControl]="inventoryStockForm.controls['toDate']" />
+									<span
+										*ngIf="inventoryStockForm.controls['toDate'].touched && inventoryStockForm.controls['toDate'].invalid && inventoryStockForm.controls['toDate'].dirty"
+										class="error"> <small class="custom-error-class"
+										*ngIf="inventoryStockForm.controls['toDate'].errors.required">
+											Please select To Date </small>
+									</span>
+
+								</div>
+								
+
+								<div class="col-md-2 text-align-sales">
+									<button type="submit" class="login-button-export" [disabled]="inventoryStockForm.invalid"
+									(click) = "getInvStockMbDetails();"
+										style="position: relative; top: 26px;">
+										<i class="fa submit-icon"
+											style="margin-right: 4px; padding-right: 4px;">
+											<span class="icon-text" style="right: -4px;"
+												>Submit</span>
+
+										</i>
+									</button>
+								</div>
+							</div>						 
+					</form> 
+					</div>
+					
+					
+					
+					
+					<!-- new changes -->
+					<div class="col-lg-12"  >
+						<div class="col-md-12">
+							<div class="stock-table" style="margin-top: 40px;">
+								<table class="inv-stock-table table table-hover nowrap editable-table checkBoxTable table-responsive"
+								
+								 >
+								<thead>
+									<tr>
+										<th class="table_col_4">Plant Id</th>
+										<th class="table_col_1">Material Code</th>
+										<th class="table_col_desc">Description</th>
+										<th class="table_col_uom">UOM</th>
+										<th class="table_col_2">Opening Stock</th>
+										<th class="table_col_3">Opening Stock Value</th>
+										<th class="table_col_4">Receipt Qty</th>
+										<th class="table_col_val">Value</th>
+										<th class="table_col_5">Issued Qty</th>
+										<th class="table_col_6">Issued value</th>
+										<th class="table_col_7">Closing Stock</th>
+										<th class="table_col_8">Closing Stock Value</th> 
+										
+									</tr>
+								</thead>
+							
+								<tbody>
+
+										<tr *ngFor="let sList of inventoryStockList">
+											<td>{{sList.werks}}</td>
+											<td>{{sList.matnr}}</td>
+											<td>{{sList.maktx}}</td>
+											<td>{{sList.meins}}</td>
+											
+											<td>{{sList.opstk | PriceInd}}</td>
+											<td>{{sList.opstk_price | PriceInd}}</td>
+											<td>{{sList.rcqty | PriceInd}}</td>
+											<td>{{sList.rcqty_price | PriceInd}}</td>
+											
+											<td>{{sList.isqty | PriceInd}}</td>
+											<td>{{sList.isqty_price | PriceInd}}</td>
+											
+											<td>{{sList.clstk | PriceInd}}</td>
+											<td>{{sList.clstk_price | PriceInd}}</td><!--  -->
+											
+
+										</tr>
+
+									</tbody>
+								</table>
+							</div>						
+						</div>
+					</div>
+					
+					
+				
+					
+					
+					
+					
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	
+
+</section>

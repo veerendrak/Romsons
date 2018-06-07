@@ -1,0 +1,710 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Customer
+					Details</strong>
+			</span>
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv">
+
+							<div class="col-md-12 mt-2 form-align-inv" *ngIf="!roleStockist">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+									<div class="col-md-2 text-align-sales">
+										<label><b>Status</b><sup class="asterick">*</sup></label> <select
+											class="form-control" id="app_cust_status"
+											(change)="get_customerstatus_list()"
+											style="width: 200px !important; padding: 5px !important">
+											<option value="P">Pending</option>
+											<option value="R">Rejected</option>
+											<option value="H">Hold</option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- new changes -->
+						<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table " id="">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable table-responsive"
+									width="100%" id="cust-info-table"
+									style="overflow-y: hidden; overflow-x: auto;">
+
+									<thead>
+										<tr>
+
+											<th *ngIf="!roleAdmin" class="no-sort sorting-disabled"
+												style="width: 50px; text-align: center;"><mat-checkbox
+													class="example-margin" [(ngModel)]="checked"
+													[checked]="checked" [(indeterminate)]="indeterminate"
+													id="checkbox-all"
+													(click)="selectAll($event,'checkbox-all-input','cust-info-table')">
+												</mat-checkbox></th>
+											<th style="min-width: 100px !important;">Type</th>
+											<th *ngIf="!roleAdmin" style="min-width: 100px !important;">Customer
+												Id</th>
+											<th style="min-width: 140px !important;">Customer Name</th>
+											<th style="min-width: 120px !important;">Phone Number</th>
+											<th style="min-width: 80px !important;">Email Id</th>
+											<th style="min-width: 50px !important;">DL No</th>
+											<th style="min-width: 65px !important;">GST No</th>
+											<th style="min-width: 92px !important;">Credit Limit</th>
+											<th *ngIf="!roleStockist" style="min-width: 70px !important;">Plant
+												ID</th>
+											<th *ngIf="!roleStockist" style="min-width: 90px !important;">Plant
+												Name</th>
+											<th style="min-width: 60px !important;">Status</th>
+
+											<th style="min-width: 60px !important;"
+												class="no-sort sorting-disabled" *ngIf="!roleStockist">Action</th>
+										</tr>
+									</thead>
+									<tbody>
+
+										<tr *ngFor="let cld of customerDetailList; let i=index;">
+											<td *ngIf="!roleAdmin" align="center"><mat-checkbox
+													class="example-margin" id="checkbox-{{i}}"
+													(click)="getReportList(cld,'cust-info-table',i)"></mat-checkbox>
+											</td>
+											<td><div class="text-name-elipsis"
+													title="{{cld.cust_grp_desc}}">{{cld.cust_grp_desc}}</div></td>
+
+											<td *ngIf="!roleAdmin"><span><a
+													href="javascript:void(0)" class="sales-num-anchor"
+													(click)="displayCustomerDetails(cld.cust_id)">{{cld.cust_id}}</a>
+											</span></td>
+											<td>{{cld.cust_name}}</td>
+											<td>{{cld.telefone}}</td>
+											<td><div class="text-name-elipsis" title="{{cld.email}}">{{cld.email}}</div></td>
+
+											<td><div class="text-name-elipsis"
+													title="{{cld.lst_no}}">{{cld.lst_no}}</div></td>
+											<td>{{cld.gstin}}</td>
+											<td><span *ngIf="cld.credit_limit!='null' && cld.credit_limit!=undefined">{{cld.credit_limit | PriceInd}}</span>
+											<span *ngIf="cld.credit_limit=='null' || cld.credit_limit==undefined">0</span></td>
+											<td *ngIf="!roleStockist">{{cld.plant_id}}</td>
+											<td *ngIf="!roleStockist"><div class="text-name-elipsis"
+													title="{{cld.plant_name}}">{{cld.plant_name}}</div></td>
+											<td>{{cld.cust_status}}</td>
+
+											<td *ngIf="!roleStockist"><button class="save-icon-btn"
+													(click)="GetApproveDetails(cld.ss_cust_id,cld.plant_id);">
+													<i class="fa save-icon"
+														style="margin-right: 4px; padding-right: 4px;">
+														<div class="icon-text" style="right: -4px;">Approve</div>
+													</i>
+												</button></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- end chnges -->
+
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="outbound-footer mt-3">
+			<div class="right-block">
+				<div class="pull-left">
+					<button class="login-button-export" title="Export Excel"
+						style="padding-left: 8px;" (click)="exportExcel()">
+						<i class="fa excel-icon"
+							style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div>
+				<div class="pull-left" *ngIf="!roleAdmin">
+					<button class="login-button-export" title="Edit"
+						style="padding-left: 8px;"
+						(click)="editCustomerdetails('stock-table')">
+						<i class="fa edit-icon"
+							style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div>
+				<div class="pull-left" *ngIf="!roleAdmin">
+					<button class="login-button-export" title="Create"
+						style="padding-left: 8px;" (click)="createCustomer()">
+						<i class="fa create-icon"
+							style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<div class="modal fade" id="bussinessModal" style="top: -10%;"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Approve Customer Details</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('bussinessModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div *ngIf="cdListLength>0">
+				<div id="bussinessModal_divpopup"
+					style="height: 456px; overflow-x: hidden; overflow-y: scroll;">
+					<section>
+						<form [formGroup]="customerapprovalform">
+							<div class="row cust-det-title"
+								style="font-weight: bold; color: black; margin-left: 24px;"></div>
+							<div class="outbound-content col-md-12">
+								<div class="col-md-12 row pb-1" style="padding-top: 10px;">
+									<div class="clear-fix"></div>
+									<div class="col-md-3 text-align-sales">
+										<label>Sales Group 1 ({{group1type}})<sup
+											class="asterick">*</sup></label> <select
+											class="form-control input-width-custom"
+											formControlName="sales_grp1" name="sales_grp1"
+											id="sales_grp1">
+
+											<option value="">Please Select Sales Group</option>
+											<option *ngFor="let sg of salesgroups_mdd"
+												[value]="sg.sales_group">{{sg.sales_group}}<span>--</span>{{sg.description}}
+											</option>
+										</select>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Sales Group 2 <span *ngIf="!usertype">({{group2type}})
+										</span><sup *ngIf="!usertype" class="asterick">*</sup></label> <select
+											class="form-control input-width-custom"
+											formControlName="sales_grp2" name="sales_grp2"
+											id="sales_grp2">
+
+											<option value="">Please Select Sales Group</option>
+											<option *ngFor="let sg of salesgroups_pcd"
+												[value]="sg.sales_group">{{sg.sales_group}}<span>--</span>{{sg.description}}
+											</option>
+										</select>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Sales Group3</label> <select
+											class="form-control input-width-custom"
+											formControlName="sales_grp3" name="sales_grp3"
+											id="sales_grp3">
+
+											<option value="">Please Select Sales Group</option>
+											<option *ngFor="let sg of salesgroups_kad"
+												[value]="sg.sales_group">{{sg.sales_group}}<span>--</span>{{sg.description}}
+											</option>
+										</select>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Sales Group4</label> <select
+											class="form-control input-width-custom"
+											formControlName="sales_grp4" name="sales_grp4"
+											id="sales_grp4">
+
+											<option value="">Please Select Sales Group</option>
+											<option *ngFor="let sg of salesgroups_kad"
+												[value]="sg.sales_group">{{sg.sales_group}}<span>--</span>{{sg.description}}
+											</option>
+										</select>
+									</div>
+
+									<div class="col-md-3 text-align-sales">
+										<label>Tax Group 1 (CGST)<sup class="asterick">*</sup></label>
+										<select class="form-control input-width-custom"
+											formControlName="tax_grp1" name="tax_grp1" id="tax_grp1">
+											<option value="">Please Select Tax Group</option>
+											<ng-container *ngFor="let types of taxtypeslist">
+											<option value={{types.key}}>{{types.key}}<span>--</span>{{types.value}}
+											</option>
+											</ng-container>
+										</select> <span
+											*ngIf="customerapprovalform.controls['tax_grp1'].touched && !customerapprovalform.controls['tax_grp1'].valid && customerapprovalform.controls['tax_grp1'].dirty"
+											class="error"> <small
+											*ngIf="customerapprovalform.controls['tax_grp1'].errors.required">
+												{{customerDetailMsg.tax_grp1}} </small>
+										</span>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Tax Group 2 (SGST)<sup class="asterick">*</sup></label>
+										<select class="form-control input-width-custom"
+											formControlName="tax_grp2" name="tax_grp2" id="tax_grp2">
+											<option value="">Please Select Tax Group</option>
+											<ng-container *ngFor="let types of taxtypeslist">
+											<option value={{types.key}}>{{types.key}}<span>--</span>{{types.value}}
+											</option>
+											</ng-container>
+										</select> <span
+											*ngIf="customerapprovalform.controls['tax_grp2'].touched && !customerapprovalform.controls['tax_grp2'].valid && customerapprovalform.controls['tax_grp2'].dirty"
+											class="error"> <small
+											*ngIf="customerapprovalform.controls['tax_grp2'].errors.required">
+												{{customerDetailMsg.tax_grp2}} </small>
+										</span>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Tax Group 3 (IGST)<sup class="asterick">*</sup></label>
+										<select class="form-control input-width-custom"
+											formControlName="tax_grp3" name="tax_grp3" id="tax_grp3">
+											<option value="">Please Select Tax Group</option>
+											<ng-container *ngFor="let types of taxtypeslist">
+											<option value={{types.key}}>{{types.key}}<span>--</span>{{types.value}}
+											</option>
+											</ng-container>
+										</select> <span
+											*ngIf="customerapprovalform.controls['tax_grp3'].touched && !customerapprovalform.controls['tax_grp3'].valid && customerapprovalform.controls['tax_grp3'].dirty"
+											class="error"> <small
+											*ngIf="customerapprovalform.controls['tax_grp3'].errors.required">
+												{{customerDetailMsg.tax_grp3}} </small>
+										</span>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Tax Group 4 (UGST)<sup class="asterick">*</sup></label>
+										<select class="form-control input-width-custom"
+											formControlName="tax_grp4" name="tax_grp4" id="tax_grp4">
+											<option value="">Please Select Tax Group</option>
+											<ng-container *ngFor="let types of taxtypeslist">
+											<option value={{types.key}}>{{types.key}}<span>--</span>{{types.value}}
+											</option>
+											</ng-container>
+										</select> <span
+											*ngIf="customerapprovalform.controls['tax_grp4'].touched && !customerapprovalform.controls['tax_grp4'].valid && customerapprovalform.controls['tax_grp4'].dirty"
+											class="error"> <small
+											*ngIf="customerapprovalform.controls['tax_grp4'].errors.required">
+												{{customerDetailMsg.tax_grp4}} </small>
+										</span>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label>Price List <sup class="asterick">*</sup></label> <select
+											class="form-control input-width-custom" name="price_list"
+											id="price_list" formControlName="price_list" validateOnBlur
+											[validateFormControl]="customerapprovalform.controls['price_list']"
+											[(ngModel)]="pricelistval">
+											<option value="">Please Select Price List</option>
+											<option *ngFor="let pl of pricelist"
+												[value]="pl.price_list_type"
+												[selected]="pl.price_list_type==pricelistval">{{pl.price_list_type}}<span>--</span>{{pl.description}}
+											</option>
+										</select> <span
+											*ngIf="customerapprovalform.controls['price_list'].touched && !customerapprovalform.controls['price_list'].valid && customerapprovalform.controls['price_list'].dirty"
+											class="error"> <small
+											*ngIf="customerapprovalform.controls['price_list'].errors.required">
+												{{customerDetailMsg.price_list}} </small>
+										</span>
+									</div>
+									<div class="col-md-5 text-align-sales">
+										<label>Recon Account</label> <input type="text"
+											class="form-control input-width-custom" disabled
+											validateOnBlur
+											[value]="reconaccount == undefined ? '': reconaccount"
+											style="height: 30px;">
+										
+									</div>
+								</div>
+							</div>
+							<div class="card-block db-block"
+								style="padding: 0px; padding-left: 15px; padding-right: 15px;">
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="createSalesBlock">
+											<div class="row cust-det-title"
+												style="font-weight: bold; color: black; margin-left: 15px;">Customer
+												Details</div>
+											<div class="row">
+												<!-- new changes -->
+												<div class="outbound-content col-md-12">
+													<div class="col-md-12 row pb-1">
+														<div class="col-md-3 text-align-sales">
+															<label>Type:<sup class="asterick">*</sup></label> <select
+																class="form-control" formControlName="cust_type"
+																id="cust_type" validateOnBlur
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['cust_type']"
+																[(ngModel)]="cdlist['ex_address'].cust_grp">
+																<option [value]="undefined" disabled>Please
+																	Select Type</option>
+																<ng-container *ngFor="let types of customertypeList">
+																<option
+																	[selected]="types.key==cdlist['ex_address'].cust_grp"
+																	value={{types.key}}>{{types.value}}</option>
+																</ng-container>
+
+															</select> <span
+																*ngIf="customerapprovalform.controls['cust_type'].touched && !customerapprovalform.controls['cust_type'].valid && customerapprovalform.controls['cust_type'].dirty"
+																class="error"> <small
+																*ngIf="customerapprovalform.controls['cust_type'].errors.required">
+																	{{customerDetailMsg.customer_type}} </small>
+
+															</span>
+														</div>
+													</div>
+													<div class="cust-form-block  col-md-12 row pb-1">
+														<div class="clear-fix"></div>
+														<div class="col-md-3 text-align-sales">
+															<label>Name<sup class="asterick">*</sup></label> <input
+																type="text" class="form-control"
+																formControlName="cust_name" validateOnBlur
+																maxlength="35" placeholder="Enter Name"
+																[value]="cdlist['ex_address'].cust_name == undefined ? '': cdlist['ex_address'].cust_name"
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['cust_name']" style="height: 30px;">
+															<input type="hidden" id="hdn_cust_id"
+																[value]="cdlist['ex_address'].cust_id == undefined ? '': cdlist['ex_address'].cust_id">
+
+															<span
+																*ngIf="customerapprovalform.controls['cust_name'].touched && !customerapprovalform.controls['cust_name'].valid && customerapprovalform.controls['cust_name'].dirty"
+																class="error"> <small
+																*ngIf="customerapprovalform.controls['cust_name'].errors.required">
+																	{{customerDetailMsg.name_req}} </small> <small
+																*ngIf="customerapprovalform.controls['cust_name'].errors.whitespace">
+																	Please enter valid name</small>
+
+															</span>
+														</div>
+														<div class="col-md-3 text-align-sales">
+															<label>Name2</label> <input type="text"
+																class="form-control" maxlength="35"
+																placeholder="Enter Name" formControlName="cust_name_2"
+																validateOnBlur
+																[value]="cdlist['ex_address'].name2 == undefined ? '': cdlist['ex_address'].name2"
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['cust_name_2']" style="height: 30px;">
+														</div>
+														<div class="col-md-3 text-align-sales">
+															<label>Telephone</label> <input type="text"
+																class="form-control" formControlName="telephone"
+																validateOnBlur placeholder="Enter Telephone"
+																[value]="cdlist['ex_address'].telefone == undefined ? '': cdlist['ex_address'].telefone"
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['telephone']" style="height: 30px;">
+															<span
+																*ngIf="customerapprovalform.controls['telephone'].touched && !customerapprovalform.controls['telephone'].valid && customerapprovalform.controls['telephone'].dirty"
+																class="error"> <small
+																*ngIf="customerapprovalform.controls['telephone'].errors.maxlength">
+																	{{customerDetailMsg.mobile_num_exceed}}</small> <small
+																*ngIf="customerapprovalform.controls['telephone'].errors.minlength">
+																	{{customerDetailMsg.mobile_num_min}}</small>
+															</span>
+														</div>
+
+														<div class="col-md-3 text-align-sales">
+															<label>Email<sup class="asterick">*</sup></label> <input
+																type="email" class="form-control"
+																formControlName="email" validateOnBlur
+																placeholder="Enter Email"
+																[value]="cdlist['ex_address'].email == undefined ? '': cdlist['ex_address'].email"
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['email']" style="height: 30px;">
+															<span
+																*ngIf="customerapprovalform.controls['email'].touched && !customerapprovalform.controls['email'].valid"
+																class="error"> <small
+																*ngIf="customerapprovalform.controls['email'].errors.required">
+																	{{customerDetailMsg.email_req}} </small> <small
+																*ngIf="customerapprovalform.controls['email'].errors.pattern">
+																	{{customerDetailMsg.email_req_error}} </small>
+															</span>
+
+														</div>
+														<div class="col-md-3 text-align-sales">
+															<label>Credit Limit </label> <input type="text"
+																class="form-control numbersOnly"
+																placeholder="Enter Credit Limit" maxlength="15"
+																formControlName="credit_limit" validateOnBlur
+																id="txt_credit_limit"
+																[value]="cdlist['ex_address'].credit_limit == undefined ? '': cdlist['ex_address'].credit_limit"
+																[attr.disabled]="fromDisplayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['credit_limit']" style="height: 30px;"> 
+
+														</div>
+														<div class="col-md-3 text-align-sales">
+															<label>Status<sup class="asterick">*</sup></label> <select
+																class="form-control" formControlName="status"
+																validateOnBlur
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																id="slct_status"
+																[validateFormControl]="customerapprovalform.controls['status']">
+																<option value="Active"
+																	[selected]="cdlist['ex_address'].cust_status">Active</option>
+																<option value="InActive">In Active</option>
+															</select> <span
+																*ngIf="customerapprovalform.controls['status'].touched && !customerapprovalform.controls['status'].valid && customerapprovalform.controls['status'].dirty"
+																class="error"> <small
+																*ngIf="customerapprovalform.controls['status'].errors.required">
+																	{{customerDetailMsg.status_req}} </small>
+															</span>
+
+														</div>
+													</div>
+												</div>
+												<!-- end changes -->
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="card-block db-block"
+								style="padding: 0px; padding-left: 15px; padding-right: 15px;">
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="createSalesBlock">
+											<div class="row cust-det-title"
+												style="font-weight: bold; color: black; margin-left: 15px;">Address
+												Details</div>
+											<div class="row">
+												<!-- new changes -->
+												<div class="outbound-content col-md-12">
+
+													<div class="cust-form-block col-md-12 row pb-1">
+														<div class="col-md-3 text-align-sales">
+															<label>Door Number</label> <input type="text"
+																class="form-control" formControlName="dno"
+																validateOnBlur
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																placeholder="Enter Door Number" maxlength="10"
+																[validateFormControl]="customerapprovalform.controls['dno']" style="height: 30px;"> 
+														</div>
+
+
+														<div class="col-md-3 text-align-sales">
+															<label>Street<sup class="asterick">*</sup></label> <input
+																type="text" class="form-control"
+																formControlName="street" validateOnBlur
+																placeholder="Enter Street" maxlength="50"
+																[value]="cdlist['ex_address'].street == undefined ? '': cdlist['ex_address'].street"
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['street']" style="height: 30px;">
+															<span
+																*ngIf="customerapprovalform.controls['street'].touched && !customerapprovalform.controls['street'].valid && customerapprovalform.controls['street'].dirty"
+																class="error"> <small
+																*ngIf="customerapprovalform.controls['street'].errors.required">
+																	{{customerDetailMsg.street_req}} </small> <small
+																*ngIf="customerapprovalform.controls['street'].errors.whitespace">
+																	{{customerDetailMsg.street_req}}</small>
+															</span>
+														</div>
+														<div class="col-md-3 text-align-sales">
+															<label>Street1</label> <input type="text"
+																class="form-control" formControlName="str_suppl1"
+																validateOnBlur maxlength="40"
+																placeholder="Enter Street2"
+																[value]="cdlist['ex_address'].street2 == undefined ? '': cdlist['ex_address'].street2"
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['str_suppl1']" style="height: 30px;">
+
+														</div>
+														<div class="col-md-3 text-align-sales">
+															<label>Street2</label> <input type="text"
+																class="form-control" formControlName="str_suppl2"
+																validateOnBlur maxlength="40"
+																placeholder="Enter Street2"
+																[value]="cdlist['ex_address'].street3 == undefined ? '': cdlist['ex_address'].street3"
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['str_suppl2']" style="height: 30px;">
+
+														</div>
+														<div class="col-md-3 text-align-sales">
+															<label>State<sup class="asterick">*</sup></label> <select
+																class="form-control input-width-custom" name="stateId"
+																(change)="getCitiesList(cdlist['ex_address'].region)"
+																formControlName="state" validateOnBlur
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['state']"
+																style="margin-top: 1px !important; padding: 5px !important;"
+																id="state_id" [(ngModel)]="cdlist['ex_address'].region">
+
+																<option [value]="undefined" disabled>Please
+																	Select State</option>
+																<option *ngFor="let state of states" [value]="state.id"
+																	[selected]="state.id==cdlist['ex_address'].region">
+																	{{state.value}}</option>
+															</select>
+														</div>
+														<div class="col-md-3 text-align-sales">
+															<label>City<sup class="asterick">*</sup></label> <input
+																type="text" class="form-control" formControlName="city"
+																validateOnBlur maxlength="40" placeholder="Enter City"
+																[value]="cdlist['ex_address'].city == undefined ? '': cdlist['ex_address'].city"
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																list="citiesNameList"
+																[validateFormControl]="customerapprovalform.controls['city']" style="height: 30px;">
+															<datalist id="citiesNameList">
+																<option
+																	*ngFor="let city of custmrCities; let i = index;"
+																	[value]="city.value">{{city.id}}</option>
+															</datalist>
+															<span
+																*ngIf="customerapprovalform.controls['city'].touched && !customerapprovalform.controls['city'].valid && customerapprovalform.controls['city'].dirty"
+																class="error"> <small
+																*ngIf="customerapprovalform.controls['city'].errors.required || customerapprovalform.controls['city'].errors.whitespace">
+																	{{customerDetailMsg.city_req}} </small>
+															</span>
+														</div>
+														<div class="col-md-3 text-align-sales">
+															<label>PIN code<sup class="asterick">*</sup></label> <input
+																type="text" class="form-control"
+																formControlName="pin_code" validateOnBlur
+																placeholder="Enter PIN code" maxlength="10"
+																[value]="cdlist['ex_address'].post_code == undefined ? '': cdlist['ex_address'].post_code"
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['pin_code']" style="height: 30px;">
+															<span
+																*ngIf="customerapprovalform.controls['pin_code'].touched && !customerapprovalform.controls['pin_code'].valid && customerapprovalform.controls['pin_code'].dirty"
+																class="error"> <small
+																*ngIf="customerapprovalform.controls['pin_code'].errors.required">
+																	{{customerDetailMsg.pincode_req}} </small> <small
+																*ngIf="customerapprovalform.controls['pin_code'].errors.pattern">
+																	{{customerDetailMsg.pincode_invalid_error}} </small>
+															</span>
+														</div>
+
+													</div>
+												</div>
+												<!-- end chnges -->
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="card-block db-block"
+								style="padding: 0px; padding-left: 15px; padding-right: 15px;">
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="createSalesBlock">
+											<div class="row cust-det-title"
+												style="font-weight: bold; color: black; margin-left: 15px;">Compliance
+												Details</div>
+											<div class="row">
+												<!-- new changes -->
+												<div class="outbound-content col-md-12">
+													<div class="cust-form-block col-md-12 row pb-1">
+														<div class="col-md-3 text-align-sales">
+															<label>GST Number</label> <input type="text"
+																class="form-control" formControlName="gstin"
+																validateOnBlur
+																[value]="cdlist['ex_compliance'].gstin == undefined ? '': cdlist['ex_compliance'].gstin"
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																placeholder="Enter GST Number"
+																[validateFormControl]="customerapprovalform.controls['gstin']" style="height: 30px;">
+															<span
+																*ngIf="customerapprovalform.controls['gstin'].touched && !customerapprovalform.controls['gstin'].valid && customerapprovalform.controls['gstin'].dirty"
+																class="error"> <small
+																*ngIf="customerapprovalform.controls['gstin'].errors.pattern">
+																	Please enter a valid GSTN Number </small>
+
+															</span>
+														</div>
+
+														<div class="col-md-3 text-align-sales">
+															<label>PAN Number<sup class="asterick">*</sup></label> <input
+																type="text" class="form-control" formControlName="panno"
+																validateOnBlur placeholder="Enter PAN Number"
+																[value]="cdlist['ex_compliance'].pan_no == undefined ? '': cdlist['ex_compliance'].pan_no"
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['panno']" style="height: 30px;">
+															<span
+																*ngIf="customerapprovalform.controls['panno'].touched && !customerapprovalform.controls['panno'].valid && customerapprovalform.controls['panno'].dirty"
+																class="error"> <small
+																*ngIf="customerapprovalform.controls['panno'].errors.required">
+																	{{customerDetailMsg.pan_req}} </small> <small
+																*ngIf="customerapprovalform.controls['panno'].errors.pattern">
+																	{{customerDetailMsg.panNum_invalid_error}} </small>
+															</span>
+														</div>
+														<div class="col-md-3 text-align-sales">
+															<label>Drug Licence<sup class="asterick">*</sup></label>
+															<input type="text" class="form-control"
+																formControlName="dl_no" validateOnBlur
+																placeholder="Enter Drug Licence"
+																[value]="cdlist['ex_compliance'].lst_no == undefined ? '': cdlist['ex_compliance'].lst_no"
+																[attr.disabled]="displayFlag ?  'disabled' : null"
+																[validateFormControl]="customerapprovalform.controls['dl_no']" style="height: 30px;">
+															<span
+																*ngIf="customerapprovalform.controls['dl_no'].touched && !customerapprovalform.controls['dl_no'].valid && customerapprovalform.controls['dl_no'].dirty"
+																class="error"> <small
+																*ngIf="customerapprovalform.controls['dl_no'].errors.required">
+																	{{customerDetailMsg.drugLicence_req}} </small>
+															</span>
+														</div>
+													</div>
+												</div>
+												<!-- end chnges -->
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+						
+						<div class="bp-form-block ">
+							<div class="newrow">
+								<label>Remarks</label>
+								<textarea class="form-control" id="txt_remarks"
+									style="height: 50px;"></textarea>
+							</div>
+						</div>
+					</section>
+				</div>
+
+			</div>
+
+		</div>
+		<div class="modal-footer">
+			<div class="row new_row">
+				<div class="pull-left">
+					<button class="cancel-button-export" style="padding-left: 0px;"
+						(click)="closeModal('bussinessModal')">
+						<i class="fa back-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Back</div>
+						</i>
+					</button>
+				</div>
+				<div class="pull-right new_right act_foot">
+
+					<div class="pull-right new_right act_foot">
+					<button class="cancel-button-export" style="padding-left: 0px;"
+							id="close" (click)="submitHoldCustomer(ss_cust_id)">
+							<i class="fa cancel-icon"
+								style="margin-right: 4px; padding-right: 4px;">
+								<div class="icon-text" style="right: -4px;">Hold</div>
+							</i>
+						</button>
+						<button type="submit" [disabled]="!customerapprovalform.valid"
+							(click)="submitApproveCustomer(ss_cust_id)"
+							class="login-button-export" id="uploadStockSubmit"
+							style="position: relative; top: 0px;">
+							<i class="fa submit-icon"
+								style="margin-right: 4px; padding-right: 4px;">
+								<div class="icon-text" style="right: -4px;">Approve</div>
+							</i>
+						</button>
+						<button class="cancel-button-export" style="padding-left: 0px;"
+							id="close" (click)="submitRejectCustomer(ss_cust_id)">
+							<i class="fa cancel-icon"
+								style="margin-right: 4px; padding-right: 4px;">
+								<div class="icon-text" style="right: -4px;">Reject</div>
+							</i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+

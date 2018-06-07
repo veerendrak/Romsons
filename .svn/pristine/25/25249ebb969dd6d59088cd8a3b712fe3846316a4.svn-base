@@ -1,0 +1,268 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Stock
+					Details</strong>
+			</span>
+			<div class="pull-right">
+			<div class="rangeSlider row pull-left">
+						<input class="scroll-range"  value="1" id="scroll-range" type="range"/>
+			</div> 
+			</div>
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv">
+							<form [formGroup]="inventoryStockForm">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+
+									<div class="col-md-3 text-align-sales">
+										<label><b>Material Code</b></label> <input type="text"
+											style="padding: 5px !important;" list="materialCodeList"
+											placeholder="Material Code" class="form-control"
+											(keyup)="extractData('material-code','spinner-search','ajaxList')"
+											id="material-code" autocomplete="off" /> <i
+											class="fa fa-spinner fa-spin spinner-icon"
+											id="spinner-search" style="display: none"></i> <input
+											type="hidden" name="customerId" id="filterCustomerId"
+											value="" />
+										<div class="ajax-searchlist"
+											style="display: none; width: 93%;" id="ajaxList">
+
+											<ul id="" class="custmore-list">
+
+												<li *ngFor="let matnr of material; let i = index;"
+													style="width: 100%"
+													(click)="selectedItem(matnr,'ajaxList','material-code','filterCustomerId')"><span
+													class="pull-left" style="font-weight: 600;">{{matnr.mat_num}}</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="col-md-3 text-align-sales">
+										<label><b>From Date</b></label> <input type="text"
+											style="padding: 5px !important;" placeholder="From Date"
+											id="frmDate" class="form-control datepicker-init"
+											formControlName="frmDate" validateOnBlur
+											(blur)="changeTodatePicker()"
+											[validateFormControl]="inventoryStockForm.controls['frmDate']" />
+
+										<span
+											*ngIf="inventoryStockForm.controls['frmDate'].touched && inventoryStockForm.controls['frmDate'].invalid && inventoryStockForm.controls['frmDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="inventoryStockForm.controls['frmDate'].errors.required">
+												Please select From Date </small>
+										</span>
+
+									</div>
+
+									<div class="col-md-3 text-align-sales toDatepic">
+										<label><b>To Date</b></label> <input type="text"
+											style="padding: 5px !important;" placeholder="To Date"
+											class="form-control datepicker-init2" id="toDate"
+											formControlName="toDate" validateOnBlur
+											(blur)="removeStyles()"
+											[validateFormControl]="inventoryStockForm.controls['toDate']" />
+										<span
+											*ngIf="inventoryStockForm.controls['toDate'].touched && inventoryStockForm.controls['toDate'].invalid && inventoryStockForm.controls['toDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="inventoryStockForm.controls['toDate'].errors.required">
+												Please select To Date </small>
+										</span>
+
+									</div>
+
+
+									<div class="col-md-2 text-align-sales">
+										<button type="submit" class="login-button-export"
+											[disabled]="inventoryStockForm.invalid"
+											(click)="getInvStockMbDetails();"
+											style="position: relative; top: 26px;">
+											<i class="fa submit-icon"
+												style="margin-right: 4px; padding-right: 4px;"> <span
+												class="icon-text" style="right: -4px;">Submit</span>
+
+											</i>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+						
+						
+						<div class="col-md-12 text-align-sales pb-0 mt-13"  *ngIf="inventoryStockList.length>0">
+							<table class="table table-hover nowrap editable-table totalTable" style="margin-top: 30px;padding: 0px;display:inline-table;margin-bottom:0px;">
+								<tbody>
+									<tr>
+										<td style="background:#e4e9f0;" class="tot-padding">Totals:</td>
+										<td class="tot-padding">
+											<div class="pull-left"> Qty: </div>
+											<div class="pull-right">{{tot_open_qty| PriceInd}} </div>
+										</td>
+										<td class="tot-padding">
+											<div class="pull-left"> Value: </div>
+											<div class="pull-right">{{tot_open_val
+													| PriceInd}} </div>
+										</td>
+										<td class="tot-padding">
+											<div class="pull-left">Receipt Qty: </div>
+											<div class="pull-right">{{tot_rec_qty| PriceInd}} </div>
+										</td>
+										<td class="tot-padding">
+											<div class="pull-left">Receipt Value : </div>
+											<div class="pull-right">&#8377; {{tot_rec_val | PriceInd}}</div>
+										</td>
+										
+										<td class="tot-padding">
+											<div class="pull-left">Issued Qty : </div>
+											<div class="pull-right">&#8377; {{tot_issue_qty | PriceInd}}</div>
+										</td>
+										<td class="tot-padding">
+											<div class="pull-left">Issued Value : </div>
+											<div class="pull-right">&#8377; {{tot_issue_val | PriceInd}}</div>
+										</td>
+										<td class="tot-padding">
+											<div class="pull-left">Closing Qty : </div>
+											<div class="pull-right">&#8377; {{tot_close_qty | PriceInd}}</div>
+										</td>
+										<td class="tot-padding">
+											<div class="pull-left">Closing Value : </div>
+											<div class="pull-right">&#8377; {{tot_close_val | PriceInd}}</div>
+										</td>
+										
+										
+									</tr>
+								</tbody>
+							</table>
+							
+						</div>
+						<!-- new changes -->
+						<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table " id="">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable table-responsive"
+									width="100%" id="purchase-order-table">
+									<thead>
+										<tr>
+											<th style="min-width: 80px !important;">Plant Id</th>
+											<th style="min-width: 110px !important;">Material Code</th>
+											<th style="min-width: 130px !important;">Description</th>
+											<th style="min-width: 100px !important;">UOM</th>
+											<th style="min-width: 140px !important;">Opening Qty</th>
+											<th style="min-width: 140px !important;">Opening Value</th>
+											<th style="min-width: 140px !important;">Receipt Qty</th>
+											<th style="min-width: 140px !important;">Receipt Value</th>
+											<th style="min-width: 140px !important;">Issued Qty</th>
+											<th style="min-width: 140px !important;">Issued value</th>
+											<th style="min-width: 140px !important;">Closing Qty</th>
+											<th style="min-width: 140px !important;">Closing Value</th>
+
+										</tr>
+									</thead>
+
+									<tbody>
+										<ng-container *ngFor="let sList of inventoryStockList">
+										<tr>
+											<td style="min-width: 100px !important;">{{sList.werks}}</td>
+											<td style="min-width: 100px !important;">{{sList.matnr}}</td>
+											<td style="min-width: 100px !important;"><div
+													class="text-name-elipsis" title="{{sList.maktx}}">{{sList.maktx}}</div></td>
+											<td style="min-width: 100px !important;">{{sList.meins}}</td>
+
+											<td style="min-width: 140px !important;" align="right">{{sList.opstk
+												| PriceInd}}</td>
+											<td style="min-width: 140px !important;" align="right">{{sList.opstk_price
+												| PriceInd}}</td>
+											<td style="min-width: 140px !important;" align="right">{{sList.rcqty
+												| PriceInd}}</td>
+											<td style="min-width: 140px !important;" align="right">{{sList.rcqty_price
+												| PriceInd}}</td>
+
+											<td style="min-width: 140px !important;" align="right">{{sList.isqty
+												}}</td>
+											<td style="min-width: 140px !important;" align="right">{{sList.isqty_price
+												| PriceInd}}</td>
+
+											<td style="min-width: 140px !important;" align="right">{{sList.clstk
+												| PriceInd}}</td>
+											<td style="min-width: 140px !important;" align="right">{{sList.clstk_price
+												| PriceInd}}</td>
+											<!--  -->
+										</tr>
+										</ng-container>
+									</tbody>
+									<!-- <tfoot *ngIf="inventoryStockList.length>0">
+										<tr>
+											<th style="min-width: 80px !important;"></th>
+											<th style="min-width: 110px !important;"></th>
+											<th style="min-width: 130px !important;"></th>
+											<th style="min-width: 100px !important;">Total:</th>
+
+											<th align="right" style="text-align: right;"><span
+												style="text-align: right; margin-left: 48px;">{{tot_open_qty
+													| PriceInd}}</span></th>
+											<th align="right" style="text-align: right;"><span
+												style="text-align: right; float: right !important;">&#8377;{{tot_open_val
+													| PriceInd}}</span></th>
+
+											<th align="right" style="text-align: right;"><span
+												style="text-align: right; margin-left: 48px;">{{tot_rec_qty
+													| PriceInd}}</span></th>
+											<th align="right" style="text-align: right;"><span
+												style="text-align: right; float: right !important;">&#8377;{{tot_rec_val
+													| PriceInd}}</span></th>
+
+											<th align="right" style="text-align: right;"><span
+												style="text-align: right; margin-left: 48px;">{{tot_issue_qty
+													| PriceInd}}</span></th>
+											<th align="right" style="text-align: right;"><span
+												style="text-align: right; float: right !important;">&#8377;{{tot_issue_val
+													| PriceInd}}</span></th>
+
+											<th align="right" style="text-align: right;"><span
+												style="text-align: right; margin-left: 48px;">{{tot_close_qty
+													| PriceInd}}</span></th>
+											<th align="right" style="text-align: right;"><span
+												style="text-align: right; float: right !important;">&#8377;{{tot_close_val
+													| PriceInd}}</span></th>
+										</tr>
+									</tfoot> -->
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="outbound-footer mt-3" style="width: 94%;">
+
+		<div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export" title="Export Excel"
+					style="padding-left: 8px;" (click)="exportExcel()">
+					<i class="fa excel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+
+</section>

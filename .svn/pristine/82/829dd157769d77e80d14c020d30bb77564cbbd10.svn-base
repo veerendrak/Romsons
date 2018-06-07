@@ -1,0 +1,176 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Purchase
+					Order Report</strong>
+			</span>
+			<div class="pull-right">
+			<div class="row pull-left icon-filter-align">
+						<span class="" (click)="showFilters();" title="Advance Filters">
+						 <i class="fa fa-sliders"> </i>
+						</span>
+				  </div>
+			</div>
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv" id="filter-block">
+							<form [formGroup]="poreportdetailsForm">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+									<div class="col-md-2 text-align-sales">
+										<label><b>From Period</b><sup class="asterick">*</sup></label>
+										<input type="text" style="padding: 5px !important;"
+											placeholder="From Period" id="frmDate"
+											class="form-control datepicker-init"
+											formControlName="frmDate" validateOnBlur
+											(blur)="changeTodatePicker('#frmDate')"
+											[validateFormControl]="poreportdetailsForm.controls['frmDate']" />
+										<span
+											*ngIf="poreportdetailsForm.controls['frmDate'].touched && poreportdetailsForm.controls['frmDate'].invalid && poreportdetailsForm.controls['frmDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['frmDate'].errors.required">
+												Please select From Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales toDatepic">
+										<label><b>To Period</b><sup class="asterick">*</sup></label> <input
+											type="text" style="padding: 5px !important;"
+											placeholder="To Period" class="form-control datepicker-init2"
+											id="toDate" formControlName="toDate" validateOnBlur
+											(blur)="removeStyles()"
+											[validateFormControl]="poreportdetailsForm.controls['toDate']" />
+										<span
+											*ngIf="poreportdetailsForm.controls['toDate'].touched && poreportdetailsForm.controls['toDate'].invalid && poreportdetailsForm.controls['toDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['toDate'].errors.required">
+												Please select To Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<button type="submit" class="login-button-export"
+											[disabled]="poreportdetailsForm.invalid"
+											(click)="getpoReportDetails();"
+											style="position: relative; top: 26px;">
+											<i class="fa submit-icon"
+												style="margin-right: 4px; padding-right: 4px;"> <span
+												class="icon-text" style="right: -4px;">Submit</span>
+											</i>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div> 
+						<!-- new changes -->
+						<div class="col-md-12 text-align-sales mb-1 mt-3" *ngIf="poreportdetailsList.length>0">
+							<table class="table table-hover nowrap editable-table totalTable totalSmry" style="display:inline-table;margin-bottom:0px;">
+								<tbody>
+									<tr>
+										<td style="background:#e4e9f0;">Totals:</td>
+										<td>
+											<div class="pull-left">S/UGST : </div>
+											<div class="pull-right">&#8377; {{sgstAmt | PriceInd}}</div>
+										</td>
+										<td>
+											<div class="pull-left">CGST : </div>
+											<div class="pull-right">&#8377; {{cgstAmt | PriceInd}}</div>
+										</td>
+										<td>
+											<div class="pull-left">IGST : </div>
+											<div class="pull-right">&#8377; {{igstAmt | PriceInd}}</div>
+										</td>
+										<td>
+											<div class="pull-left">Gross Amount: </div>
+											<div class="pull-right">&#8377; {{grossAmt | PriceInd}}</div>
+										</td>
+									
+									</tr>
+								</tbody>
+							</table>
+							
+						</div>
+						<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table " id="">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable table-responsive"
+									width="100%" id="purchase-report-table">
+									<thead>
+										<tr>
+											<th style="min-width: 130px !important;">PO No</th>
+											<th style="min-width: 100px !important;">Status</th>
+											<th style="min-width: 110px !important;">Vendor Name</th>
+											<th style="min-width: 110px !important;">PO Date</th>
+											<th style="min-width: 90px !important;">Material</th>
+											<th style="min-width: 130px !important;">Description</th>
+											<th style="min-width: 80px !important;">Qty</th>
+											<th style="min-width: 60px !important;">UOM</th>
+											<th style="min-width: 60px !important;">Price</th>
+											<th style="min-width: 80px !important;">S/UGST</th>
+											<th style="min-width: 80px !important;">CGST</th>
+											<th style="min-width: 80px !important;">IGST</th>
+											
+											<th style="min-width: 80px !important;">Total Val</th>
+											<th style="min-width: 130px !important;">Total PO Amt</th>
+										</tr>
+									</thead>
+									<tbody>
+										<ng-container *ngFor="let HeaderList of poreportdetailsList;"> <ng-container
+											*ngFor="
+											let ItemList of HeaderList.item_details;">
+										<tr>
+											<td>{{HeaderList.po_number}}</td>
+											<td>{{HeaderList.status}}</td>
+											<td><div class="text-name-elipsis"
+													title="{{HeaderList.vendor_name}}">{{HeaderList.vendor_name}}</div></td>
+											<td>{{HeaderList.po_date | date :'dd-MM-yyyy'}}</td>
+											
+											<td>{{ItemList.mat_id}}</td>
+											<td>{{ItemList.mat_desc}}</td>
+											<td align="right">{{ItemList.mat_quan | PriceInd}}</td>
+											<td>{{ItemList.uom}}</td>
+											<td align="right">{{ItemList.mat_price | PriceInd}}</td>
+											<td align="right">{{ItemList.cgst_value | PriceInd}}</td>
+											<td align="right">{{ItemList.cgst_value | PriceInd}}</td>
+											<td align="right">{{ItemList.igst_value | PriceInd}}</td>
+											
+											<td align="right">{{ItemList.net_price | PriceInd}}</td>
+											<td align="right">{{HeaderList.po_amount | PriceInd}}</td>
+										</tr>
+										</ng-container> </ng-container>
+
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3">
+		<div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export" title="Export Excel"
+					style="padding-left: 8px;" (click)="exportExcel()">
+					<i class="fa excel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+</section>

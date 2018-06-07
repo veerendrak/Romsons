@@ -1,0 +1,237 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Release
+					Purchase Order</strong>
+			</span>
+		</div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<!-- new changes -->
+						<div class="col-md-12 mt-1 mb-5">
+							<div class="stock-table">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable"
+									width="100%" id="purchase-order-table">
+									<thead>
+										<tr>
+
+											<th style="min-width:120px !important;">PO Number</th>
+											<th>Status</th>
+											<th>Vendor Name</th>
+											<th>PO Date</th>
+											<th>Total Amount</th>
+											<th>Plant Code</th>
+											<th>Plant Name</th>
+											<th style="min-width: 60px !important;"
+												class="no-sort sorting-disabled">Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										<ng-container *ngIf="purchaseOrderDetailsList.length>0">
+										<tr *ngFor="let pld of purchaseOrderDetailsList; let i=index;">
+
+											<td id="so_no"><a class="link-order"
+												(click)="displayDetails(pld)" href="javascript:void(0)">{{pld.po_number}}</a>
+											</td>
+											<td>{{pld.status}}</td>
+											<td>{{pld.vendor_name}}</td>
+											<td>{{pld.po_date | date :'dd-MM-yyyy'}}</td>
+											<td>{{pld.po_amount}}</td>
+											<td>{{pld.plant}}</td>
+											<td>{{pld.plant_name}}</td>
+											<td><button class="save-icon-btn"
+													(click)="GetApproveDetails(pld.po_number,pld.plant);">
+													<i class="fa save-icon"
+														style="margin-right: 4px; padding-right: 4px;">
+														<div class="icon-text" style="right: -4px;">Release
+															PO</div>
+													</i>
+												</button></td>
+										</tr>
+										</ng-container>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- end chnges -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</section>
+<div class="modal fade" id="bussinessModal" style="top: -10%;"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Purchase Order Details</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('bussinessModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div>
+				<form id="bussinessModal_divpopup"
+					style="height: 456px; overflow-x: hidden; overflow-y: scroll;">
+					<section>
+						<div class="row cust-det-title"
+							style="font-weight: bold; color: black; margin-left: 24px;">PO
+							Details</div>
+						<div class="bp-form-block ">
+							<div class="newrow">
+								<table style="border: 1px solid #c1c0c0;"
+									class="table table-hover" id="business_place" width="100%">
+									<tr>
+										<td>Vendor Name : <span
+											class="form-label font-weight-custom">{{vendor}}</span></td>
+										<td>PO No : <span class="form-label font-weight-custom">{{poNum}}</span></td>
+										<td>PO Date : <span class="form-label font-weight-custom">{{doc_Date}}</span></td>
+
+									</tr>
+									 <tr>
+										<td>Plant Name : <span
+											class="form-label font-weight-custom">{{plantname}}</span></td>
+									</tr> 
+								</table>
+							</div>
+						</div>
+						 <div class="row cust-det-title"
+							style="font-weight: bold; color: black; margin-left: 24px;">Delivery
+							Address Details</div>
+						<div class="bp-form-block ">
+							<div class="newrow">
+								<div class="txt-msg-block">
+									<!-- <ng-container *ngIf="plantDlvAddress!=''"> <span
+										*ngIf="plantDlvAddress.plant_id!=''">Address:
+										{{plantDlvAddress.plant_id}} - <span
+										*ngIf="plantDlvAddress.plant_name!=''">{{plantDlvAddress.plant_name}}</span>
+									</span> <span *ngIf="plantDlvAddress.full_address!=''">Address:
+										{{plantDlvAddress.full_address}} ,</span> <span
+										*ngIf="plantDlvAddress.street!=' '">{{plantDlvAddress.street}}
+										,</span> <span *ngIf="plantDlvAddress.city!=' '">{{plantDlvAddress.city}}
+										,</span> <span *ngIf="plantDlvAddress.postal_code!=' '">{{purchaseDlvAddress.postal_code}}</span>
+									</ng-container> -->
+								<span
+											class="form-label font-weight-custom">{{full_address}}</span>	
+								</div>
+							</div>
+						</div>
+						<div class="row cust-det-title"
+							style="font-weight: bold; color: black; margin-left: 24px;">Material
+							Details</div>
+						<div class="bp-form-block ">
+							<div class="newrow">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable"
+									width="100%" id="purchase-order-table">
+									<thead>
+										<tr>
+
+											<th rowspan="2" style="min-width: 90px !important;">Material</th>
+											<th rowspan="2" style="min-width: 130px !important;">Description</th>
+											<th rowspan="2" style="min-width: 80px !important;">Qty</th>
+											<th rowspan="2" style="min-width: 60px !important;">UOM</th>
+											<th rowspan="2" style="min-width: 90px !important;">Del
+												Date</th>
+											<th rowspan="2" style="min-width: 60px !important;">Price</th>
+											<th colspan="2" class="align-center">S/UGST</th>
+											<th colspan="2" class="align-center">CGST</th>
+											<th colspan="2" class="align-center">IGST</th>
+											<th rowspan="2" style="min-width: 80px !important;">Total
+												Val</th>
+										</tr>
+										<tr>
+											<th style="min-width: 50px !important;">Rate</th>
+											<th style="min-width: 80px !important;">Value</th>
+											<th style="min-width: 50px !important;">Rate</th>
+											<th style="min-width: 80px !important;">Value</th>
+											<th style="min-width: 50px !important;">Rate</th>
+											<th style="min-width: 80px !important;">Value</th>
+										</tr>
+									</thead>
+									<tbody>
+										<ng-container
+											*ngFor="let items of createpurchaseOrderItems; let i =index;">
+										<tr id="sales-row-{{i}}" *ngIf="items.displayRow">
+											<td>{{items.mat_num}}</td>
+											<td><div class="text-name-elipsis"
+													title="{{items.desc}}">{{items.desc}}</div></td>
+											<td>{{items.qty}}</td>
+											<td>{{items.uom}}</td>
+											<td>{{items.deldate}}</td>
+											<td>{{items.price}}</td>
+											<td>{{items.sgst_rt}}</td>
+											<td align="right">{{items.sgst_val | PriceInd}}</td>
+											<td>{{items.cgst_rt}}</td>
+											<td align="right">{{items.cgst_val | PriceInd}}</td>
+											<td>{{items.igst_rt}}</td>
+											<td align="right">{{items.igst_val | PriceInd}}</td>
+											<td align="right">{{items.grossValue | PriceInd}}</td>
+										</tr>
+										</ng-container>
+									</tbody>
+								</table>
+
+							</div>
+						</div>
+						<!-- 	<div class="bp-form-block ">
+							<div class="newrow">
+								<label>Remarks</label>
+								<textarea class="form-control" id="txt_remarks"
+									style="height: 50px;" name="remarks" id="remarks"></textarea>
+							</div>
+						</div> -->
+					</section>
+				</form>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<div class="row new_row">
+				<div class="pull-left">
+					<button class="cancel-button-export" style="padding-left: 0px;"
+						(click)="closeModal('bussinessModal')">
+						<i class="fa back-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Back</div>
+						</i>
+					</button>
+				</div>
+				<div class="pull-right new_right act_foot">
+					<div class="pull-right new_right act_foot">
+						<button type="submit" (click)="releasepurchaseorder()"
+							class="login-button-export" id="uploadStockSubmit"
+							style="position: relative; top: 0px;">
+							<i class="fa submit-icon"
+								style="margin-right: 4px; padding-right: 4px;">
+								<div class="icon-text" style="right: -4px;">Approve</div>
+							</i>
+						</button>
+						<!-- <button class="cancel-button-export" style="padding-left: 0px;"
+							id="close" (click)="rejectpurchaseorder()">
+							<i class="fa cancel-icon"
+								style="margin-right: 4px; padding-right: 4px;">
+								<div class="icon-text" style="right: -4px;">Reject</div>
+							</i>
+						</button> -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+

@@ -1,0 +1,228 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Sales
+					Analysis</strong>
+			</span>
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv">
+							<form [formGroup]="mctadetailsForm">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+									<div class="col-md-2 text-align-sales">
+										<label><b>Layout</b></label> <select class="form-control"
+											(change)="selectScreen(layoutType.value)" id="txt_type"
+											#layoutType style="padding: 5px !important;">
+											<option value="V">value wise</option>
+											<option value="Q">Qty wise</option>
+										</select>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<label><b>Customer Name</b></label> <input type="text"
+											list="customerNamesBlock" class="form-control ajax-list"
+											(keyup)="extractData('modal-name','spinner-search-modal','ajaxListBlock')"
+											id="modal-name" placeholder="Customer Name"
+											style="padding: 5px !important;" autocomplete="off" /> <i
+											class="fa fa-spinner fa-spin spinner-icon"
+											id="spinner-search-modal"
+											style="display: none; margin-right: -7%; margin-top: -9%;"></i>
+										<input type="hidden" name="customerId" value=""
+											id="modal-searchInput">
+										<div class="ajax-searchlist" *ngIf="cdListLength>0"
+											style="display: none; width: 100%;" id="ajaxListBlock">
+											<ul id="customerNamesBlock" class="custmore-list ajax-list">
+												<ng-container *ngIf="customerNames.length>0">
+												<li *ngFor="let cstList of customerNames; let i = index;"
+													class="ajax-list"
+													(click)="selectedItem(cstList,'ajaxListBlock','modal-name','modal-searchInput')"><span
+													class="pull-left custName" title="{{cstList.cust_name}}"
+													style="font-weight: 600;">{{cstList.cust_name}}</span> <span
+													class="pull-right"> {{cstList.cust_id}}</span></li>
+												</ng-container>
+												<ng-container *ngIf="customerNames.length==0">
+												<li>Customers are not found</li>
+												</ng-container>
+											</ul>
+										</div>
+									</div>
+
+									<div class="col-md-2 text-align-sales " id="div_customergrp">
+										<label><b>Type</b></label> <select class="form-control"
+											id="cust_type" style="padding: 5px !important;">
+											<option>Please Select Type</option>
+											<ng-container *ngFor="let types of customertypeList">
+											<option value={{types.key}}>{{types.value}}</option>
+											</ng-container>
+
+										</select>
+									</div>
+									<div class="col-md-2 text-align-sales" style="display: none;"
+										id="div_material">
+										<label><b>Material Code</b></label> <input type="text"
+											style="padding: 5px !important;" list="materialCodeList"
+											placeholder="Material Code" class="form-control"
+											(keyup)="materialextractData('material-code','spinner-search','ajaxList')"
+											id="material-code" autocomplete="off" /> <i
+											class="fa fa-spinner fa-spin spinner-icon"
+											id="spinner-search" style="display: none"></i> <input
+											type="hidden" id="filterCustomerId" value="" />
+										<div class="ajax-searchlist"
+											style="display: none; width: 93%;" id="ajaxList">
+											<ul id="" class="custmore-list">
+												<li *ngFor="let matnr of material; let i = index;"
+													style="width: 100%"
+													(click)="materialselectedItem(matnr,'ajaxList','material-code','filterCustomerId')"><span
+													class="pull-left" style="font-weight: 600;">{{matnr.mat_num}}</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<label><b>From Period</b><sup class="asterick">*</sup></label>
+										<input type="text" style="padding: 5px !important;"
+											placeholder="From Period" id="frmDate"
+											class="form-control datepicker-init"
+											formControlName="frmDate" validateOnBlur
+											(blur)="changeTodatePicker()"
+											[validateFormControl]="mctadetailsForm.controls['frmDate']" />
+										<span
+											*ngIf="mctadetailsForm.controls['frmDate'].touched && mctadetailsForm.controls['frmDate'].invalid && mctadetailsForm.controls['frmDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="mctadetailsForm.controls['frmDate'].errors.required">
+												Please select From Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales toDatepic">
+										<label><b>To Period</b><sup class="asterick">*</sup></label> <input
+											type="text" style="padding: 5px !important;"
+											placeholder="To Period" class="form-control datepicker-init2"
+											id="toDate" formControlName="toDate" validateOnBlur
+											(blur)="removeStyles()"
+											[validateFormControl]="mctadetailsForm.controls['toDate']" />
+										<span
+											*ngIf="mctadetailsForm.controls['toDate'].touched && mctadetailsForm.controls['toDate'].invalid && mctadetailsForm.controls['toDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="mctadetailsForm.controls['toDate'].errors.required">
+												Please select To Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<button type="submit" class="login-button-export"
+											[disabled]="mctadetailsForm.invalid"
+											(click)="getmctaDetails();"
+											style="position: relative; top: 26px;">
+											<i class="fa submit-icon"
+												style="margin-right: 4px; padding-right: 4px;"> <span
+												class="icon-text" style="right: -4px;">Submit</span>
+											</i>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+						<!-- new changes -->
+						<div class="col-lg-12">
+							<div class="stock-table " id="">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable table-responsive"
+									width="100%" id="cust-info-table" style="display: table;">
+									<thead>
+										<tr>
+											<th>Customer Code</th>
+											<th>Customer Name</th>
+											<th [ngClass]="{'hide-cls':!actionFlag}">Incoming Orders</th>
+											<th [ngClass]="{'hide-cls':!actionFlag}">Sales</th>
+											<th [ngClass]="{'hide-cls':!actionFlag}">Open Orders</th>
+											<th [ngClass]="{'hide-cls':actionFlag}">Material Code</th>
+											<th [ngClass]="{'hide-cls':actionFlag}">Material Name</th>
+											<th [ngClass]="{'hide-cls':actionFlag}">Incoming Qty</th>
+											<th [ngClass]="{'hide-cls':actionFlag}">Sale Qty</th>
+											<th [ngClass]="{'hide-cls':actionFlag}">Open Qty</th>
+
+
+										</tr>
+									</thead>
+									<tbody>
+										<ng-container
+											*ngFor="let sList of mctadetailsList; let i=index;">
+										<tr *ngIf="sList.dealer_code!='Total'">
+											<td>{{sList.dealer_code}}</td>
+											<td>{{sList.dealer_name}}</td>
+											<td [ngClass]="{'hide-cls':!actionFlag}">{{sList.incoming_order|
+												PriceInd}}</td>
+											<td [ngClass]="{'hide-cls':!actionFlag}">{{sList.sales |
+												PriceInd}}</td>
+											<td [ngClass]="{'hide-cls':!actionFlag}">{{sList.open_order|
+												PriceInd}}</td>
+											<td [ngClass]="{'hide-cls':actionFlag}">{{sList.material_code}}</td>
+											<td [ngClass]="{'hide-cls':actionFlag}">{{sList.material_name}}</td>
+											<td [ngClass]="{'hide-cls':actionFlag}">{{sList.incoming_qty|
+												PriceInd}}</td>
+											<td [ngClass]="{'hide-cls':actionFlag}">{{sList.sales_qty|
+												PriceInd}}</td>
+											<td [ngClass]="{'hide-cls':actionFlag}">{{sList.open_qty|
+												PriceInd}}</td>
+										</tr>
+										</ng-container>
+									</tbody>
+									<tfoot>
+										<ng-container *ngIf="mctadetailslength>0"> <ng-container
+											*ngFor="let sList of mctadetailsList; let i=index;">
+										<tr *ngIf="sList.dealer_code=='Total'">
+											<td>{{sList.dealer_code}}</td>
+											<td>{{sList.dealer_name}}</td>
+											<td [ngClass]="{'hide-cls':!actionFlag}">{{sList.incoming_order|
+												PriceInd}}</td>
+											<td [ngClass]="{'hide-cls':!actionFlag}">{{sList.sales |
+												PriceInd}}</td>
+											<td [ngClass]="{'hide-cls':!actionFlag}">{{sList.open_order|
+												PriceInd}}</td>
+											<td [ngClass]="{'hide-cls':actionFlag}">{{sList.material_code}}</td>
+											<td [ngClass]="{'hide-cls':actionFlag}">{{sList.material_name}}</td>
+											<td [ngClass]="{'hide-cls':actionFlag}">{{sList.incoming_qty|
+												PriceInd}}</td>
+											<td [ngClass]="{'hide-cls':actionFlag}">{{sList.sales_qty|
+												PriceInd}}</td>
+											<td [ngClass]="{'hide-cls':actionFlag}">{{sList.open_qty|
+												PriceInd}}</td>
+										</tr>
+										</ng-container> </ng-container>
+									</tfoot>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3" style="width: 94%;">
+		<div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+	
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export" title="Export Excel"
+					style="padding-left: 8px;" (click)="exportExcel()">
+					<i class="fa excel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+</section>

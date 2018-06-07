@@ -1,0 +1,662 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Sales Order</strong>
+		</span>
+		<div class="pull-right">
+		<div class="rangeSlider row pull-left">
+					<input class="scroll-range"  value="1" id="scroll-range" type="range"/>
+		</div>
+		<div class="row pull-left icon-filter-align">
+					<span class="" (click)="showFilters();" title="Advance Filters">
+					 <i class="fa fa-sliders"> </i>
+					</span>
+			  </div>
+		</div>
+	</div>
+	<div class="card-block db-block" style="padding:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+				<div class="outbound-content col-md-12 mb-5 mt-2" id="filter-block"  style="display:none;">
+					<form [formGroup]="filterSalesOrderForm">
+					 <div class="delivery-form-block col-md-12 row">
+					 <div class="col-md-3 text-align-sales">
+						<label>Customer Name</label>
+						<input type="text" autocomplete="off" list="customerNamesList" class="form-control ajax-list" (keyup)="extractData('cust-name','spinner-search','filetrajaxListBlock',$event)" id="cust-name"
+									formControlName="custName"   validateOnBlur [validateFormControl]="filterSalesOrderForm.controls['custName']"
+											 placeholder="Customer Name" />
+						<i class="fa fa-spinner fa-spin spinner-icon" id="spinner-search" style="display:none"></i>
+						<input type="hidden" name="customerId" id="filterCustomerId" value=""/>
+						<div class="ajax-searchlist" style="display:none;width:100%;" id="filetrajaxListBlock">
+										<ul id="customerNamesBlock" class="custmore-list ajax-list">
+											<ng-container *ngIf="customerNames.length>0">
+											<li *ngFor="let cstList of customerNames; let i = index;" id="list-{{i}}"
+											value="{{cstList.cust_id}}" class="ajax-list"  (click)="selectedItem(cstList,'filetrajaxListBlock','cust-name','filterCustomerId')"
+											><span class="pull-left" style=";font-weight:600;">{{cstList.cust_name}}</span>
+											<span class="pull-right">{{cstList.cust_id}}</span>
+											</li>
+											</ng-container>
+											<ng-container *ngIf="customerNames.length==0">
+												<li>Customers are not found</li>
+											</ng-container>
+										</ul>
+									</div>
+						<span
+							*ngIf="filterSalesOrderForm.controls['custName'].touched && filterSalesOrderForm.controls['custName'].invalid && filterSalesOrderForm.controls['custName'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterSalesOrderForm.controls['custName'].errors.required">
+								{{saleOrderMessages.cust_req}}</small>
+						</span>
+						
+						</div>
+					 <div class="col-md-2 text-align-sales" >
+						<label>From Date</label>
+						<input type="text" class="form-control datepicker-init-sale" id="from-date"
+						formControlName="fromDate" (blur)="changeValidate('from-date')"  validateOnBlur [validateFormControl]="filterSalesOrderForm.controls['fromDate']">
+						
+						<span
+							*ngIf="filterSalesOrderForm.controls['fromDate'].touched && filterSalesOrderForm.controls['fromDate'].invalid && filterSalesOrderForm.controls['fromDate'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterSalesOrderForm.controls['fromDate'].errors.required">
+								{{saleOrderMessages.filter_from_date}}</small>
+						</span>
+						
+						</div>
+					 <div class="col-md-2 text-align-sales" >
+						
+						<label>To Date</label>
+						<input type="text" class="form-control datepicker-init-sale" id="to-date"
+						formControlName="toDate"  validateOnBlur [validateFormControl]="filterSalesOrderForm.controls['toDate']">
+						
+						<span
+							*ngIf="filterSalesOrderForm.controls['toDate'].touched && filterSalesOrderForm.controls['toDate'].invalid && filterSalesOrderForm.controls['toDate'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterSalesOrderForm.controls['toDate'].errors.required">
+								{{saleOrderMessages.filter_to_date}}</small>
+						</span>
+						</div>
+					  <div class="col-md-2 text-align-sales">
+						<label>Status</label>
+						<select class="form-control create-edit-pop-txt-box" id="so-status"
+										formControlName="status"  validateOnBlur [validateFormControl]="filterSalesOrderForm.controls['status']"
+										>
+											<option value="">Select Status</option>
+											<option value="A">Pending</option>
+											<option value="D">Billed</option>
+											<option value="C">Delivered</option>
+											<option value="B">Partially delivered</option>
+										</select>
+						<span
+							*ngIf="filterSalesOrderForm.controls['status'].touched && filterSalesOrderForm.controls['status'].invalid && filterSalesOrderForm.controls['status'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterSalesOrderForm.controls['status'].errors.required">
+								{{saleOrderMessages.filter_sales_status}}</small>
+						</span>
+						
+						</div>
+					  <div class="col-md-2 text-align-sales">
+ 						<button type="button" [attr.disabled]="!filterSalesOrderForm.valid ?  'disabled' : null" (click)="getFilterData()"  class="login-button-export" style="position:relative;top:27px;">
+							<i class="fa submit-icon" style="margin-right:4px;padding-right:4px;">
+							<div class="icon-text" style="right:-4px;">Submit</div>
+							</i>
+						</button>					  
+						</div>
+						</div>						 
+					</form>
+					</div>
+					<!-- new changes -->
+					<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table" id="sales-table">
+								<table class="table table-hover nowrap editable-table checkBoxTable table-divs"
+								width="100%" id="sales-order-table">
+								<thead>
+									<tr>
+										<th class="no-sort"  style="min-width:50px !important;text-align:center;">
+											<mat-checkbox class="example-margin" 
+											[(ngModel)]="checked"
+											[checked]="checked"
+											[(indeterminate)]="indeterminate" id="checkbox-all"
+											 (click)="selectAll($event,'checkbox-all-input','sales-order-table')"></mat-checkbox>
+											 </th>
+										<th style="min-width:120px !important;">SO No.</th>
+										<th>Status</th>
+										<th style="min-width:110px !important;">Order Date</th>
+										<th style="min-width:110px !important;">Doc Category</th>
+										<th style="min-width:110px !important;">Req Del date</th>
+										<th style="min-width:110px !important;">PO Number</th>
+										<th style="min-width:90px !important;">PO date</th>
+										<th style="min-width:130px !important;">Customer Name</th>
+										<th style="min-width:110px !important;">Ship to Party</th>
+										<th>Net Amount</th>
+										<th>Total Amount</th>
+									</tr>
+								</thead>
+								<tbody>
+									<ng-container *ngIf="salesOrderDetailsList.length>0">
+										<tr *ngFor="let sld of salesOrderDetailsList; let i=index;">
+										<td align="center">
+											<mat-checkbox class="example-margin" id="checkbox-{{i}}"  (click)="getReportList(sld,'sales-order-table',i)"
+											 ></mat-checkbox>
+										</td>
+											<td id="so_no">
+												<a class="link-order" (click)="displayDetails(sld)" href="javascript:void(0)">{{sld.sales_doc}}</a>
+												<i *ngIf="sld.status!='Pending'" (click)="getDocumentFlow(sld.sales_doc)"  title="Document flow" class="fa docflow-icon docFlow"></i>
+											</td>
+											<td>{{sld.status}}</td>
+											<td><span class='hide'>{{sld.doc_date | date :'yyyyMMdd'}}</span>{{sld.doc_date | date :'dd-MM-yyyy'}}</td>
+											<td>{{sld.doc_category}}</td>
+											<td><span class='hide'>{{sld.req_del_date | date :'yyyyMMdd'}}</span>{{sld.req_del_date | date :'dd-MM-yyyy'}}</td>
+											<td>{{sld.po_num}}</td>
+											<td><span class='hide'>{{sld.po_date | date :'yyyyMMdd'}}</span><span *ngIf="sld.po_date!='0000-00-00'">{{sld.po_date | date :'dd-MM-yyyy'}}</span></td>
+											<td><div class="text-name-elipsis" title="{{sld.sold_to_name}}">{{sld.sold_to_name}}</div></td>
+											<td><div class="text-name-elipsis" title="{{sld.ship_to_name}}">{{sld.ship_to_name}}</div></td>
+											<td align="right">&#8377; {{sld.net_amount | PriceInd}}</td>
+											<td align="right">&#8377; {{sld.total_amt | PriceInd}}</td>
+											
+										</tr>
+									</ng-container>
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+<div class="outbound-footer mt-3" style="display:none;">
+		<div class="left-block">
+		<!-- <div class="pull-left" style="max-width:47%">
+			<button class="btn login-button">
+			<i class="fa fa-plus" style="margin-right:4px;"></i> Add Lines</button>
+		</div>
+		<div class="pull-left" style="max-width:50%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Remove Line</button>
+			</div> -->
+		</div>
+		<div class="right-block">
+			<div class="pull-left" style="max-width:47%">
+				<button class="btn login-button-export" (click)="createQuickDelivery()" style="padding:0px 8px 4px 0px !important;">
+					<i class="fa" style="margin-right:4px;"></i> Quick Delivery
+				</button>
+			</div>
+			<div class="pull-left">
+			<button title="Print / Preview" style="padding-left:8px;" class="login-button-export" (click)="salesOrderListPrint()">
+			<i class="fa print-icon" style="margin-right:0px;width:23px;height:24px;">
+			</i>
+			</button>
+			</div>
+
+			<div class="pull-left">
+			<button title="Export Excel" style="padding-left:8px;" class="login-button-export" id="export" (click)="exportExcel()">
+			<i class="fa excel-icon" style="margin-right:-2px;width:23px;height:24px;">
+			</i>
+			</button>
+			</div>
+			<div class="pull-left">
+				<button title="Create Delivery" style="padding-left:8px;" class="login-button-export" (click)="createDeliveryModal()">
+				<i class="fa delivery-icon" style="margin-right:2px;width:24px;height:24px;">
+			</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export" title="Edit" style="padding-left:8px;" (click)="editSalesOrder('sales-order-table')">
+				<i class="fa edit-icon" style="margin-right:0px;padding-right:4px;width:24px;height:24px;">
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export" style="padding-left:8px;" title="Create Sales Order/Returns" (click)="createSalesOrder('sales-order-table')">
+				<i class="fa create-icon" style="margin-right:4px;padding-right:4px;width:24px;height:24px;">
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="cancel-button-export" (click)="cancelSalesOrder('sales-order-table')">
+					<i class="fa cancel-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Cancel SO/SR</div>
+					</i>
+				</button>
+			</div>
+			
+		</div>
+	</div>
+</section>
+<!--create sales order -->
+
+					<div class="modal fade modal-size-medium" id="createSalesModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									Create Sales Order / Returns
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('createSalesModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body-block" style="padding: 6px 6px !important;">
+								<form [formGroup]="createSalesOrderForm" autocomplete="off">
+									<div class="col-md-12 row">
+									<div class="col-md-4">
+										<label>Order Type<sup class="asterick">*</sup>
+										</label> <select class="form-control create-edit-pop-txt-box" style="width: 100% !important;"
+										formControlName="orderType" id="orderTypes" validateOnBlur [validateFormControl]="createSalesOrderForm.controls['orderType']"
+										>
+											<option value="" >Please Select</option>
+											<ng-container *ngFor="let odTypes of orderTypes; let i= index;">
+												<option [value]="odTypes.key">{{odTypes.value}}</option>
+											</ng-container>
+										</select>
+											 <span
+											*ngIf="createSalesOrderForm.controls['orderType'].touched && createSalesOrderForm.controls['orderType'].invalid && createSalesOrderForm.controls['orderType'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createSalesOrderForm.controls['orderType'].errors.required">
+												{{saleOrderMessages.order_type_req}} </small>
+										</span>
+									</div>
+									<div class="col-md-8" *ngIf="createSalesOrderForm.value['orderType']=='' || createSalesOrderForm.value['orderType']=='ZKS'">
+									<label>Customer<sup class="asterick">*</sup></label>
+									<input type="text" list="customerNamesBlock" class="form-control ajax-list" (keyup)="extractData('modal-name','spinner-search-modal','ajaxListBlock',$event)" id="modal-name"
+									formControlName="customer" validateOnBlur [validateFormControl]="createSalesOrderForm.controls['customer']"
+											 placeholder="Customer"  style="width: 311px !important;padding:5px !important;"  />
+									<i class="fa fa-spinner fa-spin spinner-icon" id="spinner-search-modal" style="display:none;margin-right:-7%;margin-top:-9%;"></i>
+									<input type="hidden" name="customerId" value="" id="modal-searchInput">
+									<div class="ajax-searchlist" style="display:none;width:100%;" id="ajaxListBlock">
+										<ul id="customerNamesBlock" class="custmore-list ajax-list">
+											<ng-container *ngIf="customerNames.length>0">
+											<li *ngFor="let cstList of customerNames; let i = index;" class="ajax-list"  (click)="selectedItem(cstList,'ajaxListBlock','modal-name','modal-searchInput')"
+											><span class="pull-left custName" title="{{cstList.cust_name}}" style="font-weight:600;">{{cstList.cust_name}}</span>
+											<span class="pull-right">	{{cstList.cust_id}}</span>
+											</li>
+											</ng-container>
+											<ng-container *ngIf="customerNames.length==0">
+												<li>Customers are not found</li>
+											</ng-container>
+										</ul>
+									</div>
+										 <span
+											*ngIf="createSalesOrderForm.controls['customer'].touched && createSalesOrderForm.controls['customer'].invalid && createSalesOrderForm.controls['customer'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createSalesOrderForm.controls['customer'].errors.required">
+												{{saleOrderMessages.cust_req}}</small>
+										</span>
+							</div>
+							<div class="col-md-8" *ngIf="createSalesOrderForm.value['orderType']=='ZRKS'">
+							<label>Invoice Number</label>
+							<input type="text" list="customerNamesBlock" class="form-control ajax-list"  id="invoice-num"
+									formControlName="invoiceNum" validateOnBlur [validateFormControl]="createSalesOrderForm.controls['invoiceNum']"
+											 placeholder="Invoice number"  style="width: 313px !important;padding:5px !important;"  />
+							<span
+											*ngIf="createSalesOrderForm.controls['invoiceNum'].touched && createSalesOrderForm.controls['invoiceNum'].invalid && createSalesOrderForm.controls['invoiceNum'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createSalesOrderForm.controls['invoiceNum'].errors.required">
+												{{saleOrderMessages.cust_req}}</small>
+										</span>
+								</div>	
+									</div>
+									</form>
+								</div>
+
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<button (click)="createSalesForm('createSalesModal')"  [disabled]="createSalesOrderForm.invalid"
+											 [ngClass]="{'login-button':true ,'forgotOk':true,'btn-disabled':createSalesOrderForm.invalid }"
+											>Ok</button>
+										<button (click)="closeModal('createSalesModal')"
+											 Class="cancel-button forgotOk"
+											>Cancel</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+</div>
+
+					<!-- End of create sales order-->
+
+<!-- cancel delivery popup -->	
+			<div class="modal fade " id="cancel-sales-order" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content" style="width: 100%;">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									Display Errors
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('cancel-sales-order')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body-block" style="padding: 6px 6px !important;max-height:250px; overflow-y:auto;">
+								<div class="card-block db-block mb-5" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+								
+								 <div style="margin-left: 11px; margin-bottom: 3px;"> </div>
+									<div class="col-lg-12">
+										<div class="row">
+											<!-- new changes -->
+											<div class="col-md-12 mt-1">
+													<div class="stock-table table-responsive">
+													<table class="table table-hover nowrap editable-table checkBoxTable" style="width: 100%;">
+													<tr>
+													    <th>SO No.</th>
+														<th>Error Code</th>
+														<th>Error Message</th>
+													</tr>
+													<ng-container *ngFor="let erList of errorLogs; let i=index">
+												<tr *ngIf="erList.type=='E'">
+													<td>{{erList.message_v2}}</td>
+													<td>{{erList.id}}</td>
+													<td>{{erList.message}}</td>
+												</tr>
+												</ng-container> 
+													</table>
+													</div>
+												</div>
+											<!-- end chnges -->
+										</div>
+									</div>
+	</div>
+								</div>
+<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+									<button type="button" class="login-button forgotOk" id="topCloseButton"
+								(click)="closeModal('cancel-sales-order')"
+										aria-label="Close">Ok
+									</button>
+									</div>
+									</div>
+								</div>
+								</div>
+								
+						</div>
+					</div>
+</div>		
+<!-- cancel delivery popup -->					
+					
+					
+<!--create delivery order -->
+
+					<div class="modal fade modal-size-medium" id="outboundDeliveryModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content"  >
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									Outbound Delivery
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('outboundDeliveryModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;">
+								<form [formGroup]="createDeliveryForm">
+									<div class="col-md-12 row">
+									<div class="col-md-6">
+									
+									<label>Date<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box" id="sFiterfromDate" (focus)="changePickerPos()" (blur)="removeStyles('sFiterfromDate')"
+									formControlName="outboundDate"  validateOnBlur [validateFormControl]="createDeliveryForm.controls['outboundDate']"
+									style="width: 225px !important;">
+									<span
+											*ngIf="createDeliveryForm.controls['outboundDate'].touched && createDeliveryForm.controls['outboundDate'].invalid && createDeliveryForm.controls['outboundDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createDeliveryForm.controls['outboundDate'].errors.required">
+												{{outboundMessage.out_date_req_msg}}</small>
+										</span>
+									</div>
+									<div class="col-md-6">
+									<label>Order<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box" id="orderNum"
+									formControlName="outboundOrder"  validateOnBlur [validateFormControl]="createDeliveryForm.controls['outboundOrder']"
+									 style="width: 231px !important;">
+									<span
+											*ngIf="createDeliveryForm.controls['outboundOrder'].touched && createDeliveryForm.controls['outboundOrder'].invalid && createDeliveryForm.controls['outboundOrder'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createDeliveryForm.controls['outboundOrder'].errors.required">
+												{{outboundMessage.out_order_req_msg}}</small>
+										</span>
+									</div>
+									
+									</div>
+									<div class="col-md-12 row" style="padding-top: 5px;">
+									<div class="col-md-6">
+									
+									<label>From Item</label>
+									<input type="text" class="form-control create-edit-pop-txt-box" id="fromItem"
+									formControlName="frmItem"  validateOnBlur [validateFormControl]="createDeliveryForm.controls['frmItem']"
+									style="width: 225px !important;">
+									<span
+											*ngIf="createDeliveryForm.controls['frmItem'].touched && createDeliveryForm.controls['frmItem'].invalid && createDeliveryForm.controls['frmItem'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createDeliveryForm.controls['frmItem'].errors.required">
+												{{outboundMessage.frm_item_req_msg}}</small>
+										</span>
+									</div>
+									<div class="col-md-6">
+									<label>To Item</label>
+									<input type="text" class="form-control create-edit-pop-txt-box" id="toItem"
+									formControlName="toItem"  validateOnBlur [validateFormControl]="createDeliveryForm.controls['toItem']"
+									style="width: 231px !important;">
+									<span
+											*ngIf="createDeliveryForm.controls['toItem'].touched && createDeliveryForm.controls['toItem'].invalid && createDeliveryForm.controls['toItem'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createDeliveryForm.controls['toItem'].errors.required">
+												{{outboundMessage.to_item_req_msg}}</small>
+										</span>
+									</div>
+									
+									</div>
+									</form>
+								</div>
+
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<button (click)="createDeliverySubmit('outboundDeliveryModal')"
+											class="login-button forgotOk"
+											[disabled]="!createDeliveryForm.valid"
+											>Ok</button>
+										<button (click)="closeModal('outboundDeliveryModal')"
+											 Class="cancel-button forgotOk"
+											>Cancel</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+</div>
+					<!-- End of create delivery order-->			
+					
+<!--create document flow -->
+
+					<div class="modal fade modal-size-medium" id="docFlowList" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog modal-lg" role="document">
+							<div class="modal-content"  >
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									Document Flow
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('docFlowList')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;max-height:250px !important;">
+									<table class="table table-hover nowrap editable-table checkBoxTable"
+									width="100%" id="sales-order-table" style="display:inline-table;">
+									<thead>
+										<tr>
+											<th>Order Type</th>
+											<th>Order Num</th>
+											<th>Ref DocNum</th>
+											<!-- <th>Ref Item</th> -->
+											<th>Status</th>
+										</tr>
+									</thead>
+									<tbody *ngIf="docFlowList.length>0">
+										<ng-container *ngFor="let docList of docFlowList; let k=index;">
+										<tr>
+											<td><span class="{{docList.vbtyp_n}}">{{subTypes[docList.vbtyp_n]}}</span></td>
+											<td><span>{{docList.docnum}}</span></td>
+											<td>{{docList.docnuv}}</td>
+											<!-- <td>{{docList.itemnum}}</td> -->
+											<td>{{docList.status}}</td>
+										</tr>
+										</ng-container>
+									</tbody>
+									</table>
+								</div>
+
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<!-- <button (click)="createDeliverySubmit('outboundDeliveryModal')"
+											class="login-button forgotOk"
+											[disabled]="!createDeliveryForm.valid"
+											>Ok</button> -->
+										<button (click)="closeModal('docFlowList')"
+											 Class="cancel-button forgotOk"
+											>Cancel</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+</div>
+					<!-- End of document flow-->
+
+<!--create Quick Delivery -->
+
+					<div class="modal fade modal-size-medium" id="createQuickDlvModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									Create Quick Delivery
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('createQuickDlvModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body-block" style="padding: 6px 6px !important;">
+								<form [formGroup]="createQuickDlvForm" autocomplete="off">
+									<div class="col-md-12 row">
+									<div class="col-md-8">
+									<label>Customer<sup class="asterick">*</sup></label>
+									<input type="text"  class="form-control ajax-list" (keyup)="extractData('quick-modal-name','quick-spinner-search-modal','quickajaxListBlock',$event)" id="quick-modal-name"
+									formControlName="customer" validateOnBlur [validateFormControl]="createQuickDlvForm.controls['customer']"
+											 placeholder="Customer"  style="width: 311px !important;padding:5px !important;"  />
+									<i class="fa fa-spinner fa-spin spinner-icon" id="quick-spinner-search-modal" style="display:none;margin-right:-7%;margin-top:-9%;"></i>
+									<input type="hidden" name="customerId" value="" id="quick-modal-searchInput">
+									<div class="ajax-searchlist" style="display:none;width:100%;" id="quickajaxListBlock">
+										<ul id="customerNamesBlock" class="custmore-list ajax-list">
+											<ng-container *ngIf="customerNames.length>0">
+											<li *ngFor="let cstList of customerNames; let i = index;" class="ajax-list"  (click)="selectedItem(cstList,'quickajaxListBlock','quick-modal-name','quick-modal-searchInput')"
+											><span class="pull-left custName" title="{{cstList.cust_name}}" style="font-weight:600;">{{cstList.cust_name}}</span>
+											<span class="pull-right">	{{cstList.cust_id}}</span>
+											</li>
+											</ng-container>
+											<ng-container *ngIf="customerNames.length==0">
+												<li>Customers are not found</li>
+											</ng-container>
+										</ul>
+									</div>
+										 <span
+											*ngIf="createQuickDlvForm.controls['customer'].touched && createQuickDlvForm.controls['customer'].invalid && createQuickDlvForm.controls['customer'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createQuickDlvForm.controls['customer'].errors.required">
+												{{saleOrderMessages.cust_req}}</small>
+										</span>
+							</div>
+								
+									</div>
+									</form>
+								</div>
+
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<button (click)="QuickDelivery('createQuickDlvModal')"  [disabled]="createQuickDlvForm.invalid"
+											 [ngClass]="{'login-button':true ,'forgotOk':true,'btn-disabled':createQuickDlvForm.invalid }"
+											>Ok</button>
+										<button (click)="closeModal('createQuickDlvModal')"
+											 Class="cancel-button forgotOk"
+											>Cancel</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+</div>
+
+					<!-- End of create Quick Delivery-->

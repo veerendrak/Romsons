@@ -1,0 +1,147 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-purchase-order',
+  templateUrl: './purchase-order.component.html',
+  styleUrls: ['./purchase-order.component.css']
+})
+export class PurchaseOrderComponent implements OnInit {
+
+  purchaseOrderForm:FormGroup;
+    @Output()
+    @Input() salesSeries:any=""; 
+    title:any;
+    
+    
+   
+    purchaseOrderMessage:any;
+    formResetFlag:boolean=false;
+    formEditObj:any;
+    
+    
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private dateAdapter: DateAdapter<Date>) {
+      this.app.isActive=true;
+      this.dateAdapter.setLocale('en-gb');
+      this.purchaseOrderForm = formBuilder.group({
+          'docType' : ['', Validators.required],
+          'vendorCode' : ['', Validators.required],
+          'vendorName' : [],
+          'docDate' : ['', Validators.required],
+          'billingAddr' : [],
+          'shippingAddr' : [],
+        });
+      this.purchaseOrderMessage = this.messagesService.purchase_order_details_msg
+     
+       
+  }
+          
+     isEmpty(obj) {
+              for(var key in obj) {
+        if (obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
+
+  ngOnInit() {
+       
+       
+     
+      if(this.commonService.saleType=='Create'){
+          this.title="Purchase Order/ Create";
+      }else{
+          this.title="Edit Purchase Order";
+      }
+      this.applyDataTableAndPicker();
+      if($('body').hasClass('cat__menu-left--visible')){
+          $(".ell-spa").removeAttr("style");
+      }else{
+          $(".ell-spa").attr("style","width:340px");
+      }
+    this.formEditObj=this.commonService.formObject;
+   if(this.isEmpty(this.formEditObj)){
+        this.formEditObj =this.purchaseOrderForm.value;
+   }
+
+   // this.purchaseOrderForm.setValue({docType: this.commonService.formObject.docType, vendorName: this.commonService.formObject.vendorName});
+      
+  }
+  
+  applyDataTableAndPicker(){
+      setTimeout(()=>{
+          //purchase-order-table
+             $("#purchase-order-table").DataTable().destroy();
+          $("#purchase-order-table").DataTable({
+          "bSort": false,
+          "columnDefs": [{
+              "targets": 'no-sort',
+              "orderable": false,
+          }],
+           "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+          lengthMenu: [
+                    [ 5, 10,15,25,50, -1 ],
+                    [ '5', '10', '15', '25', '50','Show all' ]
+                ],
+           "fnDrawCallback": function( oSettings ) {
+                        if ( 5 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                            
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                            
+                           
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                          
+                        }
+                    },
+          
+      });
+           $("#purchase-order-table").closest('table').children('thead').children('tr:first').children('th').removeClass("sorting_asc");
+        
+    
+          
+            setTimeout(() => {
+            
+            $( '.datepicker-init-sale' ).datetimepicker( {
+
+                widgetPositioning: {
+                    horizontal: 'left'
+                },
+                icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down",
+                    previous: 'fa fa-arrow-left',
+                    next: 'fa fa-arrow-right'
+                },
+                format: 'LL',
+                
+            } );
+}, 500);
+          
+      },400);
+  }
+    
+
+}

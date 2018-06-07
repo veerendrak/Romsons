@@ -1,0 +1,601 @@
+<section class="card" id="mainContent">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Business Partners</strong>
+		</span>
+	</div>
+	<div class="card-block" id="businessPlace" style="padding-left:0px;padding-right:0px;">
+		<div style="clear: both;"></div>
+		<div class="mr-1">
+			<span>
+				<button 
+					class="pull-right login-button" id="bp_button"
+					(click)="addBusinessPartner()">
+					<i class="fa fa-plus"  style="margin-right:4px;"></i> Add Business Partner
+				</button>
+			</span>
+		</div>
+		<div class="">
+			<table class="table table-hover" id="business_place" width="100%">
+				<thead class="thead-default">
+					<tr>
+					<th class="left-align">BP Type</th>
+						<th class="left-align">Legal Name of Business</th>
+						<th class="left-align">GSTIN</th>
+						<th class="left-align">City</th>
+						<th class="left-align">State</th>
+						<th class="center">Actions</th>
+
+					</tr>
+				</thead>
+				<tbody>
+
+					<tr *ngFor="let items of displayInformation; let i = index">
+						<td class="left-align" data-toggle="tooltip"
+							title={{items.bpLegalName}}>{{items.bpType}}</td>
+						<td class="left-align" data-toggle="tooltip"
+							title={{items.bpLegalName}}>{{items.bpLegalName}}</td>
+						<td class="left-align" data-toggle="tooltip"
+							title={{items.bpGstinNumber}}>{{items.bpGstinNumber}}</td>
+						<td class="left-align" data-toggle="tooltip"
+							title={{items.location}}>{{items.location}}</td>
+						<td class="left-align" data-toggle="tooltip" title={{items.state}}>{{items.state}}</td>
+
+						<td class="center">
+						<span id="just" (click)="editBranchDetails(items,'Business Partner Details')"
+							class="align-center-text tab-custom-padding"
+							data-toggle="tooltip" title="More Details"> <a
+								href="javascript: void(0);"
+								class="cat__core__link--underlined mr-2 " data-toggle="modal"
+								data-target="#modal_form"><i class="fa fa-eye fa-4" style="font-size: 15px;"></i></a>
+
+						</span> 
+						<span (click)="editBranchDetails(items,'Edit Business Partner')"
+							class="align-center-text tab-custom-padding"
+							data-toggle="tooltip" title="Edit Business Place"><a
+								href="javascript: void(0);"
+								class="cat__core__link--underlined mr-2 " data-toggle="modal"
+								data-target="#modal_form">..<i class="icmn-pencil"></i>
+							</a> </span> 
+							<span id="remove_index" (click)="removeBranchDetails(items)"
+							*ngIf="items.bpId != bpId"
+							class="align-center-text tab-custom-padding"
+							data-toggle="tooltip" title="Remove Business Place"> <a
+								href="javascript: void(0);" class="cat__core__link--underlined ">
+									<small style="color: red;"><i class="icmn-bin"></i></small>
+							</a>
+
+						</span> 
+						<span id="remove_index" *ngIf="items.bpId == bpId"
+							class="align-center-text tab-custom-padding"
+							data-toggle="tooltip" title="Cannot Remove This Business Place">
+								<small style="color: red;"><i class="icmn-bin"></i></small>
+						</span> 
+						
+						
+						
+						<span 
+							class="align-center-text tab-custom-padding"
+							data-toggle="tooltip" title=""><a (click)="uploadCsvFile()"
+								href="javascript: void(0);"
+								class="cat__core__link--underlined mr-2 " 
+								><i class="fa fa-upload" aria-hidden="true"></i>
+							</a> </span> 
+						
+						
+						<!---->
+						
+							</td>
+
+
+
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+<form method="post" id="csvUploadDataForm" name="csvUploadDataForm"
+						enctype="multipart/form-data"> 
+<div style="display:none">
+	<input type="file" name="file" id="stockFile"/>
+</div>
+</form>
+
+<!-- upload stock balance data preview modal -->
+	<div class="modal fade" id="bussinessModal" style="top:-10%;" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog modal-lg" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									{{title}}
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('bussinessModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;max-height:400px !important;">
+									<div class="bussiness-form">
+								<form [formGroup]="myForm" autocomplete="off">
+								<div class="row cust-det-title" style="margin-bottom: 4px;">Business Partner Details</div>
+												<div class="bp-form-block ">		
+															<div class="row">
+																	<div class="col-md-6">
+													<div class="form-group ">
+														<label class="form-label font-weight-custom">Bussiness
+															Partner Type<span class="mField">*</span>
+														</label> <select class="form-control input-width-custom" name="stateId"
+															[ngClass]="{handPointer : isPointerOn}"
+															formControlName="bpType" validateOnBlur
+															[attr.disabled]="bpFlag ?  'disabled' : null"
+															[validateFormControl]="myForm.controls['bpType']"
+															style="margin-top: 1px !important; padding: 5px !important;"
+															id="state_id" [(ngModel)]="editBpList.bpType">
+					
+															<option [ngValue]="null" disabled>Please Select BP</option>
+															<ng-container *ngFor="let types of businessPartnerTypes">
+															<option [value]="types.key">{{types.value}}</option>
+															
+															</ng-container>
+															
+														</select>
+													</div>
+													<span
+														*ngIf="myForm.controls['bpType'].touched && !myForm.controls['bpType'].valid && myForm.controls['bpType'].dirty"
+														class="error"> <small
+														*ngIf="myForm.controls['bpType'].errors.required">
+															{{messages.error_branch_partner_type}} </small>
+													</span>
+												</div>
+												<div class="col-md-6">
+													<div class="form-group">
+														<label class="form-label font-weight-custom"> Business
+															Partner<span class="mField">*</span>
+														</label> <input name="bpLegalName" type="text"
+															placeholder="Business Partner"
+															class="form-control input-width-custom"
+															formControlName="bpLegalName" id="bpLegalName" validateOnBlur
+															[validateFormControl]="myForm.controls['bpLegalName']"
+															name="bpLegalName" [value]="editBpList.bpLegalName" 
+															[attr.disabled]="bpFlag ?  'disabled' : null" [(ngModel)]="editBpList.bpLegalName"
+															>
+													</div>
+													<span
+														*ngIf="myForm.controls['bpLegalName'].touched && !myForm.controls['bpLegalName'].valid && myForm.controls['bpLegalName'].dirty"
+														class="error"> <small
+														*ngIf="myForm.controls['bpLegalName'].errors.required">
+															{{messages.error_branch_name}} </small>
+													</span>
+												</div>
+												
+											</div>
+											
+											<div class="row">
+
+
+
+													<div class="col-md-6">
+														<div class="form-group ">
+															<label class="form-label font-weight-custom">Address
+																Line 1 <span class="mField">*</span>
+															</label> <input name="addressLine1" type="text"
+																class="form-control input-width-custom" [attr.disabled]="bpFlag ?  'disabled' : null"
+																formControlName="addrLine1" validateOnBlur
+																id="addrLine1" [(ngModel)]="editBpList.addrLine1"
+																[validateFormControl]="myForm.controls['addrLine1']"
+																name="addrLine1" placeholder="Address Line1"
+																[value]="editBpList.addrLine1">
+														</div>
+														<span
+															*ngIf="myForm.controls['addrLine1'].touched && !myForm.controls['addrLine1'].valid && myForm.controls['addrLine1'].dirty"
+															class="error"> <small
+															*ngIf="myForm.controls['addrLine1'].errors.required">
+																{{messages.error_branch_address}} </small>
+														</span>
+													</div>
+					
+													<div class="col-md-6">
+														<div class="form-group ">
+															<label class="form-label font-weight-custom">Address
+																Line2 </label> <input name="addrLine2" type="text"
+																class="form-control input-width-custom"
+																formControlName="addrLine2" validateOnBlur [(ngModel)]="editBpList.addrLine2"
+																[validateFormControl]="myForm.controls['addrLine2']"
+																name="addrLine2" placeholder="Address Line2" [attr.disabled]="bpFlag ?  'disabled' : null"
+																[value]="editBpList.addrLine2  == undefined ? '': editBpList.addrLine2">
+														</div>
+														<span
+															*ngIf="myForm.controls['addrLine2'].touched && !myForm.controls['addrLine2'].valid && myForm.controls['addrLine2'].dirty"
+															class="error"> <small
+															*ngIf="myForm.controls['addrLine2'].errors.required">
+																{{messages.error_branch_address}} </small>
+														</span>
+													</div>
+
+
+									</div>
+									
+									<div class="row">
+									<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label font-weight-custom"> Country<span
+											class="mField">*</span>
+										</label> <select class="form-control input-width-custom"
+											name="countryId" [ngClass]="{handPointer : isPointerOn}"
+											formControlName="countryId" validateOnBlur [attr.disabled]="bpFlag ?  'disabled' : null"
+											[validateFormControl]="myForm.controls['countryId']"
+											style="margin-top: 1px !important; padding: 5px !important;"
+											id="country_id"  [(ngModel)]="editBpList.countryId"
+											>
+
+											<option [ngValue]="null" disabled>Please
+												Select Country</option>
+											<option *ngFor="let cntry of countryList" [value]="cntry.id" [selected]="cntry.id==editBpList.countryId">
+												{{cntry.value}}</option>
+										</select>
+									</div>
+									<span
+										*ngIf="myForm.controls['countryId'].touched && !myForm.controls['countryId'].valid && myForm.controls['countryId'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['countryId'].errors.required">
+											{{messages.error_branch_country_name}} </small>
+
+									</span>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label font-weight-custom"> State<span
+											class="mField">*</span>
+										</label> <select class="form-control input-width-custom"
+											name="stateId" [ngClass]="{handPointer : isPointerOn}"
+											formControlName="stateId" validateOnBlur [attr.disabled]="bpFlag ?  'disabled' : null"
+											[validateFormControl]="myForm.controls['stateId']"
+											style="margin-top: 1px !important; padding: 5px !important;"
+											id="state_id" [(ngModel)]="editBpList.stateId" (change)="getCitiesList(editBpList.stateId)"
+											>
+
+											<option [ngValue]="null" disabled>Please
+												Select State</option>
+											<option *ngFor="let state of states" [value]="state.id" [selected]="state.id==editBpList.stateId">
+												{{state.value}}</option>
+										</select>
+									</div>
+									<span
+										*ngIf="myForm.controls['stateId'].touched && !myForm.controls['stateId'].valid && myForm.controls['stateId'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['stateId'].errors.required">
+											{{messages.error_branch_state}} </small>
+
+									</span>
+								</div>
+								</div>
+								
+								<div class="row">
+							<div class="col-md-6">
+									<div class="form-group ">
+										<label class="form-label font-weight-custom">City <span
+											class="mField">*</span>
+										</label>
+										 <input name="locationId" type="text" id="location"
+											class="form-control input-width-custom" [attr.disabled]="bpFlag ?  'disabled' : null"
+											formControlName="location" validateOnBlur
+											[validateFormControl]="myForm.controls['location']"
+											name="location" placeholder="City" [(ngModel)]="editBpList.location"
+											[value]="editBpList.location" list="citiesNameList">
+										<input type="hidden" name="locationId" formControlName="locationId"  id="locationId" [value]="editBpList.locationId"/>
+										<datalist id="citiesNameList">
+										<option *ngFor="let city of cities; let i = index;" [value]="city.value" (select)="selectedItem(city,'locationId')">
+											{{city.id}}
+										</option>
+									</datalist>
+
+									</div>
+									<span
+										*ngIf="myForm.controls['location'].touched && !myForm.controls['location'].valid && myForm.controls['location'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['location'].errors.required">
+											{{messages.error_branch_city}} </small>
+
+									</span>
+								</div>
+							<div class="col-md-6">
+									<div class="form-group ">
+										<label class="form-label font-weight-custom">Pincode <span
+											class="mField">*</span>
+										</label> <input name="bpZipCode" type="text" id="bp_pan"
+											class="form-control input-width-custom" [attr.disabled]="bpFlag ?  'disabled' : null"
+											formControlName="bpZipCode" name="zipcode" validateOnBlur
+											[validateFormControl]="myForm.controls['bpZipCode']"
+											placeholder="Pincode" [(ngModel)]="editBpList.bpZipCode"
+											[value]="editBpList.bpZipCode">
+									</div>
+									<span
+										*ngIf="myForm.controls['bpZipCode'].touched && !myForm.controls['bpZipCode'].valid && myForm.controls['bpZipCode'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['bpZipCode'].errors.required">
+											{{messages.error_branch_zip_code}} </small> <small
+										*ngIf="myForm.controls['bpZipCode'].errors.pattern">
+											{{messages.error_branch_zip_invalid}} </small>
+									</span>
+								</div>
+							</div>
+								
+								
+							<div class="row">
+							
+							<div class="col-md-6">
+									<div class="form-group"  style="margin-bottom: 18px !important;">
+										<label class="form-label font-weight-custom">Mobile
+											Number <span class="mField">*</span>
+										</label> <input name="phone" type="text" placeholder="Mobile"
+											class="form-control input-width-custom"
+											formControlName="bpContact" name="phone" id="bpContact"
+											validateOnBlur [(ngModel)]="editBpList.bpContact"
+											[value]="editBpList.bpContact" [attr.disabled]="bpFlag ?  'disabled' : null"
+											[validateFormControl]="myForm.controls['bpContact']">
+											<span
+										*ngIf="myForm.controls['bpContact'].touched && !myForm.controls['bpContact'].valid && myForm.controls['bpContact'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['bpContact'].errors.required">
+										{{messages.error_branch_phone_number_miss}}	 </small> <small
+										*ngIf="myForm.controls['bpContact'].errors.pattern">
+										{{messages.error_branch_phone_invalid}}	 </small>
+									</span>
+									</div>
+									
+								</div>
+							
+								
+								
+							</div>
+							</div>
+							<div class="row cust-det-title">Compliance Details</div>
+						<div  class="bp-form-block ">
+							<div class="row">
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="form-label font-weight-custom">GSTIN <span
+										class="mField">*</span></label> <input name="bpGstinNumber"
+										type="text" placeholder="GSTIN"
+										class="form-control input-width-custom" id="bpGstin"
+										formControlName="bpGstinNumber" name="bpGstin" validateOnBlur
+										[(ngModel)]="editBpList.bpGstinNumber"
+										[value]="editBpList.bpGstinNumber"
+										[attr.disabled]="bpFlag ?  'disabled' : null"
+										[validateFormControl]="myForm.controls['bpGstinNumber']">
+								</div>
+								<span
+									*ngIf="myForm.controls['bpGstinNumber'].touched && !myForm.controls['bpGstinNumber'].valid && myForm.controls['bpGstinNumber'].dirty"
+									class="error"> <small
+									*ngIf="myForm.controls['bpGstinNumber'].errors.required">
+										{{messages.error_branch_GSTN}}</small> <small
+									*ngIf="myForm.controls['bpGstinNumber'].errors.pattern">
+										{{messages.error_branch_GSTN_invalid}}</small>
+
+								</span>
+							</div>
+
+							<div class="col-md-6">
+									<div class="form-group ">
+										<label class="form-label font-weight-custom">Drug Licence Number<span
+											class="mField"></span>
+										</label> <input name="drugLicNum" type="text" id="drugLicNum"
+											class="form-control input-width-custom" [attr.disabled]="bpFlag ?  'disabled' : null"
+											formControlName="drugLicNum"  validateOnBlur
+											[validateFormControl]="myForm.controls['drugLicNum']"
+											[value]="editBpList.drugLicNum  == undefined ? '': editBpList.drugLicNum"  [(ngModel)]="editBpList.drugLicNum"
+											placeholder="Drug Licence Number"
+											>
+									</div>
+									<span
+										*ngIf="myForm.controls['drugLicNum'].touched && !myForm.controls['drugLicNum'].valid && myForm.controls['drugLicNum'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['drugLicNum'].errors.required">
+											{{messages.error_branch_drugLicNum}}   </small> 
+									</span>
+								</div>
+								
+								<!-- <div class="col-md-6">
+									<div class="form-group ">
+										<label class="form-label font-weight-custom">ERP Bank GL
+										</label> <input name="erpBankGl" type="text" id="erpBankGl"
+											class="form-control input-width-custom" [attr.disabled]="bpFlag ?  'disabled' : null"
+											formControlName="erpBankGl"  validateOnBlur
+											[validateFormControl]="myForm.controls['erpBankGl']"
+											[value]="editBpList.erpBankGl  == undefined ? '': editBpList.erpBankGl"  [(ngModel)]="editBpList.erpBankGl"
+											placeholder="ERP Bank GL"
+											>
+									</div>
+									<span
+										*ngIf="myForm.controls['erpBankGl'].touched && !myForm.controls['erpBankGl'].valid && myForm.controls['erpBankGl'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['erpBankGl'].errors.required">
+											{{messages.error_branch_erpBankGl}}  </small> 
+									</span>
+								</div> -->
+							</div>
+							
+							
+							<div class="row">
+							
+							<div class="col-md-6">
+									<div class="form-group " style="margin-bottom: 18px !important;">
+										<label class="form-label font-weight-custom">PAN Number <span
+											class="mField">*</span>
+										</label> <input name="bpPan" type="text" id="bpPan"
+											class="form-control input-width-custom" [attr.disabled]="bpFlag ?  'disabled' : null"
+											formControlName="bpPan"  validateOnBlur
+											[validateFormControl]="myForm.controls['bpPan']"
+											placeholder="Pan Number" [(ngModel)]="editBpList.bpPan"
+											[value]="editBpList.bpPan == undefined ? '': editBpList.bpPan" 
+											>
+											
+											<span
+										*ngIf="myForm.controls['bpPan'].touched && !myForm.controls['bpPan'].valid && myForm.controls['bpPan'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['bpPan'].errors.required">
+											{{messages.error_branch_panNumber}}  </small> 
+											<small
+										*ngIf="myForm.controls['bpPan'].errors.pattern">
+											{{messages.error_branch_panNumber_invalid}} </small>
+									</span>
+									</div>
+									
+								</div>
+							
+							
+							</div>
+							
+							
+							</div>
+							
+							
+							<div class="row cust-det-title">ERP Details</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group ">
+										<label class="form-label font-weight-custom">ERP Business Partner<!-- <span
+											class="mField">*</span> -->
+										</label> <input name="erpBp" type="text" id="erpBp"
+											class="form-control input-width-custom" [attr.disabled]="bpFlag ?  'disabled' : null"
+											formControlName="erpBp"  validateOnBlur
+											[validateFormControl]="myForm.controls['erpBp']"
+											[value]="editBpList.erpBp  == undefined ? '': editBpList.erpBp"  [(ngModel)]="editBpList.erpBp"
+											placeholder="ERP Bussiness Partner"
+											>
+									</div>
+									<span
+										*ngIf="myForm.controls['erpBp'].touched && !myForm.controls['erpBp'].valid && myForm.controls['erpBp'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['erpBp'].errors.required">
+											{{messages.error_branch_partner}}  </small> 
+									</span>
+								</div>
+								
+								<div class="col-md-6">
+									<div class="form-group ">
+										<label class="form-label font-weight-custom">ERP Profit Center<!-- <span
+											class="mField">*</span> -->
+										</label> <input name="erpProfitCenter" type="text" id="erpProfitCenter"
+											class="form-control input-width-custom" [attr.disabled]="bpFlag ?  'disabled' : null"
+											formControlName="erpProfitCenter"  validateOnBlur
+											[validateFormControl]="myForm.controls['erpProfitCenter']"
+											[value]="editBpList.erpProfitCenter  == undefined ? '': editBpList.erpProfitCenter " [(ngModel)]="editBpList.erpProfitCenter"
+											placeholder="ERP Profit Center"
+											>
+									</div>
+									<span
+										*ngIf="myForm.controls['erpProfitCenter'].touched && !myForm.controls['erpProfitCenter'].valid && myForm.controls['erpProfitCenter'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['erpProfitCenter'].errors.required">
+											{{messages.error_branch_erpProfitCenter}}  </small> 
+									</span>
+								</div>
+								
+								
+							</div>
+							
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group ">
+										<label class="form-label font-weight-custom">ERP Plant Code <span
+											class="mField">*</span>
+										</label> <input name="erpRefId" type="text" id="erpRefId"
+											class="form-control input-width-custom" [attr.disabled]="bpFlag ?  'disabled' : null"
+											formControlName="erpRefId" name="erpRefId" validateOnBlur
+											[validateFormControl]="myForm.controls['erpRefId']"
+											placeholder="ERP Plant Code" [(ngModel)]="editBpList.erpRefId"
+											[value]="editBpList.erpRefId  == undefined ? '': editBpList.erpRefId" 
+											>
+									</div>
+									<span
+										*ngIf="myForm.controls['erpRefId'].touched && !myForm.controls['erpRefId'].valid && myForm.controls['erpRefId'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['erpRefId'].errors.required">
+											Please enter ERP Plant Code </small> 
+									</span>
+								</div>
+								
+								<div class="col-md-6">
+									<div class="form-group ">
+										<label class="form-label font-weight-custom">ERP Business Area<!-- <span
+											class="mField">*</span> -->
+										</label> <input name="erpBusArea" type="text" id="erpBusArea"
+											class="form-control input-width-custom" [attr.disabled]="bpFlag ?  'disabled' : null"
+											formControlName="erpBusArea"  validateOnBlur
+											[validateFormControl]="myForm.controls['erpBusArea']"
+											[value]="editBpList.erpBusArea  == undefined ? '': editBpList.erpBusArea " [(ngModel)]="editBpList.erpBusArea"
+											placeholder="ERP Bussiness Area"
+											>
+									</div>
+									<span
+										*ngIf="myForm.controls['erpBusArea'].touched && !myForm.controls['erpBusArea'].valid && myForm.controls['erpBusArea'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['erpBusArea'].errors.required">
+											{{messages.error_branch_erpBusArea}}  </small> 
+									</span>
+								</div>
+								
+									
+							</div>
+							
+							<div class="row">
+							<div class="col-md-6">
+									<div class="form-group ">
+										<label class="form-label font-weight-custom">ERP Bank GL
+										</label> <input name="erpBankGl" type="text" id="erpBankGl"
+											class="form-control input-width-custom" [attr.disabled]="bpFlag ?  'disabled' : null"
+											formControlName="erpBankGl"  validateOnBlur
+											[validateFormControl]="myForm.controls['erpBankGl']"
+											[value]="editBpList.erpBankGl  == undefined ? '': editBpList.erpBankGl"  [(ngModel)]="editBpList.erpBankGl"
+											placeholder="ERP Bank GL"
+											>
+									</div>
+									<span
+										*ngIf="myForm.controls['erpBankGl'].touched && !myForm.controls['erpBankGl'].valid && myForm.controls['erpBankGl'].dirty"
+										class="error"> <small
+										*ngIf="myForm.controls['erpBankGl'].errors.required">
+											{{messages.error_branch_erpBankGl}}  </small> 
+									</span>
+								</div> 
+							
+							</div>
+										
+										</form>
+									</div>
+								</div>
+
+								<div class="modal-footer">
+								<div class="row new_row" *ngIf="title!='Business Partner Details'">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot">
+									<button type="submit" (click)="submitAddBusinessPartner(title)" [disabled]="!myForm.valid"
+									 class="login-button-export" id="uploadStockSubmit" style="position:relative;top:0px;">
+										<i class="fa submit-icon" style="margin-right:4px;padding-right:4px;">
+										<div class="icon-text" style="right:-4px;">Submit</div>
+										</i>
+									</button>
+									<button class="cancel-button-export" style="padding-left:0px;" id="close" (click)="closeModal('bussinessModal')">
+										<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+										<div class="icon-text" style="right:-4px;">close</div>
+										</i>
+									</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+</div>
+
+
+

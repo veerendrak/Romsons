@@ -1,0 +1,423 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Billing Report</strong>
+		</span>
+		<div class="pull-right">
+		<div class="pull-left stock-header-block-w" style="margin-right:36px;">
+					<label class="pull-left" style="padding:5px"><b>Layout:</b></label>
+                    <select style="width:200px" id="layoutVal" #screen class="form-control pull-left input-sm" (change)="switchLayout(screen.value)">
+						    <option value="billedSummary" selected>Billing Summary(item)</option>
+						    <option value="bill_doc">Billing Summary(Invoice)</option>
+						    <option value="material">Material Summary</option>
+							<option value="sold_to_name">Dealers Summary</option>
+					</select> 
+			  </div>
+			<div class="row pull-left icon-filter-align">
+						<span class="" title="Analytics" (click)="showGraphs()">
+							<i class="fa fa-area-chart" style="font-size:25px;"></i>
+						</span>
+						<span class="" (click)="showFilters();" title="Advance Filters">
+						 <i class="fa fa-sliders"> </i>
+						</span>
+			</div>
+		</div>
+	</div>
+	
+	
+	<div class="card-block db-block mb-5" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="outbound-content col-md-12 mt-2" style="padding-bottom: 20px;" id="filter-block">
+						<form [formGroup]="filterBillingForm">
+							<div class="delivery-form-block col-md-12 row">
+								
+								<div class="col-md-2 text-align-sales">
+									<label>From Date<sup class="asterick">*</sup></label> <input type="text"
+										style="padding: 5px !important;" id="fromDateFilt"
+										 (blur)="changeTodatePicker('#fromDateFilt')"
+										placeholder="From Date" class="form-control "
+										formControlName="from_date" />
+
+
+
+								</div>
+								<div class="col-md-2 text-align-sales">
+
+									<label>To Date<sup class="asterick">*</sup></label> <input type="text"
+										style="padding: 5px !important;" id="toDateFilt"
+										(blur)="removeStyles('#toDateFilt')" 
+										placeholder="To Date" class="form-control"
+										formControlName="to_date" />
+
+
+								</div>
+								
+								<div class="col-md-2 text-align-sales">
+									<button type="submit"  [disabled]="filterBillingForm.invalid"
+										(click)="getBillingReport();"
+										class="login-button-export"
+										style="position: relative; top: 27px;">
+										<i class="fa submit-icon"
+											style="margin-right: 4px; padding-right: 4px;">
+											<div class="icon-text" style="right: -4px;">Submit</div>
+										</i>
+									</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				<div class="row">
+					<div class="col-md-12 mt-1">
+					<div class="col-md-12 text-align-sales no-padding mb-3" *ngIf="billingListData.length > 0">
+							<table class="table table-hover nowrap editable-table totalTable totalSmry" style="display:inline-table;margin-bottom:0px;">
+								<tbody>
+									<tr>
+										<td style="background:#e4e9f0;">Totals:</td>
+										<td>
+											<div class="pull-left">Fixed Discount: </div>
+											<div class="pull-right">&#8377; {{fixedDisAmt | PriceInd}}</div>
+										</td>
+										<td>
+											<div class="pull-left">Additional Discount : </div>
+											<div class="pull-right">&#8377; {{additionalDisAmt | PriceInd}}</div>
+										</td>
+										
+										<td>
+											<div class="pull-left">S/UGST : </div>
+											<div class="pull-right">&#8377; {{sgstAmt | PriceInd}}</div>
+										</td>
+									
+										<td>
+											<div class="pull-left">CGST: </div>
+											<div class="pull-right">&#8377; {{cgstAmt | PriceInd}}</div>
+										</td>
+										
+										<td>
+											<div class="pull-left">IGST: </div>
+											<div class="pull-right">&#8377; {{igstAmt | PriceInd}}</div>
+										</td>
+										<td>
+											<div class="pull-left">Billed Amount : </div>
+											<div class="pull-right">&#8377; {{billingAmt | PriceInd}}</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							
+						</div>
+					<!-- <div class="row col-md-12" style="padding-right:0px;" *ngIf="billingListData.length > 0">
+							  <div class="col-md-3  main-dash">
+								<div class="purchase-content">
+									<div class="purchase-header">
+										<div class="pull-left">
+										<h1 class="price-order">&#8377; {{billingAmt | PriceInd}}</h1>
+											<h5 class="db-text">Total Billed Amount</h5>
+										</div>
+										<div class="pull-right dboard-icon">
+											<img src="assets/modules/dummy-assets/common/img/dashboard-icons/excel-icon.png" />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3  main-dash sales-block">
+								<div class="purchase-content">
+									<div class="sales-header">
+										<div class="pull-left">
+										<h1 class="price-order">&#8377; {{fixedDisAmt | PriceInd}}</h1>
+											<h5 class="db-text">Total Fixed Discount</h5>
+										</div>
+										<div class="pull-right dboard-icon">
+											<img src="assets/modules/dummy-assets/common/img/dashboard-icons/sales-order-icon.png" />
+										</div>
+									</div>
+								</div>
+									</div>
+							
+							<div class="col-md-3  main-dash">
+								<div class="purchase-content">
+									<div class="pending-header">
+										<div class="pull-left">
+										<h1 class="price-order">&#8377; {{additionalDisAmt | PriceInd}}</h1>
+											<h5 class="db-text">Total Additional Discount</h5>
+										</div>
+										<div class="pull-right dboard-icon">
+											<img src="assets/modules/dummy-assets/common/img/dashboard-icons/pending-invoice-db.png" />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3  main-dash" style="padding-right:0px;">
+								<div class="purchase-content">
+									<div class="notifiction-header">
+										<div class="pull-left">
+										<h1 class="price-order">&#8377; {{igstAmt | PriceInd}}</h1>
+											<h5 class="db-text">Total IGST Amount</h5>
+										</div>
+										<div class="pull-right dboard-icon">
+											<img src="assets/modules/dummy-assets/common/img/dashboard-icons/pending-invoice-db.png" />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3  main-dash">
+								<div class="purchase-content">
+									<div class="payable-header">
+										<div class="pull-left">
+										<h1 class="price-order">&#8377; {{cgstAmt | PriceInd}}</h1>
+											<h5 class="db-text">Total CGST Amount</h5>
+										</div>
+										<div class="pull-right dboard-icon">
+											<img src="assets/modules/dummy-assets/common/img/dashboard-icons/pending-invoice-db.png" />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3  main-dash">
+								<div class="purchase-content">
+									<div class="delivery-header">
+										<div class="pull-left">
+										<h1 class="price-order">&#8377; {{sgstAmt | PriceInd}}</h1>
+											<h5 class="db-text">Total SGST Amount</h5>
+										</div>
+										<div class="pull-right dboard-icon">
+											<img src="assets/modules/dummy-assets/common/img/dashboard-icons/pending-invoice-db.png" />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3  main-dash" >
+								<div class="purchase-content">
+									<div class="pending-header">
+										<div class="pull-left">
+										<h1 class="price-order">&#8377; {{cessAmt | PriceInd}}</h1>
+											<h5 class="db-text">Total CESS Amount</h5>
+										</div>
+										<div class="pull-right dboard-icon">
+											<img src="assets/modules/dummy-assets/common/img/dashboard-icons/pending-invoice-db.png" />
+										</div>
+									</div>
+								</div>
+							</div>
+							  </div> -->
+							<div class="showcolumns" id="billingordertable-billedSummary" *ngIf="screen.value=='billedSummary'">
+								<table class="table table-hover nowrap editable-table checkBoxTable table-responsive datatableList"
+								width="100%" id="datatablediv-billedSummary">
+								<thead>
+									<tr>
+										<ng-container *ngFor="let hdList of columnHeadersBlock;">
+											<th style="min-width:100px" class="billedSummary">{{hdList}}</th>
+										</ng-container>
+									</tr>
+								</thead>
+								<tbody>
+								
+								<ng-container *ngFor="let list of billingListData; let i=index;">
+									<ng-container *ngFor="let itemList of list.item">
+								<tr id="report-bill-{{list.bill_doc}}">
+								
+								
+								<td><span >{{list.bill_doc}} </span></td>
+								<td>{{list.status}}</td>
+								<td>{{itemList.new_sales_group}}</td>
+								<td>{{list.doc_cat}}</td>
+								<td><span *ngIf="list.bill_date!='0000-00-00'">{{list.bill_date | date :'dd-MM-yyyy'}}</span></td>
+								<td>{{list.sold_to_name}}</td>
+								<td>{{list.sold_to_city}}</td>
+								<td>{{list.delv_no}}</td>	
+								<td><span *ngIf="list.delv_date!='0000-00-00'">{{list.delv_date | date :'dd-MM-yyyy'}} </span></td>
+											<td>{{ itemList.item_no}}</td>
+											<td>{{itemList.mat_group2}}</td>
+											<td>{{ itemList.material}}</td>
+											<td>{{ itemList.mat_desc}}</td>
+											<td>{{ itemList.qty}}</td>
+											<td>{{ itemList.uom}}</td>
+											<td align="right">&#8377;{{ itemList.rate | PriceInd}}</td>
+											<td align="right">&#8377;{{ itemList.price | PriceInd}}</td>
+											<td>{{ itemList.fix_sch}}</td>
+											<td>{{ itemList.sch_val}}</td>
+											<td>{{ itemList.dis_val}}</td>
+											<td align="right">&#8377;{{ itemList.dis_amt | PriceInd}}</td>
+											<td align="right">&#8377;{{ itemList.net_val | PriceInd}}</td>
+											<td  align="right">&#8377;{{itemList.igst_amt | PriceInd}}</td>
+								<td  align="right">&#8377;{{itemList.cgst_amt | PriceInd}}</td>
+								<td  align="right">&#8377;{{itemList.sgst_amt | PriceInd}}</td>
+								<td  align="right">&#8377; 0</td>
+								<td align="right">&#8377;{{ itemList.total_amt | PriceInd}}</td>
+								</tr>
+								
+								</ng-container>
+								</ng-container>	
+									
+								</tbody>
+								</table>
+								</div>
+								<div id="billingordertable-material" class="showcolumns" style="display:none" *ngIf="screen.value=='material'">
+								<table  class="table table-hover nowrap editable-table checkBoxTable table-responsive datatableList"
+								width="100%" id="datatablediv-material">
+								<thead>
+								<tr>
+								<ng-container *ngFor="let mtsList of columnHeadersList.material;">
+											<th style="min-width:130px" class="material">{{mtsList}}</th>
+										</ng-container>
+								<!-- <th>Material</th>
+								<th>Material Description</th>
+								<th>Toatl QTY</th>
+								<th>UOM</th>
+								<th>Net Amount</th>
+								<th>Fixed Amount</th>
+								<th>Additional Discount</th>
+								<th>IGST</th>
+								<th>CGST</th>
+								<th>SGST</th>
+								<th>CESS</th>
+								<th>Amount</th> -->
+								</tr>
+								</thead>
+								
+								<tbody>
+									<ng-container *ngFor="let mtList of customerMaterialSmry; let j=index;">
+										<tr>
+											<td>{{mtList.cust_name}}</td>
+											<td>{{mtList.desc}}</td>
+											<td>{{mtList.totalQty}}</td>
+											<td>{{mtList.uom}}</td>
+											<td>&#8377; {{mtList.sch_val | PriceInd}}</td>
+											<td>&#8377; {{mtList.dis_amt | PriceInd}}</td>
+											<td>&#8377; {{mtList.net_amt | PriceInd}}</td>
+											<td>&#8377; {{mtList.igst_amt | PriceInd}}</td>
+											<td>&#8377; {{mtList.cgst_amt | PriceInd}}</td>
+											<td>&#8377; {{mtList.sgst_amt | PriceInd}}</td>
+											<td>&#8377; {{mtList.cess_amt | PriceInd}}</td>
+											<td>&#8377; {{mtList.total_amt | PriceInd}}</td>
+										</tr>
+									</ng-container>
+								</tbody>
+								</table>
+								</div>
+								<div id="billingordertable-bill_doc" class="showcolumns" style="display:none" *ngIf="screen.value=='bill_doc'">
+								<table  class="table table-hover nowrap editable-table checkBoxTable table-responsive datatableList"
+								width="100%" id="datatablediv-bill_doc">
+								<thead>
+								<tr>
+								<ng-container *ngFor="let mtsList of columnHeadersList.bill_doc;">
+											<th style="min-width:130px" class="material">{{mtsList}}</th>
+										</ng-container>
+								</tr>
+								</thead>
+								
+								<tbody>
+									<ng-container *ngFor="let ivList of invoiceSumary; let j=index;">
+										<tr>
+											<td>{{ivList.cust_name}}</td>
+											<td>{{ivList.sold_name}}</td>
+											<!-- <td>{{ivList.sales_group}}</td>
+											<td>{{ivList.mat_group}}</td> -->
+											<td>{{ivList.status}}</td>
+											<td>{{ivList.doc_cat}}</td>
+											<td>
+												<span *ngIf="ivList.bill_date!='0000-00-00'">{{ivList.bill_date | date :'dd-MM-yyyy'}}</span>
+											</td>
+											<td>{{ivList.city}}</td>
+											<td>&#8377; {{ivList.net_amt | PriceInd}}</td>
+											<td>&#8377; {{ivList.igst_amt | PriceInd}}</td>
+											<td>&#8377; {{ivList.cgst_amt | PriceInd}}</td>
+											<td>&#8377; {{ivList.sgst_amt | PriceInd}}</td>
+											<td>&#8377; {{ivList.cess_amt | PriceInd}}</td>
+											<td>&#8377; {{ivList.total_amt | PriceInd}}</td>
+										</tr>
+									</ng-container>
+								</tbody>
+								</table>
+								</div>
+								<div id="billingordertable-sold_to_name" class="showcolumns" style="display:none" *ngIf="screen.value=='sold_to_name'">
+								<table  class="table table-hover nowrap editable-table checkBoxTable table-responsive datatableList"
+								width="100%" id="datatablediv-sold_to_name">
+								<thead>
+								<tr>
+									<!-- <th>Customer Id</th>
+									<th>Customer Name</th>
+									<th>Invoice Count</th>
+									<th>Net Amount </th>
+									<th>Fixed Amount</th>
+									<th>Additional Discount</th>
+									<th>IGST</th>
+									<th>CGST</th>
+									<th>SGST</th>
+									<th>CESS</th>
+									<th>Amount</th> -->
+									 <ng-container *ngFor="let dsList of columnHeadersList.sold_to_name;">
+											<th style="min-width:130px" class="sold_to_name">{{dsList}}</th>
+										</ng-container>
+								</tr>
+								</thead>
+								<tbody>
+									<ng-container *ngFor="let csList of dealersSummary; let j=index;">
+										<tr>
+											<td>{{csList.cust_id}}</td>
+											<td>{{csList.cust_name}}</td>
+											<td>&#8377; {{csList.sch_val | PriceInd}}</td>
+											<td>&#8377; {{csList.dis_amt | PriceInd}}</td>
+											<td>&#8377; {{csList.net_amt | PriceInd}}</td>
+											<td>&#8377; {{csList.igst_amt | PriceInd}}</td>
+											<td>&#8377; {{csList.cgst_amt | PriceInd}}</td>
+											<td>&#8377; {{csList.sgst_amt | PriceInd}}</td>
+											<td>&#8377; {{csList.cess_amt | PriceInd}}</td>
+											<td>&#8377; {{csList.total_amt | PriceInd}}</td>
+										</tr>
+									</ng-container>
+								</tbody>
+								</table>
+							</div>
+							<!-- charts -->
+						<div *ngIf="billingListData.length>0 && graphBlock" class="mt-2" style="width:100%;" id="graph-block">
+						<div id="bar_chart" [chartData]="bar_ChartData" [chartOptions] = "bar_ChartOptions" chartType="ColumnChart" GoogleChart></div>
+						<div class="col-md-12 row no-padding mt-4" style="margin-left:0px;">
+							<div class="col-md-6 no-padding">
+									<div id="pie_chart" [chartData]="pie_ChartData" [chartOptions] = "pie_ChartOptions" chartType="PieChart" GoogleChart></div>
+							</div>
+							<div class="col-md-6 no-padding" style="padding-left:5px !important">
+									<div id="pie_chart1" [chartData]="pie_ChartData1" [chartOptions] = "pie_ChartOptions1" chartType="PieChart" GoogleChart></div>
+							</div>
+						</div> 
+						</div>
+						</div>
+					   <!-- End charts -->
+					   
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+<div class="outbound-footer mt-3" style="display:none;">
+
+		<div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+
+		<div class="right-block">
+		
+		
+			<div class="pull-left">
+			<button class="login-button-export" style="padding-left:8px;" title="Export Excel" id="export" (click)="exportExcel()">
+			<i class="fa excel-icon" style="margin-right:0px;width:24px;height:24px;">
+			</i>
+			</button>
+			</div>
+			
+
+			
+
+
+		</div>
+	</div>
+</section>
+

@@ -1,0 +1,15 @@
+import { Component, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'app-reports-gallery',
+  templateUrl: './reports-gallery.component.html',
+  styleUrls: ['./reports-gallery.component.css']
+})
+export class ReportsGalleryComponent implements OnInit {
+
+  constructor() { }
+
+  ngOnInit() {
+  }
+
+}

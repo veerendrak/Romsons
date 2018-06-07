@@ -1,0 +1,344 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Reports
+					Gallery</strong>
+			</span>
+		</div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row" style="height: 450px;">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="outbound-content col-md-12 mb-5 mt-2"
+							id="filter-block">
+							<div class="app-content" data-device-width="large">
+								<div class="main-content">
+									<div id="main" class="tab-pane">
+										<div class="accordion mt-3 row" id="accordion">
+											<!-- Sales Report -->
+											<div class="col-md-3 no-paading mr-3 ml-3">
+												<div aria-controls="collapseMock" aria-expanded="true"
+													class="table-sub-header card-header card-header-custom"
+													data-parent="#accordion" data-toggle="collapse" role="tab"
+													style="padding: 10px !important; padding-bottom: 0px !important;"
+													id="changecolor_0" data-target="#collapseMock_0">
+													<div class="card-title col-lg-12">
+														<span
+															class="accordion-indicator accordion-indicator-custom  pull-right"
+															style="position: absolute; right: 10px;"> <i
+															_ngcontent-c4="" class="plus fa fa-plus fa-1x text-muted"></i>
+															<i _ngcontent-c4=""
+															class="minus fa fa-minus fa-1x text-white"></i>
+														</span>
+														<div class="row">
+															<div class="col-lg-12 accordian-title">Sales
+																Reports</div>
+														</div>
+													</div>
+												</div>
+												<div aria-labelledby="" class="card-collapse collapse show"
+													role="tabcard" id="collapseMock_0" aria-expanded="true"
+													style="">
+													<div
+														class="card-block card-block-table-custom no-paading card">
+														<div
+															class="card-block db-block custom-card-block no-paading style-3">
+															<!-- <div class="savedata-filter-table">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label> <a href="javascript:void(0)"
+																				class="link-text anchor-txt">Sales Order Report
+																				<i class="fa sales-order-icon  cat_menu_icons_left "></i>
+																				</a>
+																			</label>
+																		</div>
+																	</div>
+																	
+																</div>
+															</div> -->
+															<!-- <div class="savedata-filter-table"
+																(click)="navigateToReportPage('deliveryreport')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				class="link-text pull-left">Delivery Report </a> <i
+																				class="fa outbound-delivery-icon	  cat_menu_icons_left "></i>
+																			</label>
+																		</div>
+																	</div>
+
+																</div>
+															</div> -->
+															<div class="savedata-filter-table"
+																(click)="navigateToReportPage('deliveryreport')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				class="link-text pull-left">Delivery Report </a> 
+																			</label>
+																		</div>
+
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<div class="savedata-filter-table"
+																(click)="navigateToReportPage('bill/report')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				class="link-text pull-left">Billing Report </a> <i
+																				class="fa cat_menu_icons_left billing-icon-report pull-right"></i>
+																			</label>
+																		</div>
+
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<div class="savedata-filter-table"
+																(click)="navigateToReportPage('salesanalysis')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				href="javascript:void(0)"
+																				class="link-text pull-left">Sales Analysis </a> <i
+																				class="fa salesanalysis-icon-report cat_menu_icons_left pull-right"></i>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<div class="savedata-filter-table"
+																(click)="navigateToReportPage('gstr1')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				href="javascript:void(0)"
+																				class="link-text pull-left">GSTR1 Report</a> <i
+																				class="fa gstr1-icon-report cat_menu_icons_left pull-right"></i>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<!-- Dealerwise report -->
+															<div class="savedata-filter-table"
+																(click)="navigateToReportPage('customerdealerwiserpt')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				href="javascript:void(0)"
+																				class="link-text pull-left">Dealerwise Report</a> <i
+																				class="fa dealer-icon-report cat_menu_icons_left pull-right"></i>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<!-- Pending Sales report -->
+															<div class="savedata-filter-table"
+																(click)="navigateToReportPage('pendingsalesreport')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				href="javascript:void(0)"
+																				class="link-text pull-left">Pending Sales Order
+																					Report</a> <i
+																				class="fa pendingsales-icon-report cat_menu_icons_left pull-right"></i>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- End Sales Report -->
+											<!-- Purchase Reports -->
+											<div class="col-md-3 no-paading mr-3 ml-3">
+												<div aria-controls="collapseMock" aria-expanded="true"
+													class="table-sub-header card-header card-header-custom"
+													data-parent="#accordion" data-toggle="collapse" role="tab"
+													style="padding: 10px !important; padding-bottom: 0px !important;"
+													id="changecolor_1" data-target="#collapseMock_1">
+													<div class="card-title col-lg-12">
+														<span
+															class="accordion-indicator accordion-indicator-custom  pull-right"
+															style="position: absolute; right: 10px;"> <i
+															_ngcontent-c4="" class="plus fa fa-plus fa-1x text-muted"></i>
+															<i _ngcontent-c4=""
+															class="minus fa fa-minus fa-1x text-white"></i>
+														</span>
+														<div class="row">
+															<div class="col-lg-12 accordian-title">Purchase
+																Reports</div>
+														</div>
+													</div>
+												</div>
+												<div aria-labelledby="" class="card-collapse collapse show"
+													role="tabcard" id="collapseMock_1" aria-expanded="true"
+													style="">
+													<div
+														class="card-block card-block-table-custom no-paading card">
+														<div
+															class="card-block db-block custom-card-block no-paading style-3">
+															<div class="savedata-filter-table"
+																(click)="navigateToReportPage('poreport')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				href="javascript:void(0)"
+																				class="link-text pull-left"> PO Report</a> <i
+																				class="fa purchase-icon-report cat_menu_icons_left pull-right"></i>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<div class="savedata-filter-table"
+																(click)="navigateToReportPage('grreport')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				href="javascript:void(0)"
+																				class="link-text pull-left"> GR Report</a> <i
+																				class="fa goods-receipt-icon-report cat_menu_icons_left "></i>
+																			</label>
+																		</div>
+
+																	</div>
+																	<!---->
+																</div>
+															</div>
+
+															<div class="savedata-filter-table"
+																(click)="navigateToReportPage('pireport')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				href="javascript:void(0)"
+																				class="link-text pull-left"> Invoice Report</a> <i
+																				class="fa purchase-invoice-icon-report cat_menu_icons_left pull-right"></i>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+
+															<div class="savedata-filter-table"
+																(click)="navigateToReportPage('me2nreport')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				href="javascript:void(0)"
+																				class="link-text pull-left">Purchase Analysis</a> <i
+																				class="fa purchase-analysis-icon-report cat_menu_icons_left pull-right"></i>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- End Purchase Reports -->
+
+											<!-- Inventory Reports -->
+											<div class="col-md-3 no-paading mr-3 ml-3">
+												<div aria-controls="collapseMock" aria-expanded="true"
+													class="table-sub-header card-header card-header-custom"
+													data-parent="#accordion" data-toggle="collapse" role="tab"
+													style="padding: 10px !important; padding-bottom: 0px !important;"
+													id="changecolor_1" data-target="#collapseMock_2">
+													<div class="card-title col-lg-12">
+														<span
+															class="accordion-indicator accordion-indicator-custom  pull-right"
+															style="position: absolute; right: 10px;"> <i
+															_ngcontent-c4="" class="plus fa fa-plus fa-1x text-muted"></i>
+															<i _ngcontent-c4=""
+															class="minus fa fa-minus fa-1x text-white"></i>
+														</span>
+														<div class="row">
+															<div class="col-lg-12 accordian-title">Inventory
+																Reports</div>
+														</div>
+													</div>
+												</div>
+												<div aria-labelledby="" class="card-collapse collapse show"
+													role="tabcard" id="collapseMock_2" aria-expanded="true"
+													style="">
+													<div
+														class="card-block card-block-table-custom no-paading card">
+														<div
+															class="card-block db-block custom-card-block no-paading style-3">
+															<div class="savedata-filter-table"
+																(click)="navigateToReportPage('stkdet')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				href="javascript:void(0)"
+																				class="link-text pull-left"> Stock In Hand
+																					Report</a> <i
+																				class="fa stock-in-hand-icon-report cat_menu_icons_left pull-right"></i>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+															<div class="savedata-filter-table"
+																(click)="navigateToReportPage('inventorystock')">
+																<div class="">
+																	<div class="table-responsive mob-table">
+																		<div class="col-md-12">
+																			<label class="report-label"> <a
+																				href="javascript:void(0)"
+																				class="link-text pull-left"> Stock Details
+																					Report</a> <i
+																				class="fa stock-details-icon-report cat_menu_icons_left pull-right"></i>
+																			</label>
+																		</div>
+																	</div>
+																	<!---->
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- End Inventory Reports -->
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

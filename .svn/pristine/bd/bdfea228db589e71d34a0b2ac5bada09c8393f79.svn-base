@@ -1,0 +1,104 @@
+<div class="cat__pages__login test-class">
+
+	<div class="cat__pages__login__block cat__pages__reg__block">
+		<div class="row"> 
+			<div class="col-xl-12 login_reg_block">
+			<div [ngClass]="{success_info_msg : successMsgOn ,err_info_msg : errorMsgOn}" style="text-align: center !important;color: red; margin-top: -18px;margin-left:30%">{{responseFwdMsg}}</div>
+						
+				<div class="cat__pages__login__block__inner reg_log col-md-12 row">
+					<div class="pull-left {{logClass}} col-md-5"> 
+						<img src="assets/modules/dummy-assets/common/img/logo.png"
+							style="display: block;">
+					</div>
+					<div class="pull-left rightside-login-block col-md-7"  id="sign-in" >
+						
+						<div class="login-header">
+							<h4>Reset Password</h4>
+							
+							</div>
+						<div class="main-content">
+						
+						<form [formGroup]="resetForm">
+						<div class="example-container login-form-block">
+						
+								 <div class="form-group form-group-custom" *ngIf="oldPwdFlag">
+										<label class="form-label">Old Password</label> 
+										<i class="fa fa-lock login-icon-password"></i>
+										<input
+											class="form-control login-text" formControlName="oldPassword" id=""
+											validateOnBlur [validateFormControl]="resetForm.controls['oldPassword']"
+											type="password" placeholder="Old Password" >
+											
+											 <span
+									*ngIf="resetForm.controls['oldPassword'].touched && (!resetForm.controls['oldPassword'].valid)
+									 && ((!resetForm.controls['oldPassword'].pristine) ||  (resetForm.controls['oldPassword'].touched) ) ">
+									 <small class="custom-error-class">
+									 Enter old password
+									</small>
+								</span> 
+
+								</div> 
+								
+								<div class="form-group form-group-custom">
+									<label class="form-label">New Password</label> 
+									<i class="fa fa-lock login-icon-password"></i>
+									<input
+										class="form-control login-text" formControlName="password" id="resetPassword"
+										validateOnBlur [validateFormControl]="resetForm.controls['password']"
+										type="password" placeholder="New Password" #password>
+										
+										 <span
+								*ngIf="resetForm.controls['password'].touched && (!resetForm.controls['password'].valid) && ((!resetForm.controls['password'].pristine) ||  (resetForm.controls['password'].touched) ) ">
+								 <small class="custom-error-class">
+								Enter new password
+								</small>
+							</span> 
+
+								</div>
+								
+
+								<div class="form-group form-group-custom">
+									<label class="form-label">Confirm Password</label> 
+									<i class="fa fa-lock login-icon-password"></i>
+									<input
+										class="form-control login-text" formControlName="confirmPassword" id="confirmPassword"
+										validateOnBlur [validateFormControl]="resetForm.controls['confirmPassword']"
+										type="password" placeholder="Confirm Password"
+										#confirmPassword>
+									
+								</div>
+								
+								<span
+									*ngIf="resetForm.controls['confirmPassword'].value =='' && resetForm.controls['confirmPassword'].touched && (!resetForm.controls['confirmPassword'].valid) && ((!resetForm.controls['confirmPassword'].pristine) ||  (resetForm.controls['confirmPassword'].touched) ) ">
+									<small style="color: red">Please enter confirm password</small>
+								</span>
+								<div class='form-text error'
+									*ngIf="resetForm.controls['confirmPassword'].value !='' && resetForm.controls['confirmPassword'].touched">
+									<div style="color: red"
+										*ngIf="resetForm.hasError('mismatchedPasswords')">
+										<small>{{resetPwdMsg.error_passwords_match}}</small>
+									</div>
+								</div>
+								</div>
+							</form>
+						</div>
+						<div class="login-bottom"> 
+						<button 
+						 [ngClass]="{'login-button-export':true ,'btn-disabled':resetForm.invalid }"
+						 type="submit" [disabled]="!resetForm.valid" (click)="resetPassword();">
+							<i class="fa login-icon" style="margin-right:4px;padding-right:4px;">
+							<div class="icon-text" style="right:-4px;">reset</div>
+							</i>
+						</button>
+						
+						</div>
+						
+					</div>
+					
+					
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+

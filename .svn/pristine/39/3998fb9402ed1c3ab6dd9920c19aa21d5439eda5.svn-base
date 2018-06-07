@@ -1,0 +1,123 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div>
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Outgoing
+					Payment</strong>
+			</span>
+		</div>
+		<div class="card-block db-block mb-1">
+			<div class="col-lg-12">
+				<form [formGroup]="outgoingPayemnt" autocomplete="off">
+					<!-- new changes -->
+					<div class="row">
+						<div class="outbound-content col-md-12">
+							<div class="delivery-form-block col-md-12 row pb-1">
+								<div class="col-md-3 text-align-sales">
+									<label>Vendor Name<sup class="asterick">*</sup></label> <select
+										class="form-control create-edit-pop-txt-box"
+										style="width: 100% !important;"
+										formControlName="im_customer_account" id="modal-searchInput"
+										validateOnBlur
+										[validateFormControl]="outgoingPayemnt.controls['im_customer_account']">
+										<option value="">Please Select</option>
+										<ng-container
+											*ngFor="let vndTypes of vendorTypes; let i= index;">
+										<option [value]="vndTypes.key">{{vndTypes.value}}</option>
+										</ng-container>
+									</select> 
+									<!-- <span
+										*ngIf="outgoingPayemnt.controls['im_customer_account'].touched && outgoingPayemnt.controls['im_customer_account	'].invalid && outgoingPayemnt.controls['im_customer_account'].dirty"
+										class="error"> <small class="custom-error-class"
+										*ngIf="outgoingPayemnt.controls['im_customer_account'].errors.required">
+											{{incomingPaymentsMessages.custAccount_req}}</small>
+									</span> -->
+								</div>
+								<div class="col-md-3 text-align-sales">
+									<label>Posting Date<sup class="asterick">*</sup></label> <input
+										type="text" class="form-control datepicker-init"
+										required="required" formControlName="im_posting_date"
+										validateOnBlur id="txt_postingdate"
+										[validateFormControl]="outgoingPayemnt.controls['im_posting_date']"
+										(blur)="removeStyles('txt_postingdate')">
+
+								</div>
+								<div class="col-md-3 text-align-sales">
+									<label>Invoice Date<sup class="asterick">*</sup></label> <input
+										type="text" class="form-control datepicker-init"
+										required="required" formControlName="im_document_date"
+										validateOnBlur id="txt_invoicedate"
+										[validateFormControl]="outgoingPayemnt.controls['im_document_date']"
+										(blur)="removeStyles('txt_invoicedate')">
+
+								</div>
+								<div class="col-md-3 text-align-sales">
+									<label>Amount<sup class="asterick">*</sup></label> <input
+										type="text" class="form-control numbersOnly"
+										formControlName="im_amount" validateOnBlur
+										[validateFormControl]="outgoingPayemnt.controls['im_amount']">
+									<span
+										*ngIf="outgoingPayemnt.controls['im_amount'].touched && outgoingPayemnt.controls['im_amount'].invalid && outgoingPayemnt.controls['im_amount'].dirty"
+										class="error"> <small class="custom-error-class"
+										*ngIf="outgoingPayemnt.controls['im_amount'].errors.required">
+											{{incomingPaymentsMessages.amount_req}}</small> <small
+										*ngIf="outgoingPayemnt.controls['im_amount'].errors.pattern">
+											{{incomingPaymentsMessages.amount_req}} </small>
+									</span>
+								</div>
+							</div>
+							<div class="delivery-form-block col-md-12 row pb-1">
+
+								<div class="col-md-3 text-align-sales">
+									<label>Cheque / Invoice no<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control"
+										formControlName="im_reference" validateOnBlur
+										[validateFormControl]="outgoingPayemnt.controls['im_reference']">
+									<span
+										*ngIf="outgoingPayemnt.controls['im_reference'].touched && outgoingPayemnt.controls['im_reference'].invalid && outgoingPayemnt.controls['im_reference'].dirty"
+										class="error"> <small class="custom-error-class"
+										*ngIf="outgoingPayemnt.controls['im_reference'].errors.required">
+											{{incomingPaymentsMessages.refNo_req}}</small>
+									</span>
+								</div>
+							</div>
+							<div class="delivery-form-block col-md-12 row pb-1">
+								<div class="col-md-3 text-align-sales">
+									<label>Remarks</label>
+									<textarea class="form-control" formControlName="im_text"
+										style="height: 86px;"></textarea>
+								</div>
+							</div>
+						</div>
+						<!-- end chnges -->
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="outbound-footer mt-1">
+			<div class="left-block">
+				<div class="pull-left">
+					<button class="cancel-button-export" style="padding-left: 0px;"
+						(click)="redirectincomingpaymentlist()">
+						<i class="fa back-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Back</div>
+						</i>
+					</button>
+				</div>
+			</div>
+			<div class="right-block">
+				<div class="pull-left">
+					<button [disabled]="outgoingPayemnt.invalid"
+						(click)="postincomingpayment()"
+						[ngClass]="{'save-icon-btn':true,'btn-disabled':outgoingPayemnt.invalid }">
+						<i class="fa save-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Post</div>
+						</i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

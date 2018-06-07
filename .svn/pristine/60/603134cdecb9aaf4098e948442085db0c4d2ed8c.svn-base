@@ -1,0 +1,419 @@
+<!-- <section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">{{title}}</strong>
+			</span>
+		</div>
+	</div> -->
+	<div class="form-align-pur">
+		<form [formGroup]="createInvoiceForm">
+			<div class="card-block db-block mb-1"
+				style="padding: 0px; padding-left: 15px; padding-right: 15px;">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="createSalesBlock">
+							<div class="row">
+								<!-- new changes -->
+								<div class="outbound-content col-md-12">
+									<div class="delivery-form-block col-md-12 row">
+										<div class="col-md-3 text-align-sales">
+
+											<label>Delivery Note<sup class="asterick">*</sup>
+											</label> <input type="text" class="form-control "
+												formControlName="invRef" [value]="headerObject.inv_doc_no"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												validateOnBlur
+												[validateFormControl]="createInvoiceForm.controls['invRef']">
+											<span
+												*ngIf="createInvoiceForm.controls['invRef'].touched && createInvoiceForm.controls['invRef'].invalid && createInvoiceForm.controls['invRef'].dirty"
+												class="error"> <small class="custom-error-class"
+												*ngIf="createInvoiceForm.controls['invRef'].errors.required">
+													{{invoiceMessages.inv_ref}}</small>
+											</span>
+
+										</div>
+										<div class="col-md-3 text-align-sales">
+
+											<label>Invoice Date <sup class="asterick">*</sup>
+											</label> <input type="text" class="form-control datepicker-init-sale"
+												formControlName="invDate"
+												[value]="headerObject.doc_date | date :'dd-MM-yyyy'"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												validateOnBlur
+												[validateFormControl]="createInvoiceForm.controls['invDate']">
+											<span
+												*ngIf="createInvoiceForm.controls['invDate'].touched && createInvoiceForm.controls['invDate'].invalid && createInvoiceForm.controls['invDate'].dirty"
+												class="error"> <small class="custom-error-class"
+												*ngIf="createInvoiceForm.controls['invDate'].errors.required">
+													{{invoiceMessages.inv_date}} </small>
+											</span>
+										</div>
+										<div class="col-md-3 text-align-sales">
+
+											<label>Posting Date <sup class="asterick">*</sup>
+											</label> <input type="text" class="form-control datepicker-init-sale"
+												formControlName="posDate"
+												[value]="headerObject.pstng_date | date :'dd-MM-yyyy'"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												validateOnBlur
+												[validateFormControl]="createInvoiceForm.controls['posDate']">
+											<span
+												*ngIf="createInvoiceForm.controls['posDate'].touched && createInvoiceForm.controls['posDate'].invalid && createInvoiceForm.controls['posDate'].dirty"
+												class="error"> <small class="custom-error-class"
+												*ngIf="createInvoiceForm.controls['posDate'].errors.required">
+													{{invoiceMessages.pos_date}} </small>
+											</span>
+										</div>
+										<!-- <div class="col-md-3 text-align-sales">
+
+											<label>Amount<sup class="asterick">*</sup>
+											</label> <input type="text" class="form-control "
+												formControlName="invAmt" [value]="headerObject.gross_amnt"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												validateOnBlur
+												[validateFormControl]="createInvoiceForm.controls['invAmt']">
+											<span
+												*ngIf="createInvoiceForm.controls['invAmt'].touched && createInvoiceForm.controls['invAmt'].invalid && createInvoiceForm.controls['invAmt'].dirty"
+												class="error"> <small class="custom-error-class"
+												*ngIf="createInvoiceForm.controls['invAmt'].errors.required">
+													{{invoiceMessages.inv_Amt}} </small>
+											</span>
+
+										</div> -->
+									</div>
+									<div class="clear-fix"></div>
+									<div class="delivery-form-block col-md-12 row pb-1">
+										<div class="col-md-3 text-align-sales">
+											<label>Baseline Date <sup class="asterick">*</sup>
+											</label> <input type="text" class="form-control datepicker-init-sale"
+												formControlName="bslineDate"
+												[value]="headerObject.bline_date | date :'dd-MM-yyyy'"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												validateOnBlur
+												[validateFormControl]="createInvoiceForm.controls['bslineDate']">
+											<span
+												*ngIf="createInvoiceForm.controls['bslineDate'].touched && createInvoiceForm.controls['bslineDate'].invalid && createInvoiceForm.controls['bslineDate'].dirty"
+												class="error"> <small class="custom-error-class"
+												*ngIf="createInvoiceForm.controls['bslineDate'].errors.required">
+													{{invoiceMessages.bsline_Date}} </small>
+											</span>
+										</div>
+										<div class="col-md-3 text-align-sales">
+											<label>Remarks</label> <input type="text"
+												class="form-control"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												formControlName="remarks" validateOnBlur id="txt_remarks"
+												[validateFormControl]="createInvoiceForm.controls['remarks']">
+										</div>
+										<div class="col-md-3 text-align-sales">
+											<label>Price Difference </label> <input type="text"
+												class="form-control " formControlName="diff_inv"
+												[value]="pricediff"
+												[attr.disabled]="displayFlag ?  'disabled' : null"
+												validateOnBlur
+												[validateFormControl]="createInvoiceForm.controls['diff_inv']">
+											<!-- <input type="text"
+												class="form-control " [value]="headerObject.diff_inv"
+												[attr.disabled]="displayFlag ?  'disabled' : null"> -->
+										</div>
+										<!-- <div class="col-md-3 text-align-sales" rowspan="7">
+											<label></label>
+											<div class="delivery-form-block col-md-12 pt-1">
+												<table class="table table-hover nowrap editable-table">
+													<tr>
+														<th style="min-width: 50px !important;"></th>
+														<th style="min-width: 50px !important;">SGST</th>
+														<th style="min-width: 80px !important;">CGST</th>
+														<th style="min-width: 50px !important;">IGST</th>
+														<th style="min-width: 80px !important;">Total Value</th>
+													</tr>
+													<tr>
+														<td>Total</td>
+														<td>{{totalSgstVal | PriceInd}}</td>
+														<td>{{totalCgstVal | PriceInd}}</td>
+														<td>{{totalIgstVal | PriceInd}}</td>
+														<td>{{totalGrossVal | PriceInd}}</td>
+													</tr>
+												</table>
+											</div>
+										</div> -->
+										
+
+										<br>
+										<div class="col-md-12 text-align-sales pb-0 mt-13">
+											<table
+												class="table table-hover nowrap editable-table totalTable"
+												style="display: inline-table; margin-bottom: 0px;">
+												<tbody>
+													<tr>
+														<td style="background: #e4e9f0;">Total Amounts :</td>
+
+
+														<td>
+															<div class="pull-left">IGST:</div>
+															<div class="pull-right">{{totalIgstVal | PriceInd}}</div>
+														</td>
+														<td>
+															<div class="pull-left">S/UGST :</div>
+															<div class="pull-right">{{totalSgstVal | PriceInd}}</div>
+														</td>
+
+														<td>
+															<div class="pull-left">CGST:</div>
+															<div class="pull-right">{{totalCgstVal | PriceInd}}</div>
+														</td>
+														<td>
+															<div class="pull-left">Total Value :</div>
+															<div class="pull-right">{{totalGrossVal |
+																PriceInd}}</div>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+
+										</div>
+										
+										<div class="col-md-3 text-align-sales" *ngIf="customerData.length !=0" style="margin-top: 3px;">
+											<div class="delivery-form-block col-md-12">
+												<label>Hospital Name :</label> <label
+													><strong>
+														{{customerData}}</strong></label>
+											</div>
+										</div>
+
+
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<div class="col-md-12 mt-1 mb-5">
+		<div class="stock-table table-responsive">
+			<table class="table table-hover nowrap editable-table checkBoxTable"
+				width="100%" id="create-invoice-order-table">
+				<thead>
+					<tr>
+						<th rowspan="2" class="no-sort"
+							style="width: 50px; text-align: center;" *ngIf="!displayFlag">
+							<mat-checkbox class="example-margin" [(ngModel)]="checked"
+								[checked]="checked" [(indeterminate)]="indeterminate"
+								(click)="selectAll($event,'mat-checkbox-2-input','create-invoice-order-table')"></mat-checkbox>
+						</th>
+						<th rowspan="2">PO No.</th>
+						<th rowspan="2">GR Ref No.</th>
+						<th rowspan="2" style="width: 100px;">Material</th>
+						<th rowspan="2">Description</th>
+						<th rowspan="2">Qty</th>
+						<th rowspan="2">UOM</th>
+						<th rowspan="2">Value</th>
+						<th rowspan="2">Del Note</th>
+						<th colspan="2">S/U GST</th>
+						<th colspan="2">CGST</th>
+						<th colspan="2">IGST</th>
+						<th rowspan="2">Net Amount</th>
+					</tr>
+					<tr>
+						<th>Rate</th>
+						<th>Value</th>
+						<th>Rate</th>
+						<th>Value</th>
+						<th>Rate</th>
+						<th>Value</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let purList of itemDetailsArray">
+						<td align="center" *ngIf="!displayFlag"><mat-checkbox
+								(click)="getReportList($event,'create-invoice-order-table')"></mat-checkbox>
+						</td>
+						<td><input type="text"
+							class="form-control po-inv-txt-padd po-del-gif-txt" name="pono"
+							[disabled]="displayFlag" [value]="purList.po_number"></td>
+
+						<td><input type="text"
+							class="form-control  po-inv-txt-padd po-del-gif-txt"
+							name="giRefNo" [disabled]="displayFlag" [value]="purList.gi_no"></td>
+
+						<td><input type="text"
+							class="form-control po-inv-txt-padd outbound-input"
+							name="material" [disabled]="displayFlag" [value]="purList.mat_id">
+						</td>
+						<td>{{purList.mat_desc}}</td>
+						<td><input type="text"
+							class="form-control po-inv-txt-padd outbound-input" name="qty"
+							[disabled]="displayFlag" [value]="purList.qty"></td>
+
+
+						<td><input type="text"
+							class="form-control po-inv-txt-padd outbound-input" name="uom"
+							[disabled]="displayFlag" [value]="purList.uom"></td>
+
+						<td><input type="text"
+							class="form-control po-inv-txt-padd outbound-input" name="price"
+							[disabled]="displayFlag" [value]="purList.price | PriceInd">
+						</td>
+
+						<td><input type="text"
+							class="form-control po-inv-txt-padd po-del-gif-txt"
+							name="delNote" [disabled]="displayFlag"
+							[value]="purList.del_note"></td>
+						<td>{{purList.sgst_rate | customround}}%</td>
+						<td>{{purList.sgst_value | PriceInd}}</td>
+						<td>{{purList.cgst_rate | customround }}%</td>
+						<td>{{purList.cgst_value | PriceInd}}</td>
+						<td>{{purList.igst_rate | customround}}%</td>
+						<td>{{purList.igst_value | PriceInd}}</td>
+						<td>{{purList.net_price | PriceInd}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+	<!-- end chnges -->
+	<div class="outbound-footer mt-3">
+		<div class="left-block">
+
+			<div class="pull-left" style="max-width: 47%">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="redirectToListView()">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+			<div class="pull-left" *ngIf="!displayFlag" style="display: none">
+				<div class="pull-left" style="max-width: 47%">
+					<button class="login-button">
+						<i class="fa fa-plus" style="margin-right: 4px; font-size: 16px"></i>
+						Add Lines
+					</button>
+				</div>
+				<div class="pull-left">
+					<button class="cancel-button-export btn-margin"
+						style="padding-left: 0px;">
+						<i class="fa cancel-icon"
+							style="margin-right: 4px; padding-right: 4px;">
+							<div class="icon-text" style="right: -4px;">Remove Line</div>
+						</i>
+					</button>
+				</div>
+			</div>
+
+		</div>
+		<div class="right-block">
+
+			<div class="pull-left" *ngIf="displayFlag" style="display: none">
+				<button title="Edit" style="padding-left: 8px;"
+					class="login-button-export" (click)="navigateToEditPurchase();">
+					<i class="fa edit-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+
+
+			<div class="pull-left">
+				<button class="login-button-export" title="Print/Preview"
+					style="padding-left: 8px;" (click)="PurchaseInvoicePrint();">
+					<i class="fa print-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+						<div class="icon-text" style="right: -4px;"></div>
+					</i>
+				</button>
+			</div>
+			<div class="pull-left" *ngIf="!displayFlag" style="display: none">
+
+				<button title="Upload Excel" style="padding-left: 8px;"
+					class="login-button-export Btn-margin" style="padding-left:4px;">
+					<i class="fa upexcel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+			<!-- <div class="pull-left">
+			<button class="save-icon-btn">
+				<i class="fa save-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Save</div>
+				</i>
+			</button>
+			</div> -->
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="cancelPurchaseInvoice();">
+					<i class="fa cancel-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Cancel PI</div>
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+<!-- </section> -->
+<!-- Cancel Error Popup -->
+<div class="modal fade modal-size-medium" id="displayErrorsModal"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Display Errors</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('displayErrorsModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body" style="padding: 6px 6px !important;">
+				<div class="col-md-12 row">
+					<table
+						class="table table-hover nowrap editable-table checkBoxTable"
+						width="100%" id="errorTable" style="display: inline-table;">
+						<thead>
+							<tr>
+
+								<th>Error Code</th>
+								<th>Error Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ng-container *ngFor="let erList of errorLogs; let i=index">
+
+							<tr>
+								<ng-container *ngIf="erList.type == 'E'">
+								<td>{{erList.number}}</td>
+								<td>{{erList.message}}</td>
+								</ng-container>
+							</tr>
+
+							</ng-container>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="row new_row">
+					<div class="pull-right new_right act_foot">
+						<div class="pull-right new_right act_foot closePopUpOk">
+							<button (click)="closeModal('displayErrorsModal')"
+								class="login-button forgotOk">Ok</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- End Cancel Error Popup -->

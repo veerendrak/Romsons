@@ -1,0 +1,154 @@
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+@Component({
+    selector: 'app-customer-information',
+    templateUrl: './customer-information.component.html',
+    styleUrls: ['./customer-information.component.css']
+})
+export class CustomerInformationComponent implements OnInit {
+
+    public checked: boolean = false;
+    indeterminate: boolean = false;
+    customerDetailList: any;
+    url: string;
+    bpId: string;
+    orgId: string;
+    accessObjectId: any;
+    roleAdmin: any;
+    roleStockist: any;
+    constructor(private http: Http, private formBuilder: FormBuilder, private environment: EnvConfigurationService,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private dateAdapter: DateAdapter<Date>) {
+        this.app.isActive = true;
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjectId = localStorage.getItem("Customer Details");
+        if (localStorage.getItem("roleName") == "Admin") {
+            this.roleAdmin = true;
+        } else {
+            this.roleStockist = true;
+        }
+    }
+
+    ngOnInit() {
+
+        setTimeout(() => {
+            var width = $("#mainContent").css("width");
+            $(".outbound-footer").css("width", width);
+        }, 50);
+
+        this.getCustomerlist();
+
+
+    }
+
+    getCustomerlist() {
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        this.url = this.environment.getRequiredApi('get_customer_details') + "?bp_id=" + this.bpId + "&org_id=" + this.orgId + "&";
+
+        this.commonService.getData(this.url, 'GET', '', localStorage.getItem("Customer Details"))
+            .subscribe((response) => {
+                //  $("#stock-balance-table").DataTable().destroy();
+                if (response.status == '1') {
+                    this.commonService.responseMessages("", response.message, "warning");
+                    this.customerDetailList = [];
+                    this.applyDataTable();
+
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                } else {
+                    $("#cust-info-table").DataTable().destroy();
+                    this.customerDetailList = response.data.ex_cust_list;
+
+                    this.applyDataTable();
+
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                }
+
+            }, err => {
+
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                console.log(err)
+            });
+    }
+    applyDataTable() {
+        setTimeout(() => {
+            $("#cust-info-table").DataTable({
+                "order": [0],
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)"
+                },
+                "fnDrawCallback": function(oSettings) {
+                    if (5 >= oSettings.fnRecordsDisplay()) {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+
+                        $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                    } else {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_length').show();
+
+                    }
+                },
+                "columnDefs": [{
+                    "targets": 'no-sort',
+                    "orderable": false,
+                }]
+            });
+        }, 500);
+
+        setTimeout(() => {
+            $(".dataTables_scrollHeadInner").css({ "width": "100%" });
+            $(".table ").css({ "width": "100%" });
+            $("#cust-info-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+        }, 1100);
+    }
+    getReportList(event, tableId) {
+        setTimeout(() => {
+            let flag: boolean = this.commonService.checkAction(tableId);
+            if (flag) {
+                this.indeterminate = false;
+                this.checked = true;
+            } else {
+                this.indeterminate = true;
+            }
+        }, 400);
+
+    }
+    displayCustomerDetails(cust_id) {
+
+        this.commonService.saleType = 'Edit';
+        const path: any = "customerInfo";
+        this.router.navigate([path], { queryParams: { "customerid": cust_id, "action": "DIS" } });
+    }
+    //  this.getCustomerDetails();
+    GetApproveDetails() {
+          $("#bussinessModal").modal("show");
+    }
+    createCustomer() {
+        const path: any = "customerInfo";
+        this.router.navigate([path]);
+    }
+    selectAll(event, checkAll, tableId) {
+        setTimeout(() => {
+            this.commonService.selectAllCheckBoxes(checkAll, tableId)
+        }, 300);
+    }
+
+}

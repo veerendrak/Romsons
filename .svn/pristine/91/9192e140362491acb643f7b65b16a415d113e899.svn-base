@@ -1,0 +1,51 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-sales-order-details',
+  templateUrl: './sales-order-details.component.html',
+  styleUrls: ['./sales-order-details.component.css']
+})
+export class SalesOrderDetailsComponent implements OnInit {
+    createSalesOrderForm:FormGroup;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent) {
+      this.app.isActive=true;
+      this.createSalesOrderForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+        });
+  }
+
+  ngOnInit() {
+      $("#sales-order-table").DataTable({
+          bSort:false,
+          bPaginate:false,
+          "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+           "bInfo":false,
+           "bFilter":false
+      });
+  }
+  createSalesOrder(){
+      $("#createSalesModal").modal("show");
+  }
+  closeModal(id){
+      $("#"+id).modal("hide");
+  }
+  createSalesForm(id){
+      $("#"+id).modal("hide"); 
+      const path:any="createsalesorder";
+      this.router.navigate([path]); 
+  }
+}

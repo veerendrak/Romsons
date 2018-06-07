@@ -1,0 +1,20 @@
+/**
+ * New typescript file
+ */
+import { Pipe, PipeTransform } from '@angular/core';
+@Pipe({
+  name: 'PriceInd'
+})
+export class PriceIndPipe implements PipeTransform {
+  transform(val:string, params:string[]):string[] {
+          let value:any;
+    if(val!=null){
+      value=parseFloat(val);
+      value=value.toFixed(2);
+      value=parseFloat(value).toLocaleString('en-IN');
+    }else{
+        value=0.0
+    }
+    return value;
+  }
+}

@@ -1,0 +1,60 @@
+import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
+
+@Injectable()
+export class EnvConfigurationService {
+
+    result: Object;
+    url: string = ''
+  constructor() { }
+
+  getEnvironment() {
+      let host: string = window.location.hostname;
+      let envConfig: any;
+      if ( host.includes("104.237.3.222") ) {
+          envConfig = environment.dev;
+      }
+      else {
+          envConfig = environment.dev;
+      }
+      return envConfig;
+  }
+  
+  getConfigurations() {
+      this.result = this.getEnvironment();
+      this.url = this.result['protocol'] + "://" + this.result['ip_address'];
+      return this.url + '/';
+  }
+  
+  getRequiredApi(apiKey:string){
+      let apiUrls:any={
+          "find_by_user":"/user/status/{logon_id}",
+          "get_left_side_menu":"/gd/access/objs",
+          "dropdown_list":"/gd/list/{obj_name}",
+          "dropdown_list_byid":"/gd/list/{obj_name}/{obj_id}",
+          "logout_user":"/oauth/revoke-token",
+          
+          "oauth_Token":"/oauth/token",
+          "fwd_password": "/user/reset/link",
+          
+          "om_get_org_roles": "/org/role",
+          "om_get_org_roles_id": "/org/role/{roleId}",
+          "om_post_role_create": "/org/role",
+          "om_put_role_update": "/org/role",
+          "om_put_role_rename": "/org/role/{roleId}",
+          "om_delete_role": "/org/role/{roleId}/{defaultRoleId}",
+          "get_Bussiness_Partners":"/user/bp/{user_id}",
+          "get_user_details":"/user",
+          "download_stock_excl":"/inventory/download/stock/bal",
+          "get_stock_balance_details":"/inventory/stock/bal/{bp_id}"
+      }
+      let hostContextPath:string=this.getConfigurations();
+      if ( hostContextPath.includes( "core.asptax.com" ) ) {
+          return hostContextPath + "v1" + apiUrls[apiKey];
+      }
+      else {
+          return hostContextPath + "romsons_core/v1" + apiUrls[apiKey];
+      }
+  }
+  
+}

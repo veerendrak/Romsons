@@ -1,0 +1,394 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+import { ExcelService } from '../../services/excel.service';
+declare var $: any;
+declare var jQuery: any;
+@Component({
+    selector: 'app-mcta-report',
+    templateUrl: './mcta-report.component.html',
+    styleUrls: ['./mcta-report.component.css']
+})
+export class MctaReportComponent implements OnInit {
+    public mctadetailsForm: FormGroup;
+    public bpId: string;
+    public orgId: string;
+    public accessObjId: string;
+    public mctadetailsList: any = [];
+    material: any;
+    ajaxDropdown = false;
+    valueType: any;
+    qtyType: any;
+    public screenType: any;
+    public actionFlag: any;
+    customerNames: any;
+    public customertypeList: any;
+    public emptyFlag: boolean = false;
+    public cdListLength: any;
+    public mctadetailslength: any;
+    constructor(private http: Http, private formBuilder: FormBuilder, private environment: EnvConfigurationService,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private excelService: ExcelService) {
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjId = localStorage.getItem("Sales Analysis")
+        this.mctadetailsForm = new FormBuilder().group(
+            {
+                'frmDate': ['', Validators.required],
+                'toDate': ['', Validators.required]
+            }
+        );
+        this.valueType = true;
+        this.qtyType = false;
+        this.actionFlag = true;
+        this.mctadetailsList = [];
+        this.customerNames = [];
+        this.cdListLength = 0;
+        this.mctadetailslength = 0;
+    }
+    ngOnInit() {
+        $('.datepicker-init').datetimepicker({
+            widgetPositioning: {
+                horizontal: 'left'
+            },
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down",
+                previous: 'fa fa-arrow-left',
+                next: 'fa fa-arrow-right'
+            },
+            format: 'MM-YYYY',
+
+        });
+        this.applyDataTable();
+
+        this.getCustomertypesList();
+    }
+    getCustomertypesList() {
+        let url = this.environment.getRequiredApi('header_dropdown') + "?group=CUSTTYPS&";
+        this.commonService.getData(url, "GET", '', "")
+            .subscribe((response) => {
+                console.log(response);
+                this.customertypeList = response.data.configValues;
+                this.emptyFlag = false;
+            });
+    }
+    selectScreen(layout) {
+        this.screenType = layout;
+        this.actionFlag = !this.actionFlag
+        console.log(this.actionFlag)
+        this.screenType = $("#txt_type").val();
+        if (this.screenType == "V") {
+            $("#div_customergrp").css('display', 'block');
+            $("#div_material").css('display', 'none');
+        }
+        else {
+            $("#div_customergrp").css('display', 'none');
+            $("#div_material").css('display', 'block');
+        }
+        var table = $('#cust-info-table').DataTable().clear();
+        $("#cust-info-table").DataTable().destroy();
+        this.applyDataTable();
+        let splFromDate = $("#frmDate").val();
+        let splToDate = $("#toDate").val();
+        this.mctadetailslength = 0;
+        if (splFromDate != "" && splToDate != "") {
+            this.getmctaDetails();
+        }
+    }
+    getmctaDetails() {
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        let stockmctaPayload = {};
+        let fromDate, toDate;
+        let custArray = [];
+        let custGrpArray = [];
+        let matArray = [];
+        let splittedFromDate = $("#frmDate").val().split("-");
+        fromDate = splittedFromDate[1] + splittedFromDate[0];
+        let splittedToDate = $("#toDate").val().split("-");
+        toDate = splittedToDate[1] + splittedToDate[0];
+        stockmctaPayload["im_from_period"] = fromDate;
+        stockmctaPayload["im_to_period"] = toDate;
+        stockmctaPayload["bp_id"] = this.bpId;
+        stockmctaPayload["org_id"] = this.orgId;
+        let cust_code = $("#modal-searchInput").val();
+        let cust_name = $("#modal-name").val();
+        if (cust_name.length != 0 && cust_code.length != 0) {
+            custArray[0] = cust_code;
+            stockmctaPayload["im_customer"] = custArray;
+        }
+        let url = "";
+        this.screenType = $("#txt_type").val();
+        if (this.screenType == "V") {
+            let cust_grp_nr = $("#cust_type").val();
+            if (cust_grp_nr.length != 0 && cust_grp_nr != "Please Select Type") {
+                custGrpArray[0] = cust_grp_nr;
+                stockmctaPayload["im_customer_group"] = custGrpArray;
+            }
+            url = this.environment.getRequiredApi('mcta_value_report') + "?";
+        }
+        else {
+            let mat_nr = $("#material-code").val();
+            if (mat_nr.length != 0) {
+                matArray[0] = mat_nr;
+                stockmctaPayload["im_material_code"] = matArray;
+            }
+            url = this.environment.getRequiredApi('mcta_qty_report') + "?";
+        }
+
+        this.commonService.getData(url, 'POST', stockmctaPayload, this.accessObjId)
+            .subscribe((response) => {
+                console.log(response);
+                if (response.status == '1') {
+                    this.mctadetailsList = [];
+                    this.commonService.responseMessages('', response.message, 'warning');
+                } else {
+                    if (this.screenType == "V") {
+                        this.mctadetailsList = response.data.ex_customer_orders;
+                        this.mctadetailslength = Object.keys(this.mctadetailsList).length;
+                    }
+                    else {
+                        this.mctadetailsList = response.data.ex_customer_quantity;
+                        this.mctadetailslength = Object.keys(this.mctadetailsList).length;
+                    }
+                    let data = response.data.ex_return;
+                    if (response.data.hasOwnProperty("ex_return")) {
+                        for (let index of data) {
+                            if (index.type == "E") {
+                                this.mctadetailsList = [];
+                                this.mctadetailslength = 0;
+                                this.commonService.responseMessages('', index.message, 'warning');
+                            }
+                        }
+                    }
+                }
+                $("#cust-info-table").DataTable().destroy();
+                this.applyDataTable();
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+            }, err => {
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                console.log(err)
+            });
+
+
+    }
+    changeTodatePicker() {
+        var maxFromDate = this.convertDate($("#frmDate").val());
+        if ($("#toDate").val() != "") {
+            $(".datepicker-init2").datetimepicker("destroy");
+        }
+        $('.datepicker-init2').datetimepicker({
+            widgetPositioning: {
+                horizontal: 'left'
+            },
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down",
+                previous: 'fa fa-arrow-left',
+                next: 'fa fa-arrow-right'
+            },
+            format: 'MM-YYYY',
+            minDate: maxFromDate,
+        });
+        this.mctadetailsForm.controls['frmDate'].setValue($("#frmDate").val());
+        this.mctadetailsForm.controls['toDate'].setValue($("#toDate").val());
+    }
+    public convertDate(date) {
+        let dateArry = date.split("-");
+        return new Date(dateArry[1], dateArry[0] - 1);
+    }
+    removeStyles() {
+        this.mctadetailsForm.controls['frmDate'].setValue($("#frmDate").val());
+        this.mctadetailsForm.controls['toDate'].setValue($("#toDate").val());
+    }
+    applyDataTable() {
+        setTimeout(() => {
+            $("#cust-info-table").DataTable({
+                retrieve: true,
+                "order": [0],
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)"
+                },
+                "fnDrawCallback": function(oSettings) {
+                    if (5 >= oSettings.fnRecordsDisplay()) {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+
+                        $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                    } else {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_length').show();
+
+                    }
+                },
+                "columnDefs": [{
+                    "targets": 'no-sort',
+                    "orderable": false,
+                }]
+            });
+            $("#cust-info-table").css("display", "table !important")
+        }, 500);
+
+        setTimeout(() => {
+            $(".dataTables_scrollHeadInner").css({ "width": "100%" });
+            $(".table ").css({ "width": "100%" });
+            //$("#cust-info-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+        }, 1100);
+    }
+    exportExcel() {
+        let jsonArrrayData: any = [];
+        if (this.mctadetailsList.length != 0) {
+            if (this.screenType == "V") {
+                for (let index of this.mctadetailsList) {
+                    if (!index.hasOwnProperty('dealer_code')) {
+                        index.dealer_code = "  "
+                    }
+                    if (!index.hasOwnProperty('dealer_name')) {
+                        index.dealer_name = "  "
+                    }
+                    if (!index.hasOwnProperty('incoming_order')) {
+                        index.incoming_order = ' ';
+                    }
+                    if (!index.hasOwnProperty('open_order')) {
+                        index.open_order = ' ';
+                    }
+                    if (!index.hasOwnProperty('sales')) {
+                        index.sales = " ";
+                    }
+
+                    jsonArrrayData.push(index);
+                }
+                let columns: any = ['dealer_code', 'dealer_name', 'incoming_order', 'open_order', 'sales']
+                let columnHeaders: any = ['Customer ID', 'Customer Name', 'Incoming Order', 'Open Order', 'Sales']
+                let jsonData: any = JSON.stringify(jsonArrrayData);
+                this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "MCTA Value Wise List", columns, columnHeaders, 'MCTA Value Wise');
+            }
+            else {
+                for (let index of this.mctadetailsList) {
+                    if (!index.hasOwnProperty('dealer_code')) {
+                        index.dealer_code = "  "
+                    }
+                    if (!index.hasOwnProperty('dealer_name')) {
+                        index.dealer_name = "  "
+                    }
+                    if (!index.hasOwnProperty('material_code')) {
+                        index.material_code = ' ';
+                    }
+                    if (!index.hasOwnProperty('material_name')) {
+                        index.material_name = ' ';
+                    }
+                    if (!index.hasOwnProperty('incoming_qty')) {
+                        index.incoming_qty = " ";
+                    }
+                    if (!index.hasOwnProperty('open_qty')) {
+                        index.open_qty = " ";
+                    }
+                    if (!index.hasOwnProperty('sales_qty')) {
+                        index.sales_qty = " ";
+                    }
+                    jsonArrrayData.push(index);
+                }
+                let columns: any = ['dealer_code', 'dealer_name', 'material_code', 'material_name', 'incoming_qty', 'open_qty', 'sales_qty']
+                let columnHeaders: any = ['Customer ID', 'Customer Name', 'Material Code', 'Material Name', 'Incoming Qty', 'Open Qty', 'Sales Qty']
+                let jsonData: any = JSON.stringify(jsonArrrayData);
+                this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "MCTA Qty Wise List", columns, columnHeaders, 'MCTA Qty Wise');
+            }
+        } else {
+            this.commonService.responseMessages("", "No Data Available To Export", "warning")
+        }
+    }
+    extractData(id, spinnerId, ajaxDropdown) {
+        let term: any = $("#" + id).val();
+        if (term.length == 3) {
+            $("#" + spinnerId).show();
+            let url: any = this.environment.getRequiredApi("find_customers") + "?org_id=" + this.orgId + "&bp_id=" + this.bpId + "&cust_name=" + term + "&";
+            this.commonService.getData(url, "GET", "", this.accessObjId).subscribe(response => {
+                if (response.status == 0) {
+                    this.customerNames = response["data"].ex_cust_list;
+                    this.cdListLength = Object.keys(this.customerNames).length;
+                    $("#" + spinnerId).hide();
+                    $("#" + ajaxDropdown).show();
+                } else {
+                    $("#" + spinnerId).hide();
+                    $("#" + ajaxDropdown).show();
+                }
+
+            });
+        } else {
+            if (term == "") {
+                this.customerNames = [];
+                $("#" + spinnerId).hide();
+            } else {
+                var searchText = term;
+                searchText = searchText.toUpperCase();
+                $("#" + ajaxDropdown).find('ul > li').each(function() {
+                    var currentLiText = $(this).text();
+                    currentLiText = currentLiText.toUpperCase();
+                    var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                    $(this).toggle(showCurrentLi);
+                });
+            }
+        }
+    }
+    selectedItem(response, modalBlock, textInput, hiddenInput) {
+        $("#" + textInput).val(response.cust_name);
+        $("#" + hiddenInput).val(response.cust_id);
+        $("#" + modalBlock).hide();
+    }
+
+    materialextractData(id, spinnerId, ajaxDropdown) {
+        let term: any = $("#" + id).val();
+        if (term.length == 2) {
+            $("#" + spinnerId).show();
+            let url: any = this.environment.getRequiredApi("find_matnr_num") + "?org_id=" + this.orgId + "&bp_id=" + this.bpId + "&material=" + term + "&";
+            this.commonService.getData(url, "GET", "", this.accessObjId).subscribe(response => {
+                if (response.status == 0) {
+                    this.material = response["data"].ex_mat_list;
+                    $("#" + spinnerId).hide();
+                    $("#" + ajaxDropdown).show();
+                    this.ajaxDropdown = true;
+                } else {
+                    $("#" + spinnerId).hide(); $("#" + ajaxDropdown).show();
+                    this.ajaxDropdown = false;
+                }
+
+            });
+        } else {
+            if (term == "") {
+                this.material = [];
+                $("#" + spinnerId).hide();
+            } else {
+                var searchText = term;
+                searchText = searchText.toUpperCase();
+                $("#" + ajaxDropdown).find('ul > li').each(function() {
+                    var currentLiText = $(this).text();
+                    currentLiText = currentLiText.toUpperCase();
+                    var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                    $(this).toggle(showCurrentLi);
+                });
+            }
+        }
+    }
+    materialselectedItem(response, modalBlock, textInput, hiddenInput) {
+        $("#" + textInput).val(response.mat_num);
+        $("#" + hiddenInput).val(response.mat_num);
+        $("#" + modalBlock).hide();
+
+    }
+
+}

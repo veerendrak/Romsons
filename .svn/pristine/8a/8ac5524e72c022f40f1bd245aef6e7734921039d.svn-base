@@ -1,0 +1,148 @@
+<section class="card" style="min-height: 580px;">
+
+	<div class="card-header">
+		<span class="cat__core__title"> <strong class="page-title">Business
+				Place Settings</strong>
+		</span>
+
+	</div>
+
+	<div class="card-block center" *ngIf="showError">
+
+		<div>
+			<span>No settings available</span>
+		</div>
+	</div>
+
+	<div class="card-block padding-none" *ngIf="!showError">
+		<div class="row">
+			<div class="col-lg-12">
+
+				<div class="card-block">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="mb-5 mb-5-custom">
+								<div class="accordion" id="accordion">
+
+									<div class="card"
+										*ngFor="let items of settingsMockData;let j = index;">
+										<div
+											class="card-header card-header-custom collapsed bg-primary"
+											data-toggle="collapse" data-parent="#accordion"
+											[attr.data-target]="collapseMock+''+j" aria-expanded="false"
+											aria-controls="collapseMock">
+
+											<div class="card-title col-lg-12">
+												<span
+													class="accordion-indicator accordion-indicator-custom  pull-right">
+													<i class="plus fa fa-angle-down fa-2x icon-black" id=""></i>
+													<i class="minus fa fa-angle-up fa-2x  icon-black" id=""></i>
+												</span>
+												<div class="row" style="padding_class-top: 10px;">
+													<div class="col-lg-12 ">
+														<div
+															class="col-lg-6 pull-left padding_class settings_style"
+															style="margin-top: 10px !important;">
+
+															{{items.grpDesc}}</div>
+													</div>
+												</div>
+
+
+											</div>
+										</div>
+
+										 <div id="collapseMock_{{j}}" class="card-collapse collapse"
+											role="tabcard" aria-labelledby="">
+											<div class="card-block card-block-table-custom">
+												<div class="card-block db-block">
+													<div class="row" style="padding: 5px; margin-bottom: -2%;">
+														<div class="col-lg-12"
+															style="margin-top: 10px !important;"
+															*ngFor="let inneritems of items.details;let i = index;">
+															<div class="form-group col-lg-10 pull-left"
+																 >
+																<label for="desc" class="pull-left"><span>{{inneritems.desc}} : </span></label>
+																<textarea rows="4" cols="50" type="text" *ngIf="inneritems.formatType == 'textarea'"
+																	class="form-control" id="desc" #enterVal="ngModel"
+																	[(value)]="inneritems.val" placeholder="Change Value"
+																	[(ngModel)]="inneritems.val"
+																	placeholder="EX : {{inneritems.val}} "></textarea>
+																	
+										
+															
+															<input *ngIf="inneritems.formatType == 'text'" 
+															style="margin-left:5px; margin-top:-3px; padding:0px;"
+																 type={{inneritems.formatType}} 
+																	 id="desc" #enterVal="ngModel"
+																	[(value)]="inneritems.val" placeholder="Change Value"
+																	[(ngModel)]="inneritems.val"
+																	(change)="getSettings(items.grpName,items,inneritems.val,i,enterVal.value,$event,j)"
+																	placeholder="EX : {{inneritems.val}} "/>
+															<div class="checkbox abc-checkbox align-center pull-left" *ngIf="inneritems.formatType=='checkbox'" 
+																							style="text-align: center;margin-top:-5px; margin-left:10px;">
+																							<input
+																								id="checkbox-settings-{{items.grpName}}-{{i}}"
+																								[(value)]="inneritems.val"
+																								(click)="getSettings(items.grpName,items,inneritems.val,i,$event.target.checked,$event,j)"
+																								class="select styled" name="select_all" type="checkbox">
+																							<label
+																								for="checkbox-settings-{{items.grpName}}-{{i}}"></label>
+																						</div>
+															<div class="radio abc-checkbox pull-left col-md-5"
+																	*ngIf="inneritems.formatType=='radio'">
+																	<input type="hidden" value="{{inneritems.val}}" id="hidden-checkbox-radio-{{j}}">
+																	<input id="checkbox-radio-{{items.grpName}}-{{j}}" class="styled"
+																		name="select_file_{{j}}" value="true"
+																		type="radio"
+																		#enterVal
+																		(click)="getSettings(items.grpName,items,inneritems.val,i,'true',$event,j)">
+																	<label for="checkbox-radio-{{items.grpName}}-{{j}}"
+																		style="margin-right: 5%;">Yes</label> 
+																		<input type="hidden" value="{{inneritems.val}}" id="hidden-checkbox-no-{{j}}">
+																		<input
+																		id="checkbox-no-{{items.grpName}}-{{j}}" class="styled"
+																		name="select_file_{{j}}" value="false"
+																		type="radio"
+																		#enterVal
+																		(click)="getSettings(items.grpName,items,inneritems.val,i,'false',$event,j)">
+																	<label for="checkbox-no-{{items.grpName}}-{{j}}">No</label>
+																</div>
+															
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+
+								</div>
+
+
+							</div>
+
+						</div>
+					</div>
+
+				</div>
+
+
+
+			</div>
+
+
+
+		</div>
+
+
+	</div>
+
+
+
+
+
+
+
+
+</section>

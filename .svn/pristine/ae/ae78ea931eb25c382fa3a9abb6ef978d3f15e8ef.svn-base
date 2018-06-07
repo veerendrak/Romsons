@@ -1,0 +1,206 @@
+import { Component, OnInit } from '@angular/core';
+import { AppComponent } from '../../app.component';
+import { Http } from '@angular/http';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+import {CommonService} from '../../services/common.service';
+
+declare var $: any;
+declare var jQuery: any;
+
+@Component( {
+    selector: 'cat-menu-left',
+    templateUrl: './menu-left-vertical.component.html',
+    providers: []
+} )
+export class MenuLeftComponent implements OnInit {
+    bpId:any;
+    orgId:any;
+    leftMenu:any;
+    menuRouterUrl:any;
+    childLength: any;
+    childUrl: any;
+    constructor( private http: Http,
+        public actRoute: ActivatedRoute, private router: Router,
+        private app: AppComponent,private environment:EnvConfigurationService,
+        private commonService:CommonService
+    ) {
+        this.bpId=localStorage.getItem("bpId");
+        this.orgId=localStorage.getItem("orgId");
+        this.leftMenu=[];
+    }
+
+    ngOnInit() {
+        let url = this.environment.getRequiredApi('get_left_side_menu')+"?org_id=" +this.orgId +"&bp_id="+this.bpId+"&";
+        this.commonService.getData( url, 'GET', '', '')
+            .subscribe(( response ) => {
+                if(response.status!=1){
+                this.leftMenu = response["data"].accessObjs;
+                localStorage.setItem("roleName", response["data"].roleName);
+                this.leftMenu.forEach( element => {
+                    localStorage.setItem( element.parentObjName, element.parentObjId );
+                    this.menuRouterUrl = element.navLink.replace( /\s/g, '' );
+                    element['menuUrl'] = this.menuRouterUrl;
+                    if ( element.childObjs.length == 0 ) {
+                        this.childLength = false;
+                    } else {
+                        this.childLength = true;
+                        element['childLength'] = this.childLength;
+                        element.childObjs.forEach( childelement => {
+                            this.childUrl = childelement.navLink.replace( /\s/g, '' );
+                            childelement['childUrl'] = this.childUrl;
+                            localStorage.setItem( childelement.objName, childelement.objId );
+                        } );
+                    }
+                    
+                } );
+                $( function() {
+
+                    // scripts for "menu-left" module
+
+                    /////////////////////////////////////////////////////////////////////////////////////////
+                    // add backdrop
+
+                    $( '.cat__menu-left' ).after( '<div class="cat__menu-left__backdrop cat__menu-left__action--backdrop-toggle"><!-- --></div>' );
+
+                    /////////////////////////////////////////////////////////////////////////////////////////
+                    // submenu
+
+                    $( '.cat__menu-left__submenu > a' ).on( 'click', function() {
+
+
+                        if ( $( 'body' ).hasClass( 'cat__config--vertical' ) || $( 'body' ).width() < 768 ) {
+
+                            var parent = $( this ).parent(),
+                                opened = $( '.cat__menu-left__submenu--toggled' );
+
+                            if ( !parent.hasClass( 'cat__menu-left__submenu--toggled' ) && !parent.parent().closest( '.cat__menu-left__submenu' ).length )
+                                opened.removeClass( 'cat__menu-left__submenu--toggled' ).find( '> .cat__menu-left__list' ).slideUp( 200 );
+
+                            parent.toggleClass( 'cat__menu-left__submenu--toggled' );
+                            parent.find( '> .cat__menu-left__list' ).slideToggle( 200 );
+
+                        }
+
+                    } );
+
+                    // remove submenu toggle class when viewport back to full view
+                    $( window ).on( 'resize', function() {
+                        if ( $( 'body' ).hasClass( 'cat__config--horizontal' ) || $( 'body' ).width() > 768 ) {
+                            $( '.cat__menu-left__submenu--toggled' ).removeClass( 'cat__menu-left__submenu--toggled' ).find( '> .cat__menu-left__list' ).attr( 'style', '' );
+                        }
+                        var windowHeight = Math.round( $( document ).height() );
+                        var topBarheight = Math.round( $( '.cat__top-bar' ).height() );
+                        var footerHeight = Math.round( $( '.footer-background' ).height() );
+                        var containerHeight = windowHeight - ( topBarheight + footerHeight + 50 );
+                        //$('#mainContent').css("min-height",containerHeight);
+                        var width=$("#mainContent").css("width");
+                        $(".outbound-footer").css("width",width);
+                        $(".table").addClass("scroll-tab");
+                    } );
+
+
+                    /////////////////////////////////////////////////////////////////////////////////////////
+                    // custom scroll init
+
+                    if ( $( 'body' ).hasClass( 'cat__config--vertical' ) ) {
+                        if ( !( /Mobi/.test( navigator.userAgent ) ) && jQuery().jScrollPane ) {
+                            $( '.cat__menu-left__inner' ).each( function() {
+                                $( this ).jScrollPane( {
+                                    contentWidth: '0px',
+                                    autoReinitialise: true,
+                                    autoReinitialiseDelay: 100
+                                } );
+                                var api = $( this ).data( 'jsp' ),
+                                    throttleTimeout;
+                                $( window ).bind( 'resize', function() {
+                                    if ( !throttleTimeout ) {
+                                        throttleTimeout = setTimeout( function() {
+                                            api.reinitialise();
+                                            throttleTimeout = null;
+                                        }, 50 );
+                                    }
+                                } );
+                            } );
+                        }
+                    }
+
+
+                    /////////////////////////////////////////////////////////////////////////////////////////
+                    // toggle menu
+
+                    $( '.cat__menu-left__action--menu-toggle' ).on( 'click', function() {
+                        $( "#bpTitle" ).removeAttr( 'style' );
+                        if ( $( 'body' ).width() < 768 ) {
+                            $( 'body' ).toggleClass( 'cat__menu-left--visible--mobile' );
+                            $( "#bpTitle" ).toggleClass( 'cat_top_bar_title-left--mobile' );
+                            $( "#bpTitle" ).removeClass( 'cat_top_bar_title-left-visible' );
+                        } else {
+                            $( 'body' ).toggleClass( 'cat__menu-left--visible' );
+                            $( "#bpTitle" ).toggleClass( 'cat_top_bar_title-left-visible' );
+                            $( "#bpTitle" ).toggleClass( 'cat_top_bar_title-left' );
+                        }
+                        if($('body').hasClass('cat__menu-left--visible')){
+                            $(".ell-spa").removeAttr("style");
+                            $(".donut-graph").removeAttr("style");
+                            var width=$("#mainContent").css("width");
+                            $(".outbound-footer").css("width",width);
+                            
+                        }else{
+                            $(".ell-spa").attr("style","width:340px");
+                            $(".donut-graph").attr("style","width:320px");
+                            var width=$("#mainContent").css("width");
+                            $(".outbound-footer").css("width",width);
+                        }
+                    } )
+
+                    $( '.cat__menu-left__action--backdrop-toggle' ).on( 'click', function() {
+                        $( 'body' ).removeClass( 'cat__menu-left--visible--mobile' );
+                        $( "#bpTitle" ).removeClass( 'cat_top_bar_title-left-visible' );
+                    } )
+
+
+                    /////////////////////////////////////////////////////////////////////////////////////////
+                    // colorful menu
+
+                    var colorfulClasses = 'cat__menu-left--colorful--primary cat__menu-left--colorful--secondary cat__menu-left--colorful--primary cat__menu-left--colorful--default cat__menu-left--colorful--info cat__menu-left--colorful--success cat__menu-left--colorful--warning cat__menu-left--colorful--danger cat__menu-left--colorful--yellow',
+                        colorfulClassesArray = colorfulClasses.split( ' ' );
+
+                    function setColorfulClasses() {
+                        $( '.cat__menu-left__list--root > .cat__menu-left__item' ).each( function() {
+                            var randomClass = colorfulClassesArray[Math.floor( Math.random() * colorfulClassesArray.length )];
+                            $( this ).addClass( randomClass );
+                        } )
+                    }
+
+                    function removeColorfulClasses() {
+                        $( '.cat__menu-left__list--root > .cat__menu-left__item' ).removeClass( colorfulClasses );
+                    }
+
+                    if ( $( 'body' ).hasClass( 'cat__menu-left--colorful' ) ) {
+                        setColorfulClasses();
+                    }
+
+                    $( 'body' ).on( 'setColorfulClasses', function() {
+                        setColorfulClasses();
+                    } );
+
+                    $( 'body' ).on( 'removeColorfulClasses', function() {
+                        removeColorfulClasses();
+                    } );
+
+
+                } );
+               }
+                
+            }, ( error: any ) => {
+
+                if ( error.status === 401 || error.status === 0 ) {
+                    //this.commonService.invalidateLoginSession();
+                }
+            } );
+        
+    }
+	
+  }

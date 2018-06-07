@@ -1,0 +1,1349 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router,ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+declare var XLSX:any;
+declare var XLS:any;
+var mergeItems=[];
+@Component({
+  selector: 'app-edit-sales-order',
+  templateUrl: './edit-sales-order.component.html',
+  styleUrls: ['./edit-sales-order.component.css']
+})
+export class EditSalesOrderComponent implements OnInit {
+    salesOrderForm:FormGroup;
+@Output()
+@Input() salesSeries:any=""; 
+title:any;
+createSalesBlock:boolean=true;
+outboundDeliberyBlock:boolean=false;
+billingBlock:boolean=false;
+postGoodsBlock:boolean=false;
+showOrderType:boolean;  
+salesOrderMessage:any;
+formResetFlag:boolean=false;
+editOrderNum:any;
+customerId:any;
+bpId:any;
+orgId:any;
+accessObjectId:any;
+payload:any;
+customerList:any;
+payIncoTermsList:any;
+dsFlag:boolean=true;
+customerShiptoParty:any;
+customerNames:any;
+customerListLength:any;
+customerShiptoPartyLenth:any;
+payIncoTermsListLength:any;
+createSalesOrderItems:any;
+indeterminate:boolean=false;
+checked:boolean=false;
+checkedObjects:any;
+matnrDetails:any;
+incoTermVal:any;
+payTermVal:any;
+manageSalesPayload:any;
+calcResultsList:any;
+orderNum:any;
+createSalesFlag:boolean=true;
+createdSales:boolean=false;
+errorList:any;
+errorFlag:boolean=false;
+schTypeSymbol:any;
+salesOrderDtlList:any;
+orderTypes:any;
+shipToPartyId:any;
+docType:any;
+reqDate:any;
+purNum:any;
+purDate:any;
+shName:any;
+sdName:any;
+shNameId:any;
+sdNameId:any;
+displayFlag:boolean=false;
+sdPartyList:any;
+sdPartyListLength:any;
+incoTerms1:any;
+payTerms:any;
+oldCustomerId:any;
+headerText:any;
+constructor(private http: Http, private formBuilder: FormBuilder,
+      private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private messagesService:MessagePropertiesService,
+      private commonService:CommonService,private dateAdapter: DateAdapter<Date>,private activatedRoute:ActivatedRoute,
+      private environment:EnvConfigurationService) {
+  this.app.isActive=true;
+  this.dateAdapter.setLocale('en-gb');
+  this.salesOrderForm = formBuilder.group({
+      hideRequired: false,
+      floatLabel: 'auto',
+      'req_date_h' : [''],
+      'purch_no_c':[''],
+      'purch_date':[''],
+      'soldToParty':['']
+    });
+  this.createSalesBlock=true;
+  this.showOrderType =commonService.showOrderType;
+  this.salesOrderMessage = messagesService.sales_order_details_msg;
+  this.bpId=localStorage.getItem("bpId");
+  this.orgId=localStorage.getItem("orgId");
+  this.accessObjectId=localStorage.getItem("Sales Order");
+  this.customerNames=[];
+  this.customerList={};
+  this.customerListLength=0;
+  this.customerShiptoParty={};
+  this.customerShiptoPartyLenth=0;
+  this.payIncoTermsListLength=0;
+  this.payload={};
+  this.createSalesOrderItems=[];
+  this.checkedObjects=[];
+  this.matnrDetails=[];
+  this.incoTermVal="";
+  this.payTermVal="";
+  this.manageSalesPayload={};
+  this.calcResultsList={};
+  this.orderNum="";
+  this.createSalesFlag=true;
+  this.createdSales=false;
+  this.orderTypes=[];
+  this.docType=null;
+  this.reqDate="";
+  this.purDate="";
+  this.purNum="";
+  this.shName="";
+  this.sdName="";
+  this.shNameId="";
+  this.sdNameId="";
+  this.sdPartyList={};
+  this.sdPartyListLength=0;
+  this.incoTerms1="";
+  this.payTerms="";
+  this.headerText="";
+  this.errorList=[];
+  if(this.router.url=='/billing'){
+      this.commonService.saleType='Create';
+      this.navigatePath("billing");
+  }
+  if(this.router.url=='/outbounddelivery'){
+      this.commonService.saleType='Create';
+      this.navigatePath("outbounddelivery");
+  }  
+}
+
+ngOnInit() {
+  this.createSalesOrderItems=[
+                              {
+                                  "mat_num":"",
+                                  "qty":"",
+                                  "uom":"",
+                                  "desc":"",
+                                  "price":0,
+                                  "fix_sch":"",
+                                  "sch_val":0,
+                                  "add_dis":"",
+                                  "dis_per_val":0,
+                                  "dis_amt":0,
+                                  "net_val":0,
+                                  "sgst_rt":"",
+                                  "sgst_val":0,
+                                  "cgst_rt":"",
+                                  "cgst_val":0,
+                                  "igst_rt":"",
+                                  "igst_val":0,
+                                  "displayRow":true
+                              },
+                              {
+                                  "mat_num":"",
+                                  "qty":"",
+                                  "uom":"",
+                                  "desc":"",
+                                  "price":0,
+                                  "fix_sch":"",
+                                  "sch_val":0,
+                                  "add_dis":"",
+                                  "dis_per_val":0,
+                                  "dis_amt":0,
+                                  "net_val":0,
+                                  "sgst_rt":"",
+                                  "sgst_val":0,
+                                  "cgst_rt":"",
+                                  "cgst_val":0,
+                                  "igst_rt":"",
+                                  "igst_val":0,
+                                  "displayRow":true
+                              },
+                              {
+                                  "mat_num":"",
+                                  "qty":"",
+                                  "uom":"",
+                                  "desc":"",
+                                  "price":0,
+                                  "fix_sch":"",
+                                  "sch_val":0,
+                                  "add_dis":"",
+                                  "dis_per_val":0,
+                                  "dis_amt":0,
+                                  "net_val":0,
+                                  "sgst_rt":"",
+                                  "sgst_val":0,
+                                  "cgst_rt":"",
+                                  "cgst_val":0,
+                                  "igst_rt":"",
+                                  "igst_val":0,
+                                  "displayRow":true
+                              },
+                              {
+                                  "mat_num":"",
+                                  "qty":"",
+                                  "uom":"",
+                                  "desc":"",
+                                  "price":0,
+                                  "fix_sch":"",
+                                  "sch_val":0,
+                                  "add_dis":"",
+                                  "dis_per_val":0,
+                                  "dis_amt":0,
+                                  "net_val":0,
+                                  "sgst_rt":"",
+                                  "sgst_val":0,
+                                  "cgst_rt":"",
+                                  "cgst_val":0,
+                                  "igst_rt":"",
+                                  "igst_val":0,
+                                  "displayRow":true
+                              },
+                              {
+                                  "mat_num":"",
+                                  "qty":"",
+                                  "uom":"",
+                                  "desc":"",
+                                  "price":0,
+                                  "fix_sch":"",
+                                  "sch_val":0,
+                                  "add_dis":"",
+                                  "dis_per_val":0,
+                                  "dis_amt":0,
+                                  "net_val":0,
+                                  "sgst_rt":"",
+                                  "sgst_val":0,
+                                  "cgst_rt":"",
+                                  "cgst_val":0,
+                                  "igst_rt":"",
+                                  "igst_val":0,
+                                  "displayRow":true
+                              }
+                              ]
+  this.payload["address"]=true;
+  this.payload["bp_id"]=this.bpId;
+  this.payload["compliance"]=true;
+  this.payload["incoterms"]=true;
+  this.payload["org_id"]=this.orgId;
+  this.payload["promotion"]=true;
+  mergeItems=this.createSalesOrderItems;
+  $(()=>{
+      $('.datepicker-init-sale').datetimepicker({
+          widgetPositioning: {
+              horizontal: 'left'
+          },
+          icons: {
+              time: "fa fa-clock-o",
+              date: "fa fa-calendar",
+              up: "fa fa-arrow-up",
+              down: "fa fa-arrow-down",
+              previous: 'fa fa-arrow-left',
+              next: 'fa fa-arrow-right'
+          },
+          format: 'DD/MM/YYYY',
+      });  
+  
+      
+      $("input[type=file]").change(function(){
+          var file = this.files[0];
+          var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+          var fileName = $( "#uploadExcel" ).val()
+          fileName = fileName.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g,' ');
+          $( "#loadingIcon" ).show();
+          $( "#black-overlay" ).show();
+          var xlsxflag = false; /*Flag for checking whether excel is .xls format or .xlsx format*/  
+          if ($("#uploadExcel").val().toLowerCase().indexOf(".xlsx") > 0 || $("#uploadExcel").val().toLowerCase().indexOf(".xls") > 0){
+              xlsxflag = true;  
+              if ( typeof ( FileReader ) != "undefined" ) {
+                  var reader = new FileReader();
+                  reader.onload = function( e: any ) {
+                      if ( e.target.result.length == 1 ) {
+                          $.notify( {
+                              title: '',
+                              message: "No data available in the uploaded file"
+                          }, {
+                                  type: "warning"
+                              } );
+                          $( "#loadingIcon" ).hide();
+                          $( "#black-overlay" ).hide();
+                          return false;
+                      }
+                      
+                      var rowslist = e.target.result;
+                      if (xlsxflag) {  
+                          var workbook = XLSX.read(rowslist, { type: 'binary' });  
+                      }  
+                      else {  
+                          var workbook = XLS.read(rowslist, { type: 'binary' });  
+                      } 
+                      /*Gets all the sheetnames of excel in to a variable*/  
+                      var sheet_name_list = workbook.SheetNames;  
+       
+                      var cnt = 0; 
+                      sheet_name_list.forEach(function (y) { /*Iterate through all sheets*/  
+                          /*Convert the cell value to Json*/  
+                          if (xlsxflag) {  
+                              var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[y]);  
+                          }  
+                          else {  
+                              var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[y]);  
+                          }  
+                          if (exceljson.length > 0 && cnt == 0) {  
+                              var columnSet = [];  
+                              for (var i = 0; i < exceljson.length; i++) {  
+                                  var rowHash = exceljson[i];  
+                                  for (var key in rowHash) {  
+                                      if (rowHash.hasOwnProperty(key)) {  
+                                          if ($.inArray(key, columnSet) == -1) {  
+                                              columnSet.push(key);  
+                                          }  
+                                      }  
+                                  }  
+                              } 
+                              var columns =columnSet;
+                              for (var i = 0; i < exceljson.length; i++) {  
+                                  if(exceljson.length>mergeItems.length){
+                                      var newObject={
+                                              "mat_num":"",
+                                              "qty":"",
+                                              "uom":"",
+                                              "desc":"",
+                                              "price":0,
+                                              "fix_sch":"",
+                                              "sch_val":0,
+                                              "add_dis":"",
+                                              "dis_per_val":0,
+                                              "dis_amt":"",
+                                              "net_val":0,
+                                              "sgst_rt":"",
+                                              "sgst_val":0,
+                                              "cgst_rt":"",
+                                              "cgst_val":0,
+                                              "igst_rt":"",
+                                              "igst_val":0,
+                                              "displayRow":true,
+                                              "updateflag":"I"
+                                          }
+                                      mergeItems.push(newObject);
+                                  }  
+                                  for (var colIndex = 0; colIndex < columns.length; colIndex++) {  
+                                      var cellValue = exceljson[i][columns[colIndex]];  
+                                      if (cellValue == null)  
+                                          cellValue = ""; 
+                                      if(colIndex==0){
+                                          mergeItems[i]['mat_num']= cellValue;
+                                      }else{
+                                          mergeItems[i]['qty']= cellValue;
+                                      }
+                                      
+                                      
+                                      
+                                  }  
+                              }  
+                              cnt++;  
+                          }  
+                      });
+                      $("#mergeItemList").click();
+                      $( "#uploadExcel" ).val("")
+                  }
+                  if (xlsxflag) {/*If excel file is .xlsx extension than creates a Array Buffer from excel*/  
+                      reader.readAsArrayBuffer($("#uploadExcel")[0].files[0]);  
+                  }  
+                  else {  
+                      reader.readAsBinaryString($("#uploadExcel")[0].files[0]);  
+                  } 
+                  //reader.readAsText( $( "#stockFile" )[0].files[0] );
+                  $( "#loadingIcon" ).hide();
+                  $( "#black-overlay" ).hide();
+              } else {
+                  $( "#loadingIcon" ).hide();
+                  $( "#black-overlay" ).hide();
+                  alert( "This browser does not support HTML5." );
+              }
+          }else{
+              $( "#loadingIcon" ).hide();
+              $( "#black-overlay" ).hide();
+              alert( "Please upload a valid CSV file." ); 
+          }
+      });
+  });
+  this.activatedRoute.queryParams.subscribe(params => {
+      if(params['action']=="U"){
+          this.title="Sales Order / Edit";
+      }
+      if(params['action']=="DIS"){
+          this.title="Sales Order / Display";
+          this.displayFlag=true;
+      }
+      this.editOrderNum=params["orderNum"];
+      //this.getCustomerDetails();
+      this.getSalesOrderDetails();
+  });
+  
+  if($('body').hasClass('cat__menu-left--visible')){
+      $(".ell-spa").removeAttr("style");
+  }else{
+      $(".ell-spa").attr("style","width:340px");
+  }
+  setTimeout(()=>{
+      var width=$("#mainContent").css("width");
+      $(".outbound-footer").css("width",width);
+  },100);
+  $(function(){
+      $('#shiptoparty').change(function(){
+          var value=$('#addressList option[value="'+$("#shiptoparty").val()+'"]').text().trim();
+          $("#shiptoCustomerId").val(value);
+          $("#addressBtn").click();
+      });
+      
+  });
+  let orderTypesUrl:any=this.environment.getRequiredApi("dropdown_list_byid")+"?";
+  orderTypesUrl=orderTypesUrl.replace("{obj_name}","sapdocs");
+  orderTypesUrl=orderTypesUrl.replace("{obj_id}","ORD");
+  this.commonService.getData(orderTypesUrl, "GET", "", this.accessObjectId).subscribe(response=>{
+     if(response.status==0){
+         this.orderTypes=response["data"].objs;
+     } 
+  });
+}
+navigatePath(path){
+  if(path=='billing'){
+      this.createSalesBlock=false;
+      this.outboundDeliberyBlock=false;
+      this.postGoodsBlock=false;
+      this.billingBlock=true;
+      this.formResetFlag = true;
+  }
+  if(path=='outbounddelivery'){
+      this.createSalesBlock=false;
+      this.outboundDeliberyBlock=true;
+      this.postGoodsBlock=false;
+      this.billingBlock=false;
+      this.formResetFlag = true;
+  }
+  if(path=='createsalesorder'){
+      this.createSalesBlock=true;
+      this.outboundDeliberyBlock=false;
+      this.postGoodsBlock=false;
+      this.billingBlock=false;
+      this.formResetFlag = true;
+      setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },50);
+      
+  }
+  if(path=='postgoodsissue'){
+      this.createSalesBlock=false;
+      this.outboundDeliberyBlock=false;
+      this.postGoodsBlock=true;
+      this.billingBlock=false;
+      this.formResetFlag = true;
+  }
+  if(this.formResetFlag){
+  this.salesOrderForm.reset();    
+  }
+}
+getSalesOrderDetails(){
+    $('#loadingIcon').show();
+    $("#black-overlay").show();
+    let url:any=this.environment.getRequiredApi("get_sales_display")+"?so_num="+this.editOrderNum+"&org_id="+this.orgId+"&bp_id="+this.bpId+"&";
+    this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+       if(response.status==0){
+           this.salesOrderDtlList=response["data"];
+           this.docType=this.salesOrderDtlList['ex_so_header'][0]['doc_type'];
+           this.reqDate=this.salesOrderDtlList['ex_so_header'][0]['req_date_h'];
+           this.purNum=this.salesOrderDtlList['ex_so_header'][0]['purch_no'];
+           this.purDate=this.salesOrderDtlList['ex_so_header'][0]['purch_date'];
+           
+           this.salesOrderDtlList['ex_partners'].forEach(response=>{
+               if(response.partn_role=='AG'){
+                   this.customerId=response.customer;
+                   this.payload['cust_id']=response.customer; 
+                   this.getCustomerDetails();
+                   let custAddr:any=response.address;
+                   this.salesOrderDtlList['ex_address'].forEach(data=>{
+                      if(data.address==custAddr){
+                          this.sdPartyList=data;
+                      } 
+                   });
+               }
+               if(response.partn_role=='WE'){
+                   this.shipToPartyId=response.customer;
+                   this.getcustomerListById();
+               }
+           });
+           if(this.salesOrderDtlList.hasOwnProperty("ex_business")){
+               this.incoTerms1=this.salesOrderDtlList['ex_business'][0].incoterms1;
+               this.payTerms=this.salesOrderDtlList['ex_business'][0].pmnttrms;
+           }
+           if(this.salesOrderDtlList.hasOwnProperty("ex_textlines")){
+               this.headerText=this.salesOrderDtlList['ex_textlines'][0].line;
+           }
+           if(this.salesOrderDtlList.hasOwnProperty("ex_so_items")){
+               this.createSalesOrderItems=[];
+           this.salesOrderDtlList['ex_so_items'].forEach(response=>{
+               let object:any={};
+               object['mat_num']=response.material;
+               object['qty']=response.req_qty;
+               object['uom']=response.sales_unit;
+               object['desc']=response.short_text;
+               object['price']=0;
+               object['fix_sch']=0;
+               object['sch_val']=0;
+               object['add_dis']="";
+               object['dis_per_val']=0;
+               object['dis_amt']=0;
+               object['net_val']=response.net_value; 
+               object['oldnetVal']=response.net_value;
+               object['sgst_rt']=0;
+               object['sgst_val']=0;
+               object['igst_rt']=0;
+               object['igst_val']=0;
+               object['cgst_rt']=0;
+               object['cgst_val']=0;
+               object['displayRow']=true;
+               object['updateflag']="U";
+               this.createSalesOrderItems.push(object);
+           });
+           }
+           let itemNumber:any=null;
+           let count=0;
+           if(this.salesOrderDtlList.hasOwnProperty("ex_conditions")){
+               this.salesOrderDtlList['ex_conditions'].forEach(response=>{
+                   if(itemNumber==null){ 
+                       itemNumber=response.itm_number;
+                       this.createSalesOrderItems[count]['itm_number']=response.itm_number;
+                       this.createSalesOrderItems[count]['cond_st_no']=response.cond_st_no;
+                       if(response.cond_type=='ZPRO'){
+                           this.createSalesOrderItems[count].price=response.cond_value;
+                       }
+                   }else{
+                       if(itemNumber==response.itm_number){
+                           if(response.cond_type=='ZSPE'){
+                               this.createSalesOrderItems[count].fix_sch=Math.abs(response.cond_value);
+                               this.createSalesOrderItems[count].sch_val=Math.abs(response.condvalue);
+                               this.createSalesOrderItems[count]['zspe']=true;
+                               this.createSalesOrderItems[count].schTypeSymbol="per";
+                           }else{
+                               this.createSalesOrderItems[count]['zspe']=false;
+                           }
+                           if(response.cond_type=='ZSVL'){
+                               this.createSalesOrderItems[count].fix_sch=Math.abs(response.cond_value);
+                               this.createSalesOrderItems[count].sch_val=Math.abs(response.condvalue);
+                               this.createSalesOrderItems[count]['zsvl']=true;
+                               this.createSalesOrderItems[count].schTypeSymbol="val";
+                           }else{
+                               this.createSalesOrderItems[count]['zsvl']=false;
+                           }
+                           if(response.cond_type=='ZPER'){
+                               this.createSalesOrderItems[count].add_dis=response.cond_type;
+                               this.createSalesOrderItems[count].dis_per_val=Math.abs(response.cond_value);
+                               this.createSalesOrderItems[count].dis_amt=Math.abs(response.condvalue);
+                               this.createSalesOrderItems[count]['zper']=true;
+                           }else{
+                               this.createSalesOrderItems[count]['zsvl']=false;
+                           }
+                           if(response.cond_type=='ZVAL'){
+                               this.createSalesOrderItems[count].add_dis=response.cond_type;
+                               this.createSalesOrderItems[count].dis_per_val=Math.abs(response.cond_value);
+                               this.createSalesOrderItems[count].dis_amt=Math.abs(response.condvalue);
+                               this.createSalesOrderItems[count]['zval']=true;
+                           }else{
+                               this.createSalesOrderItems[count]['zval']=false; 
+                           }
+                           if(response.cond_type=='JOIG'){
+                               let rate:any=Math.abs(response.cond_value);
+                               this.createSalesOrderItems[count].igst_rt=rate; 
+                               this.createSalesOrderItems[count].igst_val=Math.abs(response.condvalue);
+                               this.createSalesOrderItems[count]['joig']=true;
+                           }else{
+                               this.createSalesOrderItems[count]['joig']=false;
+                           }
+                           if(response.cond_type=='JOCG'){
+                               let rate:any=Math.abs(response.cond_value);
+                               this.createSalesOrderItems[count].cgst_rt=rate; 
+                               this.createSalesOrderItems[count].cgst_val=Math.abs(response.condvalue);
+                               this.createSalesOrderItems[count]['jocg']=true;
+                           }else{
+                               this.createSalesOrderItems[count]['jocg']=false;
+                           }
+                           if(response.cond_type=='JOSG'){
+                               let rate:any=Math.abs(response.cond_value);
+                               this.createSalesOrderItems[count].sgst_rt=rate; 
+                               this.createSalesOrderItems[count].sgst_val=Math.abs(response.condvalue);
+                               this.createSalesOrderItems[count]['josg']=true;
+                           }else{
+                               this.createSalesOrderItems[count]['josg']=false;
+                           }
+                       }else{
+                           count++;
+                           itemNumber=response.itm_number;
+                           this.createSalesOrderItems[count]['itm_number']=response.itm_number;
+                           if(response.cond_type=='ZPRO'){
+                               this.createSalesOrderItems[count].price=response.cond_value;
+                           }
+                       }
+                   }
+               });
+           }
+           this.getPayIncoTerms();
+           $('#loadingIcon').hide();
+           $("#black-overlay").hide();
+       }else{
+           $('#loadingIcon').hide();
+           $("#black-overlay").hide();
+           this.commonService.responseMessages("", response.message, "warning");
+       }
+       
+    });
+}
+getCustomerDetails(){
+  $('#loadingIcon').show();
+  $("#black-overlay").show();
+  let url:any=this.environment.getRequiredApi("get_customer_details")+"?";
+  this.commonService.getData(url, "POST", this.payload, this.accessObjectId).subscribe(response=>{
+      if(response.status==0){
+         this.customerList=response["data"];
+         this.customerListLength=Object.keys(this.customerList).length;
+         if(this.customerList['ex_incoterms'].length>0){
+             this.incoTermVal=this.customerList['ex_incoterms'].inco_term;
+             this.payTermVal=this.customerList['ex_incoterms'].pay_term;
+         }
+         if(Object.keys(this.customerList['ex_address']).length>0){
+             this.sdName=this.customerList['ex_address'].cust_name;
+             this.sdNameId=this.customerList['ex_address'].cust_id;
+         }
+      }else{
+          this.commonService.responseMessages("", response.message, "warning");
+      }
+      $('#loadingIcon').hide();
+      $("#black-overlay").hide();
+  })
+}
+getcustomerListById(){
+  let response:any={}
+      response["address"]=true;
+      response["bp_id"]=this.bpId;
+      response["compliance"]=true;
+      response["incoterms"]=false;
+      response["org_id"]=this.orgId;
+      response["promotion"]=false;
+      response["cust_id"]=this.shipToPartyId;
+      let url:any=this.environment.getRequiredApi("get_customer_details")+"?";
+      this.commonService.getData(url, "POST", response, this.accessObjectId).subscribe(response=>{
+          if(response.status==0){
+             this.customerShiptoParty=response["data"];
+             this.customerShiptoPartyLenth=Object.keys(this.customerShiptoParty).length;
+             if(Object.keys(this.customerShiptoParty['ex_address']).length>0){
+                 this.shName=this.customerShiptoParty['ex_address'].cust_name;
+                 this.shNameId=this.customerShiptoParty['ex_address'].cust_id;
+             }
+          }else{
+              this.commonService.responseMessages("", response.message, "warning");
+          }
+      })
+}
+getPayIncoTerms(){
+  let url:any=this.environment.getRequiredApi("get_pay_inco_terms")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&";
+  this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+     if(response.status==0){
+        this.payIncoTermsList=response["data"]; 
+        this.payIncoTermsListLength=Object.keys(this.payIncoTermsList).length;
+     } 
+  });
+}
+extractData(id,spinnerId,ajaxDropdown){
+  let term:any=$("#"+id).val();
+  if(term.length ==3){
+      $("#"+spinnerId).show();
+      let url:any=this.environment.getRequiredApi("find_customers")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&cust_name="+term+"&";
+  this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+      if(response.status==0){
+          this.customerNames=response["data"].ex_cust_list;
+          $("#"+spinnerId).hide();
+          $("#"+ajaxDropdown).show();
+      }else{
+          $("#"+spinnerId).hide();
+          $("#"+ajaxDropdown).show();
+      }
+     
+  });
+  }else{
+     if(term==""){
+         this.customerNames=[];
+         $("#"+spinnerId).hide();
+     } 
+  }
+}    
+AddMoreLinesOfItems(){
+for(let i:any=0; i<5; i++){
+let newItem:any={
+                    "mat_num":"",
+                    "qty":"",
+                    "uom":"",
+                    "desc":"",
+                    "price":0,
+                    "fix_sch":"",
+                    "sch_val":0,
+                    "add_dis":"",
+                    "dis_per_val":0,
+                    "dis_amt":0,
+                    "net_val":0,
+                    "sgst_rt":"",
+                    "sgst_val":0,
+                    "cgst_rt":"",
+                    "cgst_val":0,
+                    "igst_rt":"",
+                    "igst_val":0,
+                    "displayRow":true,
+                    "updateflag":"I"
+                    }
+    this.createSalesOrderItems.push(newItem);
+}
+} 
+selectAll(event,checkAll,tableId){
+setTimeout(()=>{
+    if($("#"+checkAll).is(":checked")){
+         this.commonService.selectAllCheckBoxes(checkAll,tableId);
+         let count:any=0;
+         this.createSalesOrderItems.forEach(response=>{
+             if(response.displayRow){
+                 this.checkedObjects.push(count);
+             }
+             count++;
+         });  
+     }else{
+         this.commonService.selectAllCheckBoxes(checkAll,tableId);
+         this.checkedObjects=[];
+     }
+     
+     
+ },300);
+
+}
+getReportList(event,tableId,i){
+setTimeout(()=>{let flag:boolean=this.commonService.checkAction(tableId);
+if(flag){
+    this.indeterminate=false;
+    this.checked=true;
+}else{
+    this.indeterminate=true;
+}
+},400);
+setTimeout(()=>{
+   if($("#checkbox-"+i+"-input").is(":checked")){
+       this.checkedObjects.push(i);
+   }else{
+       if(this.checkedObjects.length>0){
+           let count:any=0;
+       for(let index of this.checkedObjects){
+           if(index==i){
+               delete this.checkedObjects[count];
+           }
+           count++;
+       }
+       }
+       setTimeout(()=>{let flag:boolean=this.commonService.continueAction(tableId);
+       if(flag){
+           this.indeterminate=false;
+           this.checked=false;
+       }else{
+           this.indeterminate=true;
+       }
+       },200);
+   }
+   
+},300); 
+}
+removeLineSelectedItems(){
+    if(this.checkedObjects.length>0){
+        for(let index of this.checkedObjects){
+            this.createSalesOrderItems[index].displayRow=false;
+        }
+        this.checkedObjects=[];
+    }else{
+        this.commonService.responseMessages("", "Please select atleast one item", "warning");
+    }
+    setTimeout(()=>{let flag:boolean=this.commonService.continueAction("outbound-delivery-table");
+    if(flag){
+        this.indeterminate=false;
+        this.checked=false;
+    }else{
+        this.indeterminate=true;
+    }
+    if($("#outbound-delivery-table").find('tbody').find('tr').length==0){
+        this.indeterminate=false;
+        this.checked=false;
+    }
+    },200);
+  }
+findMaterialDetails(matnr,response,spinnerId,i){
+if(matnr.value.length==3){
+    $("#"+spinnerId+"-"+i).show();
+    let url:any=this.environment.getRequiredApi("find_matnr_num")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&material="+matnr.value+"&";
+    this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+        if(response.status==0){
+            this.matnrDetails=[];
+          $("#"+spinnerId+"-"+i).hide();
+          this.matnrDetails=response["data"].ex_mat_list;  
+        }
+    });
+}
+}
+expandCollapseBlock(wizardBlock,headerBlock,angleId){
+if($("#"+angleId).is(":visible")){
+    if(angleId=='angle-down'){
+        $("#"+angleId).hide();
+        $("#angle-up").show();
+    }
+    if(angleId=='angle-up'){
+        $("#"+angleId).hide();
+        $("#angle-down").show();
+    }
+    
+}
+$("#"+wizardBlock).slideToggle("slow");
+$("."+headerBlock).slideToggle("slow");
+}
+closeModal(id){
+$("#"+id).modal("hide");
+}
+displaySchemeList(){
+    if(this.errorList.length==0){
+        this.commonService.responseMessages("", "Schemes are not available for this customer", "warning");
+        return false;
+    }
+$("#displaySchemesModal").modal("show");
+}
+uploadExcel(){
+$("#uploadExcel").click();
+}
+mergeItemsList(){
+this.createSalesOrderItems=mergeItems;
+}
+populateFileds(response,matResponse,matType){
+for(let list of matResponse){
+    if(matType=='matNum'){
+        if(response['mat_num']!=""){
+            if(list['mat_num']==response['mat_num']){
+                response['uom']=list['uom'];
+                response['desc']=list['mat_name'];
+                response['qty']="";
+                response['price']=0;
+                response["fix_sch"]="",
+                response["sch_val"]=0,
+                response["add_dis"]="",
+                response["dis_per_val"]=0,
+                response["dis_amt"]=0,
+                response["net_val"]=0,
+                response["sgst_rt"]="",
+                response["sgst_val"]=0,
+                response["cgst_rt"]="",
+                response["cgst_val"]=0,
+                response["igst_rt"]="",
+                response["igst_val"]=0
+                return false;
+            }  
+        }
+        
+    }
+    if(matType=='desc'){
+        if(response['desc']!=""){
+        if(list['mat_name']==response['desc']){
+            response['uom']=list['uom'];
+            response['mat_num']=list['mat_num'];
+            response['qty']="";
+            response['price']=0;
+            response["fix_sch"]="",
+            response["sch_val"]=0,
+            response["add_dis"]="",
+            response["dis_per_val"]=0,
+            response["dis_amt"]=0,
+            response["net_val"]=0,
+            response["sgst_rt"]="",
+            response["sgst_val"]=0,
+            response["cgst_rt"]="",
+            response["cgst_val"]=0,
+            response["igst_rt"]="",
+            response["igst_val"]=0
+            return false;
+        }
+        }
+    }
+}
+}
+calculatePrice(){
+$('#loadingIcon').show();
+$("#black-overlay").show();
+this.manageSalesPayload['bp_id']=this.bpId;
+this.manageSalesPayload['org_id']=this.orgId;
+this.manageSalesPayload['testrun']="X";
+this.manageSalesPayload['im_action']="C";
+this.manageSalesPayload['im_sp_cust']=this.customerId;
+this.manageSalesPayload['im_sh_cust']=$("#shiptoCustomerId").val();
+this.manageSalesPayload['sales_header_in']={};
+this.manageSalesPayload['sales_header_in']['doc_type']=this.docType;
+//this.manageSalesPayload['salesdocument']=this.editOrderNum;
+let reqDate:any=null;
+let purDate:any=null;
+if($("#reqDelDate").val()!=undefined && $("#reqDelDate").val()!=""){
+    reqDate=$("#reqDelDate").val();
+    reqDate=reqDate.split('/')[2]+""+reqDate.split('/')[1]+""+reqDate.split('/')[0];  
+}
+if($("#purchDate").val()!=null && $("#purchDate").val()!=""){
+    purDate=$("#purchDate").val();
+    purDate=purDate.split('/')[2]+""+purDate.split('/')[1]+""+purDate.split('/')[0]; 
+}
+this.manageSalesPayload['sales_header_in']['req_date_h']=reqDate;
+this.manageSalesPayload['sales_header_in']['purch_no_c']=$("#purchNoc").val();
+this.manageSalesPayload['sales_header_in']['purch_date']=purDate;
+this.manageSalesPayload['sales_header_in']['incoterms1']=$("#incoTerms").val();
+this.manageSalesPayload['sales_header_in']['incoterms2']=$("#incoTerms option:selected").text();
+this.manageSalesPayload['sales_header_in']['pmnttrms']=$("#payTerms").val();
+this.manageSalesPayload['sales_items_in']=[];
+let itemCount1:any=1;
+for(let item of this.createSalesOrderItems){
+    if(item.mat_num!="" && item.qty!=""){
+         let object:any={};
+    if(item.qty==""){
+        item.qty=0;
+    }
+    object['itm_number']=itemCount1;
+     object['material']=item.mat_num;
+     object['target_qty']=item.qty;
+     object['target_qu']=item.uom;
+     object['T_UNIT_ISO']=item.uom;
+     this.manageSalesPayload['sales_items_in'].push(object);
+     itemCount1++;
+    }
+}
+this.manageSalesPayload['sales_conditions_in']=[];
+let itemCount:any=1;
+for(let item of this.createSalesOrderItems){
+    let object:any={};
+    if(item.dis_per_val!=0 && item.dis_per_val!=null){
+        if(item.add_dis=='ZPER'){
+            object['cond_value']=-(item.dis_per_val);
+        }else{
+            object['cond_value']=item.dis_per_val/10;
+        }
+        object['cond_type']=item.add_dis;
+        object['itm_number']=itemCount;
+        object['cond_st_no']=item.cond_st_no;
+        this.manageSalesPayload['sales_conditions_in'].push(object);
+        itemCount++;
+    }
+}
+let url:any=this.environment.getRequiredApi("sales_order_manage")+"?";
+this.commonService.getData(url, "POST", this.manageSalesPayload, this.accessObjectId).subscribe(response=>{
+   if(response.status==0){
+       this.calcResultsList=response["data"];
+       let calculatedResults:any=response["data"];
+       let count:any=0;
+       let itemNumber:any=null;
+       if(calculatedResults['ex_return'].length>0){
+           this.errorList=calculatedResults['ex_return'];
+           for(let elist of calculatedResults['ex_return']){
+               if(elist.type=='E'){
+                   this.errorFlag=true;
+                   $('#loadingIcon').hide();
+                   $("#black-overlay").hide();
+                   $("#displayErrorsModal").modal("show");
+                   return false;
+               }
+           }
+       }
+      if(calculatedResults.hasOwnProperty("conditions_ex")){
+      if(calculatedResults['conditions_ex'].length>0){
+       for(let list of calculatedResults['conditions_ex']){
+           if(itemNumber==null){ 
+               itemNumber=list.itm_number;
+               this.createSalesOrderItems[count]['itm_number']=list.itm_number;
+               this.createSalesOrderItems[count]['cond_st_no']=list.cond_st_no;
+               if(list.cond_type=='ZPRO'){
+                   this.createSalesOrderItems[count].price=list.cond_value;
+               }
+           }else{
+               if(itemNumber==list.itm_number){
+                   let netValAmt:any=this.createSalesOrderItems[count].price*this.createSalesOrderItems[count].qty;
+                   
+                   if(list.cond_type=='ZSPE'){
+                       let fixScheme:any=Math.abs(list.cond_value);
+                       this.createSalesOrderItems[count].fix_sch=fixScheme;
+                       let schVal:any=(netValAmt)*this.createSalesOrderItems[count].fix_sch/100;
+                       this.createSalesOrderItems[count].sch_val=schVal;
+                       netValAmt=(netValAmt)-this.createSalesOrderItems[count].sch_val;
+                       this.schTypeSymbol="per";
+                   }
+                   if(list.cond_type=='ZSVL'){
+                       let fixScheme:any=Math.abs(list.cond_value);
+                       this.createSalesOrderItems[count].fix_sch=fixScheme;
+                       let schVal:any=this.createSalesOrderItems[count].fix_sch;
+                       this.createSalesOrderItems[count].sch_val=schVal;
+                       netValAmt=(netValAmt)-this.createSalesOrderItems[count].sch_val;
+                       this.schTypeSymbol="val";
+                   }
+                  
+                   this.createSalesOrderItems[count]['oldnetVal']=netValAmt;
+                   if(list.cond_type=='ZPER'){
+                       if(this.createSalesOrderItems[count].dis_per_val==""){
+                           this.createSalesOrderItems[count].dis_per_val=0;
+                       }
+                           let percentage:any=Math.abs(list.cond_value);
+                           this.createSalesOrderItems[count].dis_amt=(netValAmt*percentage)/100;
+                           netValAmt=(netValAmt)-this.createSalesOrderItems[count].dis_amt;
+                   }
+                   if(list.cond_type=='ZVAL'){
+                       if(this.createSalesOrderItems[count].dis_per_val==""){
+                           this.createSalesOrderItems[count].dis_per_val=0;
+                       }
+                           let percentage:any=Math.abs(list.cond_value);
+                           this.createSalesOrderItems[count].dis_amt=this.createSalesOrderItems[count].dis_per_val;
+                           netValAmt=(netValAmt)-this.createSalesOrderItems[count].dis_amt;
+                   }
+                   this.createSalesOrderItems[count].net_val=netValAmt;
+                   
+                   if(list.cond_type=='JOIG'){
+                       let rate:any=Math.abs(list.cond_value);
+                       this.createSalesOrderItems[count].igst_rt=rate; 
+                       this.createSalesOrderItems[count].igst_val=(this.createSalesOrderItems[count].net_val*rate)/100;
+                   }
+                   if(list.cond_type=='JOCG'){
+                       let rate:any=Math.abs(list.cond_value);
+                       this.createSalesOrderItems[count].cgst_rt=rate; 
+                       this.createSalesOrderItems[count].cgst_val=(this.createSalesOrderItems[count].net_val*rate)/100;
+                   }
+                   if(list.cond_type=='JOSG'){
+                       let rate:any=Math.abs(list.cond_value);
+                       this.createSalesOrderItems[count].sgst_rt=rate; 
+                       this.createSalesOrderItems[count].sgst_val=(this.createSalesOrderItems[count].net_val*rate)/100;
+                   }
+                   this.createSalesOrderItems[count]['grossValue']=this.createSalesOrderItems[count].net_val+this.createSalesOrderItems[count].igst_val+this.createSalesOrderItems[count].cgst_val+this.createSalesOrderItems[count].sgst_val
+               }else{
+                   itemNumber=list.itm_number;
+                   count++;
+                   if(list.cond_type=='ZPRO'){
+                       this.createSalesOrderItems[count].price=list.cond_value;
+                   }
+               }
+           }
+         
+       }
+   }
+  }
+   
+   $('#loadingIcon').hide();
+   $("#black-overlay").hide();
+   }else{
+       $('#loadingIcon').hide();
+       $("#black-overlay").hide();
+       this.commonService.responseMessages("", response.message, "warning");
+   } 
+});
+}
+addDiscountTotal(items,type){
+    if(items.add_dis=='ZPER'){
+        if(items.dis_per_val!=null && (items.net_val!=0 && items.oldnetVal!=0)){
+            let percentage:any=items.dis_per_val;
+           if(items.dis_per_val!=0){
+               items.net_val=(items.oldnetVal*percentage)/100; 
+               items.dis_amt=(items.oldnetVal*percentage)/100;
+               items.igst_val=(items.net_val*items.igst_rt)/100;
+               items.cgst_val=(items.net_val*items.cgst_rt)/100;
+               items.sgst_val=(items.net_val*items.sgst_rt)/100;
+               items.grossValue=items.net_val+items.igst_val+items.cgst_val+items.sgst_val;
+           }else{
+               items.dis_amt=0;
+               items.net_val=items.oldnetVal;
+           }
+            
+        }
+    }
+    if(items.add_dis=='ZVAL'){
+        if(items.dis_per_val!=null && (items.net_val!=0 && items.oldnetVal!=0)){
+            let value:any=items.dis_per_val;
+        if(items.dis_per_val!=0){
+            items.net_val=items.oldnetVal-value;
+            items.dis_amt=value;
+            items.igst_val=(items.net_val*items.igst_rt)/100;
+            items.cgst_val=(items.net_val*items.cgst_rt)/100;
+            items.sgst_val=(items.net_val*items.sgst_rt)/100;
+            items.grossValue=items.net_val+items.igst_val+items.cgst_val+items.sgst_val;
+        }else{
+            items.net_val=items.oldnetVal;
+            items.dis_amt=value;
+        }
+        }
+    }
+    
+}
+saveSalesOrderItems(){
+$('#loadingIcon').show();
+$("#black-overlay").show();
+this.manageSalesPayload['bp_id']=this.bpId;
+this.manageSalesPayload['org_id']=this.orgId;
+this.manageSalesPayload['testrun']="";
+this.manageSalesPayload['im_action']="U";
+this.manageSalesPayload['im_sh_cust']=$("#shiptoCustomerId").val();
+this.manageSalesPayload['im_sh_cust_old']=this.shipToPartyId;
+this.manageSalesPayload['salesdocument']=this.editOrderNum;
+this.manageSalesPayload['im_sp_cust']=this.customerId;
+this.manageSalesPayload['sales_header_in_u']={};
+this.manageSalesPayload['sales_header_in_u']['doc_type']=this.docType;
+this.manageSalesPayload['sales_header_in_u']['purch_no_c']=$("#purchNoc").val();
+this.manageSalesPayload['sales_header_in_u']['incoterms1']=$("#incoTerms").val();
+this.manageSalesPayload['sales_header_in_u']['incoterms2']=$("#incoTerms option:selected").text();
+this.manageSalesPayload['sales_header_in_u']['pmnttrms']=$("#payTerms").val();
+let reqDate:any=null;
+let purDate:any=null;
+if($("#reqDelDate").val()!=undefined && $("#reqDelDate").val()!=""){
+    reqDate=$("#reqDelDate").val();
+    reqDate=reqDate.split('/')[2]+""+reqDate.split('/')[1]+""+reqDate.split('/')[0];  
+}
+if($("#purchDate").val()!=null && $("#purchDate").val()!=""){
+    purDate=$("#purchDate").val();
+    purDate=purDate.split('/')[2]+""+purDate.split('/')[1]+""+purDate.split('/')[0]; 
+}
+this.manageSalesPayload['sales_header_in_u']['req_date_h']=reqDate;
+this.manageSalesPayload['sales_header_in_u']['purch_date']=purDate;
+this.manageSalesPayload['sales_items_in']=[];
+this.manageSalesPayload['sales_items_inx']=[];
+let count1:any=0;
+for(let item of this.createSalesOrderItems){
+    if(item.mat_num!="" && item.qty!=""){
+        let object:any={};
+        object['material']=item.mat_num;
+        object['target_qty']=item.qty;
+        object['target_qu']=item.uom;
+        object['T_UNIT_ISO']=item.uom;
+        object['itm_number']=item.itm_number;
+        this.manageSalesPayload['sales_items_in'].push(object);
+        let changeObject:any={};
+        changeObject['material']="X";
+        changeObject['target_qty']="X";
+        changeObject['target_qu']="X";
+        changeObject['T_UNIT_ISO']="X";
+        changeObject['itm_number']=item.itm_number;
+        if(item.displayRow){
+            changeObject['updateFlag']=item.updateflag;
+        }else{
+            changeObject['updateFlag']="D";
+        }
+        this.manageSalesPayload['sales_items_inx'].push(changeObject);
+    }
+    count1++;
+}
+this.manageSalesPayload['sales_text']=[];
+let object:any={};
+object['text_line']=$("#header_text").val();
+object['text_id']="0002";
+object['langu']='E';
+this.manageSalesPayload['sales_text'].push(object);
+this.manageSalesPayload['testrun']="";
+this.manageSalesPayload['sales_conditions_in']=[];
+this.manageSalesPayload['sales_conditions_inx']=[];
+for(let item of this.createSalesOrderItems){
+ if(item.displayRow){
+    let object:any={};
+    let changeObject:any={};
+    if(item.dis_per_val!=0 && item.dis_per_val!=null){
+        if(item.add_dis=='ZPER'){
+            object['cond_value']=-(item.dis_per_val);
+            if(item.zper){
+                changeObject['updateFlag']="U"
+            }else{
+                changeObject['updateFlag']="I";
+            }
+        }else{
+            object['cond_value']=item.dis_per_val/10;
+            if(item.zval){
+                changeObject['updateFlag']="U"
+            }else{
+                changeObject['updateFlag']="I"
+            }
+        }
+        object['cond_type']=item.add_dis;
+        object['itm_number']=item.itm_number;
+        object['cond_st_no']=item.cond_st_no;
+        this.manageSalesPayload['sales_conditions_in'].push(object);
+        changeObject['cond_type']="X";
+        changeObject['itm_number']=item.itm_number;
+        changeObject['cond_st_no']="X";
+        changeObject['cond_value']="X";
+        this.manageSalesPayload['sales_conditions_inx'].push(changeObject);
+        for(let list of this.salesOrderDtlList['ex_conditions']){
+            if(item.itm_number==list.itm_number){
+                if(list.cond_type=='ZSPE'){
+                    let changeObject:any={};
+                    changeObject['itm_number']=item.itm_number;
+                    changeObject['cond_st_no']="X";
+                    changeObject['cond_value']="X";
+                    changeObject['cond_type']="X";
+                    if(item.zspe){
+                        changeObject['updateFlag']="U"; 
+                    }else{
+                        changeObject['updateFlag']="I";
+                    }
+                    
+                    this.manageSalesPayload['sales_conditions_inx'].push(changeObject);
+                }
+                if(list.cond_type=='ZPRO'){
+                    let changeObject:any={};
+                    changeObject['itm_number']=item.itm_number;
+                    changeObject['cond_st_no']="X";
+                    changeObject['cond_value']="X";
+                    changeObject['cond_type']="X";
+                    changeObject['updateFlag']=item.updateflag;
+                    this.manageSalesPayload['sales_conditions_inx'].push(changeObject);
+                }
+                if(list.cond_type=='ZSVL'){
+                    let changeObject:any={};
+                    changeObject['itm_number']=item.itm_number;
+                    changeObject['cond_st_no']="X";
+                    changeObject['cond_value']="X";
+                    changeObject['cond_type']="X";
+                    changeObject['updateFlag']=item.updateflag;
+                    this.manageSalesPayload['sales_conditions_inx'].push(changeObject);
+                }
+                if(list.cond_type=='JOIG'){
+                    let changeObject:any={};
+                    changeObject['itm_number']=item.itm_number;
+                    changeObject['cond_st_no']="X";
+                    changeObject['cond_value']="X";
+                    changeObject['cond_type']="X";
+                    changeObject['updateFlag']=item.updateflag;
+                    this.manageSalesPayload['sales_conditions_inx'].push(changeObject);
+                }
+                if(list.cond_type=='JOCG'){
+                    let changeObject:any={};
+                    changeObject['itm_number']=item.itm_number;
+                    changeObject['cond_st_no']="X";
+                    changeObject['cond_value']="X";
+                    changeObject['cond_type']="X";
+                    changeObject['updateFlag']=item.updateflag;
+                    this.manageSalesPayload['sales_conditions_inx'].push(changeObject);
+                }
+                if(list.cond_type=='JOSG'){
+                    let changeObject:any={};
+                    changeObject['itm_number']=item.itm_number;
+                    changeObject['cond_st_no']="X";
+                    changeObject['cond_value']="X";
+                    changeObject['cond_type']="X";
+                    changeObject['updateFlag']=item.updateflag;
+                    this.manageSalesPayload['sales_conditions_inx'].push(changeObject);
+                }
+            }
+        }
+    }
+ }
+}
+
+let url:any=this.environment.getRequiredApi("sales_order_manage")+"?";
+this.commonService.getData(url, "POST", this.manageSalesPayload, this.accessObjectId).subscribe(response=>{
+    if(response.status==0){
+        $('#loadingIcon').hide();
+        $("#black-overlay").hide();
+        if(response["data"]['ex_return'].length>0){
+            this.errorList=response["data"]['ex_return'];
+            for(let elist of response["data"]['ex_return']){
+                if(elist.type=='E'){
+                    this.errorFlag=true;
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                    $("#displayErrorsModal").modal("show");
+                    return false;
+                }
+            }
+        }
+        this.manageSalesPayload={};
+        this.commonService.responseMessages("", "Sales order '"+this.editOrderNum+" 'Updated Succesfully", "success");
+        this.createSalesFlag=false;
+        this.createdSales=true;
+        $("#gs-GSTR1").hide();
+        $("#icon-GSTR1").show();
+    }else{
+        $('#loadingIcon').hide();
+        $("#black-overlay").hide();
+        this.commonService.responseMessages("", "Error occured while creating sales order", "warning");
+    }
+});
+}
+redirectSalesOrder(){
+const path:any='salesorder';
+this.router.navigate([path]);
+}
+changeQtyCalculations(items){
+    if(items.qty==""){
+        items.qty=0;
+    }
+    if(items.price!=""){
+        let price=items.price*items.qty;
+        let percentage:any=0;
+        let schVal:any=0;
+        if(items.schTypeSymbol=="per"){
+            percentage=(price*items.fix_sch)/100;
+            schVal=percentage;
+        }
+        if(items.schTypeSymbol=="val"){
+            percentage=price-items.fix_sch;
+            schVal=items.fix_sch;
+        }
+        items.sch_val=schVal;
+        items.sch_val=schVal;
+        let netVal:any=price-schVal;
+        let addPer:any;
+        let disAmt:any=0;
+        if(items.dis_per_val==""){
+            items.dis_per_val=0;
+        }
+        if(items.add_dis=='ZPER'){
+            disAmt=(netVal*items.dis_per_val)/100;
+            netVal=netVal-disAmt;
+        }
+        if(items.add_dis=='ZVAL'){
+            disAmt=items.dis_per_val;
+            netVal=netVal-disAmt;
+        }
+        
+        items.dis_amt=disAmt;
+        items.net_val=netVal;
+        let igst:any;
+        let cgst:any;
+        let sgst:any;
+        igst=(netVal*items.igst_rt)/100;
+        cgst=(netVal*items.cgst_rt)/100;
+        sgst=(netVal*items.sgst_rt)/100;
+        items.igst_val=igst;
+        items.cgst_val=cgst;
+        items.sgst_val=sgst;
+        let grossVal:any;
+        grossVal=netVal+igst+cgst+sgst;
+        items.grossValue=grossVal; 
+    }
+    
+}
+}

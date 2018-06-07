@@ -1,0 +1,20 @@
+.table_col_1 {min-width:110px}
+.table_col_2 {min-width:113px}
+.table_col_3 {min-width:153px;}
+.table_col_4 {min-width:95px}
+.table_col_5 {min-width:95px}
+.table_col_6 {min-width:95px}
+.table_col_7 {min-width:104px}
+.table_col_8 {min-width:150px}
+.table_col_desc{min-width:93px}
+.table_col_uom{min-width: 52px;}
+.table_col_val{min-width: 52px;}
+.stock-table{padding: 4px 8px !important;}
+.card-header-adjustments {
+   padding: 0px !important;
+   padding-bottom: 3px !important;
+   margin: -12px 15px 0 !important;
+}
+.form-align-inv {
+	margin-left: 4px;
+}

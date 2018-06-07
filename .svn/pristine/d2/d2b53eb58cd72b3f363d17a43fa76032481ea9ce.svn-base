@@ -1,0 +1,407 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Purchase
+					Invoice</strong>
+			</span>
+			<div class="pull-right">
+				<div class="row pull-left icon-filter-align">
+					<span class="" (click)="showFilters();" title="Advance Filters">
+						<i class="fa fa-sliders " style="font-size: 25px;"> </i>
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<!-- advanced filter -->
+						<div class="outbound-content col-md-12 mb-5 mt-2"
+							id="filter-block" style="display: none;">
+							<form [formGroup]="filterPurInvForm">
+								<div class="delivery-form-block col-md-12 row">
+									<!-- <div class="col-md-3 text-align-sales">
+						<label>Customer Name</label>
+						<input type="text" autocomplete="off" list="customerNamesList" class="form-control ajax-list" (keyup)="extractData('cust-name','spinner-search','filetrajaxListBlock')" id="cust-name"
+									formControlName="custName"   validateOnBlur [validateFormControl]="filterPurInvForm.controls['custName']"
+											 placeholder="Customer Name" />
+						<i class="fa fa-spinner fa-spin spinner-icon" id="spinner-search" style="display:none"></i>
+						<input type="hidden" name="customerId" id="filterCustomerId" value=""/>
+						<div class="ajax-searchlist" style="display:none;width:100%;" id="filetrajaxListBlock">
+										<ul id="customerNamesBlock" class="custmore-list ajax-list">
+											<ng-container *ngIf="customerNames.length>0">
+											<li *ngFor="let cstList of customerNames; let i = index;" class="ajax-list" style="width:94%" (click)="selectedItem(cstList,'filetrajaxListBlock','cust-name','filterCustomerId')"
+											><span class="pull-left" style=";font-weight:600;">{{cstList.cust_name}}</span>
+											<span class="pull-right">	{{cstList.cust_id}}</span>
+											</li>
+											</ng-container>
+										</ul>
+									</div>
+						<span
+							*ngIf="filterPurInvForm.controls['custName'].touched && filterPurInvForm.controls['custName'].invalid && filterPurInvForm.controls['custName'].dirty"
+							class="error"> <small class="custom-error-class"
+							*ngIf="filterPurInvForm.controls['custName'].errors.required">
+								{{saleOrderMessages.cust_req}}</small>
+						</span>
+						
+						</div> -->
+									<div class="col-md-2 text-align-sales">
+										<label>From Date</label> <input type="text"
+											class="form-control datepicker-init-sale text-box-padding"
+											id="from-date" formControlName="fromDate" validateOnBlur
+											[validateFormControl]="filterPurInvForm.controls['fromDate']">
+										<span
+											*ngIf="filterPurInvForm.controls['fromDate'].touched && filterPurInvForm.controls['fromDate'].invalid && filterPurInvForm.controls['fromDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="filterPurInvForm.controls['fromDate'].errors.required">
+												{{saleOrderMessages.filter_from_date}}</small>
+										</span>
+
+									</div>
+									<div class="col-md-2 text-align-sales">
+
+										<label>To Date</label> <input type="text"
+											class="form-control datepicker-init-sale text-box-padding"
+											id="to-date" formControlName="toDate" validateOnBlur
+											[validateFormControl]="filterPurInvForm.controls['toDate']">
+
+										<span
+											*ngIf="filterPurInvForm.controls['toDate'].touched && filterPurInvForm.controls['toDate'].invalid && filterPurInvForm.controls['toDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="filterPurInvForm.controls['toDate'].errors.required">
+												{{saleOrderMessages.filter_to_date}}</small>
+										</span>
+									</div>
+
+
+									<div class="col-md-2 text-align-sales">
+										<button type="submit" (click)="getFilterData()"
+											class="login-button-export"
+											style="position: relative; top: 27px;">
+											<i class="fa submit-icon"
+												style="margin-right: 4px; padding-right: 4px;">
+												<div class="icon-text" style="right: -4px;">Submit</div>
+											</i>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+						<!-- advanced filter -->
+						<!-- new changes -->
+						<div class="col-md-12 mt-rem mb-1" style="margin-top: 5px">
+							<div class="stock-table">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable"
+									width="100%" id="invoice-order-table">
+									<thead>
+										<tr>
+											<th class="no-sort" style="width: 50px; text-align: center;">
+												<mat-checkbox class="example-margin" [(ngModel)]="checked"
+													[checked]="checked" [(indeterminate)]="indeterminate"
+													(click)="selectAll($event,'mat-checkbox-1-input','invoice-order-table')"></mat-checkbox>
+											</th>
+											<th style="min-width: 190px;">Invoice No.</th>
+											<th *ngIf="!rolekaduser" style="min-width: 110px !important;">Hospital
+												Code</th>
+											<th *ngIf="!rolekaduser" style="min-width: 110px !important;">Hospital
+												Name</th>
+											<th>Invoice Date</th>
+											<th>Vendor Name</th>
+											<th>Amount</th>
+											<th>PO Num</th>
+											<th>Delivery Note</th>
+											<th>Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr *ngFor="let list of purchaseInvList; let i=index;">
+											<td align="center"><mat-checkbox class="example-margin"
+													id="checkbox-{{i}}"
+													(click)="getReportList(list,'invoice-order-table',i)"></mat-checkbox>
+											</td>
+											<td><a href="javascript:void(0)"
+												class="sales-num-anchor"
+												(click)="editInvoiceOrderById(list.inv_id,list.gi_no,list)">{{list.inv_id}}</a></td>
+												
+											<td *ngIf="!rolekaduser">{{list.cust_id}}</td>
+											<td *ngIf="!rolekaduser"> {{list.cust_name}}</td>	
+											<td>{{list.inv_date | date :'dd-MM-yyyy'}}</td>
+											<td>{{list.vendor_name}}</td>
+											<td align="right">&#8377; {{list.amount}}</td>
+											<td>{{list.po_num}}</td>
+											<td>{{list.gi_no}}</td>
+											<td>{{list.status}}</td>
+										</tr>
+
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- end chnges -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3" style="display: none;">
+		<div class="left-block">
+			<!-- <div class="pull-left" style="max-width:47%">
+			<button class="btn login-button">
+			<i class="fa fa-plus" style="margin-right:4px;"></i> Add Lines</button>
+		</div>
+		<div class="pull-left" style="max-width:50%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Remove Line</button>
+			</div> -->
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export" title="Print / Preview"
+					style="padding-left: 8px;" (click)="PurchaseinvoicePrint()">
+					<i class="fa print-icon"
+						style="margin-right: 0px; padding-right: 4px; height: 24px; width: 24px;">
+					</i>
+				</button>
+			</div>
+
+			<div class="pull-left">
+
+				<button class="login-button-export" style="padding-left: 8px;"
+					title="Export Excel" id="export" (click)="exportExcel()">
+					<i class="fa excel-icon"
+						style="margin-right: 0px; width: 24px; height: 24px;"> </i>
+				</button>
+			</div>
+
+			<div class="pull-left">
+
+				<button class="login-button-export" title="Create"
+					style="padding-left: 8px;"
+					(click)="createInvoiceOrder('invoice-order-table')">
+					<i class="fa create-icon"
+						style="margin-right: 4px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+
+			</div>
+			<div class="pull-left">
+				<button class="cancel-button-export" (click)="cancelPurInvoice()">
+					<i class="fa cancel-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Cancel PI</div>
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+</section>
+<!--create invoice- details popup -->
+<div class="modal fade modal-size-medium" id="purInvModal"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4 id="header-text"></h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('purInvModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body" style="padding: 6px 6px !important;">
+				<form [formGroup]="createPurInvForm">
+					<div class="col-md-12 row">
+						<div class="col-md-6">
+
+							<label>Reference To<sup class="asterick">*</sup></label> <select
+								class="form-control create-edit-pop-txt-box"
+								(change)="changeReferecneType(refType.value);" #refType
+								formControlName="reference" validateOnBlur
+								[validateFormControl]="createPurInvForm.controls['reference']">
+								<option value="">Select Reference</option>
+								<option value="D">Delivery Note</option>
+								<option value="P" disabled>Purchase Order</option>
+
+							</select> <span
+								*ngIf="createPurInvForm.controls['reference'].touched && createPurInvForm.controls['reference'].invalid && createPurInvForm.controls['reference'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="createPurInvForm.controls['reference'].errors.required">
+									Please select Reference To </small>
+							</span>
+						</div>
+
+						<div class="col-md-6">
+							<ng-container *ngIf="selectedReferenceType.length != 0">
+							<label>{{selectedReferenceType}}<sup class="asterick">*</sup></label>
+
+							<input type="text" class="form-control create-edit-pop-txt-box "
+								formControlName="refNum" validateOnBlur
+								[validateFormControl]="createPurInvForm.controls['refNum']"
+								style="width: 231px !important;"> <span
+								*ngIf="createPurInvForm.controls['refNum'].touched && createPurInvForm.controls['refNum'].value == '' "
+								class="error"> <small class="custom-error-class"
+								*ngIf="createPurInvForm.controls['refNum'].errors.required">
+									Please enter {{selectedReferenceType}} Number </small>
+							</span> </ng-container>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<div class="row new_row">
+					<div class="pull-right new_right act_foot">
+						<div class="pull-right new_right act_foot closePopUpOk">
+							<!-- [disabled]="!createPurInvForm.valid"  ,'btn-disabled':!createPurInvForm.valid-->
+							<button [disabled]="!createPurInvForm.valid"
+								(click)="navigateToCreate('purInvModal');"
+								[ngClass]="{'login-button':true ,'forgotOk':true ,'btn-disabled':!createPurInvForm.valid}">Ok</button>
+							<button (click)="closeModal('purInvModal')"
+								Class="cancel-button forgotOk">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- End of invoice-create details popup-->
+<!-- cancel invoice popup-->
+<div class="modal fade modal-size-medium" id="cancel-pur-invoice"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog " role="document">
+		<div class="modal-content" style="width: 100%;">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Cancel Purchase Invoice</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('cancel-pur-invoice')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body cancel-pur-invoice-block"
+				style="padding: 6px 6px !important;">
+
+				<div class="card-block db-block mb-5"
+					style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+
+					<div style="margin-left: 11px; margin-bottom: 3px;"></div>
+					<div class="col-lg-12">
+						<div class="row">
+
+							<div class="col-md-12 mt-1">
+								<div class="stock-table table-responsive">
+									<table class="table table-hover nowrap  checkBoxTable"
+										style="width: 100%;">
+										<tr>
+											<th>Invoice Number</th>
+											<th>Date</th>
+											<th>Reason</th>
+										</tr>
+										<ng-container *ngFor="let list of cancelArray let i=index">
+										<tr>
+											<td>{{list.invoice_num}}</td>
+											<td>{{list.inv_date | date :'dd-MM-yyyy'}}</td>
+											<td><input type="text" id="inv-num{{list.invoice_num}}"
+												class="form-control create-edit-pop-txt-box "
+												style="width: 231px !important;"></td>
+										</tr>
+										</ng-container>
+									</table>
+
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<div class="row new_row">
+					<div class="pull-right new_right act_foot">
+						<div class="pull-right new_right act_foot closePopUpOk">
+							<button (click)="confirmCancelPurInv()"
+								class="login-button forgotOk">Ok</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Cancel Error Popup -->
+<div class="modal fade modal-size-medium" id="displayErrorsModal"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Display Errors</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('displayErrorsModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body" style="padding: 6px 6px !important;">
+				<div class="col-md-12 row">
+					<table
+						class="table table-hover nowrap editable-table checkBoxTable"
+						width="100%" id="errorTable" style="display: inline-table;">
+						<thead>
+							<tr>
+
+								<th>Error Code</th>
+								<th>Error Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ng-container *ngFor="let erList of errorLogs; let i=index">
+
+							<tr>
+								<ng-container *ngIf="erList.type == 'E'">
+								<td>{{erList.number}}</td>
+								<td>{{erList.message}}</td>
+								</ng-container>
+							</tr>
+
+							</ng-container>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="row new_row">
+					<div class="pull-right new_right act_foot">
+						<div class="pull-right new_right act_foot closePopUpOk">
+							<button (click)="closeModal('displayErrorsModal')"
+								class="login-button forgotOk">Ok</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- End Cancel Error Popup -->

@@ -1,0 +1,156 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router,ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-outbound-delivery',
+  templateUrl: './outbound-delivery.component.html',
+  styleUrls: ['./outbound-delivery.component.css']
+})
+export class OutboundDeliveryComponent implements OnInit {
+    deliveryForm: FormGroup;
+    outboundDeliveryMsg:any;
+    bpId:any;
+    orgId:any;
+    accessObjectId:any;
+    customerNames:any;
+    orderNum:any;
+    fromDate:any;
+    fromItem:any;
+    toItem:any;
+    shName:any;
+    shId:any;
+    deliveryList:any;
+    indeterminate:boolean=false;
+    checked:boolean=false;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private dateAdapter: DateAdapter<Date>,private activatedRoute:ActivatedRoute,
+          private environment:EnvConfigurationService) { 
+      this.app.isActive=true;
+      this.deliveryForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+          'shippingPoint': ['', Validators.required],
+          'date': ['', Validators.required],
+          'orderNum': ['', Validators.required],
+          'DocDate': ['', Validators.required],
+          'GiDate': ['', Validators.required],
+          'NoPackage': ['', Validators.required],
+          'totWeight': ['', Validators.required],
+        });
+      this.bpId=localStorage.getItem("bpId");
+      this.orgId=localStorage.getItem("orgId");
+      this.accessObjectId=localStorage.getItem("Sales Order");
+      this.outboundDeliveryMsg = messagesService.outbound_delivery_msg;
+      this.customerNames=[];
+      this.orderNum=null;
+      this.deliveryList={};
+      this.shId="";
+      this.shName="";
+      this.fromItem=""
+      this.toItem="";
+  }
+
+  ngOnInit() {
+      $(()=>{
+          $(document).on("input", ".numbersOnly", function() {
+              this.value = this.value.replace(/[^\d\.\-]/g,'');
+          });
+          $('.datepicker-init-sale').datetimepicker({
+              widgetPositioning: {
+                  horizontal: 'left'
+              },
+              icons: {
+                  time: "fa fa-clock-o",
+                  date: "fa fa-calendar",
+                  up: "fa fa-arrow-up",
+                  down: "fa fa-arrow-down",
+                  previous: 'fa fa-arrow-left',
+                  next: 'fa fa-arrow-right'
+              },
+              format: 'DD/MM/YYYY',
+          }); 
+      });
+      setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },50);
+      this.activatedRoute.queryParams.subscribe(params => {
+          console.log(this.router.url);
+          if(params['action']=="C" && this.router.url.includes('obd')){
+              this.orderNum=params['orderNum'];
+              this.fromDate=params["fromDate"];
+              this.fromItem=params["fromItem"];
+              this.toItem=params["toItem"];
+          }
+          
+      });
+      this.getSimulationDetails();
+  }
+getSimulationDetails(){
+    let reqPayload:any={};
+    reqPayload['bp_id']=this.bpId;
+    reqPayload['org_id']=this.orgId;
+    reqPayload['im_action']="SD";
+    reqPayload['im_salesorder']=this.orderNum;
+    reqPayload['im_selection_date']=this.fromDate;
+    reqPayload['im_from_item']=this.fromItem;
+    reqPayload['im_to_item']=this.toItem;
+    let url:any=this.environment.getRequiredApi("get_simulation_dlvr_details")+"?";
+    this.commonService.getData(url, "POST", reqPayload, this.accessObjectId).subscribe(response=>{
+       if(response.status==0){
+           this.deliveryList=response["data"];
+           this.shName=response["data"];
+       }else{
+           this.commonService.responseMessages("", response.message, "warning");
+       } 
+    });
+}
+selectAll(event,checkAll,tableId){
+    setTimeout(()=>{
+        if($("#"+checkAll).is(":checked")){
+             this.commonService.selectAllCheckBoxes(checkAll,tableId);
+             let count:any=0;
+         }else{
+             this.commonService.selectAllCheckBoxes(checkAll,tableId);
+         }
+     },300);
+
+    }
+getReportList(event,tableId,i){
+    setTimeout(()=>{let flag:boolean=this.commonService.checkAction(tableId);
+    if(flag){
+        this.indeterminate=false;
+        this.checked=true;
+    }else{
+        this.indeterminate=true;
+    }
+    },400);
+    setTimeout(()=>{
+       if($("#checkbox-"+i+"-input").is(":checked")){
+           //this.checkedObjects.push(i);
+       }else{
+           setTimeout(()=>{let flag:boolean=this.commonService.continueAction(tableId);
+           if(flag){
+               this.indeterminate=false;
+               this.checked=false;
+           }else{
+               this.indeterminate=true;
+           }
+           },200);
+       }
+       
+    },300); 
+    }
+}

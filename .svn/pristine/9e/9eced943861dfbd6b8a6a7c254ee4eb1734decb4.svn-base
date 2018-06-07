@@ -1,0 +1,280 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Purchase
+					Invoice Report</strong>
+			</span>
+			<div class="pull-right">
+			<div class="pull-left stock-header-block-w" style="margin-right:36px;">
+					<label class="pull-left" style="padding:5px"><b>Layout:</b></label>
+                    <select style="width:200px" id="layoutVal" #screen class="form-control pull-left input-sm" (change)="switchLayout(screen.value)">
+						    <option value="piSummaryItem" selected>Invoice Summary(item)</option>
+						    <option value="inv_id">Invoice Summary</option>
+						    <option value="mat_id">Material Summary</option>
+					</select> 
+			  </div>
+			<div class="row pull-left icon-filter-align">
+			<!-- <span class="" title="Analytics" >
+							<i class="fa fa-area-chart" style="font-size:25px;margin-right:10px;" (click)="showGraphs()"></i>
+						</span> -->
+						<span class="" (click)="showFilters();" title="Advance Filters">
+						 <i class="fa fa-sliders"> </i>
+						</span>
+				  </div>
+			</div>
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv" id="filter-block">
+							<form [formGroup]="poreportdetailsForm">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+									<div class="col-md-2 text-align-sales">
+										<label><b>From Period</b><sup class="asterick">*</sup></label>
+										<input type="text" style="padding: 5px !important;"
+											placeholder="From Period" id="frmDate"
+											class="form-control datepicker-init"
+											formControlName="frmDate" validateOnBlur
+											(blur)="changeTodatePicker('#frmDate')"
+											[validateFormControl]="poreportdetailsForm.controls['frmDate']" />
+										<span
+											*ngIf="poreportdetailsForm.controls['frmDate'].touched && poreportdetailsForm.controls['frmDate'].invalid && poreportdetailsForm.controls['frmDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['frmDate'].errors.required">
+												Please select From Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales toDatepic">
+										<label><b>To Period</b><sup class="asterick">*</sup></label> <input
+											type="text" style="padding: 5px !important;"
+											placeholder="To Period" class="form-control datepicker-init2"
+											id="toDate" formControlName="toDate" validateOnBlur
+											(blur)="removeStyles()"
+											[validateFormControl]="poreportdetailsForm.controls['toDate']" />
+										<span
+											*ngIf="poreportdetailsForm.controls['toDate'].touched && poreportdetailsForm.controls['toDate'].invalid && poreportdetailsForm.controls['toDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['toDate'].errors.required">
+												Please select To Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<button type="submit" class="login-button-export"
+											[disabled]="poreportdetailsForm.invalid"
+											(click)="getpiReportDetails();"
+											style="position: relative; top: 26px;">
+											<i class="fa submit-icon"
+												style="margin-right: 4px; padding-right: 4px;"> <span
+												class="icon-text" style="right: -4px;">Submit</span>
+											</i>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+						<!-- new changes -->
+						<div class="col-md-12 text-align-sales mb-1 mt-3" *ngIf="poreportdetailsList.length>0">
+							<table class="table table-hover nowrap editable-table totalTable totalSmry" style="display:inline-table;margin-bottom:0px;">
+								<tbody>
+									<tr>
+										<td style="background:#e4e9f0;">Totals:</td>
+										<td>
+											<div class="pull-left">S/UGST : </div>
+											<div class="pull-right">&#8377; {{sgstAmt | PriceInd}}</div>
+										</td>
+										<td>
+											<div class="pull-left">CGST : </div>
+											<div class="pull-right">&#8377; {{cgstAmt | PriceInd}}</div>
+										</td>
+										<td>
+											<div class="pull-left">IGST : </div>
+											<div class="pull-right">&#8377; {{igstAmt | PriceInd}}</div>
+										</td>
+										<td>
+											<div class="pull-left">Gross Amount: </div>
+											<div class="pull-right">&#8377; {{grossAmt | PriceInd}}</div>
+										</td>
+									
+									</tr>
+								</tbody>
+							</table>
+							
+						</div>
+						<div class="col-md-12 mt-1 mb-5 mt-3">
+						  <ng-container *ngIf="screen.value=='piSummaryItem'">
+							<div class="stock-table showcolumns" id="piordertable-piSummaryItem">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable table-responsive"
+									width="100%" id="datatablediv-piSummaryItem">
+									<thead>
+										<tr>
+											<th style="min-width: 120px !important;">Invoice No</th>
+											<th style="min-width: 100px !important;">Status</th>
+											<th style="min-width: 110px !important;">Vendor Name</th>
+											<th style="min-width: 110px !important;">Invoice Date</th>
+											<th style="min-width: 120px !important;">Amount</th>
+											<th style="min-width: 90px !important;">Material</th>
+											<th style="min-width: 130px !important;">Description</th>
+											<th style="min-width: 80px !important;">Qty</th>
+											<th style="min-width: 60px !important;">UOM</th>
+											<th style="min-width: 130px !important;">PO No</th>
+											<th style="min-width: 60px !important;">Del Note</th>
+											<th style="min-width: 60px !important;">GI No</th>
+											<th style="min-width: 80px !important;">S/UGST</th>
+											<th style="min-width: 80px !important;">CGST</th>
+											<th style="min-width: 80px !important;">IGST</th>
+											<th style="min-width: 80px !important;">Total Val</th>
+										</tr>
+									</thead>
+									<tbody>
+										<ng-container *ngFor="let HeaderList of poreportdetailsList;">
+										<ng-container
+											*ngFor="
+											let ItemList of HeaderList.pi_item_details;">
+										<tr>
+											<td>{{HeaderList.inv_id}}</td>
+											<td>{{HeaderList.status}}</td>
+											<td><div class="text-name-elipsis"
+													title="{{HeaderList.vendor_name}}">{{HeaderList.vendor_name}}</div></td>
+											<td>{{HeaderList.inv_date | date :'dd-MM-yyyy'}}</td>
+											<td align="right">{{HeaderList.amount | PriceInd}}</td>
+											<td>{{ItemList.mat_id}}</td>
+											<td><div class="text-name-elipsis"
+													title="{{ItemList.mat_desc}}">{{ItemList.mat_desc}}</div></td>
+											<td align="right">{{ItemList.qty | PriceInd}}</td>
+											<td>{{ItemList.uom}}</td>
+											<td>{{ItemList.po_number}}</td>
+											<td>{{ItemList.del_note}}</td>
+											<td>{{ItemList.gi_no}}</td>
+											<td align="right">&#8377; {{ItemList.sgst_value | PriceInd}}</td>
+											<td align="right">&#8377; {{ItemList.cgst_value | PriceInd}}</td>
+											<td align="right">&#8377; {{ItemList.igst_value | PriceInd}}</td>
+											<td align="right">&#8377; {{ItemList.net_price | PriceInd}}</td>
+										</tr>
+										</ng-container> 
+										</ng-container>
+
+									</tbody>
+								</table>
+							</div>
+							</ng-container>
+							<ng-container *ngIf="screen.value=='inv_id'">
+								<div class="stock-table showcolumns" id="piordertable-inv_id">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable table-responsive"
+									width="100%" id="datatablediv-inv_id">
+									<thead>
+										<tr>
+											<th style="min-width: 120px !important;">Invoice No</th>
+											<th style="min-width: 100px !important;">Status</th>
+											<th style="min-width: 110px !important;">Vendor Name</th>
+											<th style="min-width: 110px !important;">Invoice Date</th>
+											<th style="min-width: 130px !important;">PO No</th>
+											<th style="min-width: 60px !important;">Del Note</th>
+											<th style="min-width: 60px !important;">GI No</th>
+											<th style="min-width: 60px !important;">IGST</th>
+											<th style="min-width: 60px !important;">CGST</th>
+											<th style="min-width: 60px !important;">S/UGST</th>
+											<th style="min-width: 120px !important;">Amount</th>
+										</tr>
+									</thead>
+									<tbody>
+									<ng-container *ngFor="let piList of invoiceSumary;">
+										<tr>
+											<td>{{piList.inv_id}}</td>
+											<td>{{piList.status}}</td>
+											<td><div class="text-name-elipsis"
+													title="{{piList.vendor_name}}">{{piList.vendor_name}}</div></td>
+											<td>{{piList.inv_date | date :'dd-MM-yyyy'}}</td>
+											<td>{{piList.po_number}}</td>
+											<td>{{piList.del_note}}</td>
+											<td>{{piList.gi_no}}</td>
+											<td align="right">&#8377; {{piList.igst_amt | PriceInd}}</td>
+											<td align="right">&#8377; {{piList.cgst_amt | PriceInd}}</td>
+											<td align="right">&#8377; {{piList.sgst_amt | PriceInd}}</td>
+											<td align="right">&#8377; {{piList.total_amt | PriceInd}}</td>
+										</tr>
+									 </ng-container>
+									</tbody>
+									</table>
+									</div>
+							</ng-container>
+							<ng-container *ngIf="screen.value=='mat_id'">
+									<div class="stock-table showcolumns" id="piordertable-mat_id">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable table-responsive"
+									width="100%" id="datatablediv-mat_id">
+									<thead>
+										<tr>
+											<th style="min-width: 120px !important;">Material No</th>
+											<th style="min-width: 140px !important;">Description</th>
+											<th style="min-width: 120px !important;">Quantity</th>
+											<th style="min-width: 120px !important;">UOM</th>
+											<th style="min-width: 130px !important;">PO No</th>
+											<th style="min-width: 60px !important;">Del Note</th>
+											<th style="min-width: 60px !important;">GI No</th>
+											<th style="min-width: 60px !important;">IGST</th>
+											<th style="min-width: 60px !important;">CGST</th>
+											<th style="min-width: 60px !important;">S/UGST</th>
+											<th style="min-width: 120px !important;">Amount</th>
+										</tr>
+									</thead>
+									<tbody>
+										<ng-container *ngFor="let mtList of materialSumary;">
+											<tr>
+												<td>{{mtList.mat_id}}</td>
+												<td>{{mtList.mat_desc}}</td>
+												<td>{{mtList.totalQty}}</td>
+												<td>{{mtList.uom}}</td>
+												<td>{{mtList.po_number}}</td>
+												<td>{{mtList.del_note}}</td>
+												<td>{{mtList.gi_no}}</td>
+												<td align="right">&#8377; {{mtList.igst_amt | PriceInd}}</td>
+												<td align="right">&#8377; {{mtList.cgst_amt | PriceInd}}</td>
+												<td align="right">&#8377; {{mtList.sgst_amt | PriceInd}}</td>
+												<td align="right">&#8377; {{mtList.total_amt | PriceInd}}</td>
+											</tr>
+										</ng-container>
+									</tbody>
+								</table>
+								</div>
+							</ng-container>
+							<!-- charts -->
+						<!-- <div *ngIf="poreportdetailsList.length>0 && graphBlock" class="mt-2 mb-3" style="width:100%;" id="graph-block">
+							<div id="bar_chart" [chartData]="bar_ChartData" [chartOptions] = "bar_ChartOptions" chartType="ColumnChart" GoogleChart></div>
+						</div> -->
+					   <!-- End charts -->
+						</div>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3" style="width: 94%;">
+		<div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export" title="Export Excel"
+					style="padding-left: 8px;" (click)="exportExcel()">
+					<i class="fa excel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+</section>

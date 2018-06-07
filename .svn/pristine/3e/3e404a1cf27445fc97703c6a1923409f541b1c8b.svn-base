@@ -1,0 +1,182 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Billing Report</strong>
+		</span>
+		
+	</div>
+	
+	
+	<div class="card-block db-block mb-5" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+			
+			
+				<div class="outbound-content col-md-12 mt-2" style="padding-bottom: 20px;">
+
+						<form [formGroup]="filterBillingForm">
+							<div class="delivery-form-block col-md-12 row">
+								
+								<div class="col-md-2 text-align-sales">
+									<label>From Date<sup class="asterick">*</sup></label> <input type="text"
+										style="padding: 5px !important;" id="fromDateFilt"
+										 (blur)="changeTodatePicker('#fromDateFilt')"
+										placeholder="From Date" class="form-control "
+										formControlName="from_date" />
+
+
+
+								</div>
+								<div class="col-md-2 text-align-sales">
+
+									<label>To Date<sup class="asterick">*</sup></label> <input type="text"
+										style="padding: 5px !important;" id="toDateFilt"
+										(blur)="removeStyles('#toDateFilt')" 
+										placeholder="To Date" class="form-control"
+										formControlName="to_date" />
+
+
+								</div>
+								
+								<div class="col-md-2 text-align-sales">
+									<button type="submit"  [disabled]="filterBillingForm.invalid"
+										(click)="getBillingReport();"
+										class="login-button-export"
+										style="position: relative; top: 27px;">
+										<i class="fa submit-icon"
+											style="margin-right: 4px; padding-right: 4px;">
+											<div class="icon-text" style="right: -4px;">Submit</div>
+										</i>
+									</button>
+								</div>
+							</div>
+						</form>
+					</div>
+					
+			
+			
+			
+				<div class="row">
+					
+					<div class="col-md-12 mt-1  ">
+							<div class="">
+								<table class="table table-hover nowrap editable-table checkBoxTable table-responsive"
+								width="100%" id="billingordertable" >
+								<thead>
+									<tr>
+									
+									
+										<th style="min-width: 120px;">Invoice No.</th>
+										<th style="min-width:60px !important;">Status</th>
+										<th style="min-width: 106px;">Doc Category</th>
+										<th style="min-width: 98px;">Invoice Date</th>
+										<th style="min-width: 122px;">Customer Name</th>
+										<th style="min-width: 95px;">Delivery No.</th>
+										<th style="min-width: 105px;">Delivery Date</th>
+
+											<th style="min-width: 120px;">Item No.</th>
+											<th style="min-width: 120px;">Material</th>
+											<th style="min-width: 120px;">Description</th>
+											<th style="min-width:60px !important;">Qty</th>
+											<th style="min-width:60px !important;">UOM</th>
+											<th style="min-width: 120px;">Net val</th>
+											<th  style="min-width: 60px;">Price</th>
+											<th  style="min-width: 60px;">Fix Sch</th>
+											<th  style="min-width: 63px;">Sch Val</th>
+											<th  style="min-width: 60px;">Dis Val</th>
+											<th  style="min-width: 68px;">Dis Amt</th>
+											<th  style="min-width: 60px;">Total Amt</th>
+
+											<th style="min-width: 60px;">IGST</th>
+										<th style="min-width: 60px;">CGST</th>
+										<th style="min-width: 60px;">SGST</th>
+										<th style="min-width: 60px;">CESS</th>
+										<th style="min-width: 86px;">Amount</th>
+										
+										
+									</tr>
+								</thead>
+								<tbody>
+								<ng-container *ngFor="let list of billingListData let i=index;">
+									<ng-container *ngFor="let itemList of list.item">
+								<tr id="report-bill-{{list.bill_doc}}">
+								
+								
+								<td><span >{{list.bill_doc}} </span></td>
+								<td>{{list.status}}</td>
+								<td>{{list.doc_cat}}</td>
+								<td><span *ngIf="list.bill_date!='0000-00-00'">{{list.bill_date | date :'dd-MM-yyyy'}}</span></td>
+								<td>{{list.sold_to_name}}</td>
+								<td>{{list.delv_no}}</td>
+								<td><span *ngIf="list.delv_date!='0000-00-00'">{{list.delv_date | date :'dd-MM-yyyy'}} </span></td>
+
+
+											<td>{{ itemList.item_no}}</td>
+											<td>{{ itemList.material}}</td>
+											<td>{{ itemList.mat_desc}}</td>
+											<td>{{ itemList.qty}}</td>
+											<td>{{ itemList.uom}}</td>
+											<td align="right">&#8377;{{ itemList.net_val | PriceInd}}</td>
+											<td align="right">&#8377;{{ itemList.price | PriceInd}}</td>
+											<td>{{ itemList.fix_sch}}</td>
+											<td>{{ itemList.sch_val}}</td>
+											<td>{{ itemList.dis_val}}</td>
+											<td align="right">&#8377;{{ itemList.dis_amt | PriceInd}}</td>
+											<td align="right">&#8377;{{ itemList.total_amt | PriceInd}}</td>
+
+
+											<td  align="right">&#8377;{{list.sum_iamt | PriceInd}}</td>
+								<td  align="right">&#8377;{{list.sum_camt | PriceInd}}</td>
+								<td  align="right">&#8377;{{list.sum_samt | PriceInd}}</td>
+								<td  align="right">&#8377;{{list.sum_csamt | PriceInd}}</td>
+								
+								<td  align="right">&#8377;{{list.total_amount | PriceInd}}</td>
+								
+								
+								</tr>
+								
+								</ng-container>
+								</ng-container>	
+									
+								</tbody>
+								</table>
+							</div>						
+						</div>
+				
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+<div class="outbound-footer mt-3" style="display:none;">
+
+		<div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+
+		<div class="right-block">
+		
+		
+			<div class="pull-left">
+			<button class="login-button-export" style="padding-left:8px;" title="Export Excel" id="export" (click)="exportExcel()">
+			<i class="fa excel-icon" style="margin-right:0px;width:24px;height:24px;">
+			</i>
+			</button>
+			</div>
+			
+
+			
+
+
+		</div>
+	</div>
+</section>
+

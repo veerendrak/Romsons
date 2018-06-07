@@ -1,0 +1,405 @@
+
+<section class="card" id="mainContent">
+
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Role
+				Management</strong>
+			<span class="pull-right" style="max-width:84px;">	
+			<button 
+				class="btn login-button"  style="margin-top:-7px;"
+				(click)="openAddRole('example3')">
+				<i class="fa fa-plus"  style="margin-right:4px;"></i> Add Role
+			</button>
+			</span>
+		</span>
+		
+		<div class="modal fade" id="example3" data-backdrop="static"
+			data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby=""
+			aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+
+					<form [formGroup]="addRoleManagementForm" (ngSubmit)="onSubmit()">
+						<div class="modal-header">
+							<div class="row new_row">
+								<div class="pull-left new_left">
+									<h4 id="myModalLabel">Add Role</h4>
+								</div>
+								<div class="pull-right new_right">
+									<button type="button" class="close"
+										(click)="closeroleDetailsPopupTop('myModalLabel','example3')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+							</div>
+
+
+						</div>
+
+						<!-- <div class="modal-header">
+                            <h4 class="" id="myModalLabel">Add Role</h4>
+                            <button type="button" class="close"  (click)="closeroleDetailsPopupTop('myModalLabel','example3')"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						<i class="fa fa-times fa" aria-hidden="true"></i>
+					</button>
+                            
+                        </div> -->
+						<div class="modal-body addrole-body"
+							style="padding: 0px 6px 0px 18px !important;">
+
+							<div class="card-block addrole-block">
+								<div class="row">
+									<div class="col-lg-12">
+										<div>
+
+											<div class=" form-group">
+												<label class="form-label font-weight-custom"> Role
+													Name <span class="star-color">*</span>
+												</label> <input class="form-control" type="text"
+													name="roleName" formControlName="roleName" validateOnBlur
+													[validateFormControl]="addRoleManagementForm.controls['roleName']"
+													style="padding: 0px;"
+													(blur)="validateRoleName(roleList.roles)" />
+											</div>
+											<div
+												*ngIf="addRoleManagementForm.controls['roleName'].touched && !addRoleManagementForm.controls['roleName'].valid && addRoleManagementForm.controls['roleName'].dirty"
+												class="error">
+												<small
+													*ngIf="addRoleManagementForm.controls['roleName'].errors.required">
+													{{roleMessage}} </small>
+											</div>
+											<div *ngIf="invalidRoleName" class="error">
+												<small> {{invalidRolemessage}} </small>
+											</div>
+
+											<div class="form-group">
+												<label class="form-label font-weight-custom">Role
+													Reference<span style="color: red">*</span>
+												</label> <select class="form-control modal-select"
+													formControlName="roleRef" validateOnBlur 
+													[validateFormControl]="addRoleManagementForm.controls['roleRef']">
+													<option value="">Role Reference</option>
+													<ng-container
+														*ngFor="let role of roleList.roles; let i=index;">
+													<option [value]="role.roleId">{{role.roleName}}</option>
+													</ng-container>
+												</select>
+											</div>
+											<div
+												*ngIf="addRoleManagementForm.controls['roleRef'].touched && !addRoleManagementForm.controls['roleRef'].valid && addRoleManagementForm.controls['roleRef'].dirty"
+												class="error">
+												<small
+													*ngIf="addRoleManagementForm.controls['roleRef'].errors.required">
+													{{roleRefMsg}} </small>
+											</div>
+											<!-- <div class="form-actions role-buttons" style="float: right;">
+												<button type="submit"
+													[disabled]="!addRoleManagementForm.valid"
+													class="btn btn-primary  btn-primary-custom cursor-hand-custom">Submit</button>
+												<button type="button"
+													class="btn btn-danger  btn-danger-custom cursor-hand-custom"
+													id="roleDetails"
+													(click)="closeroleDetailsPopup('myModalLabel','example3')">Cancel</button>
+											</div> -->
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+
+						</div>
+
+						<div class="modal-footer">
+							<div class="row new_row">
+								<div class="pull-right mr18 act_foot" style="max-width:47%">
+									<button type="submit" [disabled]="!addRoleManagementForm.valid"  class="login-button-export" id="uploadStockSubmit" style="position:relative;top:0px;">
+										<i class="fa submit-icon" style="margin-right:4px;padding-right:4px;">
+										<div class="icon-text" style="right:-4px;">Submit</div>
+										</i>
+									</button>
+									<button class="cancel-button-export" type="button" style="padding-left:0px;" id="roleDetails"
+										(click)="closeroleDetailsPopup('myModalLabel','example3')">
+										<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+										<div class="icon-text" style="right:-4px;">Cancel</div>
+										</i>
+									</button>
+								</div>
+							</div>
+
+						</div>
+
+					</form>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="modal fade" id="example4" data-backdrop="static"
+			data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby=""
+			aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<!--   <div class="modal-header">
+                            <h5 *ngIf="disableRoleRef" class=" role-title" id="myModalLabel" style="font-weight: bold !important;">Update Role</h5>
+                            <h5 *ngIf="!disableRoleRef" class=" role-title" id="myModalLabel" style="font-weight: bold !important;">Delete Role</h5>
+                            <button type="button" class="close"  (click)="closeroleDetailsPopupTop('updateModalLabel','example4')"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+                            
+                        </div> -->
+					<div class="modal-header">
+						<div class="row new_row">
+							<div class="pull-left new_left">
+								<h4 *ngIf="disableRoleRef" id="myModalLabel"
+									style="font-weight: bold !important;">Update Role</h4>
+								<h4 *ngIf="!disableRoleRef" id="myModalLabel"
+									style="font-weight: bold !important;">Delete Role</h4>
+							</div>
+							<div class="pull-right new_right">
+								<button type="button" class="close"
+									(click)="closeroleDetailsPopupTop('updateModalLabel','example4')"
+									aria-label="Close">
+									<i class="fa fa-times fa" aria-hidden="true"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="modal-body addrole-body" style="padding: 0px 6px 0px 18px !important;">
+
+						<div class="card-block addrole-block">
+							<div class="row">
+								<div class="col-lg-12">
+									<div *ngIf="disableRoleRef">
+										<form [formGroup]="updateRoleManagementForm">
+											<!-- (ngSubmit)="updateRoleRename()" -->
+											<div class=" form-group">
+												<label class="form-label font-weight-custom"> Role
+													Name <span class="star-color">*</span>
+												</label> <input class="form-control" type="text"
+													name="roleName" formControlName="roleName" validateOnBlur
+													[validateFormControl]="updateRoleManagementForm.controls['roleName']"
+													[(ngModel)]="renameRoleName" style="padding: 0px;"
+													(blur)="validateRoleName(roleList.roles)" />
+											</div>
+											<div
+												*ngIf="updateRoleManagementForm.controls['roleName'].touched && !updateRoleManagementForm.controls['roleName'].valid && updateRoleManagementForm.controls['roleName'].dirty"
+												class="error">
+												<small
+													*ngIf="updateRoleManagementForm.controls['roleName'].errors.required">
+													{{roleMessage}} </small>
+											</div>
+											<div *ngIf="invalidRoleName" class="error">
+												<small> {{invalidRolemessage}} </small>
+											</div>
+											<!-- 	<div class="form-actions role-buttons" style="float: right;">
+												<button type="submit"
+													[disabled]="!updateRoleManagementForm.valid"
+													class="btn btn-primary  btn-primary-custom cursor-hand-custom">Submit</button>
+												<button type="button"
+													class="btn btn-danger  btn-danger-custom cursor-hand-custom"
+													id="roleDetails"
+													(click)="closeroleDetailsPopup('updateModalLabel','example4')">Cancel</button>
+											</div> -->
+										</form>
+									</div>
+									<div *ngIf="!disableRoleRef">
+										<form [formGroup]="disableRoleManagementForm">
+											<!-- (ngSubmit)="disableRoleId()" -->
+											<div class=" form-group">
+												<label class="form-label font-weight-custom"> Please
+													select default role to assign for the users with current
+													role. </label>
+											</div>
+											<div class="form-group">
+												<label class="form-label font-weight-custom">Role
+													Reference<span style="color: red">*</span>
+												</label> <select class="form-control modal-select"
+													formControlName="roleRef" validateOnBlur
+													[validateFormControl]="disableRoleManagementForm.controls['roleRef']">
+													<option value="">Role Reference</option>
+													<ng-container
+														*ngFor="let role of roleList.roles; let i=index;">
+													<option [value]="role.roleId"
+														*ngIf="renameRoleId!=role.roleId">{{role.roleName}}</option>
+													</ng-container>
+												</select>
+											</div>
+											<div
+												*ngIf="disableRoleManagementForm.controls['roleRef'].touched && !disableRoleManagementForm.controls['roleRef'].valid && disableRoleManagementForm.controls['roleRef'].dirty"
+												class="error">
+												<small
+													*ngIf="disableRoleManagementForm.controls['roleRef'].errors.required">
+													{{roleRefMsg}} </small>
+											</div>
+											<!-- <div class="form-actions role-buttons" style="float: right;">
+												<button type="submit"
+													[disabled]="!disableRoleManagementForm.valid"
+													class="btn btn-primary  btn-primary-custom cursor-hand-custom">Submit</button>
+												<button type="button"
+													class="btn btn-danger  btn-danger-custom cursor-hand-custom"
+													id="roleDetails"
+													(click)="closeroleDetailsPopup('updateModalLabel','example4')">Cancel</button>
+											</div> -->
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+					</div>
+					<div class="modal-footer" *ngIf="disableRoleRef">
+							<div class="row new_row">
+								<div class="pull-right mr18 act_foot" style="max-width:47%;">
+									<button type="submit" (click)="updateRoleRename()"  class="login-button-export" [disabled]="!updateRoleManagementForm.valid" style="position:relative;top:0px;">
+										<i class="fa submit-icon" style="margin-right:4px;padding-right:4px;">
+										<div class="icon-text" style="right:-4px;">Submit</div>
+										</i>
+									</button>
+									
+									<button class="cancel-button-export" style="padding-left:0px;" id="roleDetails"
+										(click)="closeroleDetailsPopup('updateModalLabel','example4')">
+										<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+										<div class="icon-text" style="right:-4px;">Cancel</div>
+										</i>
+									</button>
+								</div>
+							</div>
+
+						</div>
+
+						<div class="modal-footer" *ngIf="!disableRoleRef">
+							<div class="row new_row">
+								<div class="pull-right mr18 act_foot" style="max-width:47%">
+								<button type="submit" (click)="disableRoleId()"  class="login-button-export" [disabled]="!disableRoleManagementForm.valid" style="position:relative;top:0px;">
+										<i class="fa submit-icon" style="margin-right:4px;padding-right:4px;">
+										<div class="icon-text" style="right:-4px;">Submit</div>
+										</i>
+									</button>
+								<button class="cancel-button-export" style="padding-left:0px;" id="roleDetails"
+										(click)="closeroleDetailsPopup('updateModalLabel','example4')">
+										<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+										<div class="icon-text" style="right:-4px;">Cancel</div>
+										</i>
+									</button>
+								</div>
+							</div>
+
+						</div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+	<div class="card-block" style="padding-left:0px;padding-right:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="mb-5 table-responsive" *ngIf="rolesListLength>0">
+					<table class="table role-management table-divs" *ngIf="flag" id="role-table">
+						<thead>
+							<tr>
+								<th class="role-header" style="min-width: 180px"><div
+										class="role-elipsis">Access Objects</div></th>
+								<th *ngFor="let role of roleList.roles; let i=index;" style="min-width: 130px"
+									class="role-header">
+									<div class="popup-role-div" id="roles-{{i}}"
+										style="display: none; padding: 0px !important;">
+										<div class="asp-arrow-role"></div>
+										<div class="actionContent">
+											<button
+												class="pop-accept action-list left-align line-height-btn"
+												(click)="perFormAction(role,'rename')">
+												<i class="fa fa-pencil-square-o custom-blue"></i> <span
+													class="ml-2">Rename</span>
+											</button>
+											<button
+												class="pop-hold action-list left-align line-height-btn"
+												(click)="perFormAction(role,'delete')">
+												<i class="fa fa-remove custom-error-class"></i> <span
+													class="ml-2">Delete</span>
+											</button>
+											<!-- <button class="pop-hold action-list left-align line-height-btn"
+												(click)="perFormAction(role,'save')">
+												<i class="fa fa-floppy-o custom-blue"></i> <span class="ml-2">Save</span>
+											</button> -->
+										</div>
+									</div>
+									<div class="role-elipsis pull-left" data-toggle="tooltip"
+										title="{{role.roleName}}">{{role.roleName}}</div> <input
+									type="hidden" name="roleIds" value="roles-{{i}}" #roleId>
+									<input type="hidden" name="objectNmae"
+									value="{{role.roleName}}" #roleObjectName> <input
+									type="hidden" name="objectNmae" value="cog-{{i}}" #iconName>
+									<i class="fa fa-cog cog-blue" id="cog-{{i}}"
+									*ngIf="!role.disableFlag"
+									(click)="openActionModal(roleId.value,iconName.value,$event,i)">
+								</i>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let roles1 of rolesDeatils.accessObjs; let i=index;">
+								<td>
+									<div class="parent-accessObject role-elipsis"
+										style="background: #ffffff !important; width: 175px; margin-bottom: 5px;">
+										<input type="hidden" name="objectNmae" value="arrow-{{i}}"
+											#arrowId> <span><i
+											class="fa fa-angle-down exapnd fa-2x" id="arrow-{{i}}"
+											(click)="openSlideBlock(arrowId.value)"> <input
+												type="hidden" name="rolename"
+												value="{{roles1.parentObjName}}"></i></span> <span
+											class="parent-list" id="parent-list" data-toggle="tooltip"
+											title="{{roles1.parentObjName}}">
+											{{roles1.parentObjName}}</span>
+									</div>
+									<div class="child-accessObject expanddiv role-elipsis"
+										id="{{roles1.parentObjName}}"
+										*ngFor="let childObjs of roles1.childObjs"
+										style="background: #ffffff !important; width: 175px; display: none;">
+
+										<span data-toggle="tooltip" title="{{childObjs.objName}}">{{childObjs.objName}}</span>
+									</div>
+								</td>
+								<td *ngFor="let roles2 of roleList.roles; let j=index;"><input
+									type="hidden" name="objectNmae" value="{{roles2.roleName}}"
+									#roleName> <input type="hidden" name="objectNmae"
+									value="{{roles1.parentObjName}}" #parentName>
+									<div class="checkbox abc-checkbox align-center parent-checkbox"
+										style="text-align: center; background: #ffffff !important;">
+										<input id="{{roles2.roleName}}_{{i}}" class="styled"
+											type="checkbox"
+											(click)="updateRolePermission(roles2.accessObjs[i],roles2.roleId,$event,roleName.value)"
+											[disabled]="roles2.disableFlag"
+											[checked]="roles2[roleName.value][parentName.value]==1">
+										<label for="{{roles2.roleName}}_{{i}}"> </label>
+									</div>
+
+									<div
+										class="checkbox abc-checkbox align-center child-checkbox expanddiv"
+										id="{{roles1.parentObjName}}"
+										style="text-align: center; background: #ffffff !important; display: none"
+										*ngFor="let childListObjs of roles2.accessObjs[i].childObjs;  let k = index;">
+										<input type="hidden" name="objName"
+											value="{{childListObjs.objName}}" #childObjName> <input
+											id="{{childListObjs.objName}}_{{roles2.roleName}}_{{i}}"
+											class="styled {{roles2.roleName}}" type="checkbox"
+											[disabled]="roles2.disableFlag"
+											(click)="updateChildRolePermission(roles2.accessObjs[i],roles2.roleId,$event,roleName.value,childListObjs)"
+											[checked]="childListObjs.permissionLevel==1"> <label
+											for="{{childListObjs.objName}}_{{roles2.roleName}}_{{i}}">
+										</label>
+									</div></td>
+							</tr>
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

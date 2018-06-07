@@ -1,0 +1,88 @@
+.purchase-header{
+	background: linear-gradient(#077598 , #6ebed8 33%, #077598 90%);
+    color: #fff;
+    padding: 5px 10px;
+    min-height: 60px;
+}
+.sales-header{
+	background: linear-gradient(#F9CA3C , #FCDB74 33%, #F9CA3C 90%);
+    color: #fff;
+    padding: 5px 10px;
+    min-height: 60px;
+}
+.pending-header{
+	background: linear-gradient(#43A7A1 , #50D5CE 33%, #43A7A2 90%);
+    color: #fff;
+    padding: 5px 10px;
+    min-height: 60px;
+}
+.payable-header{
+	background: linear-gradient(#418135 , #5C9433 33%, #418135 90%);
+    color: #fff;
+    padding: 5px 10px;
+    min-height: 60px;
+}
+.delivery-header{
+	background: linear-gradient(#5684C3 , #78A8EA 33%, #5684C3 90%);
+    color: #fff;
+    padding: 5px 10px;
+    min-height: 60px;
+}
+.notifiction-header{
+	background: linear-gradient(#EA3019 , #F63820 33%, #EA3019 90%);
+    color: #fff;
+    padding: 5px 10px;
+    min-height: 60px;
+}
+.price-order{
+	font-weight:600;
+	font-family:"OpenSans";
+	margin-bottom:0px;
+	font-size:28px;
+}
+.purchase-content{
+	background:#F9FAFB;
+}
+.purchase-footer{
+	background:#F9FAFB;
+	border:1px solid #e4e9f0;
+	padding:10px 10px 15px;
+	border-top:0px;
+}
+.right-option{
+	color:#CF4040;
+	margin-top: -8px;
+}
+.main-dash{
+    padding: 0px;
+    padding-right:15px;
+    margin-bottom:15px;
+}
+.icon-color{
+	color:#004f4b;
+}
+.time-text{
+	font-size:12px;
+}
+.dboard-icon img{
+	height:50px;
+}
+.graph-block{
+	border: 1px solid #ccc;
+    padding: 10px 0px 0px 12px;
+}
+.graph-block h6{
+	font-weight:bold;
+}
+.graph-block h6{
+	font-weight:bold;
+}
+.price-sale{
+	color:#ff8103;
+}
+.price-purchase{
+	color:#5cb550;
+}
+.range-purchase{
+	color:#abd9a4;
+}

@@ -1,0 +1,170 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Vendor
+					Ledger Report</strong>
+			</span>
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv">
+							<form [formGroup]="poreportdetailsForm">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+									<div class="col-md-2 text-align-sales">
+										<label><b>Vendor Name</b><sup class="asterick">*</sup></label>
+										<select class="form-control create-edit-pop-txt-box"
+											style="width: 100% !important;" formControlName="vendorName"
+											id="slct_vendor" validateOnBlur
+											[validateFormControl]="poreportdetailsForm.controls['vendorName']">
+											<option value="">Please Select</option>
+											<ng-container
+												*ngFor="let vndTypes of vendorTypes; let i= index;">
+											<option [value]="vndTypes.key">{{vndTypes.value}}</option>
+											</ng-container>
+										</select> <span
+											*ngIf="poreportdetailsForm.controls['vendorName'].touched && poreportdetailsForm.controls['vendorName'].invalid && poreportdetailsForm.controls['vendorName'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['vendorName'].errors.required">
+												Select vendor names</small>
+										</span>
+
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<label><b>From Period</b><sup class="asterick">*</sup></label>
+										<input type="text" style="padding: 5px !important;"
+											placeholder="From Period" id="frmDate"
+											class="form-control datepicker-init"
+											formControlName="frmDate" validateOnBlur
+											(blur)="changeTodatePicker('#frmDate')"
+											[validateFormControl]="poreportdetailsForm.controls['frmDate']" />
+										<span
+											*ngIf="poreportdetailsForm.controls['frmDate'].touched && poreportdetailsForm.controls['frmDate'].invalid && poreportdetailsForm.controls['frmDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['frmDate'].errors.required">
+												Please select From Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales toDatepic">
+										<label><b>To Period</b><sup class="asterick">*</sup></label> <input
+											type="text" style="padding: 5px !important;"
+											placeholder="To Period" class="form-control datepicker-init2"
+											id="toDate" formControlName="toDate" validateOnBlur
+											(blur)="removeStyles()"
+											[validateFormControl]="poreportdetailsForm.controls['toDate']" />
+										<span
+											*ngIf="poreportdetailsForm.controls['toDate'].touched && poreportdetailsForm.controls['toDate'].invalid && poreportdetailsForm.controls['toDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['toDate'].errors.required">
+												Please select To Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<button type="submit" class="login-button-export"
+											[disabled]="poreportdetailsForm.invalid"
+											(click)="getpoReportDetails();"
+											style="position: relative; top: 26px;">
+											<i class="fa submit-icon"
+												style="margin-right: 4px; padding-right: 4px;"> <span
+												class="icon-text" style="right: -4px;">Submit</span>
+											</i>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+						<!-- new changes -->
+						<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table " id="" *ngIf="cdListLength>0">
+								<table style="border: 1px solid #c1c0c0;" width="100%">
+									<tr>
+										<td>Vendor Name : <label
+											class="form-label font-weight-custom">{{vendor_id}}<span>-</span>{{vendorledgerdetailsList.ex_vendor_name}}
+										</label></td>
+										<td>Opening Balance : <label
+											class="form-label font-weight-custom">{{vendorledgerdetailsList.ex_opening_bal.amount|
+												PriceInd}}</label></td>
+									</tr>
+								</table>
+
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable "
+									id="purchase-order-table"
+									style="display: table; overflow-x: scroll; overflow-y: hidden; width: 100%;">
+									<thead>
+										<tr>
+											<th style="width: 80px !important; min-width: 122px;">Document
+												Number</th>
+											<th style="width: 100px !important; min-width: 102px;">Document
+												Text</th>
+											<th style="width: 100px !important; min-width: 107px;">Debit
+												Amount</th>
+											<th style="width: 120px !important; min-width: 107px;">Credit
+												Amount</th>
+
+										</tr>
+									</thead>
+									<tbody>
+										<ng-container
+											*ngFor="let List of vendorledgerdetailsList.ex_ledger_data">
+
+										<tr>
+											<td>{{List.doc_num}}</td>
+											<td>{{List.doc_text}}</td>
+											<td>{{List.debit_amount}}</td>
+											<td>{{List.credit_amount}}</td>
+										</tr>
+										</ng-container>
+									</tbody>
+									<tfoot>
+										<tr>
+											<td>Totals:</td>
+											<td></td>
+											<td>{{tot_debit_amount}}</td>
+											<td>{{tot_credit_amount}}</td>
+										</tr>
+									</tfoot>
+								</table>
+								<table style="border: 1px solid #c1c0c0;" width="100%">
+									<tbody>
+										<tr>
+											<td>Closing Balance : <label
+												class="form-label font-weight-custom">{{vendorledgerdetailsList.ex_closing_bal|
+													PriceInd}}</label></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3" style="width: 94%;">
+		<div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export" title="Export Excel"
+					style="padding-left: 8px;" (click)="exportExcel()">
+					<i class="fa excel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+</section>

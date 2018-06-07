@@ -1,0 +1,15 @@
+import { Component, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'app-outbound-delivery-details',
+  templateUrl: './outbound-delivery-details.component.html',
+  styleUrls: ['./outbound-delivery-details.component.css']
+})
+export class OutboundDeliveryDetailsComponent implements OnInit {
+
+  constructor() { }
+
+  ngOnInit() {
+  }
+
+}

@@ -1,0 +1,313 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Sales
+					Order Report</strong>
+			</span>
+			<div class="pull-right">
+				<div class="rangeSlider row pull-left">
+					<input class="scroll-range" value="1" id="scroll-range"
+						type="range" />
+				</div>
+				<div class="row pull-left icon-filter-align">
+					<span class="" (click)="showFilters();" title="Advance Filters">
+						<i class="fa fa-sliders"> </i>
+					</span>
+				</div>
+			</div>
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv" id="filter-block">
+							<form [formGroup]="poreportdetailsForm">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+									<div class="col-md-2 text-align-sales" style="min-width: 20%;">
+										<label>Ship to Party</label> <input type="text"
+											autocomplete="off" list="customerNamesList"
+											class="form-control ajax-list"
+											(keyup)="extractData('cust-name','spinner-search','filetrajaxListBlock',$event)"
+											id="cust-name" formControlName="custName"
+											placeholder="customer name" validateOnBlur
+											[validateFormControl]="poreportdetailsForm.controls['custName']"
+											placeholder="Ship to Party"
+											style="height: 30px; width: 230px;" /> <i
+											class="fa fa-spinner fa-spin spinner-icon"
+											id="spinner-search"
+											style="display: none; margin-top: -10%; margin-right: -1%;"></i>
+										<input type="hidden" name="customerId" id="filterCustomerId"
+											value="" />
+										<div class="ajax-searchlist"
+											style="display: none; width: 100%;" id="filetrajaxListBlock">
+											<ul id="customerNamesBlock" class="custmore-list ajax-list">
+												<ng-container *ngIf="customerNames.length>0">
+												<li *ngFor="let cstList of customerNames; let i = index;"
+													id="list-{{i}}" value="{{cstList.cust_id}}"
+													class="ajax-list"
+													(click)="selectedItem(cstList,'filetrajaxListBlock','cust-name','filterCustomerId')"><span
+													class="pull-left" style="font-weight: 600;">{{cstList.cust_name}}</span>
+													<span class="pull-right">{{cstList.cust_id}}</span></li>
+												</ng-container>
+												<ng-container *ngIf="customerNames.length==0">
+												<li>Customers are not found</li>
+												</ng-container>
+											</ul>
+										</div>
+										<span
+											*ngIf="poreportdetailsForm.controls['custName'].touched && poreportdetailsForm.controls['custName'].invalid && poreportdetailsForm.controls['custName'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['custName'].errors.required">
+												{{pendingReportMessages.customer_name}}</small>
+										</span>
+
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<label><b>From Period</b><sup class="asterick">*</sup></label>
+										<input type="text" style="padding: 5px !important;"
+											placeholder="From Period" id="frmDate"
+											class="form-control datepicker-init"
+											formControlName="frmDate" validateOnBlur
+											(blur)="changeTodatePicker('#frmDate')"
+											[validateFormControl]="poreportdetailsForm.controls['frmDate']" />
+										<span
+											*ngIf="poreportdetailsForm.controls['frmDate'].touched && poreportdetailsForm.controls['frmDate'].invalid && poreportdetailsForm.controls['frmDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['frmDate'].errors.required">
+												Please select From Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales toDatepic">
+										<label><b>To Period</b><sup class="asterick">*</sup></label> <input
+											type="text" style="padding: 5px !important;"
+											placeholder="To Period" class="form-control datepicker-init2"
+											id="toDate" formControlName="toDate" validateOnBlur
+											(blur)="removeStyles()"
+											[validateFormControl]="poreportdetailsForm.controls['toDate']" />
+										<span
+											*ngIf="poreportdetailsForm.controls['toDate'].touched && poreportdetailsForm.controls['toDate'].invalid && poreportdetailsForm.controls['toDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="poreportdetailsForm.controls['toDate'].errors.required">
+												Please select To Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<button type="submit" class="login-button-export"
+											[disabled]="poreportdetailsForm.invalid"
+											(click)="getSoReportDetails();"
+											style="position: relative; top: 26px;">
+											<i class="fa submit-icon"
+												style="margin-right: 4px; padding-right: 4px;"> <span
+												class="icon-text" style="right: -4px;">Submit</span>
+											</i>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class="col-md-12 text-align-sales mb-1 mt-3"
+							*ngIf="SOdetailsList.length>0">
+							<table
+								class="table table-hover nowrap editable-table totalTable totalSmry"
+								style="display: inline-table; margin-bottom: 0px;">
+								<tbody>
+									<tr>
+
+										<td style="background: #e4e9f0;">Types</td>
+										<td>
+											<div class="pull-left">Fixed Sch Amt :</div>
+										</td>
+										<td>
+											<div class="pull-left">Sch Amt :</div>
+										</td>
+										<td>
+											<div class="pull-left">Dis Amt :</div>
+										</td>
+										<td>
+											<div class="pull-left">Net Amt :</div>
+										</td>
+										<td>
+											<div class="pull-left">S/UGST :</div>
+										</td>
+										<td>
+											<div class="pull-left">CGST :</div>
+										</td>
+										<td>
+											<div class="pull-left">IGST :</div>
+										</td>
+										<td>
+											<div class="pull-left">Gross Amount:</div>
+										</td>
+									</tr>
+									<tr>
+										<td style="background: #e4e9f0;">Order</td>
+										<td><div class="pull-right">&#8377; {{fix_sch |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377; {{sch_val |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377; {{dis_val |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377; {{netAmount |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377; {{sgstAmt |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377; {{cgstAmt |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377; {{igstAmt |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377; {{total_amt |
+												PriceInd}}</div></td>
+									</tr>
+									<tr>
+										<td style="background: #e4e9f0;">Returns</td>
+										<td><div class="pull-right">- &#8377; {{crfix_sch |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">- &#8377; {{crsch_val |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">- &#8377; {{crdis_val |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">- &#8377; {{crnetAmount
+												| PriceInd}}</div></td>
+										<td><div class="pull-right">- &#8377; {{crsgstAmt |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">- &#8377; {{crcgstAmt |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">- &#8377; {{crigstAmt |
+												PriceInd}}</div></td>
+										<td><div class="pull-right">- &#8377; {{crtotal_amt
+												| PriceInd}}</div></td>
+									</tr>
+									<tr>
+										<td style="background: #e4e9f0;">Grand Total</td>
+										<td><div class="pull-right">&#8377; {{fix_sch
+												-crfix_sch| PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377;
+												{{sch_val-crsch_val | PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377;
+												{{dis_val-crdis_val | PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377;
+												{{netAmount-crnetAmount | PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377;
+												{{sgstAmt-crsgstAmt | PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377;
+												{{cgstAmt-crcgstAmt | PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377;
+												{{igstAmt-crigstAmt | PriceInd}}</div></td>
+										<td><div class="pull-right">&#8377;
+												{{total_amt-crtotal_amt | PriceInd}}</div></td>
+									</tr>
+								</tbody>
+							</table>
+
+						</div>
+						<div class="col-md-12 mt-1 mb-5 mt-3">
+							<div class="stock-table " id="">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable table-responsive table-divs"
+									width="100%" id="delivery-order-table">
+									<thead>
+										<tr>
+											<th style="min-width: 120px !important;">SO No.</th>
+											<th style="min-width: 120px !important;">Status</th>
+											<th style="min-width: 110px !important;">Order Date</th>
+											<th style="min-width: 110px !important;">Doc Category</th>
+											<th style="min-width: 110px !important;">Req Del date</th>
+											<th style="min-width: 110px !important;">PO Number</th>
+											<th style="min-width: 90px !important;">PO date</th>
+											<th style="min-width: 130px !important;">Customer Name</th>
+											<th style="min-width: 110px !important;">Ship to Party</th>
+											<th style="min-width: 120px !important;">Net Amount</th>
+											<th style="min-width: 120px !important;">Total Amount</th>
+
+											<th style="min-width: 90px !important;">Material</th>
+											<th style="min-width: 130px !important;">Description</th>
+											<th style="min-width: 80px !important;">Qty</th>
+											<th style="min-width: 60px !important;">UOM</th>
+											<th style="min-width: 90px !important;">Unit Price</th>
+											<th style="min-width: 80px !important;">Fix.Sch.</th>
+											<th style="min-width: 80px !important;">Sch.Val</th>
+											<!-- <th  style="min-width:140px !important;" *ngIf="orderType=='ZKS'">Add Dis.</th>  -->
+											<th style="min-width: 80px !important;">Dis Val</th>
+											<th style="min-width: 80px !important;">Dis Amt</th>
+											<th style="min-width: 100px !important;">Net Val</th>
+											<th style="min-width: 100px !important;">S/UGST</th>
+											<th style="min-width: 100px !important;">CGST</th>
+											<th style="min-width: 100px !important;">IGST</th>
+											<th style="min-width: 120px !important;">Total Amount</th>
+										</tr>
+									</thead>
+									<tbody>
+										<ng-container *ngFor="let sld of SOdetailsList">
+										<ng-container *ngFor="
+											let ItemList of sld.items">
+										<tr>
+											<td>{{sld.sales_doc}}</td>
+											<td>{{sld.status}}</td>
+											<td><span class='hide'>{{sld.doc_date | date
+													:'yyyyMMdd'}}</span>{{sld.doc_date | date :'dd-MM-yyyy'}}</td>
+											<td>{{sld.doc_category}}</td>
+											<td><span class='hide'>{{sld.req_del_date | date
+													:'yyyyMMdd'}}</span>{{sld.req_del_date | date :'dd-MM-yyyy'}}</td>
+											<td>{{sld.po_num}}</td>
+											<td><span class='hide'>{{sld.po_date | date
+													:'yyyyMMdd'}}</span><span *ngIf="sld.po_date!='0000-00-00'">{{sld.po_date
+													| date :'dd-MM-yyyy'}}</span></td>
+											<td><div class="text-name-elipsis"
+													title="{{sld.sold_to_name}}">{{sld.sold_to_name}}</div></td>
+											<td><div class="text-name-elipsis"
+													title="{{sld.ship_to_name}}">{{sld.ship_to_name}}</div></td>
+											<td align="right">&#8377; {{sld.net_amount | PriceInd}}</td>
+											<td align="right">&#8377; {{sld.total_amt | PriceInd}}</td>
+
+											<td>{{ItemList.material}}</td>
+											<td>{{ItemList.description}}</td>
+											<td>{{ItemList.qty | PriceInd}}</td>
+											<td>{{ItemList.uom}}</td>
+											<td>{{ItemList.unit_price | PriceInd}}</td>
+											<td>{{ItemList.fix_sch}}</td>
+											<td>{{ItemList.sch_val | PriceInd}}</td>
+											<td>{{ItemList.dis_val | PriceInd}}</td>
+											<td>{{ItemList.dis_amt | PriceInd}}</td>
+											<td>{{ItemList.net_val | PriceInd}}</td>
+											<td>{{ItemList.sgst_amt | PriceInd}}</td>
+											<td>{{ItemList.cgst_amt | PriceInd}}</td>
+											<td>{{ItemList.igst_amt | PriceInd}}</td>
+											<td>{{ItemList.total_amt | PriceInd}}</td>
+										</tr>
+										</ng-container> </ng-container>
+
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3" style="width: 94%;">
+		<div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export" title="Export Excel"
+					style="padding-left: 8px;" (click)="exportExcel()">
+					<i class="fa excel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+</section>

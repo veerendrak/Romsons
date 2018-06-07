@@ -1,0 +1,127 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+
+declare var $: any;
+declare var jQuery: any;
+
+@Component({
+  selector: 'app-stock-details',
+  templateUrl: './stock-details.component.html',
+  styleUrls: ['./stock-details.component.css']
+})
+export class StockDetailsComponent implements OnInit {
+
+     url:string;
+     bpId:string;
+     orgId:string;
+     stockDetailList:any;
+     stockBatchDetails:any;
+    
+  constructor(private http: Http, private formBuilder: FormBuilder,private environment:EnvConfigurationService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService) { 
+      this.bpId = localStorage.getItem("bpId");
+      this.orgId =localStorage.getItem("orgId");
+  }
+    
+
+  ngOnInit() {
+     
+       setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },50);
+      this.getStockDetails();
+      
+  }
+
+    expandmodal(materialId,icon,i){
+        var cls = $("#" + icon+i).attr('class');
+        if (cls == 'fa fa-minus expand pull-right') {
+            $("#" + icon+i).attr('class', 'fa fa-plus expand pull-right');
+
+        } else {
+            $("#" + icon+i).attr('class', 'fa fa-minus expand pull-right');
+        }
+        $("." + materialId+i).toggle();
+        }
+    
+    applyDataTable(){
+       
+       setTimeout(()=>{  
+           $("#stock-balance-table").DataTable({
+        
+           "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+           "fnDrawCallback": function( oSettings ) {
+                        if ( 5 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                            
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                            
+                           
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                          
+                        }
+                    },
+          
+      });
+         },400);  
+         setTimeout(() =>{
+          $(".dataTables_scrollHeadInner").css({"width":"100%"});
+          $(".table ").css({"width":"100%"});    
+          },600);
+        
+        
+    }
+    
+     getStockDetails(){
+       $('#loadingIcon').show();
+       $("#black-overlay").show();
+         this.url = this.environment.getRequiredApi( 'get_inventory_stock' )+"?bp_id="+this.bpId+"&org_id="+this.orgId+"&";
+      
+        this.commonService.getData( this.url, 'GET','',localStorage.getItem("Stock Details"))
+            .subscribe(( response ) => {
+               if(response.status == '1'){
+                   this.commonService.responseMessages("", response.message, "warning");
+                   this.stockDetailList=[];
+                    $("#stock-balance-table").DataTable().destroy();
+                   this.applyDataTable();
+                   $('#loadingIcon').hide();
+                   $("#black-overlay").hide();
+               }else{
+                this.stockDetailList = response.data.ex_stock_dets; 
+                   $("#stock-balance-table").DataTable().destroy();
+                   this.applyDataTable();  
+                    console.log(response.data.ex_stock_dets);
+                    
+              $('#loadingIcon').hide();
+              $("#black-overlay").hide(); 
+               }
+           
+                //
+              
+              
+            
+            }, err => {
+                  $('#loadingIcon').hide();
+              $("#black-overlay").hide();
+                    console.log(err)   
+            
+            } );
+    
+    }
+ }

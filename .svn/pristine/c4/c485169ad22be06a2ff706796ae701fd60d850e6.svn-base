@@ -1,0 +1,129 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Incoming Payment</strong>
+		</span>
+	</div>
+	<div class="card-block db-block mb-5" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+			
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					<form [formGroup]="incommingPayemnt">
+					 <div class="delivery-form-block col-md-12 row pb-5">
+						<div class="col-md-3">
+						<mat-form-field
+							      [floatLabel]="incommingPayemnt.value.floatLabel">
+							      <mat-label>Customer Account</mat-label>
+							    <input matInput placeholder="Customer Account" required>
+							  </mat-form-field>
+							  </div>
+						<div class="col-md-3">
+							 <mat-form-field
+							      [floatLabel]="incommingPayemnt.value.floatLabel">
+							       <mat-label>Posting Date</mat-label>
+							  <input matInput [matDatepicker]="postDate" (click)="postDate.open()"  >
+							  <mat-datepicker-toggle matSuffix [for]="postDate"></mat-datepicker-toggle>
+							  <mat-datepicker #postDate></mat-datepicker>
+							  </mat-form-field> 
+						</div>
+						<div class="col-md-3">
+							 <mat-form-field
+							      [floatLabel]="incommingPayemnt.value.floatLabel">
+							      <mat-label>Doc Date</mat-label>
+							  <input matInput [matDatepicker]="docDate" (click)="docDate.open()"  >
+							  <mat-datepicker-toggle matSuffix [for]="docDate"></mat-datepicker-toggle>
+							  <mat-datepicker #docDate></mat-datepicker>
+							  </mat-form-field> 
+						</div>
+						<div class="col-md-3">
+							 <mat-form-field
+							      [floatLabel]="incommingPayemnt.value.floatLabel">
+							      <mat-label>Doc Type</mat-label>
+							    <input matInput placeholder="Doc Type" required>
+							  </mat-form-field>  
+						</div>
+						<div class="clear-fix"></div>
+						<div class="col-md-3">
+							  <mat-form-field
+							      [floatLabel]="incommingPayemnt.value.floatLabel">
+							      <mat-label>Company Code</mat-label>
+							    <input matInput placeholder="Company Code" required>
+							  </mat-form-field>  
+						</div>
+						<div class="col-md-3">  
+							  <mat-form-field
+							      [floatLabel]="incommingPayemnt.value.floatLabel">
+							      <mat-label>Payment Mode</mat-label>
+							    <input matInput placeholder="Payment Mode" required>
+							  </mat-form-field> 
+						</div>
+						<div class="col-md-3">  
+							 <mat-form-field
+							      [floatLabel]="incommingPayemnt.value.floatLabel">
+							      <mat-label>Reference no</mat-label>
+							    <input matInput placeholder="Reference no" required>
+							  </mat-form-field> 
+						</div>
+						<div class="col-md-3">							     
+							 <mat-form-field
+							      [floatLabel]="incommingPayemnt.value.floatLabel">
+							      <mat-label>Profit Center</mat-label>
+							    <input matInput placeholder="Profit Center" required>
+							  </mat-form-field>   
+						</div>
+						<div class="clear-fix"></div>
+						<div class="col-md-3">	      
+							   <mat-form-field
+							      [floatLabel]="incommingPayemnt.value.floatLabel">
+							      <mat-label>Business Place</mat-label>
+							    <input matInput placeholder="Business Place" required>
+							  </mat-form-field>   
+						</div>
+						<div class="col-md-3">						      
+							<mat-form-field
+							      [floatLabel]="incommingPayemnt.value.floatLabel">
+							      <mat-label>Business Area</mat-label>
+							    <input matInput placeholder="Business Area" required>
+							  </mat-form-field>   
+						</div>
+						<div class="col-md-3">
+						<mat-form-field
+							      [floatLabel]="incommingPayemnt.value.floatLabel">
+							      <mat-label>Amount</mat-label>
+							    <input matInput placeholder="Amount" required>
+							  </mat-form-field>   
+						</div>
+						<div class="col-md-3">    
+							  <mat-form-field
+							      [floatLabel]="incommingPayemnt.value.floatLabel">
+							      <mat-label>GL Account</mat-label>
+							    <input matInput placeholder="GL Account" required>
+							  </mat-form-field>  
+						</div>
+					</div>
+					</form>
+					</div>
+					<!-- end chnges -->
+				
+				
+		</div>
+		<div class="outbound-footer mt-1">
+		 <div class="right-block"> 
+			<div class="pull-left" style="max-width:46.4%">
+			<button class="btn login-button">
+			<i class="fa fa-save" style="margin-right:4px;"></i>Save</button>
+			</div>
+			<div class="pull-left" style="max-width:12.4%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Cancel</button>
+			</div>
+			</div>
+		 </div> 
+	</div>
+	
+	</div>
+	
+</div>
+</section>

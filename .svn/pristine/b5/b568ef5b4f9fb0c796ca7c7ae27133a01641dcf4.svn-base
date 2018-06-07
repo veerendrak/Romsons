@@ -1,0 +1,439 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">{{title}}</strong>
+		</span>
+	</div>
+	
+</div>
+<div class="" >
+	<div class="card-block db-block mb-1" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" >
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					<form [formGroup]="purchaseOrderForm">
+					 <div class="delivery-form-block col-md-12 row">
+						<div class="col-md-3 text-align-sales" >
+							
+							<label>Doc Type<sup class="asterick">*</sup> </label>
+						<input type="text" class="form-control " formControlName="docType" [value]="formEditObj.docType"
+						validateOnBlur [validateFormControl]="purchaseOrderForm.controls['docType']">
+									<span
+											*ngIf="purchaseOrderForm.controls['docType'].touched && purchaseOrderForm.controls['docType'].invalid && purchaseOrderForm.controls['docType'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="purchaseOrderForm.controls['docType'].errors.required">
+											{{purchaseOrderMessage.docType_req}}	</small>
+										</span>
+										
+						</div>
+						<div class="col-md-3 text-align-sales" >
+						
+						<label>Select Vendor Code <sup class="asterick">*</sup> </label>
+						<input type="text" class="form-control "formControlName="vendorCode"
+						validateOnBlur [validateFormControl]="purchaseOrderForm.controls['vendorCode']">
+										<span
+											*ngIf="purchaseOrderForm.controls['vendorCode'].touched && purchaseOrderForm.controls['vendorCode'].invalid && purchaseOrderForm.controls['vendorCode'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="purchaseOrderForm.controls['vendorCode'].errors.required">
+											{{purchaseOrderMessage.vendor_code_req}}	</small>
+										</span>
+										
+						</div>
+						<div class="col-md-3 text-align-sales">
+						
+						<label>Vendor Name</label>
+						<input type="text" class="form-control" formControlName="vendorName" [value]="formEditObj.vendorName" >
+							
+						</div>
+						<div class="col-md-3 text-align-sales">
+						
+						<label>Doc Date <sup class="asterick">*</sup> </label>
+						<input type="text" class="form-control datepicker-init-sale" formControlName="docDate" [value]="formEditObj.docDate"
+						validateOnBlur [validateFormControl]="purchaseOrderForm.controls['docDate']"> 
+											<span
+												*ngIf="purchaseOrderForm.controls['docDate'].touched && purchaseOrderForm.controls['docDate'].invalid && purchaseOrderForm.controls['docDate'].dirty"
+												class="error"> <small class="custom-error-class"
+												*ngIf="purchaseOrderForm.controls['docDate'].errors.required">
+													{{purchaseOrderMessage.docDate_req}} </small>
+											</span>
+										</div>
+						</div>
+						<div class="clear-fix"></div>
+						 <div class="delivery-form-block col-md-12 row pb-1">
+						<div class="col-md-6 text-align-sales">
+						<label>Billing Address</label>
+						<textarea  class="form-control" formControlName="billingAddr" style="height: 86px;" [value]="formEditObj.billingAddr"></textarea>
+						</div>
+						
+						<div class="col-md-6 text-align-sales">
+						<label>Shipping Address</label>
+						<textarea  class="form-control" formControlName="shippingAddr" style="height: 86px;" [value]="formEditObj.shippingAddr"></textarea>
+							
+						</div>
+						
+					</div>
+					</form>
+					</div>
+					<div class="col-md-12 mt-1 mb-3">
+							<div class="stock-table table-responsive">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="purchase-order-table">
+								<thead>
+									<tr>
+										<th rowspan="2"  style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></th>
+										<th rowspan="2"  style="width:100px;">Material</th>
+										<th rowspan="2">Description</th>
+										<th rowspan="2">Qty</th>
+										<th rowspan="2">UOM</th>
+										<th rowspan="2">Plant</th>
+										<th rowspan="2">Stor Loc</th>
+										<th rowspan="2">Del Date</th>
+										<th rowspan="2">Price</th>
+										<th colspan="2">S/U GST</th>
+										<th colspan="2">CGST</th>
+										<th colspan="2">IGST</th>
+										<th rowspan="2">Net Amount</th>
+										</tr>
+										<tr>
+										<th>Rate</th>
+										<th>Value</th>
+										<th>Rate</th>
+										<th>Value</th>
+										<th >Rate</th>
+										<th>Value</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>
+											<input type="text" class="outbound-input" name="material" value="NC 12">
+										</td>
+										<td>Lorem ipsum dolor sit amet, con..</td>
+										<td>
+											<input type="text" class="outbound-input" name="qty" value="100">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="uom" value="pics">
+										</td>
+										
+										<td>
+											<input type="text" class="outbound-input" name="plant" value="S001">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="storLoc" value="KS01">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="delDate" value="14/02/2018">
+										</td>
+										
+										<td>10,300</td>
+										<td></td>
+										
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>
+											<input type="text" class="outbound-input" name="material" value="NC 12">
+										</td>
+										<td>Lorem ipsum dolor sit amet, con..</td>
+										<td>
+											<input type="text" class="outbound-input" name="qty" value="100">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="uom" value="pics">
+										</td>
+										
+										<td>
+											<input type="text" class="outbound-input" name="plant" value="S001">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="storLoc" value="KS01">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="delDate" value="14/02/2018">
+										</td>
+										
+										<td>10,300</td>
+										<td></td>
+										
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>
+											<input type="text" class="outbound-input" name="material" value="NC 12">
+										</td>
+										<td>Lorem ipsum dolor sit amet, con..</td>
+										<td>
+											<input type="text" class="outbound-input" name="qty" value="100">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="uom" value="pics">
+										</td>
+										
+										<td>
+											<input type="text" class="outbound-input" name="plant" value="S001">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="storLoc" value="KS01">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="delDate" value="14/02/2018">
+										</td>
+										
+										<td>10,300</td>
+										<td></td>
+										
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>
+											<input type="text" class="outbound-input" name="material" value="NC 12">
+										</td>
+										<td>Lorem ipsum dolor sit amet, con..</td>
+										<td>
+											<input type="text" class="outbound-input" name="qty" value="100">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="uom" value="pics">
+										</td>
+										
+										<td>
+											<input type="text" class="outbound-input" name="plant" value="S001">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="storLoc" value="KS01">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="delDate" value="14/02/2018">
+										</td>
+										
+										<td>10,300</td>
+										<td></td>
+										
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>
+											<input type="text" class="outbound-input" name="material" value="NC 12">
+										</td>
+										<td>Lorem ipsum dolor sit amet, con..</td>
+										<td>
+											<input type="text" class="outbound-input" name="qty" value="100">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="uom" value="pics">
+										</td>
+										
+										<td>
+											<input type="text" class="outbound-input" name="plant" value="S001">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="storLoc" value="KS01">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="delDate" value="14/02/2018">
+										</td>
+										
+										<td>10,300</td>
+										<td></td>
+										
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>
+											<input type="text" class="outbound-input" name="material" value="NC 12">
+										</td>
+										<td>Lorem ipsum dolor sit amet, con..</td>
+										<td>
+											<input type="text" class="outbound-input" name="qty" value="100">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="uom" value="pics">
+										</td>
+										
+										<td>
+											<input type="text" class="outbound-input" name="plant" value="S001">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="storLoc" value="KS01">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="delDate" value="14/02/2018">
+										</td>
+										
+										<td>10,300</td>
+										<td></td>
+										
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>
+											<input type="text" class="outbound-input" name="material" value="NC 12">
+										</td>
+										<td>Lorem ipsum dolor sit amet, con..</td>
+										<td>
+											<input type="text" class="outbound-input" name="qty" value="100">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="uom" value="pics">
+										</td>
+										
+										<td>
+											<input type="text" class="outbound-input" name="plant" value="S001">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="storLoc" value="KS01">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="delDate" value="14/02/2018">
+										</td>
+										
+										<td>10,300</td>
+										<td></td>
+										
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>
+											<input type="text" class="outbound-input" name="material" value="NC 12">
+										</td>
+										<td>Lorem ipsum dolor sit amet, con..</td>
+										<td>
+											<input type="text" class="outbound-input" name="qty" value="100">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="uom" value="pics">
+										</td>
+										
+										<td>
+											<input type="text" class="outbound-input" name="plant" value="S001">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="storLoc" value="KS01">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="delDate" value="14/02/2018">
+										</td>
+										
+										<td>10,300</td>
+										<td></td>
+										
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+									</tr>
+									
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+<div class="outbound-footer mt-3">
+		<div class="left-block">
+		<div class="pull-left" style="max-width:47%">
+			<button class="login-button">
+			<i class="fa fa-plus" style="margin-right:4px;font-size:16px"></i> Add Lines</button>
+		</div>
+		<div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Remove Line</div>
+				</i>
+			</button>
+		</div>
+		</div>
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export">
+					<i class="fa scheme-icon" style="margin-right:4px;padding-right:4px;">
+					<div class="icon-text" style="right:-4px;">Print</div>
+					</i>
+				</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export">
+				<i class="fa calc-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Calculate Total</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export">
+				<i class="fa upexcel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Upload Excel</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="login-button-export">
+				<i class="fa save-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Save</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Cancel</div>
+				</i>
+			</button>
+		</div>
+		</div>
+	</div>
+</div>
+
+</section>

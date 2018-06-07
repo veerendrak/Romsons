@@ -1,0 +1,389 @@
+<div>
+	<div class="card-block db-block mb-1" style="padding-left:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12 outBound-form-block">
+					<form [formGroup]="deliveryForm">
+					 <div class="delivery-form-block col-md-12 row pb-2">
+						
+						<div class="col-md-3 left-padding">
+						<label>Ship To Party Name</label>
+							<input type="text" class="form-control" [value]="shName" [attr.disabled]="dsFlag ?  'disabled' : null">
+						</div>
+						
+						<div class="col-md-3 text-align-sales left-padding">
+						
+							<label>Doc Date <sup class="asterick">*</sup></label>
+							<input type="text" class="form-control datepicker-init-sale" id="docDate" [attr.disabled]="disableBtns ?  'disabled' : null"
+							[value]="docDate | date :'dd/MM/yyyy'"
+							formControlName="DocDate" validateOnBlur [validateFormControl]="deliveryForm.controls['DocDate']">
+							<span
+											*ngIf="deliveryForm.controls['DocDate'].touched && deliveryForm.controls['DocDate'].invalid && deliveryForm.controls['DocDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="deliveryForm.controls['DocDate'].errors.required">
+											{{outboundDeliveryMsg.out_doc_date_req_msg}}	</small>
+										</span>
+						</div>
+						<div class="col-md-3 text-align-sales right-padding">
+							<label>Planned GI Date</label>
+							<input type="text" id="plndGiDate" class="form-control datepicker-init-sale" formControlName="PGiDate"
+							[value]="plGiDate | date :'dd/MM/yyyy'" [attr.disabled]="disableBtns ?  'disabled' : null"
+							validateOnBlur [validateFormControl]="deliveryForm.controls['GiDate']">
+							
+							<span
+											*ngIf="deliveryForm.controls['GiDate'].touched && deliveryForm.controls['GiDate'].invalid && deliveryForm.controls['GiDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="deliveryForm.controls['GiDate'].errors.required">
+											{{outboundDeliveryMsg.out_gi_date}}	</small>
+										</span>
+						</div>
+						<div class="col-md-3 text-align-sales right-padding">
+							<label>GI Date</label>
+							<input type="text" id="giDate" class="form-control datepicker-init-sale" formControlName="GiDate"
+							[value]="acGiDate | date :'dd/MM/yyyy'" 
+							validateOnBlur [validateFormControl]="deliveryForm.controls['GiDate']" disabled>
+							
+							<span	
+											*ngIf="deliveryForm.controls['GiDate'].touched && deliveryForm.controls['GiDate'].invalid && deliveryForm.controls['GiDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="deliveryForm.controls['GiDate'].errors.required">
+											{{outboundDeliveryMsg.out_gi_date}}	</small>
+										</span>
+						</div>
+						
+						<div class="col-md-3 text-align-sales left-padding weight-bottom">
+							<div class="txt-msg-block">
+							  <ng-container>
+							  	<label class="mb-0" style="font-size:10px !important;" *ngIf="shComplince.gstin!=''"><strong>GSTN: </strong><span>{{shComplince.gstin}}</span></label>
+							  	<!-- <label  class="mb-0"><strong>PAN: </strong><span>{{customerList['ex_compliance'].pan_no}}</span></label> -->
+							  	<label class= 
+							  	 "mb-0" style="font-size:10px !important;" *ngIf="shComplince.lst_no!=''"><strong>DL: </strong><span>{{shComplince.lst_no}}</span></label>
+							  	<span *ngIf="shAddress.addr_number!=''">Address: {{shAddress.addr_number}} ,</span>
+							  	<span *ngIf="shAddress.street!=''">{{shAddress.street}} ,</span>
+							  	<span *ngIf="shAddress.city!=''">{{shAddress.city}} ,</span>
+							  	 <span *ngIf="shAddress.post_code!=''">{{shAddress.post_code}} ,</span>
+							  	<span *ngIf="shAddress.telefone!=''">{{shAddress.telefone}} ,</span>
+							  	 <span *ngIf="shAddress.country!=''">{{shAddress.country}}</span>
+							  	 </ng-container>
+							  	 </div>
+							  </div>
+						<!-- <div class="col-md-3 text-align-sales left-padding">
+							<label>Number of Packages</label>
+							<input type="text" id="numPackVal" class="form-control" formControlName="NoPackage"
+							[value]="numPack" [attr.disabled]="disableBtns ?  'disabled' : null"
+							validateOnBlur [validateFormControl]="deliveryForm.controls['NoPackage']">
+							<span
+											*ngIf="deliveryForm.controls['NoPackage'].touched && deliveryForm.controls['NoPackage'].invalid && deliveryForm.controls['NoPackage'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="deliveryForm.controls['NoPackage'].errors.required">
+											{{outboundDeliveryMsg.out_no_package}}	</small>
+										</span>
+						</div> -->
+						<div class="col-md-3 text-align-sales left-padding weight-bottom">
+							<label>Total weight</label>
+							<input type="text" class="form-control" formControlName="totWeight"
+							value="{{totalWeight}} {{weightType}}" [attr.disabled]="disableBtns ?  'disabled' : null"
+							validateOnBlur [validateFormControl]="deliveryForm.controls['totWeight']">
+							<span
+											*ngIf="deliveryForm.controls['totWeight'].touched && deliveryForm.controls['totWeight'].invalid && deliveryForm.controls['totWeight'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="deliveryForm.controls['totWeight'].errors.required">
+											{{outboundDeliveryMsg.out_totWeight}}	</small>
+										</span>
+						</div>
+					</div>
+					</form>
+					</div>
+					<div class="col-md-12 mt-1">
+							<div class="stock-table table-responsive">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="outbound-delivery-table">
+								<thead>
+									<tr>
+										<th class="no-sort" style="width:50px;text-align:center;">
+										<mat-checkbox  class="example-margin" id="checkbox-all" 
+										[(ngModel)]="checked"
+											[checked]="checked"
+											[(indeterminate)]="indeterminate" 
+											 (click)="selectAll($event,'checkbox-all-input','outbound-delivery-table')"></mat-checkbox>
+										</th>
+										<th style="width:110px;">Item No</th>
+										<th style="width:110px;">Material Code</th>
+										<th>Description</th>
+										<th style="width:100px;">Delivery Qty</th>
+										<th style="width:100px;">Open Qty</th>
+										<th style="width:100px;">Batch Qty</th>
+										<th>UOM</th>
+										<th style="width:100px;">Batch</th>
+										<th>Batch SLED/BBD</th>
+										<th>SO Number</th>
+										<th>SO Item</th>
+									</tr>
+								</thead>
+								<tbody>
+									<ng-container *ngIf="outboundDelievryItemsList.length>0">
+									<ng-container *ngFor="let item of outboundDelievryItemsList; let i=index">
+										<tr  [ngClass]="item.batchNum != '' ? 'childRow-'+item.vgbel+'-'+item.batchNum +' child-row' : 'parentRow'" *ngIf="item.displayRow">
+											<td align="center">
+													<mat-checkbox class="example-margin" id="checkbox-{{i}}"  (click)="getReportList($event,'outbound-delivery-table',i,item)">
+												</mat-checkbox></td>
+											<td>{{item.posnr}}</td>
+											<td>{{item.matnr}}</td>
+											<td>{{item.arktx}}</td>
+											<td>
+												<ng-container *ngIf="item.batchNum==''">
+													{{item.lfimg | customround}}
+												</ng-container>
+												<ng-container *ngIf="item.batchNum!=''">
+													<input type="text" [attr.disabled]="disableBtns ?  'disabled' : null" (blur)="changeQtyValidation(item,i)" [(ngModel)]="item.lfimg" id="batch-qty-{{i}}" class="form-control matNum numbersOnly1 batch-{{item.vgpos}}" [value]="item.lfimg | customround"/>
+												</ng-container>
+											</td>
+											<td><span *ngIf="item.omeng!=null">{{item.omeng | customround}}</span></td>
+											<td><span *ngIf="item.clabs!=null">{{item.clabs | customround}}</span></td>
+											<td>{{item.meins}}</td>
+											<td>{{item.charg}}
+											<ng-container *ngIf="item.batchNum==''">
+													<i class="fa plus-circle-icon  expand pull-right"
+														 id="plus-{{i}}" style="cursor:pointer;height:20px;"
+														(click)="expandChildRows('childRow',item.vgbel,'plus',i,item.posnr)">
+													</i>
+													<i class="fa minus-circle-icon  expand pull-right"
+														 id="minus-{{i}}" style="display:none;cursor:pointer;height:20px;"
+														(click)="expandChildRows('childRow',item.vgbel,'minus',i,item.posnr)">
+													</i>	
+												</ng-container>
+											</td>
+											<td><span *ngIf="item.vfdat!='0000-00-00'">{{item.vfdat | date :'dd-MM-yyyy'}}</span></td>
+											<td>{{item.vgbel}}</td>
+											<td>{{item.vgpos}}</td>
+										</tr>
+									 </ng-container>
+									</ng-container>
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3">
+		<div class="left-block">
+		<!-- <div class="pull-left" style="max-width:47%;margin-right:10px;">
+			<mat-checkbox>Select all</mat-checkbox>
+		</div> -->
+		<div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;" (click)="redirectDelievryList()">
+				<i class="fa back-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Back</div>
+				</i>
+			</button>
+		</div>
+		<!-- <div class="pull-left">
+			<button class="login-button-export" style="padding-left:0px;"
+			disabled>
+				<i class="fa batch-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;"> Batch Determination</div>
+				</i>
+			</button>
+			</div> -->
+			<div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;" (click)="removeLineSelectedItems()"
+			[attr.disabled]="disableBtns ?  'disabled' : null">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Remove Lines</div>
+				</i>
+			</button>
+		</div>
+		</div>
+		<div class="right-block">
+		<div class="pull-left" >
+			<button class="login-button" (click)="displayAddSalesModal()" [attr.disabled]="disableBtns ?  'disabled' : null">
+				Add Sales Order
+			</button>
+			</div>
+		<div class="pull-left">
+			<button class="login-button" (click)="expandAllrows()">
+				Expand/Collapse Batches
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="save-icon-btn" (click)="createDelivery()" [attr.disabled]="saveBtn ?  'disabled' : null">
+				<i class="fa save-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Save</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="cancel-button-export" (click)="cancelSalesOrder()" style="padding-left:0px;" [attr.disabled]="canceldisableBtns ?  'disabled' : null">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Cancel Delivery</div>
+				</i>
+			</button>
+		</div>
+		</div>
+	</div>
+</div>
+<!--create delivery order -->
+
+					<div class="modal fade modal-size-medium" id="outboundDeliveryModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content"  >
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>
+									Outbound Delivery
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('outboundDeliveryModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+									
+									
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;">
+								<form [formGroup]="createDeliveryForm" autocomplete="off" id="salesForm">
+									<div class="col-md-12 row">
+									<div class="col-md-6">
+									
+									<label>Date<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box datepicker-init-sale" id="sFiterfromDate"
+									(focus)="changePickerPos()" (blur)="removeStyles('sFiterfromDate')"
+									formControlName="outboundDate"  validateOnBlur [validateFormControl]="createDeliveryForm.controls['outboundDate']"
+									style="width: 225px !important;">
+									<span
+											*ngIf="createDeliveryForm.controls['outboundDate'].touched && createDeliveryForm.controls['outboundDate'].invalid && createDeliveryForm.controls['outboundDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createDeliveryForm.controls['outboundDate'].errors.required">
+												{{outboundMessage.out_date_req_msg}}</small>
+										</span>
+									</div>
+									<div class="col-md-6">
+									<label>Order<sup class="asterick">*</sup></label>
+									<input type="text" class="form-control create-edit-pop-txt-box" id="orderNum"
+									formControlName="outboundOrder"  validateOnBlur [validateFormControl]="createDeliveryForm.controls['outboundOrder']"
+									 style="width: 231px !important;">
+									<span
+											*ngIf="createDeliveryForm.controls['outboundOrder'].touched && createDeliveryForm.controls['outboundOrder'].invalid && createDeliveryForm.controls['outboundOrder'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createDeliveryForm.controls['outboundOrder'].errors.required">
+												{{outboundMessage.out_order_req_msg}}</small>
+										</span>
+									</div>
+									
+									</div>
+									<div class="col-md-12 row" style="padding-top: 5px;">
+									<div class="col-md-6">
+									
+									<label>From Item</label>
+									<input type="text" class="form-control create-edit-pop-txt-box" id="fromItem"
+									formControlName="frmItem"  validateOnBlur [validateFormControl]="createDeliveryForm.controls['frmItem']"
+									style="width: 225px !important;">
+									<span
+											*ngIf="createDeliveryForm.controls['frmItem'].touched && createDeliveryForm.controls['frmItem'].invalid && createDeliveryForm.controls['frmItem'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createDeliveryForm.controls['frmItem'].errors.required">
+												{{outboundMessage.frm_item_req_msg}}</small>
+										</span>
+									</div>
+									<div class="col-md-6">
+									<label>To Item</label>
+									<input type="text" class="form-control create-edit-pop-txt-box" id="toItem"
+									formControlName="toItem"  validateOnBlur [validateFormControl]="createDeliveryForm.controls['toItem']"
+									style="width: 231px !important;">
+									<span
+											*ngIf="createDeliveryForm.controls['toItem'].touched && createDeliveryForm.controls['toItem'].invalid && createDeliveryForm.controls['toItem'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="createDeliveryForm.controls['toItem'].errors.required">
+												{{outboundMessage.to_item_req_msg}}</small>
+										</span>
+									</div>
+									
+									</div>
+									</form>
+								</div>
+
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<button (click)="addSalesOrder('outboundDeliveryModal')"
+											class="login-button forgotOk"
+											>Ok</button>
+										<button (click)="closeModal('outboundDeliveryModal')"
+											 Class="cancel-button forgotOk"
+											>Cancel</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+</div>
+					<!-- End of create delivery order-->
+					<!--Error display modal -->
+
+					<div class="modal fade modal-size-medium" id="displayDlvrErrorsModal" data-backdrop="static" data-keyboard="false" 
+						tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+								<div class="row new_row">
+								<div class="pull-left new_left">
+								<h4>Display Errors
+									</h4>
+								</div>
+								<div class="pull-right new_right">
+								<button type="button" class="close" id="topCloseButton"
+								(click)="closeModal('displayDlvrErrorsModal')"
+										aria-label="Close">
+										<i class="fa fa-times fa" aria-hidden="true"></i>
+									</button>
+								</div>
+								</div>
+								</div>
+								<div class="modal-body" style="padding: 6px 6px !important;">
+									<div class="col-md-12 row">
+										<table class="table table-hover nowrap editable-table checkBoxTable" width="100%" id="errorTable" style="display:inline-table;">
+											<thead>
+												<tr>
+													<th>Error Code</th>
+													<th>Error Description</th>
+												</tr>
+											</thead>
+											<tbody>
+											<ng-container *ngFor="let erList of errorList; let i=index">
+												<tr *ngIf="erList.type=='E'">
+													<td>{{erList.id}}</td>
+													<td>{{erList.message}}</td>
+												</tr>
+												</ng-container>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="modal-footer">
+								<div class="row new_row">
+								<div class="pull-right new_right act_foot">
+									<div class="pull-right new_right act_foot closePopUpOk">
+										<button (click)="closeModal('displayDlvrErrorsModal')"
+											 Class="cancel-button forgotOk"
+											>Cancel</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+</div>

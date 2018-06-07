@@ -1,0 +1,584 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { ExcelService } from '../../services/excel.service';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+var exportIdlist: number;
+
+@Component({
+  selector: 'app-goods-receipt-details',
+  templateUrl: './goods-receipt-details.component.html',
+  styleUrls: ['./goods-receipt-details.component.css']
+})
+export class GoodsReceiptDetailsComponent implements OnInit {
+
+  checked:boolean=false;
+  indeterminate:boolean=false;
+  goodsReceiptPayload:any={};
+  bpId: string;
+  orgId: string;  
+  goodsReceiptList:any;   
+  goodsReceiptArray:any;  
+  filterGoodsReceiptForm:FormGroup; 
+  accessObjectId:any;  
+  customerNames:any;
+  createGRForm:FormGroup;
+  checkboxLength:any;
+  goodsReceiptMsg:any;  
+  exportArrayList: any;  
+    cancelArray:any;
+    errorLogs:any;
+    cancelObject:any;
+    goodsrecNum:any;
+    rolekaduser: any;
+    
+  constructor(private http: Http, private formBuilder: FormBuilder,private environment:EnvConfigurationService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent, private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private excelService: ExcelService) {
+      this.app.isActive=true;
+      this.checked=false;
+      this.indeterminate=false;
+      this.bpId = localStorage.getItem("bpId");
+      this.orgId = localStorage.getItem("orgId");
+      this.goodsReceiptPayload["bp_id"]=this.bpId;
+      this.goodsReceiptPayload["org_id"]=this.orgId;
+      this.goodsReceiptList =[];
+      this.goodsReceiptArray =[];
+      this.filterGoodsReceiptForm = formBuilder.group({
+          'custName': [''],
+          'fromDate': [''],
+          'toDate': [''],
+          'status': [''],
+      });
+      this.createGRForm=formBuilder.group({
+        'docType' :['',Validators.required],
+        'dlvNumber' :['',Validators.required]   
+      })
+      this.accessObjectId = localStorage.getItem("Goods Receipt");
+      this.customerNames=[];
+      this.checkboxLength=0;
+      this.goodsReceiptMsg=this.messagesService.check_box_error;
+       this.exportArrayList = [];
+      this.cancelArray=[];
+      this.cancelObject={};
+      this.goodsrecNum=[];
+      this.rolekaduser = true;
+  }
+
+  ngOnInit() {
+      
+      if (localStorage.getItem("roleName") == "KAD User") {
+            this.rolekaduser = false;
+        }
+        else {
+            this.rolekaduser = true;
+        }
+      
+      $(()=>{
+          $(document).on("input", ".numbersOnly", function() {
+              this.value = this.value.replace(/[^\d]/g,'');
+          });
+       });
+      
+      setTimeout(() =>{
+          $(".dataTables_scrollHeadInner").css({"width":"100%"});
+          $(".table ").css({"width":"100%"});
+         // $("#goods-receipt-order-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+          },1100);
+      
+      this.getGoodReceiptList();
+      
+       $(function(){
+         $(document).on('click', function (e) {
+              if (!$(e.target).hasClass('ajax-list')) {
+                  $(".ajax-searchlist").hide();
+              }
+            $("#goods-receipt-order-table_paginate").find('.page-link').on('click',function(e) {
+              setTimeout(function(){
+                 if($("#checkbox-all-input").is(":checked")){
+                    $("#goods-receipt-order-table").find("tbody").find(".mat-checkbox-input").each(function(i){
+                        let id:any=$(this).attr('id');
+                        if(!$("#"+id).is(":checked")){
+                            $("#"+id).click();
+                        }
+                    });
+                }else{
+                    $("#goods-receipt-order-table").find("tbody").find(".mat-checkbox-input").each(function(i){
+                        let id:any=$(this).attr('id');
+                        if(exportIdlist ==0){
+                        if($("#"+id).is(":checked")){
+                            $("#"+id).click();
+                        }    
+                        }
+                        
+                    });
+                } 
+              },300);
+            });
+           }); 
+        });
+      
+      
+  }
+    
+    applyDataTable(){
+        
+         setTimeout(()=>{  
+            $("#goods-receipt-order-table").DataTable({
+             "order": [0],
+                retrieve:true,
+           "language": {
+              "emptyTable": "No data available",
+              "info": "Showing page _PAGE_ of _PAGES_",
+              "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+           
+           "fnDrawCallback": function( oSettings ) {
+                        if ( 5 >= oSettings.fnRecordsDisplay() ) {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).hide();
+                            
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).hide();
+                            
+                           
+                        } else {
+                            $( oSettings.nTableWrapper ).find( '.dataTables_paginate' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                            $( oSettings.nTableWrapper ).find( '.dataTables_info' ).show();
+                            $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                          
+                        }
+                    },
+           "columnDefs": [ {
+                "targets"  : 'no-sort',
+                "orderable": false,
+               } ]
+          
+      });
+             $("#goods-reciept-table").show();
+            setTimeout(()=>{
+              var width=$("#mainContent").css("width");
+              $(".outbound-footer").css("width",width);
+              $(".outbound-footer").show();
+          },50);
+         },200);
+     $("#goods-receipt-order-table").attr("style", "display:table!important;");
+    }
+    
+    getGoodReceiptList(){
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+       $("#goods-reciept-table").hide();
+        this.goodsReceiptPayload["im_po_num"]=""
+        this.goodsReceiptPayload["im_vendor"]=""
+        this.goodsReceiptPayload["im_date"]=""
+        
+         let url = this.environment.getRequiredApi( 'get_goodsrecp_details' )+"?";
+      
+        this.commonService.getData( url, 'POST', this.goodsReceiptPayload,this.accessObjectId)
+            .subscribe(( response ) => {
+                $("#goods-receipt-order-table").DataTable().destroy();
+               if(response.status == '1'){
+                    
+                   this.commonService.responseMessages("", response.message, "warning");
+                   this.goodsReceiptList = [];
+                   $('#loadingIcon').hide();
+                   $("#black-overlay").hide();
+                  
+                   this.applyDataTable();
+
+
+                   
+               }else{
+                   
+                   if(response.data.hasOwnProperty("ex_goods_receipt")){
+                       this.goodsReceiptList = response.data.ex_goods_receipt;
+                   }
+                   this.applyDataTable();
+                   $('#loadingIcon').hide();
+                   $("#black-overlay").hide(); 
+                 
+               }
+           
+               
+              
+              
+            
+            }, err => {
+                  $('#loadingIcon').hide();
+              $("#black-overlay").hide();
+                    console.log(err)   
+            
+            } );
+    
+    }
+    
+    
+  selectAll(event,checkAll,tableId){
+      
+      exportIdlist = 0;
+      this.exportArrayList = [];
+      
+      setTimeout(()=>{
+          this.commonService.selectAllCheckBoxes(checkAll,tableId);
+          if($("#checkbox-all-input").is(":checked")){
+              this.goodsReceiptList.forEach(currentItem=>{
+                  this.goodsReceiptArray.push(currentItem.gr_num);
+                  this.exportArrayList.push(currentItem);
+              });
+          }else{
+              this.goodsReceiptArray=[];this.exportArrayList = [];
+          }
+          
+      },300);
+  }
+  getReportList(event,tableId,goodNumList,i){
+      setTimeout(()=>{let flag:boolean=this.commonService.checkAction(tableId);
+      if(flag){
+          this.indeterminate=false;
+          this.checked=true;
+      }else{
+          this.indeterminate=true;
+      }
+          
+          
+      if ($("#check-box_" + i + "-input").is(":checked")) {
+          this.goodsReceiptArray.push(goodNumList.gr_num);
+          this.exportArrayList.push(goodNumList);
+          
+      } else {
+          for (let i in this.goodsReceiptArray) {
+              if (this.goodsReceiptArray[i] == goodNumList.gr_num) {
+                  this.goodsReceiptArray.splice(i, 1);
+                  this.exportArrayList.splice(i, 1);  
+              }
+          }
+          setTimeout(() => {
+              let flag: boolean = this.commonService.continueAction(tableId);
+              if (flag) {
+                  this.indeterminate = false;
+                  this.checked = false;
+              } else {
+                  this.indeterminate = true;
+              }
+          }, 200);
+      }
+         
+          
+        console.log(this.goodsReceiptArray)  
+          
+      },400);
+      
+      
+      
+      
+      
+      
+  }
+createGoodsReceipt(id){
+      $("#"+id).modal('show');
+  } 
+createGRSubmit(id){
+      this.commonService.saleType='Create';
+      let orderType:any=$("#orderTypes").val();
+      let dlvNumber:any=$("#refNumber").val();
+      const path:any="goodsreceipt/createGR";
+      $("#createGRModal").modal('hide');
+      this.router.navigate([path], { queryParams: { "orderType": orderType, "dlvNumber": dlvNumber, "action": "C", frompage: "GR" } });
+}
+editGR(){
+      if (this.goodsReceiptArray.length > 1 || this.goodsReceiptArray.length == 0) {
+          if(this.goodsReceiptArray.length == 0){
+              this.commonService.responseMessages("", this.getWarningErrorMessage('select_atleast_msg'), "warning");
+            return false  
+          }else{
+              this.commonService.responseMessages("", this.getWarningErrorMessage('select_msg'), "warning");
+            return false    
+          }
+          
+        }
+        else {
+            if (this.goodsReceiptArray.length == 1) {
+                let orderType:any="";
+                let vendorId:any=""
+                this.commonService.saleType = 'Edit';
+                this.commonService.showOrderType = true;
+                const path: any = "goodsreceipt/editGR";
+                $("#createGRModal").modal('hide');
+                this.router.navigate([path], { queryParams: { "orderNum": this.goodsReceiptArray[0], "action": "U", frompage: "GR" } });
+              }
+       }
+}
+
+printSelectedReports(value){
+    if(this.goodsReceiptArray.length == 1){
+    }else{
+        if(this.goodsReceiptArray.length == 0){
+            this.commonService.responseMessages("", this.getWarningErrorMessage('select_atleast_msg'), "warning");
+        }else
+        this.commonService.responseMessages("", this.getWarningErrorMessage('select_msg'), "warning");
+    }
+}
+    
+exportExcel() {
+    if (this.exportArrayList.length != 0) {
+        this.commonExportExcel(this.exportArrayList);
+
+
+    } else {
+
+        if (this.goodsReceiptList.length != 0) {
+            this.commonExportExcel(this.goodsReceiptList)
+
+        } else {
+            this.commonService.responseMessages("", "No data available", "warning")
+        }
+
+
+    }
+}
+    
+    commonExportExcel(list){
+         let jsonArrrayData:any=[];
+         
+          if(list.length !=0){
+            
+              for(let index of list){
+                  if(!index.hasOwnProperty('gr_num')){
+                      index.gr_num="  "
+                  }
+                  if(!index.hasOwnProperty('gr_date')){
+                      index.gr_date="  "
+                  }
+                  if(!index.hasOwnProperty('po_num')){
+                      index.po_num=' ';
+                  }
+                  if(!index.hasOwnProperty('vendor_name')){
+                      index.vendor_name=' ';
+                  }
+                  
+                  jsonArrrayData.push(index);
+              }
+              let columns:any=['gr_num','gr_date','po_num','vendor_name']
+              let columnHeaders:any=['Goods Issued No.','Goods Issued Date','Purchase Order No.','Vendor Name']
+              let jsonData:any=JSON.stringify(jsonArrrayData);
+              this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "Goods Receipt List",columns,columnHeaders,'Goods Receipt');
+          } 
+    
+    }
+    
+     showFilters() {
+         $("#filter-block").slideToggle();
+     }
+    
+    extractData(id,spinnerId,ajaxDropdown,event){
+    let term:any=$("#"+id).val();
+     if(term.length ==3 && event.keyCode!=38 && event.keyCode!=40 && event.keyCode!=13){
+        $("#"+spinnerId).show();
+        let url:any=this.environment.getRequiredApi("find_vendors")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&vendor="+term+"&";
+    this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+        if(response.status==0){
+            this.customerNames=response["data"].ex_vendor_list;
+            $("#"+spinnerId).hide();
+            $("#"+ajaxDropdown).show();
+        }else{
+            this.customerNames=[];
+            $("#"+spinnerId).hide();
+            $("#"+ajaxDropdown).show();
+            $("#cust-not-found").text(response.message).show();
+        }
+       
+    });
+    }else{
+         if(term==""){
+             this.customerNames=[];
+             $("#"+spinnerId).hide();
+         }else{
+          if(event.keyCode!=13 && event.keyCode!=38 && event.keyCode!=40){
+           var searchText=term;
+           searchText=searchText.toUpperCase();
+           $(".ajax-list").removeClass('active');
+           $("#"+ajaxDropdown).find('ul > li').each(function(){
+                var currentLiText = $(this).text();
+                currentLiText=currentLiText.toUpperCase();
+                var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                $(this).toggle(showCurrentLi);
+            });
+           $("#"+ajaxDropdown).find('ul').find('li:visible').first().addClass('active');
+           $("#"+ajaxDropdown).find('ul').find('li:visible').first().focus();  
+          }    
+       } 
+        
+        
+    }
+        if(event.keyCode==38 || event.keyCode==40 || event.keyCode==13){
+        $("#"+ajaxDropdown).find('ul > li').each(function(){
+              if(event.keyCode==40){
+                  if($(this).hasClass('active')){
+                    console.log($(this).attr('class'));
+                    if($(this).next().is(':visible')){
+                        $(this).removeClass('active');
+                        $(this).next().addClass('active');
+                        $(this).next().focus();
+                        $("#"+ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                        return false;
+                      }
+                 }
+              } 
+            if(event.keyCode==13){
+                  if($(this).hasClass('active')){
+                    $(this).click();
+                 }
+              } 
+            if(event.keyCode==38){
+                  if($(this).hasClass('active')){
+                    if($(this).prev().is(':visible')){
+                        $(this).removeClass('active');
+                        $(this).prev().focus();
+                        $(this).prev().addClass('active');
+                        $("#"+ajaxDropdown).find("ul").scrollTop($(this).position().top);
+                        return false;
+                      }
+                 }
+              } 
+        });
+    } 
+}
+getFilterData(){
+    
+}
+ closeModal(id){
+     this.createGRForm.reset();
+     this.createGRForm.controls['docType'].setValue("");
+     $("#"+id).modal("hide"); 
+    }
+editGoodsReceipt(grNum){
+    const path: any = "goodsreceipt/editGR";
+    this.router.navigate([path], { queryParams: { "grNumber": grNum, "action": "DIS", frompage: "GR" } });
+}   
+    
+    getWarningErrorMessage(messageKey){
+        return this.goodsReceiptMsg[messageKey]+"goods receipt";
+    
+    }
+    
+    
+     cancelgoodsReceipt(){
+        this.cancelArray=[];
+         
+        if(this.exportArrayList.length ==0 ){
+            
+            if (this.exportArrayList.length == 0) {
+                this.commonService.responseMessages("", this.getWarningErrorMessage('select_atleast_msg'), "warning"); 
+                
+                return false;
+            }
+        }else{
+            swal( {
+            title: "Do you want to cancel goods receipt ?",
+            //type: "warning",
+            showCancelButton: true,
+            confirmButtonClass: "btn-default btn-primary-custom login-button-export",
+            cancelButtonClass: "btn-danger btn-danger-custom ",
+            
+            confirmButtonText: "Ok",
+            closeOnConfirm: true
+        },
+                () => {
+                    
+                     this.cancelObject = {};
+                     this.goodsrecNum=[];
+                    this.cancelObject['action'] = "CANPGR";
+                    this.cancelObject['bp_id'] = this.bpId;
+                    this.cancelObject['org_id'] = this.orgId;
+                    
+                    
+                  this.exportArrayList.forEach((items)=>{
+                        
+                       
+                      //  this.cancelObject['im_delivery_no']=items.po_num;
+                    
+                       this.goodsrecNum.push(items.gr_num)
+                        
+                     
+                   
+                    });
+                    this.cancelObject["im_gr_num"]=this.goodsrecNum;
+                   
+                this.confirmCancelGoodsRec();
+            } );
+            
+        }
+    }
+    
+    confirmCancelGoodsRec(){
+        
+  
+        
+        console.log(this.cancelObject);
+         let url: any = this.environment.getRequiredApi("get_simulate_GR_details") + "?";
+           
+                    this.commonService.getData(url, "POST", this.cancelObject, this.accessObjectId).subscribe(response => {
+                         
+                       console.log(response);
+                        this.errorLogs=[];
+                        this.goodsReceiptArray=[];this.exportArrayList=[];
+                        if(response.status == 0){
+                            
+                            if(response.data.hasOwnProperty("ex_return")){
+                                
+                                  for (let index of response.data["ex_return"]) {
+                                   
+                                    if (index.type == "E") {
+                                        
+                                        this.errorLogs.push(index);
+                                    }
+                                }
+                             }
+                            
+                             if (this.errorLogs.length == 0) {
+                                this.commonService.responseMessages("", "Goods Receipt is cancelled", "success");
+                                this.indeterminate=false;
+                                this.checked=false;
+                                this.getGoodReceiptList();
+                            }else{
+                               
+                                $("#displayErrorsModal").modal("show");
+                            }
+                        }else{
+                             this.commonService.responseMessages("", response.message, "warning");
+                        }
+                        
+                        $('#loadingIcon').hide();
+                        $("#black-overlay").hide();
+                    }); 
+        
+        
+    
+    
+    }
+    closecancelModal(id){
+        $("#"+id).modal("hide"); 
+         this.exportArrayList=[];
+         this.indeterminate = false;
+         this.checked = false;
+        // this.getGoodReceiptList();
+    }
+    
+     selectedItem(response, modalBlock, textInput, hiddenInput) {
+        $("#" + textInput).val(response.vendor_name);
+        $("#" + hiddenInput).val(response.vendor_id);
+        $("#" + modalBlock).hide();
+    }
+    
+}
+
+

@@ -1,0 +1,332 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router,ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-billing',
+  templateUrl: './billing.component.html',
+  styleUrls: ['./billing.component.css']
+})
+export class BillingComponent implements OnInit {
+   billingDetailsPage:boolean=false;
+   public deliveryNumber:string;
+   public billingDate:string;  
+   public createBillingPayload:any={};
+    public bpId:string;
+     public orgId:string;
+    public deliveryItemArray=[];
+    public deliveryItemObject={};
+    public outBoundDelPayload:any={};    
+    outBoundDeliveryFormObject:any=[];
+    public billingDocNum:string;
+    public errorLogs:any=[];
+    
+    genDisplayBillingDetObject:any={};
+    genDisplayBillingDetArray:any=[];
+    public deliveryDate:string;
+    public responseAddress:any={};
+    public headerTextList:any;
+    
+    
+    
+  constructor(private http: Http, private formBuilder: FormBuilder,private messagesService:MessagePropertiesService,private environment:EnvConfigurationService,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private commonService:CommonService,private activatedRoute:ActivatedRoute) {
+      this.app.isActive=true;
+      this.billingDetailsPage=true;
+      this.bpId = localStorage.getItem("bpId");
+      this.orgId = localStorage.getItem("orgId");
+      
+      
+      
+  }
+
+  ngOnInit() {
+      
+      
+      this.getHeaderList();
+      
+      this.activatedRoute.queryParams.subscribe(params => {
+           if(this.router.url.includes("billing")){
+              if (params['action'] == "C") {
+                  this.deliveryNumber = params['delvNo'];
+                  this.billingDate = params['billDate'];
+                  
+                  this.deliveryDate = this.billingDate.substring(6, 8)+"-"+this.billingDate.substring(4, 6)+"-"+this.billingDate.substring(0, 4)
+                  this.createBillingPayload["im_action"]=params['action'];
+                  this.createBillingPayload["org_id"]=this.orgId;
+                  this.createBillingPayload["bp_id"]=this.bpId;
+                   this.createBillingPayload["im_billing_date"] = this.billingDate;
+                  
+                  
+                  this.deliveryItemObject["object_name"] = "";
+                  this.deliveryItemObject["text_id"] = "";
+                  this.deliveryItemObject["text_line"] = "";
+                  this.deliveryItemObject["billing_no"] = "";
+                  this.deliveryItemObject["high"] = "";
+                  this.deliveryItemObject["low"] = "";
+                  this.deliveryItemObject["option"] = "";
+                  this.deliveryItemObject["sign"] = "";
+                  this.deliveryItemObject["delv_no"]=this.deliveryNumber;
+                  
+                  /*let splittedDateArray = this.billingDate.split("-");
+                  this.deliveryItemObject["im_billing_date"] = splittedDateArray[2]+splittedDateArray[1]+splittedDateArray[0];*/
+                 
+                   this.deliveryItemArray.push(this.deliveryItemObject);
+                   this.createBillingPayload["im_delv_no"]=this.deliveryItemArray;
+              }
+              
+          } 
+          this.getBillingDetailsWithDeliveryNum(this.deliveryNumber);
+      });
+      
+  }
+    
+    createBillingDetails(){
+        
+         let url = this.environment.getRequiredApi( 'manage_bill_details' )+"?";
+        
+       
+       this.createBillingPayload["im_action"]='CB'
+        
+         this.deliveryItemObject["text_id"] =  $("#header_Text").val();
+            if( this.deliveryItemObject["text_id"] == ""){
+                this.deliveryItemObject["text_line"] ="";
+            }else{
+                this.deliveryItemObject["text_line"] = $("#header_Text option:selected").text();
+            }
+         
+       
+        console.log(this.createBillingPayload);
+      
+      this.commonService.getData( url, 'POST', this.createBillingPayload,localStorage.getItem( 'Billing' ))
+            .subscribe(( response ) => {
+              if(response.status ==0){
+                  if(response.data.hasOwnProperty("ex_success")){
+                      this.billingDocNum = "( "+response.data.ex_success[0].bill_doc+" )";
+                      this.commonService.responseMessages("","Billing created successfully", "success");
+                      
+                  }
+                  if(response.data.hasOwnProperty("ex_error_log")){
+                      if("S" !=response.data.ex_error_log.msgty){
+                            this.errorLogs = response.data.ex_error_log;
+                            $("#displayErrorsModal").modal("show");
+                      }
+                      
+                  }
+                  
+                  
+               console.log(response.data);    
+              }
+              if(response.status == 1){
+                  this.commonService.responseMessages("",response.message, "warning");
+              }  
+                
+            }, err => {
+                  
+                    console.log(err)   
+                
+               
+            } );
+        
+    }
+    
+    getBillingDetailsWithDeliveryNum(deliveryNum){
+         
+     
+        
+        
+        console.log("PAYLOAD");
+        this.createBillingPayload["im_action"]='SB';
+        console.log(this.createBillingPayload);
+         
+         let url = this.environment.getRequiredApi( 'manage_bill_details' )+"?";
+      
+        this.commonService.getData( url, 'POST', this.createBillingPayload,localStorage.getItem( 'Billing' ))
+            .subscribe(( response ) => {
+              
+              if(response.status == 0){
+                  if(response.data.hasOwnProperty("ex_error_log")){
+                      
+                      for(let errorIndex in response.data.ex_error_log){
+                           if ("E" == response.data.ex_error_log[errorIndex].msgty) {
+                          this.errorLogs = response.data.ex_error_log;
+                          
+                      }
+                          if(this.errorLogs.length != 0){
+                              $("#displayErrorsModal").modal("show");
+                              this.applyDataTable();
+                          }
+                      }
+                     
+                  }
+                  
+                  if(response.data.hasOwnProperty("ex_bill_item")){
+                      
+                     
+                      for(let billIndex in  response.data.ex_bill_item){
+                          this.genDisplayBillingDetObject={};
+                          this.genDisplayBillingDetObject["material"] = response.data.ex_bill_item[billIndex].matnr;
+                          this.genDisplayBillingDetObject["uom"] = response.data.ex_bill_item[billIndex].meins;
+                          this.genDisplayBillingDetObject["description"] = response.data.ex_bill_item[billIndex].arktx;
+                          this.genDisplayBillingDetObject["itemNum"] = response.data.ex_bill_item[billIndex].posnr;
+                          this.genDisplayBillingDetObject["netwr"]= response.data.ex_bill_item[billIndex].netwr;
+                          
+                          this.genDisplayBillingDetObject["price"] = "";
+                          this.genDisplayBillingDetObject["fix_sch"] = "";
+                          this.genDisplayBillingDetObject["sch_val"] = "";
+                          this.genDisplayBillingDetObject["dis_amt"] = "";
+                          this.genDisplayBillingDetObject["dis_val"] = "";
+                          this.genDisplayBillingDetObject["cgst_rate"] = "";
+                          this.genDisplayBillingDetObject["cgst_amt"] = "";
+                          this.genDisplayBillingDetObject["igst_rate"] = "";
+                          this.genDisplayBillingDetObject["igst_amt"] = "";
+                          this.genDisplayBillingDetObject["sgst_rate"] = "";
+                          this.genDisplayBillingDetObject["sgst_amt"] = "";
+                          
+                          this.genDisplayBillingDetArray.push(this.genDisplayBillingDetObject);
+                      }
+                      
+                      let bill_cond = response.data.ex_bill_cond;
+                      
+                      for(let condIndex in bill_cond){
+                          
+                          for(let gIndex in this.genDisplayBillingDetArray){
+                             if( bill_cond[condIndex].kposn == this.genDisplayBillingDetArray[gIndex].itemNum){
+                                 
+                                 if(bill_cond[condIndex].kschl == 'ZPRO'){
+                                     this.genDisplayBillingDetArray[gIndex]["price"]=bill_cond[condIndex].kwert;
+                                 }
+                                 
+                                 if(bill_cond[condIndex].kschl == 'ZSPE'){
+                                     this.genDisplayBillingDetArray[gIndex]["fix_sch"]=bill_cond[condIndex].kbetr;
+                                 }
+                                 
+                                 if(bill_cond[condIndex].kschl == 'ZSVL'){
+                                     this.genDisplayBillingDetArray[gIndex]["sch_val"]=bill_cond[condIndex].kwert;
+                                 }
+                                 
+                                 if(bill_cond[condIndex].kschl == 'ZVAL'){
+                                     this.genDisplayBillingDetArray[gIndex]["dis_amt"]=bill_cond[condIndex].kwert;
+                                 }
+                                 
+                                 if(bill_cond[condIndex].kschl == 'ZPER'){
+                                     this.genDisplayBillingDetArray[gIndex]["dis_val"]=bill_cond[condIndex].kbetr;
+                                 }
+                                 
+                                 if(bill_cond[condIndex].kschl == 'JOCG'){
+                                     this.genDisplayBillingDetArray[gIndex]["cgst_rate"]=bill_cond[condIndex].kbetr;
+                                     this.genDisplayBillingDetArray[gIndex]["cgst_amt"]=bill_cond[condIndex].kwert;
+                                 }
+                                 
+                                 if(bill_cond[condIndex].kschl == 'JOIG'){
+                                     this.genDisplayBillingDetArray[gIndex]["igst_rate"]=bill_cond[condIndex].kbetr;
+                                     this.genDisplayBillingDetArray[gIndex]["igst_amt"]=bill_cond[condIndex].kwert;
+                                 }
+                                  if(bill_cond[condIndex].kschl == 'JOSG' || bill_cond[condIndex].kschl == 'JOUG'){
+                                     this.genDisplayBillingDetArray[gIndex]["sgst_rate"]=bill_cond[condIndex].kbetr;
+                                     this.genDisplayBillingDetArray[gIndex]["sgst_amt"]=bill_cond[condIndex].kwert;
+                                 }
+                                 
+                             }
+                          }
+                      
+                      }
+                      console.log(this.genDisplayBillingDetArray);
+                      
+                  }
+                  
+                  if(response.data.hasOwnProperty("ex_address")){
+                      
+                      this.responseAddress = response.data.ex_address[0];
+                      
+                      if(!this.responseAddress.hasOwnProperty("sold_to_name") ){
+                      
+                          this.responseAddress["ship_to_name"] = '';
+                          this.responseAddress["ship_to_house_num"] = '';
+                          this.responseAddress["ship_to_city"] = '';
+                          this.responseAddress["ship_to_street"] = '';
+                          this.responseAddress["ship_post_code1"] = '';
+
+                          this.responseAddress["sold_post_code1"] = '';
+                          this.responseAddress["sold_to_city"] = '';
+                          this.responseAddress["sold_to_street"] = '';
+                          this.responseAddress["sold_to_house_num"] = '';
+                          this.responseAddress["sold_to_name"] = '';
+
+                          
+                          
+                      }
+                      
+                     
+                  }
+                
+                  }else{
+                   this.commonService.responseMessages("",response.message, "warning");
+                   this.outBoundDeliveryFormObject = [];
+                   this.applyDataTable();
+              }
+              console.log(this.outBoundDeliveryFormObject ) 
+            }, err => {
+                  
+                    console.log(err)   
+                
+            } );
+    
+    }
+    
+    navigateToBillingDetails(){
+        const path:any="billing";
+      this.router.navigate([path]);
+    }
+    
+        closeModal(id){
+            $("#" + id).modal("hide");
+        }
+    
+    applyDataTable(){
+        
+    $("#billing-details").DataTable({
+                        "bSort" : false,
+                       "language": {
+                           "emptyTable": "No data available",
+                           "info": "Showing page _PAGE_ of _PAGES_",
+                           "infoFiltered": "(filtered from _MAX_ total records)"
+                       },
+                       "fnDrawCallback": function(oSettings) {
+                           if (5 >= oSettings.fnRecordsDisplay()) {
+                               $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+
+                               $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                               $(oSettings.nTableWrapper).find('.dataTables_filter').hide();
+                               $(oSettings.nTableWrapper).find('.dataTables_length').hide();
+
+
+                           } else {
+                               $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+
+                           }
+                       },
+                   });
+    }
+    
+    getHeaderList(){
+        
+        let url = this.environment.getRequiredApi( 'header_dropdown')+"?group=BHDRS&";
+        
+        this.commonService.getData( url, "GET", '', "")
+            .subscribe(( response ) => {
+                console.log(response);
+                this.headerTextList =response.data.configValues; 
+               
+            } );
+    }
+}

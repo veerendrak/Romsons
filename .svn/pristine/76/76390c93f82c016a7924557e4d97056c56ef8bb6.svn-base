@@ -1,0 +1,20 @@
+<section class="card" id="mainContent">
+
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">Stock Details</strong>
+		</span>
+	</div>
+	<div class="card-block db-block" style="padding-left:0px; padding-right:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+					<!-- new changes -->
+					
+					
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+</section>

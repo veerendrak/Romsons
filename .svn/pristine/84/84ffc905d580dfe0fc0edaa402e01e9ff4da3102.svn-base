@@ -1,0 +1,89 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+import { CommonService } from '../../services/common.service';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import { AppComponent } from '../../app.component';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+
+@Component({
+  selector: 'app-customer-details',
+  templateUrl: './customer-details.component.html',
+  styleUrls: ['./customer-details.component.css']
+})
+export class CustomerDetailsComponent implements OnInit {
+
+    customerDetailsForm:FormGroup;
+    customerDetailMsg:any;
+     url:string;
+    
+  constructor(private http: Http, private formBuilder: FormBuilder,private environment:EnvConfigurationService,
+             private commonService:CommonService,private messagesService:MessagePropertiesService,
+             private router: Router,private ref: ChangeDetectorRef,private app:AppComponent) {
+  this.app.isActive=true;    
+
+      
+      this.customerDetailsForm = new FormBuilder().group(
+            {
+
+                'custType': ['',Validators.required],
+                'custName': ['', Validators.required],
+                'mobile': ['', [Validators.required, Validators.pattern( '^[789]{1}[0-9]{9}$' )]],
+                'email': ['', [Validators.required, Validators.pattern( '^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$' )]],
+                'creditLimit': ['', Validators.required],
+                'status': ['', Validators.required],
+                
+                'registrationType':['',Validators.required],
+                'gstNum':['',Validators.required],
+                'panNum':['',Validators.required],
+                'drugLicence':['',Validators.required],
+                
+                'bankName':['',Validators.required],
+                'ifcCode':['',Validators.required],
+                'accountNum':['',Validators.required],
+                
+                'doorNumber': ['',Validators.required],
+                'area': ['',Validators.required],
+                'street': ['',Validators.required],
+                'city':  ['',Validators.required],
+                'mandal': ['',Validators.required],
+                'district':['',Validators.required],
+                'state':['',Validators.required],
+                'pincode':['',Validators.required]
+                
+                
+                
+            }
+        );
+      
+     
+      
+      this.customerDetailMsg = messagesService.customer_details_msg;
+  }
+
+  ngOnInit() {
+      setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },50);
+  }
+    
+    saveCustomerDetails(){
+    console.log(this.customerDetailsForm.value);
+        
+         this.url = this.environment.getRequiredApi( '' )+"?";
+         this.commonService.getData( this.url, "POST", this.customerDetailsForm.value ,localStorage.getItem( 'Customer Details' ))
+            .subscribe(( response ) => {
+                console.log(response);
+                 this.commonService.responseMessages("",'', "success");
+            } );
+        this.customerDetailsForm.reset();
+    }
+
+}

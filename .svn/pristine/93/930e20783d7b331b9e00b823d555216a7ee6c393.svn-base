@@ -1,0 +1,1325 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router,ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+declare var XLSX:any;
+declare var XLS:any;
+var mergeItems=[];
+@Component({
+  selector: 'app-sales-order',
+  templateUrl: './sales-order.component.html',
+  styleUrls: ['./sales-order.component.css']
+})
+export class SalesOrderComponent implements OnInit {
+    salesOrderForm:FormGroup;
+    @Output()
+    @Input() salesSeries:any=""; 
+    title:any;
+    createSalesBlock:boolean=true;
+    outboundDeliberyBlock:boolean=false;
+    billingBlock:boolean=false;
+    postGoodsBlock:boolean=false;
+    showOrderType:boolean;  
+    salesOrderMessage:any;
+    formResetFlag:boolean=false;
+    orderType:any;
+    customerId:any;
+    bpId:any;
+    orgId:any;
+    accessObjectId:any;
+    payload:any;
+    customerList:any;
+    payIncoTermsList:any;
+    dsFlag:boolean=true;
+    customerShiptoParty:any;
+    customerNames:any;
+    customerListLength:any;
+    customerShiptoPartyLenth:any;
+    payIncoTermsListLength:any;
+    createSalesOrderItems:any;
+    indeterminate:boolean=false;
+    checked:boolean=false;
+    checkedObjects:any;
+    matnrDetails:any;
+    incoTermVal:any;
+    payTermVal:any;
+    manageSalesPayload:any;
+    calcResultsList:any;
+    orderNum:any;
+    createSalesFlag:boolean=true;
+    createdSales:boolean=false;
+    errorList:any;
+    errorFlag:boolean=false;
+    schTypeSymbol:any;
+    sdName:any;
+    shName:any;
+    sdNameId:any;
+    shNameId:any;
+    totalNetval:any;
+    totalIgst:any;
+    totalCgst:any;
+    totalSgst:any;
+    totalGrossVl:any;
+    manageSalesPayloadLength:any;
+    calcBtn:boolean=true;
+    saveBtn:boolean=true;
+    goodsFlag:boolean=true;
+    goodsIssuedFlag:boolean=false
+    deliveryFlag:boolean=true;
+    deliveredFlag:boolean=false;
+    uploadExcelFlag:boolean=false;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private dateAdapter: DateAdapter<Date>,private activatedRoute:ActivatedRoute,
+          private environment:EnvConfigurationService) {
+      this.app.isActive=true;
+      this.dateAdapter.setLocale('en-gb');
+      this.salesOrderForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+          'req_date_h' : [''],
+          'purch_no_c':[''],
+          'purch_date':[''],
+          'soldToParty':['']
+        });
+      this.createSalesBlock=true;
+      this.showOrderType =commonService.showOrderType;
+      this.salesOrderMessage = messagesService.sales_order_details_msg;
+      this.bpId=localStorage.getItem("bpId");
+      this.orgId=localStorage.getItem("orgId");
+      this.accessObjectId=localStorage.getItem("Sales Order");
+      this.customerNames=[];
+      this.customerList={};
+      this.customerListLength=0;
+      this.customerShiptoParty={};
+      this.customerShiptoPartyLenth=0;
+      this.payIncoTermsListLength=0;
+      this.payload={};
+      this.createSalesOrderItems=[];
+      this.checkedObjects=[];
+      this.matnrDetails=[];
+      this.incoTermVal="";
+      this.payTermVal="";
+      this.manageSalesPayload={};
+      this.calcResultsList={};
+      this.orderNum="";
+      this.createSalesFlag=true;
+      this.createdSales=false;
+      this.shName="";
+      this.sdName="";
+      this.shNameId="";
+      this.sdNameId="";
+      this.errorList=[];
+      this.totalNetval=0;
+      this.totalIgst=0;
+      this.totalCgst=0;
+      this.totalSgst=0;
+      this.totalGrossVl=0;
+      this.manageSalesPayloadLength=0;
+      this.calcBtn=true;
+      this.saveBtn=true;
+      this.goodsFlag=true;
+      this.goodsIssuedFlag=false;
+      this.deliveryFlag=true;
+      this.deliveredFlag=false;
+  }
+
+  ngOnInit() {
+      this.createSalesOrderItems=[
+                                  {
+                                      "mat_num":"",
+                                      "qty":"",
+                                      "uom":"",
+                                      "desc":"",
+                                      "price":0,
+                                      "fix_sch":"",
+                                      "sch_val":0,
+                                      "add_dis":"",
+                                      "dis_per_val":0,
+                                      "dis_amt":0,
+                                      "net_val":0,
+                                      "sgst_rt":"",
+                                      "sgst_val":0,
+                                      "cgst_rt":"",
+                                      "cgst_val":0,
+                                      "igst_rt":"",
+                                      "igst_val":0,
+                                      "grossValue":0,
+                                      "displayRow":true
+                                  },
+                                  {
+                                      "mat_num":"",
+                                      "qty":"",
+                                      "uom":"",
+                                      "desc":"",
+                                      "price":0,
+                                      "fix_sch":"",
+                                      "sch_val":0,
+                                      "add_dis":"",
+                                      "dis_per_val":0,
+                                      "dis_amt":0,
+                                      "net_val":0,
+                                      "sgst_rt":"",
+                                      "sgst_val":0,
+                                      "cgst_rt":"",
+                                      "cgst_val":0,
+                                      "igst_rt":"",
+                                      "igst_val":0,
+                                      "grossValue":0,
+                                      "displayRow":true
+                                  },
+                                  {
+                                      "mat_num":"",
+                                      "qty":"",
+                                      "uom":"",
+                                      "desc":"",
+                                      "price":0,
+                                      "fix_sch":"",
+                                      "sch_val":0,
+                                      "add_dis":"",
+                                      "dis_per_val":0,
+                                      "dis_amt":0,
+                                      "net_val":0,
+                                      "sgst_rt":"",
+                                      "sgst_val":0,
+                                      "cgst_rt":"",
+                                      "cgst_val":0,
+                                      "igst_rt":"",
+                                      "igst_val":0,
+                                      "grossValue":0,
+                                      "displayRow":true
+                                  },
+                                  {
+                                      "mat_num":"",
+                                      "qty":"",
+                                      "uom":"",
+                                      "desc":"",
+                                      "price":0,
+                                      "fix_sch":"",
+                                      "sch_val":0,
+                                      "add_dis":"",
+                                      "dis_per_val":0,
+                                      "dis_amt":0,
+                                      "net_val":0,
+                                      "sgst_rt":"",
+                                      "sgst_val":0,
+                                      "cgst_rt":"",
+                                      "cgst_val":0,
+                                      "igst_rt":"",
+                                      "igst_val":0,
+                                      "grossValue":0,
+                                      "displayRow":true
+                                  },
+                                  {
+                                      "mat_num":"",
+                                      "qty":"",
+                                      "uom":"",
+                                      "desc":"",
+                                      "price":0,
+                                      "fix_sch":"",
+                                      "sch_val":0,
+                                      "add_dis":"",
+                                      "dis_per_val":0,
+                                      "dis_amt":0,
+                                      "net_val":0,
+                                      "sgst_rt":"",
+                                      "sgst_val":0,
+                                      "cgst_rt":"",
+                                      "cgst_val":0,
+                                      "igst_rt":"",
+                                      "igst_val":0,
+                                      "grossValue":0,
+                                      "displayRow":true
+                                  }
+                                  ]
+      this.payload["address"]=true;
+      this.payload["bp_id"]=this.bpId;
+      this.payload["compliance"]=true;
+      this.payload["incoterms"]=true;
+      this.payload["org_id"]=this.orgId;
+      this.payload["promotion"]=true;
+      mergeItems=[];
+      $(()=>{
+          $(document).on("input", ".numbersOnly", function() {
+              this.value = this.value.replace(/[^\d]/g,'');
+          });
+          $('.datepicker-init-sale').datetimepicker({
+              widgetPositioning: {
+                  horizontal: 'left'
+              },
+              icons: {
+                  time: "fa fa-clock-o",
+                  date: "fa fa-calendar",
+                  up: "fa fa-arrow-up",
+                  down: "fa fa-arrow-down",
+                  previous: 'fa fa-arrow-left',
+                  next: 'fa fa-arrow-right'
+              },
+              format: 'DD/MM/YYYY',
+          });  
+      
+          
+          $("input[type=file]").change(function(){
+              var file = this.files[0];
+              var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+              var fileName = $( "#uploadExcel" ).val()
+              fileName = fileName.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g,' ');
+              $( "#loadingIcon" ).show();
+              $( "#black-overlay" ).show();
+              var xlsxflag = false; /*Flag for checking whether excel is .xls format or .xlsx format*/  
+              if ($("#uploadExcel").val().toLowerCase().indexOf(".xlsx") > 0 || $("#uploadExcel").val().toLowerCase().indexOf(".xls") > 0){
+                  xlsxflag = true;  
+                  if ( typeof ( FileReader ) != "undefined" ) {
+                      var reader = new FileReader();
+                      reader.onload = function( e: any ) {
+                          if ( e.target.result.length == 1 ) {
+                              $.notify( {
+                                  title: '',
+                                  message: "No data available in the uploaded file"
+                              }, {
+                                      type: "warning"
+                                  } );
+                              $( "#loadingIcon" ).hide();
+                              $( "#black-overlay" ).hide();
+                              return false;
+                          }
+                          
+                          var rowslist = e.target.result;
+                          if (xlsxflag) {  
+                              var workbook = XLSX.read(rowslist, { type: 'binary' });  
+                          }  
+                          else {  
+                              var workbook = XLS.read(rowslist, { type: 'binary' });  
+                          } 
+                          /*Gets all the sheetnames of excel in to a variable*/  
+                          var sheet_name_list = workbook.SheetNames;  
+           
+                          var cnt = 0; 
+                          sheet_name_list.forEach(function (y) { /*Iterate through all sheets*/  
+                              /*Convert the cell value to Json*/  
+                              if (xlsxflag) {  
+                                  var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[y]);  
+                              }  
+                              else {  
+                                  var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[y]);  
+                              }  
+                              if (exceljson.length > 0 && cnt == 0) {  
+                                  var columnSet = [];  
+                                  for (var i = 0; i < exceljson.length; i++) {  
+                                      var rowHash = exceljson[i];  
+                                      for (var key in rowHash) {  
+                                          if (rowHash.hasOwnProperty(key)) {  
+                                              if ($.inArray(key, columnSet) == -1) {  
+                                                  columnSet.push(key);  
+                                              }  
+                                          }  
+                                      }  
+                                  } 
+                                  var columns =columnSet;
+                                  for (var i = 0; i < exceljson.length; i++) {  
+                                      if(exceljson.length>mergeItems.length){
+                                          var newObject={
+                                                  "mat_num":"",
+                                                  "qty":"",
+                                                  "uom":"",
+                                                  "desc":"",
+                                                  "price":0,
+                                                  "fix_sch":"",
+                                                  "sch_val":0,
+                                                  "add_dis":"",
+                                                  "dis_per_val":0,
+                                                  "dis_amt":0,
+                                                  "net_val":0,
+                                                  "sgst_rt":"",
+                                                  "sgst_val":0,
+                                                  "cgst_rt":"",
+                                                  "cgst_val":0,
+                                                  "igst_rt":"",
+                                                  "igst_val":0,
+                                                  "grossValue":0,
+                                                  "displayRow":true
+                                              }
+                                          mergeItems.push(newObject);
+                                      }  
+                                      for (var colIndex = 0; colIndex < columns.length; colIndex++) {  
+                                          var cellValue = exceljson[i][columns[colIndex]];  
+                                          if (cellValue == null)  
+                                              cellValue = ""; 
+                                          if(colIndex==0){
+                                              mergeItems[i]['mat_num']= cellValue;
+                                          }else{
+                                              mergeItems[i]['qty']= cellValue;
+                                          }
+                                          
+                                          
+                                          
+                                      }  
+                                  }  
+                                  cnt++;  
+                              }  
+                          });
+                          $("#mergeItemList").click();
+                          $( "#uploadExcel" ).val("")
+                      }
+                      if (xlsxflag) {/*If excel file is .xlsx extension than creates a Array Buffer from excel*/  
+                          reader.readAsArrayBuffer($("#uploadExcel")[0].files[0]);  
+                      }  
+                      else {  
+                          reader.readAsBinaryString($("#uploadExcel")[0].files[0]);  
+                      } 
+                      //reader.readAsText( $( "#stockFile" )[0].files[0] );
+                      $( "#loadingIcon" ).hide();
+                      $( "#black-overlay" ).hide();
+                  } else {
+                      $( "#loadingIcon" ).hide();
+                      $( "#black-overlay" ).hide();
+                      alert( "This browser does not support HTML5." );
+                  }
+              }else{
+                  $( "#loadingIcon" ).hide();
+                  $( "#black-overlay" ).hide();
+                  alert( "Please upload a valid CSV file." ); 
+              }
+          });
+      });
+      this.activatedRoute.queryParams.subscribe(params => {
+          console.log(this.router.url);
+          if(params['action']=="C" && this.router.url.includes('salesorder')){
+              this.title="Sales Order / New";
+              $("#gs-GSTR1").attr("style","background:#036963;color:#fff");
+              this.orderType=params["orderType"];
+              this.customerId=params["custId"];
+              this.payload["cust_id"]=this.customerId;
+              this.getCustomerDetails();
+              this.getPayIncoTerms();
+          }
+          if(params['action']=="C" && this.router.url.includes('obd')){
+              this.title="Delivery / New";
+              $("#gs-GSTR1").hide();
+              $("#icon-GSTR1").show();
+              this.createSalesFlag=false;
+              this.createdSales=true;
+              $("#gs-GSTR2").attr("style","background:#036963;color:#fff");
+              this.orderNum=params['orderNum'];
+              this.navigatePath("outbounddelivery");
+              return false;
+          }
+          
+           if(params['action']=="C" && this.router.url.includes("billing")){
+              this.title = "Billing / Create";
+              this.navigatePath("billing");
+          }
+          
+      });
+      
+      if($('body').hasClass('cat__menu-left--visible')){
+          $(".ell-spa").removeAttr("style");
+      }else{
+          $(".ell-spa").attr("style","width:340px");
+      }
+      setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },100);
+      
+      $(function(){
+          $('#shiptoparty').change(function(){
+              var value=$('#addressList option[value="'+$("#shiptoparty").val()+'"]').text().trim();
+              $("#shiptoCustomerId").val(value);
+              $("#addressBtn").click();
+          });
+          
+      });
+  }
+  navigatePath(path){
+      if(path=='billing'){
+          this.createSalesBlock=false;
+          this.outboundDeliberyBlock=false;
+          this.postGoodsBlock=false;
+          this.billingBlock=true;
+          this.formResetFlag = true;
+          this.createdSales=true;
+          this.createSalesFlag=false;
+          this.goodsFlag=false;
+          this.goodsIssuedFlag=true;
+          this.deliveryFlag=false;
+          this.deliveredFlag=true;
+          $("#gs-GSTR2").attr("style","background:#036963;color:#fff");
+          $("#gs-GSTR1A").attr("style","background:#036963;color:#fff");
+          $("#gs-GSTR2").attr("style","background:#036963;color:#fff");
+          $("#gs-GSTR2A").attr("style","background:#036963;color:#fff");
+      }
+      if(path=='outbounddelivery'){
+          if(this.orderNum==null || this.orderNum==""){
+              this.commonService.responseMessages("", "Please create sales order", "warning");
+              return false;
+          }
+          this.createSalesBlock=false;
+          this.outboundDeliberyBlock=true;
+          this.postGoodsBlock=false;
+          this.billingBlock=false;
+          this.formResetFlag = true;
+          this.createdSales=true;
+          this.createSalesFlag=false;
+          this.goodsFlag=true;
+          this.goodsIssuedFlag=false;
+          this.deliveryFlag=true;
+          this.deliveredFlag=false;
+          $("#gs-GSTR2").attr("style","background:#036963;color:#fff");
+          $("#gs-GSTR1A").removeAttr("style");
+      }
+      if(path=='createsalesorder'){
+          this.createSalesBlock=true;
+          this.outboundDeliberyBlock=false;
+          this.postGoodsBlock=false;
+          this.billingBlock=false;
+          this.formResetFlag = true;
+          $("#gs-GSTR2").removeAttr("style");
+          setTimeout(()=>{
+              var width=$("#mainContent").css("width");
+              $(".outbound-footer").css("width",width);
+          },50);
+          
+      }
+      if(path=='postgoodsissue'){
+          let deliveryNum:any=this.commonService.deliveryNum;
+          if(deliveryNum!=""){
+              $('#loadingIcon').show();
+              $("#black-overlay").show();
+              this.deliveryFlag=false;
+              this.deliveredFlag=true;
+              $("#gs-GSTR1A").attr("style","background:#036963;color:#fff");
+              let url:any=this.environment.getRequiredApi("post_goods_issue")+"?delv_no="+deliveryNum+"&org_id="+this.orgId+"&bp_id="+this.bpId+"&";
+          this.commonService.getData(url, "POSt", "", localStorage.getItem('Outbound Delivery')).subscribe(response=>{
+             if(response.status==0){
+                 if(response["data"].hasOwnProperty("ex_return")){
+                     if(response["data"]['ex_return'].length>0){
+                         this.errorList=response["data"]['ex_return'];
+                         for(let elist of response["data"]['ex_return']){
+                             if(elist.type=='E'){
+                                 $('#loadingIcon').hide();
+                                 $("#black-overlay").hide();
+                                 $("#displayErrorsModal").modal("show");
+                                 return false;
+                             }
+                             
+                         }
+                     }
+                    }
+                 this.goodsFlag=false;
+                 this.goodsIssuedFlag=true;
+                 $("#gs-GSTR1A").removeAttr("style");
+                 $("#gs-GSTR1A").hide();
+                 $("#icon-GSTR1A").show();
+                 this.commonService.responseMessages("", "Post goods issue created successfully", "success");
+                 
+             }else{
+                 this.goodsFlag=true;
+                 this.goodsIssuedFlag=false;
+                 $("#gs-GSTR1A").show();
+                 $("#icon-GSTR1A").hide();
+                 $('#loadingIcon').hide();
+                 $("#black-overlay").hide();
+                 this.commonService.responseMessages("", response.message, "success");
+             } 
+          }); 
+          }
+      }
+  }
+  getCustomerDetails(){
+      $('#loadingIcon').show();
+      $("#black-overlay").show();
+      let url:any=this.environment.getRequiredApi("get_customer_details")+"?";
+      this.commonService.getData(url, "POST", this.payload, this.accessObjectId).subscribe(response=>{
+          if(response.status==0){
+             this.customerList=response["data"];
+             this.customerListLength=Object.keys(this.customerList).length;
+             if(Object.keys(this.customerList['ex_address']).length>0){
+                 this.sdName=this.customerList['ex_address'].cust_name;
+                 this.sdNameId=this.customerList['ex_address'].cust_id;
+             }
+             if(this.customerList['ex_incoterms'].length>0){
+                 this.incoTermVal=this.customerList['ex_incoterms'].inco_term;
+                 this.payTermVal=this.customerList['ex_incoterms'].pay_term;
+             }
+             
+             this.customerShiptoParty=response["data"];
+             this.customerShiptoPartyLenth=Object.keys(this.customerShiptoParty).length;
+          }else{
+              this.commonService.responseMessages("", response.message, "warning");
+          }
+          $('#loadingIcon').hide();
+          $("#black-overlay").hide();
+      })
+  }
+  getcustomerListById(){
+      let response:any={}
+          response["address"]=true;
+          response["bp_id"]=this.bpId;
+          response["compliance"]=true;
+          response["incoterms"]=false;
+          response["org_id"]=this.orgId;
+          response["promotion"]=false;
+          response["cust_id"]=$("#shiptoCustomerId").val();
+          let url:any=this.environment.getRequiredApi("get_customer_details")+"?";
+          this.commonService.getData(url, "POST", response, this.accessObjectId).subscribe(response=>{
+              if(response.status==0){
+                 this.customerShiptoParty=response["data"];
+                 if(Object.keys(this.customerShiptoParty['ex_address']).length>0){
+                     this.shName=this.customerShiptoParty['ex_address'].cust_name;
+                     this.shNameId=this.customerShiptoParty['ex_address'].cust_id;
+                 }
+              }else{
+                  this.commonService.responseMessages("", response.message, "warning");
+              }
+          })
+  }
+  getPayIncoTerms(){
+      let url:any=this.environment.getRequiredApi("get_pay_inco_terms")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&";
+      this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+         if(response.status==0){
+            this.payIncoTermsList=response["data"]; 
+            this.payIncoTermsListLength=Object.keys(this.payIncoTermsList).length;
+         } 
+      });
+  }
+  extractData(id,spinnerId,ajaxDropdown){
+      let term:any=$("#"+id).val();
+      if(term.length ==3){
+          $("#"+spinnerId).show();
+          let url:any=this.environment.getRequiredApi("find_customers")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&cust_name="+term+"&";
+      this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+          if(response.status==0){
+              this.customerNames=response["data"].ex_cust_list;
+              $("#"+spinnerId).hide();
+              $("#"+ajaxDropdown).show();
+          }else{
+              $("#"+spinnerId).hide();
+              $("#"+ajaxDropdown).show();
+          }
+         
+      });
+      }else{
+         if(term==""){
+             this.customerNames=[];
+             $("#"+spinnerId).hide();
+         } 
+      }
+  }    
+AddMoreLinesOfItems(){
+    for(let i:any=0; i<5; i++){
+    let newItem:any={
+                    "mat_num":"",
+                    "qty":"",
+                    "uom":"",
+                    "desc":"",
+                    "price":0,
+                    "fix_sch":"",
+                    "sch_val":0,
+                    "add_dis":"",
+                    "dis_per_val":0,
+                    "dis_amt":0,
+                    "net_val":0,
+                    "sgst_rt":"",
+                    "sgst_val":0,
+                    "cgst_rt":"",
+                    "cgst_val":0,
+                    "igst_rt":"",
+                    "igst_val":0,
+                    "grossValue":0,
+                    "displayRow":true
+                }
+        this.createSalesOrderItems.push(newItem);
+    }
+} 
+selectAll(event,checkAll,tableId){
+    setTimeout(()=>{
+       if($("#"+checkAll).is(":checked")){
+            this.commonService.selectAllCheckBoxes(checkAll,tableId);
+            let count:any=0;
+            this.createSalesOrderItems.forEach(response=>{
+                if(response.displayRow){
+                    this.checkedObjects.push(count);
+                }
+                count++;
+            });
+        }else{
+            this.commonService.selectAllCheckBoxes(checkAll,tableId);
+            this.checkedObjects=[];
+        }
+        
+        
+    },300);
+    
+}
+getReportList(event,tableId,i){
+    setTimeout(()=>{let flag:boolean=this.commonService.checkAction(tableId);
+    if(flag){
+        this.indeterminate=false;
+        this.checked=true;
+    }else{
+        this.indeterminate=true;
+    }
+    },400);
+   setTimeout(()=>{
+       if($("#checkbox-"+i+"-input").is(":checked")){
+           this.checkedObjects.push(i);
+       }else{
+           if(this.checkedObjects.length>0){
+               let count:any=0;
+           for(let index of this.checkedObjects){
+               if(index==i){
+                   delete this.checkedObjects[count];
+               }
+               count++;
+           }
+           }
+           setTimeout(()=>{let flag:boolean=this.commonService.continueAction(tableId);
+           if(flag){
+               this.indeterminate=false;
+               this.checked=false;
+           }else{
+               this.indeterminate=true;
+           }
+           },200);
+       }
+       
+   },300); 
+}
+removeLineSelectedItems(){
+    if(this.checkedObjects.length>0){
+        for(let index of this.checkedObjects){
+            if(index!=undefined && index!=null){
+                this.createSalesOrderItems[index].displayRow=false;  
+            }
+        }
+        this.checkedObjects=[];
+    }else{
+        this.commonService.responseMessages("", "Please select atleast one item", "warning");
+    }
+    setTimeout(()=>{let flag:boolean=this.commonService.continueAction("outbound-delivery-table");
+    if(flag){
+        this.indeterminate=false;
+        this.checked=false;
+    }else{
+        this.indeterminate=true;
+    }
+    if($("#outbound-delivery-table").find('tbody').find('tr').length==0){
+        this.indeterminate=false;
+        this.checked=false;
+    }
+    
+    },200);
+ this.enableButtons();
+  }
+findMaterialDetails(matnr,response,spinnerId,i,matId){
+    if(matnr.value.length==3){
+        $("#"+spinnerId+"-"+i).show();
+        let url:any=this.environment.getRequiredApi("find_matnr_num")+"?org_id="+this.orgId+"&bp_id="+this.bpId+"&material="+matnr.value+"&";
+        this.commonService.getData(url, "GET", "", this.accessObjectId).subscribe(response=>{
+            if(response.status==0){
+              this.matnrDetails=[];
+              $("#"+spinnerId+"-"+i).hide();
+              this.matnrDetails=response["data"].ex_mat_list; 
+            }
+        });
+    }
+}
+expandCollapseBlock(wizardBlock,headerBlock,angleId){
+    if($("#"+angleId).is(":visible")){
+        if(angleId=='angle-down'){
+            $("#"+angleId).hide();
+            $("#angle-up").show();
+        }
+        if(angleId=='angle-up'){
+            $("#"+angleId).hide();
+            $("#angle-down").show();
+        }
+        
+    }
+    $("#"+wizardBlock).slideToggle("slow");
+    $("."+headerBlock).slideToggle("slow");
+}
+closeModal(id){
+    $("#"+id).modal("hide");
+}
+displaySchemeList(){
+    if(this.customerList['ex_schemes'].length==0){
+        this.commonService.responseMessages("", "Schemes are not available for this customer", "warning");
+        return false;
+    }
+    $("#displaySchemesModal").modal("show");
+}
+uploadExcel(){
+    $("#uploadExcel").click();
+}
+mergeItemsList(){
+    let mergeArray:any=[];
+    for(let index of this.createSalesOrderItems){
+        if(index.mat_num!="" && index.qty!="" && index.price >0){
+            mergeArray.push(index);
+        }
+    }
+    if(mergeArray.length>0){
+        this.uploadExcelFlag=false;  
+    }else{
+        this.uploadExcelFlag=true;
+    }
+    this.createSalesOrderItems=mergeArray.concat(mergeItems);
+    this.enableButtons();
+}
+populateFileds(response,matResponse,matType){
+    for(let list of matResponse){
+        if(matType=='matNum'){
+            if(response['mat_num']!=""){
+                if(list['mat_num']==response['mat_num']){
+                    response['uom']=list['uom'];
+                    response['desc']=list['mat_name'];
+                    response['qty']="";
+                    response['price']=0;
+                    response["fix_sch"]="";
+                    response["sch_val"]=0;
+                    response["add_dis"]="";
+                    response["dis_per_val"]=0;
+                    response["dis_amt"]=0;
+                    response["net_val"]=0;
+                    response["sgst_rt"]="";
+                    response["sgst_val"]=0;
+                    response["cgst_rt"]="";
+                    response["cgst_val"]=0;
+                    response["igst_rt"]="";
+                    response["igst_val"]=0;
+                    response['grossValue']=0;
+                    return false;
+                }  
+            }
+            
+        }
+        if(matType=='desc'){
+            if(response['desc']!=""){
+            if(list['mat_name']==response['desc']){
+                response['uom']=list['uom'];
+                response['mat_num']=list['mat_num'];
+                response['qty']="";
+                response['price']=0;
+                response["fix_sch"]="";
+                response["sch_val"]=0;
+                response["add_dis"]="";
+                response["dis_per_val"]=0;
+                response["dis_amt"]=0;
+                response["net_val"]=0;
+                response["sgst_rt"]="";
+                response["sgst_val"]=0;
+                response["cgst_rt"]="";
+                response["cgst_val"]=0;
+                response["igst_rt"]="";
+                response["igst_val"]=0;
+                response['grossValue']=0;
+                return false;
+            }
+            }
+        }
+    }
+}
+calculatePrice(){
+    this.manageSalesPayload={};
+    $('#loadingIcon').show();
+    $("#black-overlay").show();
+    this.manageSalesPayload['bp_id']=this.bpId;
+    this.manageSalesPayload['org_id']=this.orgId;
+    this.manageSalesPayload['testrun']="X";
+    this.manageSalesPayload['im_action']="C";
+    this.manageSalesPayload['im_sp_cust']=this.customerId;
+    this.manageSalesPayload['im_sh_cust']=$("#shiptoCustomerId").val();
+    this.manageSalesPayload['sales_header_in']={};
+    this.manageSalesPayload['sales_header_in']['doc_type']=this.orderType;
+    let reqDate:any=null;
+    let purDate:any=null;
+    if($("#reqDelDate").val()!=undefined && $("#reqDelDate").val()!=""){
+        reqDate=$("#reqDelDate").val();
+        reqDate=reqDate.split('/')[2]+""+reqDate.split('/')[1]+""+reqDate.split('/')[0];  
+    }
+    if($("#purchDate").val()!=null && $("#purchDate").val()!=""){
+        purDate=$("#purchDate").val();
+        purDate=purDate.split('/')[2]+""+purDate.split('/')[1]+""+purDate.split('/')[0]; 
+    }
+    this.manageSalesPayload['sales_header_in']['req_date_h']=reqDate;
+    this.manageSalesPayload['sales_header_in']['purch_no_c']=$("#purchNoc").val();
+    this.manageSalesPayload['sales_header_in']['purch_date']=purDate;
+    this.manageSalesPayload['sales_header_in']['incoterms1']=$("#incoTerms").val();
+    this.manageSalesPayload['sales_header_in']['incoterms2']=$("#incoTerms option:selected").text();
+    this.manageSalesPayload['sales_header_in']['pmnttrms']=$("#payTerms").val();
+    this.manageSalesPayload['sales_items_in']=[];
+    this.manageSalesPayload['sales_conditions_in']=[];
+    let objectArray:any=[];
+    for(let item of this.createSalesOrderItems){
+        if(item.displayRow){
+            objectArray.push(item);
+        }
+    }
+    this.createSalesOrderItems=objectArray;
+    let itemCount:any=1;
+    for(let item of this.createSalesOrderItems){
+        let object:any={};
+        if(item.mat_num!="" && item.qty!=""){
+            if(item.dis_per_val!=0 && item.dis_per_val!=null){
+                if(item.add_dis=='ZPER'){
+                    object['cond_value']=-(item.dis_per_val);
+                }else{
+                    object['cond_value']=item.dis_per_val/10;
+                }
+                object['cond_type']=item.add_dis;
+                
+                object['itm_number']=itemCount;
+                object['cond_st_no']=item.cond_st_no;
+                this.manageSalesPayload['sales_conditions_in'].push(object);
+            }
+            itemCount++;
+        }
+    }
+    let itemCount1:any=1;
+    for(let item of this.createSalesOrderItems){
+        if(item.displayRow){
+            if(item.mat_num!="" && item.qty!=""){
+                if(item.qty==""){
+                    item.qty=0;
+                }
+                let object:any={};
+            object['itm_number']=itemCount1;
+            object['material']=item.mat_num;
+            object['target_qty']=item.qty;
+            object['target_qu']=item.uom;
+            object['T_UNIT_ISO']=item.uom;
+            this.manageSalesPayload['sales_items_in'].push(object); 
+            itemCount1++;
+        }
+        }
+    }
+    let url:any=this.environment.getRequiredApi("sales_order_manage")+"?";
+    this.commonService.getData(url, "POST", this.manageSalesPayload, this.accessObjectId).subscribe(response=>{
+       if(response.status==0){
+           this.calcResultsList=response["data"];
+           let calculatedResults:any=response["data"];
+           let count:any=0;
+           let itemNumber:any=null;
+           if(calculatedResults.hasOwnProperty("ex_return")){
+           if(calculatedResults['ex_return'].length>0){
+               this.errorList=calculatedResults['ex_return'];
+               for(let elist of calculatedResults['ex_return']){
+                   if(elist.type=='E'){
+                       this.errorFlag=true;
+                       this.saveBtn=true;
+                       $('#loadingIcon').hide();
+                       $("#black-overlay").hide();
+                       $("#displayErrorsModal").modal("show");
+                       return false;
+                   }
+                   
+               }
+           }
+          }
+        if(calculatedResults.hasOwnProperty("conditions_ex")){
+       if(calculatedResults['conditions_ex'].length>0){
+           this.saveBtn=false;
+           this.uploadExcelFlag=false;
+           let netValAmt:any=0;
+           let msgCount:any=0;
+           for(let list of calculatedResults['conditions_ex']){
+               if(itemNumber==null){ 
+                   itemNumber=list.itm_number;
+                   if(this.createSalesOrderItems[count].mat_num=="" && this.createSalesOrderItems[count].qty==""){
+                       count++;
+                   }
+                   this.createSalesOrderItems[count]['itm_number']=list.itm_number;
+                   this.createSalesOrderItems[count]['cond_st_no']=list.cond_st_no;
+                   if(list.cond_type=='ZPRO'){
+                       this.createSalesOrderItems[count].price=list.cond_value;
+                       this.createSalesOrderItems[count].uom=list.cond_unit;
+                       netValAmt=this.createSalesOrderItems[count].price*this.createSalesOrderItems[count].qty;
+                   }
+                  
+               }else{
+                   if(itemNumber==list.itm_number){
+                       this.createSalesOrderItems[count]['itm_number']=list.itm_number;
+                       if(list.cond_type=='ZSPE'){
+                           let fixScheme:any=Math.abs(list.cond_value);
+                           this.createSalesOrderItems[count].fix_sch=fixScheme;
+                           let schVal:any=(netValAmt)*this.createSalesOrderItems[count].fix_sch/100;
+                           this.createSalesOrderItems[count].sch_val=schVal;
+                           netValAmt=(netValAmt)-this.createSalesOrderItems[count].sch_val;
+                           this.createSalesOrderItems[count].schTypeSymbol="per";
+                       }
+                       if(list.cond_type=='ZSVL'){
+                           let fixScheme:any=Math.abs(list.cond_value);
+                           this.createSalesOrderItems[count].fix_sch=fixScheme;
+                           let schVal:any=this.createSalesOrderItems[count].fix_sch;
+                           this.createSalesOrderItems[count].sch_val=schVal;
+                           netValAmt=(netValAmt)-this.createSalesOrderItems[count].sch_val;
+                           this.createSalesOrderItems[count].schTypeSymbol="val";
+                       }
+                       this.createSalesOrderItems[count]['oldnetVal']=netValAmt;
+                       if(list.cond_type=='ZPER'){
+                           if(this.createSalesOrderItems[count].dis_per_val==""){
+                               this.createSalesOrderItems[count].dis_per_val=0;
+                           }
+                               let percentage:any=Math.abs(list.cond_value);
+                               this.createSalesOrderItems[count].dis_amt=(netValAmt*percentage)/100;
+                               netValAmt=(netValAmt)-this.createSalesOrderItems[count].dis_amt;
+                       }
+                       if(list.cond_type=='ZVAL'){
+                           if(this.createSalesOrderItems[count].dis_per_val==""){
+                               this.createSalesOrderItems[count].dis_per_val=0;
+                           }
+                               let percentage:any=Math.abs(list.cond_value);
+                               this.createSalesOrderItems[count].dis_amt=this.createSalesOrderItems[count].dis_per_val;
+                               netValAmt=(netValAmt)-this.createSalesOrderItems[count].dis_amt;
+                       }
+                       this.createSalesOrderItems[count].net_val=netValAmt;
+                       if(netValAmt<0){
+                           $("#amt-"+count).attr('style','border:1px solid red');
+                           if(msgCount==0){
+                               this.commonService.responseMessages("", "Discount value must not be greater than net value", "warning");
+                            }
+                            msgCount++;
+                           this.saveBtn=true;   
+                        }else{
+                               $("#amt-"+count).removeAttr('style'); 
+                               this.saveBtn=false;
+                           }
+                       if(list.cond_type=='JOIG'){
+                           let rate:any=Math.abs(list.cond_value);
+                           this.createSalesOrderItems[count].igst_rt=rate; 
+                           this.createSalesOrderItems[count].igst_val=(this.createSalesOrderItems[count].net_val*rate)/100;
+                       }
+                       if(list.cond_type=='JOCG'){
+                           let rate:any=Math.abs(list.cond_value);
+                           this.createSalesOrderItems[count].cgst_rt=rate; 
+                           this.createSalesOrderItems[count].cgst_val=(this.createSalesOrderItems[count].net_val*rate)/100;
+                       }
+                       if(list.cond_type=='JOSG'){
+                           let rate:any=Math.abs(list.cond_value);
+                           this.createSalesOrderItems[count].sgst_rt=rate; 
+                           this.createSalesOrderItems[count].sgst_val=(this.createSalesOrderItems[count].net_val*rate)/100;
+                       }
+                       this.createSalesOrderItems[count]['grossValue']=this.createSalesOrderItems[count].net_val+this.createSalesOrderItems[count].igst_val+this.createSalesOrderItems[count].cgst_val+this.createSalesOrderItems[count].sgst_val
+                   }else{
+                       count++;
+                       if(this.createSalesOrderItems[count].mat_num=="" && this.createSalesOrderItems[count].qty==""){
+                           count++;
+                       }
+                       itemNumber=list.itm_number;
+                       this.createSalesOrderItems[count]['itm_number']=list.itm_number;
+                       netValAmt=0;
+                       if(list.cond_type=='ZPRO'){
+                           this.createSalesOrderItems[count].price=list.cond_value;
+                               this.createSalesOrderItems[count].uom=list.cond_unit;
+                           netValAmt=this.createSalesOrderItems[count].price*this.createSalesOrderItems[count].qty;
+                       }
+                   }
+               }
+             
+           }
+       }
+      }
+        this.reArrangeItems();
+        this.enableButtons();                               
+       $('#loadingIcon').hide();
+       $("#black-overlay").hide();
+       }else{
+           $('#loadingIcon').hide();
+           $("#black-overlay").hide();
+           this.commonService.responseMessages("", response.message, "warning");
+       } 
+    });
+}
+/*addDiscountTotal(items,type){
+    if(items.add_dis=='ZPER'){
+        if(items.dis_per_val!=null && (items.net_val!=0 && items.oldnetVal!=0)){
+            let percentage:any=items.dis_per_val;
+           if(items.dis_per_val!=0){
+               items.net_val=(items.oldnetVal*percentage)/100; 
+               items.dis_amt=(items.oldnetVal*percentage)/100;
+               items.igst_val=(items.net_val*items.igst_rt)/100;
+               items.cgst_val=(items.net_val*items.cgst_rt)/100;
+               items.sgst_val=(items.net_val*items.sgst_rt)/100;
+               items.grossValue=items.net_val+items.igst_val+items.cgst_val+items.sgst_val;
+           }else{
+               items.dis_amt=0;
+               items.net_val=items.oldnetVal;
+           }
+            
+        }
+    }
+    if(items.add_dis=='ZVAL'){
+        if(items.dis_per_val!=null && (items.net_val!=0 && items.oldnetVal!=0)){
+            let value:any=items.dis_per_val;
+        if(items.dis_per_val!=0){
+            items.net_val=items.oldnetVal-value;
+            items.dis_amt=value;
+            items.igst_val=(items.net_val*items.igst_rt)/100;
+            items.cgst_val=(items.net_val*items.cgst_rt)/100;
+            items.sgst_val=(items.net_val*items.sgst_rt)/100;
+            items.grossValue=items.net_val+items.igst_val+items.cgst_val+items.sgst_val;
+        }else{
+            items.net_val=items.oldnetVal;
+            items.dis_amt=value;
+        }
+        }
+    }
+    
+}*/
+saveSalesOrderItems(){
+    $('#loadingIcon').show();
+    $("#black-overlay").show();
+    let reqDate:any=null;
+    let purDate:any=null;
+    if($("#reqDelDate").val()!=undefined && $("#reqDelDate").val()!=""){
+        reqDate=$("#reqDelDate").val();
+        reqDate=reqDate.split('/')[2]+""+reqDate.split('/')[1]+""+reqDate.split('/')[0];  
+    }
+    if($("#purchDate").val()!=null && $("#purchDate").val()!=""){
+        purDate=$("#purchDate").val();
+        purDate=purDate.split('/')[2]+""+purDate.split('/')[1]+""+purDate.split('/')[0]; 
+    }
+    this.manageSalesPayload['sales_header_in']['req_date_h']=reqDate;
+    this.manageSalesPayload['sales_header_in']['purch_no_c']=$("#purchNoc").val();
+    this.manageSalesPayload['sales_header_in']['purch_date']=purDate;
+    this.manageSalesPayload['sales_text']=[];
+    let object:any={};
+    object['text_line']=$("#header_text").val();
+    object['text_id']="0002";
+    object['langu']='E';
+    this.manageSalesPayload['sales_text'].push(object);
+    this.manageSalesPayload['testrun']="";
+    this.manageSalesPayload['sales_conditions_in']=[];
+    let condCount:any=1;
+    for(let item of this.createSalesOrderItems){
+        let object:any={};
+    if(item.mat_num!="" && item.qty!=""){
+        if(item.dis_per_val!=0 && item.dis_per_val!=null){
+            if(item.add_dis=='ZPER'){
+                object['cond_value']=-(item.dis_per_val);
+            }else{
+                object['cond_value']=item.dis_per_val/10;
+            }
+            object['cond_type']=item.add_dis;
+            
+            object['itm_number']=condCount;
+            object['cond_st_no']=item.cond_st_no;
+            this.manageSalesPayload['sales_conditions_in'].push(object);
+            
+        }
+        condCount++;
+      }
+    }
+    this.manageSalesPayload['sales_items_in']=[];
+    let itemCount:any=1;
+    for(let item of this.createSalesOrderItems){
+        if(item.displayRow){
+            if(item.mat_num!="" && item.qty!=""){
+                if(item.qty==""){
+                    item.qty=0;
+                }
+                let object:any={};
+            object['itm_number']=itemCount;
+            object['material']=item.mat_num;
+            object['target_qty']=item.qty;
+            object['target_qu']=item.uom;
+            object['T_UNIT_ISO']=item.uom;
+            this.manageSalesPayload['sales_items_in'].push(object); 
+            itemCount++;
+        }
+        }
+    }
+    
+    let url:any=this.environment.getRequiredApi("sales_order_manage")+"?";
+    this.commonService.getData(url, "POST", this.manageSalesPayload, this.accessObjectId).subscribe(response=>{
+        if(response.status==0){
+            $('#loadingIcon').hide();
+            $("#black-overlay").hide();
+            this.orderNum=response["data"]['salesdocument_ex'];
+            if(response["data"]['ex_return'].length>0){
+                this.errorList=response["data"]['ex_return'];
+                for(let elist of response["data"]['ex_return']){
+                    if(elist.type=='E'){
+                        this.errorFlag=true;
+                        $('#loadingIcon').hide();
+                        $("#black-overlay").hide();
+                        $("#displayErrorsModal").modal("show");
+                        return false;
+                    }
+                }
+            }
+            if(this.orderNum!=""){
+                this.title="Sales Order / Edit ("+this.orderNum+")";
+                $("#gs-GSTR1").removeAttr("style");
+                this.manageSalesPayload={};
+                this.commonService.responseMessages("", "Sales order '"+this.orderNum+" 'created Succesfully", "success");
+                this.commonService.saleType='Display';
+                const path:any="salesorder/editsalesorder";
+                this.router.navigate([path],{ queryParams: {"orderNum":this.orderNum,"action":"DIS"} });
+            }
+            this.createSalesFlag=false;
+            this.createdSales=true;
+            $("#gs-GSTR1").hide();
+            $("#icon-GSTR1").show();
+        }else{
+            $('#loadingIcon').hide();
+            $("#black-overlay").hide();
+            this.commonService.responseMessages("", "Error occured while creating sales order", "warning");
+        }
+    });
+}
+redirectSalesOrder(){
+    const path:any='salesorder';
+    this.router.navigate([path]);
+}
+changeQtyCalculations(items,id){
+    if(items.qty!=0 && items.price!=0){
+        let flag:any=this.checkLimit(items, id);
+    if(flag!=false){
+        $("#amt-"+id).removeAttr('style'); 
+        this.calcBtn=false;
+        this.saveBtn=false;
+    }
+    }
+    if(items.qty==""){
+        items.qty=0;
+    }
+    if(items.price!=""){
+        let price=items.price*items.qty;
+        let percentage:any=0;
+        let schVal:any=0;
+        if(items.schTypeSymbol=="per"){
+            percentage=(price*items.fix_sch)/100;
+            schVal=percentage;
+        }
+        if(items.schTypeSymbol=="val"){
+            percentage=price-items.fix_sch;
+            schVal=items.fix_sch;
+        }
+        items.sch_val=schVal;
+        let disAmt:any=0;
+        let netVal:any=price-schVal;
+        if(items.dis_per_val==""){
+            items.dis_per_val=0;
+        }
+        if(items.add_dis=='ZPER'){
+            disAmt=(netVal*items.dis_per_val)/100;
+            netVal=netVal-disAmt;
+        }
+        if(items.add_dis=='ZVAL'){
+            disAmt=items.dis_per_val;
+            netVal=netVal-disAmt;
+        }
+        
+        items.dis_amt=disAmt;
+        items.net_val=netVal;
+        let igst:any;
+        let cgst:any;
+        let sgst:any;
+        igst=(netVal*items.igst_rt)/100;
+        cgst=(netVal*items.cgst_rt)/100;
+        sgst=(netVal*items.sgst_rt)/100;
+        items.igst_val=igst;
+        items.cgst_val=cgst;
+        items.sgst_val=sgst;
+        let grossVal:any;
+        grossVal=netVal+igst+cgst+sgst;
+        items.grossValue=grossVal; 
+    }
+    if(items.price!=0){
+        this.enableButtons();
+    }else{
+        this.calcBtn=false;
+        this.saveBtn=true;
+    }
+    
+}
+enableButtons(){
+    let flag:boolean=false;
+    for(let item of this.createSalesOrderItems){
+        if(item.displayRow){
+        if((item.qty!="" || item.qty!=0) && item.mat_num!=""){
+            if(item.net_val < 0){
+                this.calcBtn=true;
+                this.saveBtn=true;
+                return false;
+             }else{
+                 if(this.uploadExcelFlag){
+                     if(item.net_val == 0){
+                         this.calcBtn=false;
+                         this.saveBtn=true;
+                         return false;
+                     }
+                 }else{
+                     this.calcBtn=false;
+                     this.saveBtn=false;
+                     flag=false;
+                 }
+                 
+             }
+        }
+        }
+    }
+   
+}
+calculateTotalValues(){
+    
+}
+reArrangeItems(){
+    let reArrangeItems=[];
+    for(let item of this.createSalesOrderItems){
+        if(item.mat_num!="" && item.qty!=""){
+            reArrangeItems.push(item);
+        } 
+        
+    }
+    for(let item of this.createSalesOrderItems){
+        if(item.mat_num!="" && item.qty==""){
+            reArrangeItems.push(item);
+        } 
+        
+    }
+    for(let item of this.createSalesOrderItems){
+        if(item.mat_num=="" && item.qty==""){
+            reArrangeItems.push(item);
+        } 
+        
+    }
+    this.createSalesOrderItems=reArrangeItems;
+}
+checkLimit(item,id){
+    if((item.price!="" && item.qty!="") && (item.price!="" && item.qty!="")){
+        let limitval:any=parseFloat(item.price)*parseFloat(item.qty);
+        limitval=limitval-parseFloat(item.sch_val);
+        if(item.add_dis=='ZPER'){
+            if(item.dis_per_val > 100){
+                $("#amt-"+id).attr('style','border:1px solid red');
+                this.commonService.responseMessages("", "Discount value must not be greater than net value", "warning");
+                this.calcBtn=true;
+                this.saveBtn=true;
+                return false;
+            }
+        }else{
+            if(item.dis_per_val > limitval && item.add_dis=='ZVAL'){
+                $("#amt-"+id).attr('style','border:1px solid red');
+                this.commonService.responseMessages("", "Discount value must not be greater than net value'", "warning");
+                this.calcBtn=true;
+                this.saveBtn=true;
+                return false;
+            }  
+        }
+        
+    }
+}
+}

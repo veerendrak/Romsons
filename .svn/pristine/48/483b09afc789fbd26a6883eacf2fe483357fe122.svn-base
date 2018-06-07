@@ -1,0 +1,415 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Sales
+					Person Report</strong>
+			</span>
+			<div class="pull-right">
+				<div class="pull-left stock-header-block-w"
+					style="margin-right: 36px;">
+					<label class="pull-left" style="padding: 5px"><b>Layout:</b></label>
+					<select style="width: 200px" id="layoutVal" #screen
+						class="form-control pull-left input-sm"
+						(change)="switchLayout(screen.value)">
+						<option value="sales_group_item">Sales Group Item Wise</option>
+						<option value="sales_group">Sales Group Wise</option>
+						<option value="material_code">Material Summary</option>
+						<option value="dealer_name">Dealers Summary</option>
+					</select>
+				</div>
+				<div class="row pull-left icon-filter-align">
+					<span class="" (click)="showFilters();" title="Advance Filters">
+						<i class="fa fa-sliders"> </i>
+					</span>
+				</div>
+			</div>
+		</div>
+		<div style="clear: both"></div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-md-12 mt-2 form-align-inv" id="filter-block">
+							<form [formGroup]="mctadetailsForm">
+								<div class="delivery-form-block col-md-12 row filter-align-box">
+									<div class="col-md-2 text-align-sales ">
+										<label><b>Sales Group</b><sup class="asterick">*</sup></label>
+										<select class="form-control" id="sales_group_type"
+											style="padding: 5px !important;">
+											<option value="">Please Select Sales Group</option>
+											<option value="all">All Sales Groups</option>
+											<ng-container *ngFor="let types of salespersonList">
+											<ng-container *ngIf="types.isGroupAdmin!='true'">
+											<option value={{types.fscode}}>{{types.fsname}}</option>
+											</ng-container> </ng-container>
+
+										</select>
+									</div>
+									<!-- <div class="col-md-2 text-align-sales">
+										<label><b>Customer Name</b></label> <input type="text"
+											list="customerNamesBlock" class="form-control ajax-list"
+											(keyup)="extractData('modal-name','spinner-search-modal','ajaxListBlock')"
+											id="modal-name" placeholder="Customer Name"
+											style="padding: 5px !important;" autocomplete="off" /> <i
+											class="fa fa-spinner fa-spin spinner-icon"
+											id="spinner-search-modal"
+											style="display: none; margin-right: -7%; margin-top: -9%;"></i>
+										<input type="hidden" name="customerId" value=""
+											id="modal-searchInput">
+										<div class="ajax-searchlist" *ngIf="cdListLength>0"
+											style="display: none; width: 100%;" id="ajaxListBlock">
+											<ul id="customerNamesBlock" class="custmore-list ajax-list">
+												<ng-container *ngIf="customerNames.length>0">
+												<li *ngFor="let cstList of customerNames; let i = index;"
+													class="ajax-list"
+													(click)="selectedItem(cstList,'ajaxListBlock','modal-name','modal-searchInput')"><span
+													class="pull-left custName" title="{{cstList.cust_name}}"
+													style="font-weight: 600;">{{cstList.cust_name}}</span> <span
+													class="pull-right"> {{cstList.cust_id}}</span></li>
+												</ng-container>
+												<ng-container *ngIf="customerNames.length==0">
+												<li>Customers are not found</li>
+												</ng-container>
+											</ul>
+										</div>
+									</div> -->
+
+									<!-- <div class="col-md-2 text-align-sales " id="div_customergrp">
+										<label><b>Type</b></label> <select class="form-control"
+											id="cust_type" style="padding: 5px !important;">
+											<option>Please Select Type</option>
+											<ng-container *ngFor="let types of customertypeList">
+											<option value={{types.key}}>{{types.value}}</option>
+											</ng-container>
+
+										</select>
+									</div> -->
+									<!-- <div class="col-md-2 text-align-sales" id="div_material">
+										<label><b>Material Code</b></label> <input type="text"
+											style="padding: 5px !important;" list="materialCodeList"
+											placeholder="Material Code" class="form-control"
+											(keyup)="materialextractData('material-code','spinner-search','ajaxList')"
+											id="material-code" autocomplete="off" /> <i
+											class="fa fa-spinner fa-spin spinner-icon"
+											id="spinner-search" style="display: none"></i> <input
+											type="hidden" id="filterCustomerId" value="" />
+										<div class="ajax-searchlist"
+											style="display: none; width: 93%;" id="ajaxList">
+											<ul id="" class="custmore-list">
+												<li *ngFor="let matnr of material; let i = index;"
+													style="width: 100%"
+													(click)="materialselectedItem(matnr,'ajaxList','material-code','filterCustomerId')"><span
+													class="pull-left" style="font-weight: 600;">{{matnr.mat_num}}</span><span
+													class="pull-right"> {{matnr.mat_name}}</span></li>
+											</ul>
+										</div>
+									</div> -->
+									<div class="col-md-2 text-align-sales">
+										<label><b>From Period</b><sup class="asterick">*</sup></label>
+										<input type="text" style="padding: 5px !important;"
+											placeholder="From Period" id="frmDate"
+											class="form-control datepicker-init"
+											formControlName="frmDate" validateOnBlur
+											(blur)="changeTodatePicker()"
+											[validateFormControl]="mctadetailsForm.controls['frmDate']" />
+										<span
+											*ngIf="mctadetailsForm.controls['frmDate'].touched && mctadetailsForm.controls['frmDate'].invalid && mctadetailsForm.controls['frmDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="mctadetailsForm.controls['frmDate'].errors.required">
+												Please select From Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales toDatepic">
+										<label><b>To Period</b><sup class="asterick">*</sup></label> <input
+											type="text" style="padding: 5px !important;"
+											placeholder="To Period" class="form-control datepicker-init2"
+											id="toDate" formControlName="toDate" validateOnBlur
+											(blur)="removeStyles()"
+											[validateFormControl]="mctadetailsForm.controls['toDate']" />
+										<span
+											*ngIf="mctadetailsForm.controls['toDate'].touched && mctadetailsForm.controls['toDate'].invalid && mctadetailsForm.controls['toDate'].dirty"
+											class="error"> <small class="custom-error-class"
+											*ngIf="mctadetailsForm.controls['toDate'].errors.required">
+												Please select To Period </small>
+										</span>
+									</div>
+									<div class="col-md-2 text-align-sales">
+										<button type="submit" class="login-button-export"
+											[disabled]="mctadetailsForm.invalid"
+											(click)="getmctaDetails();"
+											style="position: relative; top: 26px;">
+											<i class="fa submit-icon"
+												style="margin-right: 4px; padding-right: 4px;"> <span
+												class="icon-text" style="right: -4px;">Submit</span>
+											</i>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class="col-md-12 text-align-sales mb-1 mt-3">
+							<div id="head-hsn-table">
+								<div *ngIf="mctadetailsList.length>0">
+									<table
+										class="table table table-hover nowrap editable-table totalTable totalSmry"
+										style="display: inline-table; margin-bottom: 0px;">
+										<tbody>
+											<tr>
+												<td style="background: #e4e9f0;">Totals:</td>
+												<td>
+													<div class="pull-left">Incoming Qty:</div>
+													<div class="pull-right">{{incomingqty | customround}}</div>
+												</td>
+												<td>
+													<div class="pull-left">Incoming Value :</div>
+													<div class="pull-right">&#8377; {{incomingvalue |
+														PriceInd}}</div>
+												</td>
+												<td>
+													<div class="pull-left">Sales Qty :</div>
+													<div class="pull-right">{{salesqty | customround}}</div>
+												</td>
+												<td>
+													<div class="pull-left">Sales Value :</div>
+													<div class="pull-right">&#8377; {{salesvalue |
+														PriceInd}}</div>
+												</td>
+												<td>
+													<div class="pull-left">Open Qty :</div>
+													<div class="pull-right">{{openqty | customround}}</div>
+												</td>
+												<td>
+													<div class="pull-left">Open Value :</div>
+													<div class="pull-right">&#8377; {{openvalue |
+														PriceInd}}</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<!-- new changes -->
+						<div class="col-lg-12" id="sales_group_item_table"
+							style="display: none">
+							<div class="col-md-12 mt-1 mb-5 mt-3">
+								<div class="stock-table " id="">
+									<table
+										class="sales_group_item_table table  table-hover nowrap editable-table checkBoxTable table-responsive"
+										width="100%" style="overflow-x: auto; overflow-y: hidden;">
+
+										<thead>
+											<tr>
+												<th style="min-width: 140px !important;">Sales Group
+													Code</th>
+												<th style="min-width: 150px !important;">Sales Group
+													Name</th>
+												<th style="min-width: 100px !important;">Plant Code</th>
+												<th style="min-width: 130px !important;">Plant Name</th>
+												<th style="min-width: 130px !important;">Customer Code</th>
+												<th style="min-width: 130px !important;">Customer Name</th>
+												<th style="min-width: 130px !important;">Material Code</th>
+												<th style="min-width: 130px !important;">Material Name</th>
+												<th style="min-width: 130px !important;">Incoming Qty</th>
+												<th style="min-width: 130px !important;">Incoming Value</th>
+												<th style="min-width: 130px !important;">Sale Qty</th>
+												<th style="min-width: 130px !important;">Sale Value</th>
+												<th style="min-width: 130px !important;">Open Qty</th>
+												<th style="min-width: 130px !important;">Open Value</th>
+											</tr>
+										</thead>
+										<tbody>
+											<ng-container
+												*ngFor="let sList of newmctadetailsList; let i=index;">
+											<tr *ngIf="sList.dealer_code!='Total'">
+												<td>{{sList.sales_group}}</td>
+												<td>{{sList.sales_group_desc}}</td>
+												<td>{{sList.plant}}</td>
+												<td>{{sList.plant_name}}</td>
+												<td>{{sList.dealer_code}}</td>
+												<td>{{sList.dealer_name}}</td>
+												<td>{{sList.material_code}}</td>
+												<td>{{sList.material_name}}</td>
+												<td>{{sList.incoming_qty| PriceInd}}</td>
+												<td>{{sList.incoming_price | PriceInd}}</td>
+												<td>{{sList.sales_qty| PriceInd}}</td>
+												<td>{{sList.sales_price| PriceInd}}</td>
+												<td>{{sList.open_qty| PriceInd}}</td>
+												<td>{{sList.open_price | PriceInd}}</td>
+											</tr>
+											</ng-container>
+										</tbody>
+
+									</table>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-12" id="sales_group_table"
+							style="display: none">
+							<div class="col-md-12 mt-1 mb-5 mt-3">
+								<div class="stock-table " id="">
+									<table
+										class="sales_group_table table table-hover nowrap editable-table checkBoxTable table-responsive"
+										width="100%" style="overflow-x: auto; overflow-y: hidden;">
+
+										<thead>
+											<tr>
+												<th style="min-width: 140px !important;">Sales Group
+													Code</th>
+												<th style="min-width: 150px !important;">Sales Group
+													Name</th>
+												<th style="min-width: 100px !important;">Plant Code</th>
+												<th style="min-width: 130px !important;">Plant Name</th>
+
+												<th style="min-width: 130px !important;">Incoming Qty</th>
+												<th style="min-width: 130px !important;">Incoming Value</th>
+												<th style="min-width: 130px !important;">Sale Qty</th>
+												<th style="min-width: 130px !important;">Sale Value</th>
+												<th style="min-width: 130px !important;">Open Qty</th>
+												<th style="min-width: 130px !important;">Open Value</th>
+											</tr>
+										</thead>
+										<tbody>
+											<ng-container
+												*ngFor="let sList of newmctadetailsList; let i=index;">
+											<tr *ngIf="sList.dealer_code!='Total'">
+												<td>{{sList.sales_group}}</td>
+												<td>{{sList.sales_group_desc}}</td>
+												<td>{{sList.plant}}</td>
+												<td>{{sList.plant_name}}</td>
+												<td>{{sList.incoming_qty| PriceInd}}</td>
+												<td>{{sList.incoming_price | PriceInd}}</td>
+												<td>{{sList.sales_qty| PriceInd}}</td>
+												<td>{{sList.sales_price| PriceInd}}</td>
+												<td>{{sList.open_qty| PriceInd}}</td>
+												<td>{{sList.open_price | PriceInd}}</td>
+											</tr>
+											</ng-container>
+										</tbody>
+
+									</table>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-12" id="material_code_table"
+							style="display: none">
+							<div class="col-md-12 mt-1 mb-5 mt-3">
+								<div class="stock-table " id="">
+									<table
+										class="material_code_table table table-hover nowrap editable-table checkBoxTable table-responsive"
+										width="100%" style="overflow-x: auto; overflow-y: hidden;">
+
+										<thead>
+											<tr>
+
+												<th style="min-width: 130px !important;">Material Code</th>
+												<th style="min-width: 130px !important;">Material Name</th>
+												<th style="min-width: 130px !important;">Incoming Qty</th>
+												<th style="min-width: 130px !important;">Incoming Value</th>
+												<th style="min-width: 130px !important;">Sale Qty</th>
+												<th style="min-width: 130px !important;">Sale Value</th>
+												<th style="min-width: 130px !important;">Open Qty</th>
+												<th style="min-width: 130px !important;">Open Value</th>
+											</tr>
+										</thead>
+										<tbody>
+											<ng-container
+												*ngFor="let sList of newmctadetailsList; let i=index;">
+											<tr *ngIf="sList.dealer_code!='Total'">
+												<td>{{sList.material_code}}</td>
+												<td>{{sList.material_name}}</td>
+												<td>{{sList.incoming_qty| PriceInd}}</td>
+												<td>{{sList.incoming_price | PriceInd}}</td>
+												<td>{{sList.sales_qty| PriceInd}}</td>
+												<td>{{sList.sales_price| PriceInd}}</td>
+												<td>{{sList.open_qty| PriceInd}}</td>
+												<td>{{sList.open_price | PriceInd}}</td>
+											</tr>
+											</ng-container>
+										</tbody>
+
+									</table>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-12" id="dealer_name_table"
+							style="display: none">
+							<div class="col-md-12 mt-1 mb-5 mt-3">
+								<div class="stock-table " id="">
+									<table
+										class="dealer_name_table table table-hover nowrap editable-table checkBoxTable table-responsive"
+										width="100%" style="overflow-x: auto; overflow-y: hidden;">
+
+										<thead>
+											<tr>
+												<th style="min-width: 140px !important;">Sales Group
+													Code</th>
+												<th style="min-width: 150px !important;">Sales Group
+													Name</th>
+												<th style="min-width: 100px !important;">Plant Code</th>
+												<th style="min-width: 130px !important;">Plant Name</th>
+												<th style="min-width: 130px !important;">Customer Code</th>
+												<th style="min-width: 130px !important;">Customer Name</th>
+												<th style="min-width: 130px !important;">Incoming Qty</th>
+												<th style="min-width: 130px !important;">Incoming Value</th>
+												<th style="min-width: 130px !important;">Sale Qty</th>
+												<th style="min-width: 130px !important;">Sale Value</th>
+												<th style="min-width: 130px !important;">Open Qty</th>
+												<th style="min-width: 130px !important;">Open Value</th>
+											</tr>
+										</thead>
+										<tbody>
+											<ng-container
+												*ngFor="let sList of newmctadetailsList; let i=index;">
+											<tr *ngIf="sList.dealer_code!='Total'">
+												<td>{{sList.sales_group}}</td>
+												<td>{{sList.sales_group_desc}}</td>
+												<td>{{sList.plant}}</td>
+												<td>{{sList.plant_name}}</td>
+												<td>{{sList.dealer_code}}</td>
+												<td>{{sList.dealer_name}}</td>
+												<td>{{sList.incoming_qty| PriceInd}}</td>
+												<td>{{sList.incoming_price | PriceInd}}</td>
+												<td>{{sList.sales_qty| PriceInd}}</td>
+												<td>{{sList.sales_price| PriceInd}}</td>
+												<td>{{sList.open_qty| PriceInd}}</td>
+												<td>{{sList.open_price | PriceInd}}</td>
+											</tr>
+											</ng-container>
+										</tbody>
+
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="outbound-footer mt-3" style="width: 94%;">
+		<!-- <div class="left-block">
+			<div class="pull-left">
+				<button class="cancel-button-export" style="padding-left: 0px;"
+					(click)="navigateToRepGallery();">
+					<i class="fa back-icon"
+						style="margin-right: 4px; padding-right: 4px;">
+						<div class="icon-text" style="right: -4px;">Back</div>
+					</i>
+				</button>
+			</div>
+		</div> -->
+
+		<div class="right-block">
+			<div class="pull-left">
+				<button class="login-button-export" title="Export Excel"
+					style="padding-left: 8px;" (click)="exportExcel()">
+					<i class="fa excel-icon"
+						style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+					</i>
+				</button>
+			</div>
+		</div>
+	</div>
+</section>

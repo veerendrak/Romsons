@@ -1,0 +1,416 @@
+import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Http } from '@angular/http';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { AppComponent } from '../../app.component';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+import { CommonService } from '../../services/common.service';
+
+declare var $: any;
+declare var jQuery: any;
+
+@Component({
+  selector: 'app-role-management',
+  templateUrl: './role-management.component.html',
+  styleUrls: ['./role-management.component.css']
+})
+export class RoleManagementComponent implements OnInit {
+
+   public addRoleManagementForm: FormGroup;
+    public updateRoleManagementForm: FormGroup;
+    public disableRoleManagementForm: FormGroup;
+    roleList: any;
+    rolesDeatils: any;
+    roleMessage: any;
+    invalidRolemessage:any;
+    requiredUrl: any;
+    orgId: any;
+    accessObjId: any;
+    flag: any;
+    roleFlag: any
+    counter = [];
+    disableArray:any;
+    orgRoleslst:any;
+    actionPayLoad:any;
+    renameRoleName:any;
+    renameRoleId:any;
+    disableRoleRef:boolean=false;
+    roleRefMsg:any;
+    rolesListLength:any;
+    invalidRoleName:boolean;
+    public data:any;
+    constructor(private http: Http,
+        private formBuilder: FormBuilder, private router: Router,private environment:EnvConfigurationService,
+         private app: AppComponent,private messagesService:MessagePropertiesService,private commonService:CommonService
+    ) {
+         this.app.isActive=true;
+         this.flag = false;
+         //Messages List
+         let validationMessages: any = this.messagesService.manageRoles;
+         this.roleMessage = validationMessages.error_role_submit;
+         this.roleRefMsg=validationMessages.error_role__ref_submit;
+         this.invalidRolemessage=validationMessages.error_invalid_role;
+         this.accessObjId = localStorage.getItem('Manage Roles');
+         this.orgId = localStorage.getItem('orgId');
+         this.addRoleManagementForm = formBuilder.group(
+                 {
+                     'roleName': ['', [Validators.required]],
+                     'roleRef': ['', [Validators.required]]
+                 }
+             );
+         this.updateRoleManagementForm = formBuilder.group(
+                 {
+                     'roleName': ['', [Validators.required]]
+                 }
+             );
+         this.disableRoleManagementForm=formBuilder.group(
+                 {
+                     'roleRef': ['', [Validators.required]]
+                 }
+             );
+         this.disableArray=['Stockist User','KAD User','Sales Person','Sales Admin','Operations Users','Admin'];
+         this.rolesListLength=0;
+         this.invalidRoleName=false;
+     }
+     validateRoleName(roleList){
+         this.invalidRoleName=false;
+         if(!this.disableRoleRef){
+         let rlName:any=this.addRoleManagementForm.value['roleName'];
+         rlName=rlName.trim();
+         roleList.forEach(currentItem=>{
+             if(currentItem.roleName.toLowerCase()===rlName.toLowerCase()){
+                 this.addRoleManagementForm.controls['roleName'].setErrors( { 'incorrect': false } );
+                 this.invalidRoleName=true;
+                 return false;
+             }
+         });
+        }else{
+            let rlName:any=this.updateRoleManagementForm.value['roleName'];
+        rlName=rlName.trim();
+        roleList.forEach(currentItem=>{
+            if(currentItem.roleName.toLowerCase()===rlName.toLowerCase()){
+                this.updateRoleManagementForm.controls['roleName'].setErrors( { 'incorrect': false } );
+                this.invalidRoleName=true;
+                return false;
+          }
+        }); 
+        }
+     }
+     onSubmit() {
+         if (this.addRoleManagementForm.valid) {
+             $( "#loadingIcon" ).show();
+         $( "#black-overlay" ).show();
+             this.addRoleManagementForm.value['orgId']=this.orgId;
+             let url:any = this.environment.getRequiredApi("om_get_org_roles") + "?";
+             this.commonService.getData(url, 'POST', this.addRoleManagementForm.value, this.accessObjId)
+                         .subscribe((data) => {
+                                 $( "#loadingIcon" ).hide();
+                                 $( "#black-overlay" ).hide();
+                                 $("#example3").modal('hide');
+                                 if(data.status==1){
+                                     this.commonService.responseMessages( '',data.message, 'warning' );    
+                                 }else{
+                                     this.getRoles();
+                                     this.commonService.responseMessages( '',this.messagesService.manageRoles.role_added, 'success' );
+                                     this.addRoleManagementForm.reset();
+                                     }
+                             });
+         }
+
+     }
+     updateRoleRename(){
+         if (this.updateRoleManagementForm.valid) {
+             $( "#loadingIcon" ).show();
+             $( "#black-overlay" ).show();
+             this.updateRoleManagementForm.value['orgId']=this.orgId;
+             this.updateRoleManagementForm.value['roleRef']="";
+             let url:any = this.environment.getRequiredApi('om_put_role_rename')+ "?";
+             url = url.replace('{role_id}',this.renameRoleId);
+             this.commonService.getData(url,"PUT",this.updateRoleManagementForm.value,this.accessObjId).subscribe((data) =>{
+                 $( "#loadingIcon" ).hide();
+                 this.renameRoleId="";
+                 this.renameRoleName="";
+                 $( "#black-overlay" ).hide();
+                 $("#example4").modal('hide');
+                 if(data.status==1){
+                     this.commonService.responseMessages( '',data.message, 'warning' );    
+                 }else{
+                     this.getRoles();
+                     this.commonService.responseMessages( '',this.messagesService.manageRoles.edit_role_name, 'success' );
+                     this.addRoleManagementForm.reset();
+                     }
+             }); 
+         }
+         
+     }
+     disableRoleId(){
+         if (this.disableRoleManagementForm.valid) {
+             $( "#loadingIcon" ).show();
+             $( "#black-overlay" ).show();
+             let url:any = this.environment.getRequiredApi('om_delete_role')+ "?org_id="+this.orgId+"&default_role_id="+this.disableRoleManagementForm.value['roleRef']+"&";
+             url=url.replace("{role_id}",this.renameRoleId);
+             this.commonService.getData(url,"DELETE","",this.accessObjId).subscribe((data) =>{
+                 $( "#loadingIcon" ).hide();
+                 this.renameRoleId="";
+                 this.renameRoleName="";
+                 $( "#black-overlay" ).hide();
+                 $("#example4").modal('hide');
+                 if(data.status==1){
+                     this.commonService.responseMessages( '',data.message, 'warning' );    
+                 }else{
+                     this.getRoles();
+                     this.commonService.responseMessages( '',this.messagesService.manageRoles.delete_role, 'success' );
+                     this.addRoleManagementForm.reset();
+                     }
+             }); 
+         }
+     }
+     ngOnInit() {
+         if (localStorage.getItem("token") != null) {
+             let orgRolesUrl=this.environment.getRequiredApi('dropdown_list')+"?";
+             let requiredDropdownUrl:any=orgRolesUrl.replace("{obj_name}","orgRoles");
+             this.commonService.getData(requiredDropdownUrl,"GET","",this.accessObjId).subscribe((response) =>{
+                 if(response.status==0){
+                     this.orgRoleslst= response["data"].objs; 
+                 }
+                 
+             });
+             this.roleList={};
+             this.rolesListLength=0;
+             
+             if (localStorage.getItem('token') != null) {
+                 this.getRoles();
+             } else {
+                 const path: string = '/login';
+                 this.router.navigate([path]);
+
+             }
+             $(function() {
+                 $(document).on('click', function (e) {
+               if (!$(e.target).hasClass('cog-blue')) {
+                     $(".popup-role-div").hide();
+                 }
+            
+             }); 
+                     $( '[data-toggle="tooltip"]' ).tooltip();
+             });
+         }
+
+         else {
+             const path: string = '/login';
+             this.router.navigate([path]);
+         }
+
+     }
+ getRoles(){
+     $( "#loadingIcon" ).show();
+     $( "#black-overlay" ).show();
+                     this.requiredUrl = this.environment.getRequiredApi('om_get_org_roles')+ "?org_id=" + this.orgId + "&";
+                     this.commonService.getData(this.requiredUrl, 'GET', '', this.accessObjId)
+                         .subscribe((data) => {
+                             if(data.status==0){
+                                 this.roleList = data["data"];
+                                 this.rolesListLength=Object.keys(this.roleList).length;
+                                 this.flag = true;
+                                 if (this.roleList.roles != null) {
+                                     this.roleList.roles.forEach(element => {
+                                         if(this.disableArray.indexOf(element.roleName)!=-1){
+                                             element.disableFlag=true;
+                                         }else{
+                                             element.disableFlag=false;
+                                         }
+                                         this.rolesDeatils = element;
+                                         element[element.roleName]={};
+                                        this.rolesDeatils.accessObjs.forEach(currentItem=>{
+                                            element[element.roleName][currentItem.parentObjName]=currentItem.permissionLevel;
+                                            if (currentItem.hasOwnProperty("childObjs")){
+                                                currentItem.childObjs.forEach(currentIndex =>{
+                                                    element[element.roleName][currentIndex.objName]=currentIndex.permissionLevel;
+                                                 }); 
+                                            }
+                                        }); 
+                                     });
+                                 }
+                             }else{
+                                 this.commonService.responseMessages("", data.message, "warning");
+                             }
+                             $( "#loadingIcon" ).hide();
+                             $( "#black-overlay" ).hide();
+                             $( '[data-toggle="tooltip"]' ).tooltip();
+                         });  
+ }
+ openSlideBlock(arrowId){
+         var arrowBlock=$("#"+arrowId);
+         if (arrowBlock.is(":visible")) {
+             var cls = arrowBlock.attr('class');
+             if (cls == 'fa fa-angle-up exapnd fa-2x') {
+                 arrowBlock.attr('class', 'fa fa-angle-down exapnd fa-2x');
+             } else {
+                 arrowBlock.attr('class', 'fa fa-angle-up exapnd fa-2x');
+             }
+         var attrValue = arrowBlock.find('input').val();
+         $('.expanddiv').each(function() {
+             var expandValue = $(this).attr('id');
+             if (attrValue == expandValue) {
+                 $(this).slideToggle('slow');
+             }
+         });
+        }
+         
+ }
+     closeroleDetailsPopup(myModalLabel,popUpId) {
+         $("#"+popUpId).modal("hide");
+     }
+     openActionModal(modalId,icon,e,num){
+      $('.popup-role-div').each(function(){
+         var popId=$(this).attr('id');
+         let position:any=$("#role-table th:eq(0)").position(); 
+         let currentP:any=$("#role-table th:eq('"+num+"')").position(); 
+         let left:any=Math.abs(position.left);
+         let popLeft:any=130+Math.round(currentP.left);
+         $("#"+modalId).css('left',popLeft);
+         if(popId==modalId){
+           
+           $("#"+modalId).toggle();      
+         }else{
+             $('#'+popId).hide();    
+         } 
+           
+      })
+  }
+     closeroleDetailsPopupTop(modalId,popId) {
+         $('#'+popId).modal("hide");    
+     }
+  perFormAction(role,action){
+      this.renameRoleName=role.roleName;
+      this.renameRoleId=role.roleId;
+      $("#example4").modal('show');
+      if(action=='rename'){
+          this.disableRoleRef=true;
+      }else{
+        this.disableRoleRef=false;
+      }
+  }
+  openAddRole(modalId){
+      this.renameRoleName="";
+      this.renameRoleId="";
+      this.disableRoleRef=false;
+      $("#"+modalId).modal('show');
+      $('#'+modalId).find('select').find('option[value=""]').prop('selected', true);  
+  }
+  updateRolePermission(roles,roleId,event,roleName){
+      $( "#loadingIcon" ).show();
+      $( "#black-overlay" ).show();
+      if(event.target.checked){
+         this.actionPayLoad={};
+         this.actionPayLoad['orgId']=this.orgId;
+         this.actionPayLoad['roles']=[];
+         let rolesObject:any={};
+         rolesObject['roleId']=roleId;
+         rolesObject['roleName']=roleName;
+         rolesObject['accessObjs']=[];
+         let docObject:any={};
+         docObject['parentObjId']=roles.parentObjId;
+         docObject['parentObjName']=roles.parentObjName;
+         docObject['permissionLevel']=1;
+         docObject['childObjs']=[];
+         roles.childObjs.forEach(currentItem=>{
+             let childObjects:any={};
+             childObjects['objId']=currentItem.objId;
+             childObjects['objName']=currentItem.objName;
+             childObjects['permissionLevel']=1;
+             docObject['childObjs'].push(childObjects);
+         });
+          rolesObject['accessObjs'].push(docObject);
+          this.actionPayLoad['roles'].push(rolesObject);
+          this.actionPerform(this.actionPayLoad);
+      }else{
+         this.actionPayLoad={};
+         this.actionPayLoad['orgId']=this.orgId;
+         this.actionPayLoad['roles']=[];
+         let rolesObject:any={};
+         rolesObject['roleId']=roleId;
+         rolesObject['roleName']=roleName;
+         rolesObject['accessObjs']=[];
+         let docObject:any={};
+         docObject['parentObjId']=roles.parentObjId;
+         docObject['parentObjName']=roles.parentObjName;
+         docObject['permissionLevel']=0;
+         docObject['childObjs']=[];
+         roles.childObjs.forEach(currentItem=>{
+             let childObjects:any={};
+             childObjects['objId']=currentItem.objId;
+             childObjects['objName']=currentItem.objName;
+             childObjects['permissionLevel']=0;
+             docObject['childObjs'].push(childObjects);
+         });
+          rolesObject['accessObjs'].push(docObject);
+          this.actionPayLoad['roles'].push(rolesObject);
+          this.actionPerform(this.actionPayLoad);
+      }
+      }
+  updateChildRolePermission(roles,roleId,event,roleName,childObjectlist){
+      $( "#loadingIcon" ).show();
+      $( "#black-overlay" ).show();
+      if(event.target.checked){
+          this.actionPayLoad={};
+          this.actionPayLoad['orgId']=this.orgId;
+          this.actionPayLoad['roles']=[];
+          let rolesObject:any={};
+          rolesObject['roleId']=roleId;
+          rolesObject['roleName']=roleName;
+          rolesObject['accessObjs']=[];
+          let docObject:any={};
+          docObject['parentObjId']=roles.parentObjId;
+          docObject['parentObjName']=roles.parentObjName;
+          docObject['permissionLevel']=1;
+          docObject['childObjs']=[];
+              let childObjects:any={};
+              childObjects['objId']=childObjectlist.objId;
+              childObjects['objName']=childObjectlist.objName;
+              childObjects['permissionLevel']=1;
+              docObject['childObjs'].push(childObjects);
+           rolesObject['accessObjs'].push(docObject);
+           this.actionPayLoad['roles'].push(rolesObject);
+           this.actionPerform(this.actionPayLoad);
+      }else{
+          this.actionPayLoad={};
+          this.actionPayLoad['orgId']=this.orgId;
+          this.actionPayLoad['roles']=[];
+          let rolesObject:any={};
+          rolesObject['roleId']=roleId;
+          rolesObject['roleName']=roleName;
+          rolesObject['accessObjs']=[];
+          let docObject:any={};
+          docObject['parentObjId']=roles.parentObjId;
+          docObject['parentObjName']=roles.parentObjName;
+          docObject['permissionLevel']=1;
+          docObject['childObjs']=[];
+              let childObjects:any={};
+              childObjects['objId']=childObjectlist.objId;
+              childObjects['objName']=childObjectlist.objName;
+              childObjects['permissionLevel']=0;
+              docObject['childObjs'].push(childObjects);
+           rolesObject['accessObjs'].push(docObject);
+           this.actionPayLoad['roles'].push(rolesObject);
+           this.actionPerform(this.actionPayLoad);
+          
+      }
+  }
+  actionPerform(payloadObject){
+      let url=this.environment.getRequiredApi('om_put_role_update')+"?org_id="+this.orgId+"&";
+      this.commonService.getData(url, 'PUT', payloadObject.roles[0], this.accessObjId)
+                         .subscribe((data) => {
+                             $( "#loadingIcon" ).hide();
+                             $( "#black-overlay" ).hide();
+                             if(data.status==1){
+                               this.commonService.responseMessages( '',data.message, 'warning' );  
+                             }else{
+                                     this.getRoles();
+                                     this.commonService.responseMessages( '','Role permissions are successfully updated', 'success' );
+                                     }
+                         });
+  }
+}

@@ -1,0 +1,323 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+<div style="padding-left:15px; padding-right:15px;">
+	<div class="card-header card-header-adjustments">
+		<span class="cat__core__title"> <strong class="page-title">{{title}}</strong>
+		</span>
+	</div>
+	<div class="card-block db-block" style="padding-left:0px; padding-right:0px;padding-bottom:0px;">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="mb-1">
+							<div class="cat__wizard wizard clearfix row"
+								style="width: 100%;margin-left:1%;">
+								<div  class="steps clearfix col-md-12">
+									<ul>
+										<li class="disabled"><a 
+											href="javascript:void(0)" style="margin-left:4px !important;"> 
+											<i (click)="navigatePath('createsalesorder')"
+												class="fa  cat__wizard__steps__icon"
+												id="gs-GSTR1">1</i> <i
+												class="fa fa-check cat__wizard__steps__icon" id="icon-GSTR1"
+												style="display: none;"></i>
+												<div class="cat_wizard_steps_title ell-spa">
+													Create Sales Order<span  class="" id="GSTR1"></span>
+												</div>
+										</a></li>
+
+										<li style="cursor: text" class="disabled"><a
+											href="javascript:void(0)"> 
+											<i (click)="navigatePath('outbounddelivery')"
+												class="fa  cat__wizard__steps__icon"
+												id="gs-GSTR2"><b>2</b></i> <i
+												class="fa fa-check cat__wizard__steps__icon" id="icon-GSTR2"
+												style="display: none;"></i>
+												<div class="cat_wizard_steps_title ell-spa">
+													Create Delivery<span class="" id="GSTR2"></span>
+												</div>
+										</a></li>
+
+										<li style="cursor: text" class="disabled"><a
+											 href="javascript:void(0)"> 
+											 <i (click)="navigatePath('postgoodsissue')"
+												class="fa  cat__wizard__steps__icon"
+												id="gs-GSTR1A">3</i> <i
+												class="fa fa-check cat__wizard__steps__icon"
+												id="icon-GSTR1A" style="display: none;"></i>
+												<div class="cat_wizard_steps_title ell-spa">
+													Post Goods Issue<span class="" id="GSTR1A"></span>
+												</div>
+										</a></li>
+										<li style="cursor: text" class="last disabled"><a
+											 href="javascript:void(0)"> 
+											 <i (click)="navigatePath('billing')"
+												class="fa  cat__wizard__steps__icon"
+												id="gs-GSTR1A">4</i> <i
+												class="fa fa-check cat__wizard__steps__icon"
+												id="icon-GSTR1A" style="display: none;"></i>
+												<div class="cat_wizard_steps_title ell-spa">
+													Billing<span class="" id="GSTR1A"></span>
+												</div>
+										</a></li>
+									</ul>
+
+								</div>
+							</div>
+						</div>
+					</div>
+			</div>
+	</div>
+</div>
+<div class="createBlok" style="margin-top:-3%" *ngIf="createSalesBlock">
+	<div class="card-block db-block mb-5" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" *ngIf="createSalesBlock">
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					<form [formGroup]="salesOrderForm">
+					 <div class="delivery-form-block col-md-12 row">
+						<div class="col-md-3" *ngIf="showOrderType">
+							<mat-form-field
+						      [floatLabel]="salesOrderForm.value.floatLabel">
+						    <mat-select required>
+						      <mat-option>-- None --</mat-option>
+						      <mat-option value="option">Option</mat-option>
+						    </mat-select>
+						    <mat-placeholder>Order Type</mat-placeholder>
+						  </mat-form-field>
+						</div>
+						<div class="col-md-3">
+							  
+							  <mat-form-field [floatLabel]="salesOrderForm.value.floatLabel">
+							   <mat-label>Requested  Delivery Date</mat-label>
+							  <input matInput [matDatepicker]="deliveryPicker" (click)="deliveryPicker.open()"  >
+							  <mat-datepicker-toggle matSuffix [for]="deliveryPicker"></mat-datepicker-toggle>
+							  <mat-datepicker #deliveryPicker></mat-datepicker>
+							</mat-form-field>
+							  
+						</div>
+						<div class="col-md-3">
+							<mat-form-field
+							      [floatLabel]="salesOrderForm.value.floatLabel">
+							      <mat-label>PO Number</mat-label>
+							    <input matInput placeholder="PO number" required>
+							  </mat-form-field>
+						</div>
+						<div class="col-md-3">
+							<!-- <mat-form-field
+							      [floatLabel]="salesOrderForm.value.floatLabel">
+							      <mat-label>PO Date</mat-label>
+							    <input matInput placeholder="PO date" required>
+							  </mat-form-field> -->
+							   <mat-form-field [floatLabel]="salesOrderForm.value.floatLabel">
+							   <mat-label>PO Date</mat-label>
+							  <input matInput [matDatepicker]="poDatePicker" (click)="poDatePicker.open()" placeholder="PO date" required >
+							  <mat-datepicker-toggle matSuffix [for]="poDatePicker"></mat-datepicker-toggle>
+							  <mat-datepicker #poDatePicker></mat-datepicker>
+							</mat-form-field>
+							  
+						</div>
+						</div>
+						<div class="clear-fix"></div>
+						 <div class="delivery-form-block col-md-12 row pb-1">
+						<div class="col-md-3">
+							<mat-form-field
+							      [floatLabel]="salesOrderForm.value.floatLabel">
+							      <mat-label>Sold To Party</mat-label>
+							    <input matInput placeholder="sold to party" required>
+							  </mat-form-field>
+							  <div class="txt-msg-block">
+							  	<p>The Engineer-in-Chief 12th Floor, MSO Building, I.P. Estate, New Delhi:110002</p>
+							  </div>
+						</div>
+						<div class="col-md-3">
+							<mat-form-field
+							      [floatLabel]="salesOrderForm.value.floatLabel">
+							      <mat-label>Ship To Party</mat-label>
+							    <input matInput placeholder="ship to party" required>
+							  </mat-form-field>
+							  <div class="txt-msg-block">
+							  	<p>The Engineer-in-Chief 12th Floor, MSO Building, I.P. Estate, New Delhi:110002</p>
+							  </div>
+						</div>
+						<div class="col-md-6">
+							<mat-form-field
+							      [floatLabel]="salesOrderForm.value.floatLabel">
+							      <mat-label>Header Text</mat-label>
+    								<textarea rows="5" matInput placeholder="special instruction"></textarea>
+							  </mat-form-field>
+						</div>
+						
+					</div>
+					</form>
+					</div>
+					<div class="col-md-12 mt-1 mb-3">
+							<div class="stock-table table-responsive">
+								<table class="table table-hover nowrap editable-table checkBoxTable"
+								width="100%" id="outbound-delivery-table">
+								<thead>
+									<tr>
+										<th class="no-sort" style="width:50px;text-align:center;"><mat-checkbox></mat-checkbox></th>
+										<th  style="width:100px;">Material</th>
+										<th>Qty</th>
+										<th>UOM</th>
+										<th>Description</th>
+										<th>Price</th>
+										<th>Fix.Sch.</th>
+										<th>Sch.Val</th>
+										<th>Add Dis.</th>
+										<th>Dis % Val</th>
+										<th>Dis Amt</th>
+										<th>Net Val</th>
+										<th colspan="2">S/U GST</th>
+										<th colspan="2">CGST</th>
+										<th colspan="2">IGST</th>
+									</tr>
+									<tr>
+									<th colspan="11"></th>
+									<th>Rate</th>
+										<th>Value</th>
+										<th>Rate</th>
+										<th>Value</th>
+										<th>Rate</th>
+										<th>Value</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>
+											<input type="text" class="outbound-input" name="material" value="NC 12">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="qty" value="100">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="uom" value="pics">
+										</td>
+										<td>Lorem ipsum door..</td>
+										<td>
+											<input type="text" class="outbound-input" name="price" value="1000">
+										</td>
+										<td>2%</td>
+										<td>1000</td>
+										<td></td>
+										<td></td>
+										<td>1000</td>
+										<td>6%</td>
+										<td>500</td>
+										<td>6%</td>
+										<td>500</td>
+										<td>6%</td>
+										<td>500</td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>
+											<input type="text" class="outbound-input" name="material" value="NC 12">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="qty" value="100">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="uom" value="pics">
+										</td>
+										<td>Lorem ipsum door..</td>
+										<td>
+											<input type="text" class="outbound-input" name="price" value="1000">
+										</td>
+										<td>2%</td>
+										<td>1000</td>
+										<td></td>
+										<td></td>
+										<td>1000</td>
+										<td>6%</td>
+										<td>500</td>
+										<td>6%</td>
+										<td>500</td>
+										<td>6%</td>
+										<td>500</td>
+									</tr>
+									<tr>
+										<td align="center"><mat-checkbox></mat-checkbox></td>
+										<td>
+											<input type="text" class="outbound-input" name="material" value="NC 12">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="qty" value="100">
+										</td>
+										<td>
+											<input type="text" class="outbound-input" name="uom" value="pics">
+										</td>
+										<td>Lorem ipsum door..</td>
+										<td>
+											<input type="text" class="outbound-input" name="price" value="1000">
+										</td>
+										<td>2%</td>
+										<td>1000</td>
+										<td></td>
+										<td></td>
+										<td>1000</td>
+										<td>6%</td>
+										<td>500</td>
+										<td>6%</td>
+										<td>500</td>
+										<td>6%</td>
+										<td>500</td>
+									</tr>
+								</tbody>
+								</table>
+							</div>						
+						</div>
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+<div class="outbound-footer mt-3">
+		<div class="left-block">
+		<div class="pull-left" style="max-width:47%">
+			<button class="btn login-button">
+			<i class="fa fa-plus" style="margin-right:4px;"></i> Add Lines</button>
+		</div>
+		<div class="pull-left" style="max-width:50%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Remove Line</button>
+			</div>
+		</div>
+		<div class="right-block">
+			<div class="pull-left" style="max-width:29%">
+			<button class="btn login-button">
+			<i class="fa fa fa fa-file-text-o" style="margin-right:4px;"></i>Display scheme</button>
+			</div>
+			<div class="pull-left" style="max-width:24.7%">
+			<button class="btn login-button">
+			<i class="fa fa fa-calculator" style="margin-right:4px;"></i>Calculate Total</button>
+			</div>
+			<div class="pull-left" style="max-width:23%">
+			<button class="btn login-button">
+			<i class="fa fa-upload" style="margin-right:4px;"></i>Upload Excel</button>
+			</div>
+			<div class="pull-left" style="max-width:12.4%">
+			<button class="btn login-button">
+			<i class="fa fa-save" style="margin-right:4px;"></i>Save</button>
+			</div>
+			<div class="pull-left" style="max-width:12%;">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="deliveryBlock" *ngIf="outboundDeliberyBlock">
+	<app-outbound-delivery></app-outbound-delivery>
+</div>
+<div class="postgoodsBlock" *ngIf="postGoodsBlock">
+	
+</div>
+<div class="billingBlock" *ngIf="billingBlock">
+	<app-billing></app-billing>
+</div>
+</section>

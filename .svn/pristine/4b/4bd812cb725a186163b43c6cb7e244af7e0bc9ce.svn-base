@@ -1,0 +1,242 @@
+<section class="card" id="mainContent"
+	style="padding-left: 0px; padding-right: 0px; padding-bottom: 0px;">
+	<div style="padding-left: 15px; padding-right: 15px;">
+		<div class="card-header card-header-adjustments">
+			<span class="cat__core__title"> <strong class="page-title">Purchase
+					Order</strong>
+			</span>
+		</div>
+		<div class="card-block db-block" style="padding: 0px;">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<!-- new changes -->
+						<div class="col-md-12 mt-1 mb-5">
+							<div class="stock-table">
+								<table
+									class="table table-hover nowrap editable-table checkBoxTable "
+									width="100%" id="purchase-order-table"
+									style="overflow-y: hidden; overflow-x: auto;">
+									<thead>
+										<tr>
+											<th class="no-sort" style="width: 50px; text-align: center;">
+												<mat-checkbox class="example-margin" [(ngModel)]="checked"
+													[checked]="checked" [(indeterminate)]="indeterminate"
+													id="checkbox-all"
+													(click)="selectAll($event,'checkbox-all-input','purchase-order-table')"></mat-checkbox>
+											</th>
+											<th *ngIf="!rolekaduser" style="min-width: 110px !important;">Hospital
+												Code</th>
+											<th *ngIf="!rolekaduser" style="min-width: 110px !important;">Hospital
+												Name</th>
+											<th style="min-width: 100px !important;">PO Number</th>
+											<th>Status</th>
+											<th>Supply Status</th>
+											<th style="min-width: 110px !important;">Doc Category</th>
+											<th style="min-width: 130px !important;">Vendor Name</th>
+											<th>PO Date</th>
+											<th align="center">Total Amount</th>
+										</tr>
+									</thead>
+									<tbody>
+										<ng-container *ngIf="purchaseOrderDetailsList.length>0">
+										<tr *ngFor="let pld of purchaseOrderDetailsList; let i=index;">
+											<td align="center"><mat-checkbox class="example-margin"
+													id="checkbox-{{i}}"
+													(click)="getReportList(pld,'purchase-order-table',i)"></mat-checkbox>
+											</td>
+											<td *ngIf="!rolekaduser">{{pld.hospital_code}}</td>
+											<td *ngIf="!rolekaduser">{{pld.hospital_name}}</td>
+											<td id="so_no"><a class="link-order"
+												(click)="displayDetails(pld)" href="javascript:void(0)">{{pld.po_number}}</a>
+											</td>
+											<td>{{pld.status}}</td>
+											<td>{{pld.po_deliv_status}}</td>
+											<td>{{pld.doc_type}}</td>
+											<td><div class="text-name-elipsis"
+													title="{{pld.vendor_name}}">{{pld.vendor_name}}</div></td>
+											<td>{{pld.po_date | date :'dd-MM-yyyy'}}</td>
+											<td align="right">&#8377; {{pld.po_amount}}</td>
+										</tr>
+										</ng-container>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- end chnges -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="outbound-footer mt-3">
+			<div class="left-block">
+				<!-- <div class="pull-left" style="max-width:47%">
+			<button class="btn login-button">
+			<i class="fa fa-plus" style="margin-right:4px;"></i> Add Lines</button>
+		</div>
+		<div class="pull-left" style="max-width:50%">
+			<button class="btn cancel-button">
+			<i class="fa fa-times-circle" style="margin-right:4px;"></i>Remove Line</button>
+			</div> -->
+			</div>
+			<div class="right-block">
+				<div class="pull-left">
+					<button class="login-button-export" title="Print / Preview"
+						style="padding-left: 8px;"
+						(click)="printSelectedReports('purchase-order-table')">
+						<i class="fa print-icon"
+							style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div>
+				<div class="pull-left">
+					<button class="login-button-export" title="Export Excel"
+						style="padding-left: 8px;" (click)="exportExcel()">
+						<i class="fa excel-icon"
+							style="margin-right: 0px; width: 24px; height: 24px;"> </i>
+					</button>
+				</div>
+
+				<div class="pull-left">
+					<button class="login-button-export" title="Edit"
+						style="padding-left: 8px;"
+						(click)="editPurchaseOrder('purchase-order-table')">
+						<i class="fa edit-icon"
+							style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div>
+				<div class="pull-left">
+					<button class="login-button-export" title="Create PO"
+						style="padding-left: 8px;"
+						(click)="createSalesOrder('purchase-order-table')">
+						<i class="fa create-icon"
+							style="margin-right: 0px; padding-right: 4px; width: 24px; height: 24px;">
+						</i>
+					</button>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</section>
+<!--create purchase order -->
+
+<div class="modal fade modal-size-medium" id="createPurchaseModal"
+	data-backdrop="static" data-keyboard="false" tabindex="-1"
+	role="dialog" aria-labelledby="" aria-hidden="true">
+	<div class="modal-dialog" role="document" style="max-width: 622px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row new_row">
+					<div class="pull-left new_left">
+						<h4>Create Purchase Order</h4>
+					</div>
+					<div class="pull-right new_right">
+						<button type="button" class="close" id="topCloseButton"
+							(click)="closeModal('createPurchaseModal')" aria-label="Close">
+							<i class="fa fa-times fa" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+
+
+			</div>
+			<div class="modal-body-block" style="padding: 6px 6px !important;">
+				<form [formGroup]="createPurchaseOrderForm" autocomplete="off">
+					<div class="col-md-12 row">
+						<div class="col-md-6">
+							<!-- <label>Doc Type<sup class="asterick">*</sup>
+							</label> <select class="form-control create-edit-pop-txt-box"
+								style="width: 225px !important;" formControlName="docType"
+								validateOnBlur
+								[validateFormControl]="createPurchaseOrderForm.controls['docType']">
+								<option value="">Please Select</option>
+								<ng-container *ngFor="let odTypes of orderTypes; let i= index;">
+								<option [value]="odTypes.key">{{odTypes.value}}</option>
+								</ng-container>
+							</select> -->
+							<label>Order Type<sup class="asterick">*</sup>
+							</label> <select class="form-control create-edit-pop-txt-box"
+								style="width: 100% !important;" formControlName="docType"
+								id="orderTypes" validateOnBlur
+								[validateFormControl]="createPurchaseOrderForm.controls['docType']">
+								<option value="">Please Select</option>
+								<ng-container *ngFor="let odTypes of orderTypes; let i= index;">
+								<option [value]="odTypes.key">{{odTypes.value}}</option>
+								</ng-container>
+							</select> <span
+								*ngIf="createPurchaseOrderForm.controls['docType'].touched && createPurchaseOrderForm.controls['docType'].invalid && createPurchaseOrderForm.controls['docType'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="createPurchaseOrderForm.controls['docType'].errors.required">
+									{{purchaseOrderMessages.purchase_type_req}} </small>
+							</span>
+						</div>
+						<div class="col-md-6">
+							<label>Vendor Name<sup class="asterick">*</sup></label> <select
+								class="form-control create-edit-pop-txt-box"
+								style="width: 100% !important;" formControlName="vendorName"
+								id="modal-searchInput" validateOnBlur
+								[validateFormControl]="createPurchaseOrderForm.controls['vendorName']">
+								<option value="">Please Select</option>
+								<ng-container
+									*ngFor="let vndTypes of vendorTypes; let i= index;">
+								<option [value]="vndTypes.key">{{vndTypes.value}}</option>
+								</ng-container>
+							</select>
+							<!-- <input
+								type="text" class="form-control create-edit-pop-txt-box"
+								(keyup)="extractData('modal-name','spinner-search-modal','ajaxListBlock',$event)"
+								id="modal-name" formControlName="vendorName" validateOnBlur
+								[validateFormControl]="createPurchaseOrderForm.controls['vendorName']"
+								placeholder="Vendor Name" style="width: 300px !important;"> -->
+							<!-- <i class="fa fa-spinner fa-spin spinner-icon"
+								id="spinner-search-modal"
+								style="display: none; margin-right: -7%; margin-top: -9%;"></i> -->
+							<!-- <input type="hidden" name="customerId" value=""
+								id="modal-searchInput"> -->
+							<!-- <div class="ajax-searchlist" style="display: none; width: 400px;"
+								id="ajaxListBlock">
+								<ul id="customerNamesBlock" class="custmore-list ajax-list">
+									<ng-container *ngIf="vendorNames.length>0">
+									<li *ngFor="let cstList of vendorNames; let i = index;"
+										class="ajax-list"
+										(click)="selectedItem(cstList,'ajaxListBlock','modal-name','modal-searchInput')"><span
+										class="pull-left" id="list-{{i}}"
+										title="{{cstList.vendor_name}}" style="font-weight: 600;">{{cstList.vendor_name}}</span>
+										<span class="pull-right"> {{cstList.vendor_id}}</span></li>
+									</ng-container>
+									<ng-container *ngIf="vendorNames.length==0">
+									<li>Vendors are not found</li>
+									</ng-container>
+								</ul>
+							</div> -->
+							<span
+								*ngIf="createPurchaseOrderForm.controls['vendorName'].touched && createPurchaseOrderForm.controls['vendorName'].invalid && createPurchaseOrderForm.controls['vendorName'].dirty"
+								class="error"> <small class="custom-error-class"
+								*ngIf="createPurchaseOrderForm.controls['vendorName'].errors.required">
+									{{purchaseOrderMessages.vendor_req}}</small>
+							</span>
+						</div>
+
+					</div>
+				</form>
+			</div>
+
+			<div class="modal-footer">
+				<div class="row new_row">
+					<div class="pull-right new_right act_foot">
+						<div class="pull-right new_right act_foot closePopUpOk">
+							<button (click)="createPurchaseForm('createPurchaseModal')"
+								[disabled]="createPurchaseOrderForm.invalid"
+								[ngClass]="{'login-button':true ,'forgotOk':true,'btn-disabled':createPurchaseOrderForm.invalid }">Ok</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- End of create purchase order-->

@@ -1,0 +1,261 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router, ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import {EnvConfigurationService} from '../../services/env-configuration.service'; 
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-edit-goods-receipt',
+  templateUrl: './edit-goods-receipt.component.html',
+  styleUrls: ['./edit-goods-receipt.component.css']
+})
+export class EditGoodsReceiptComponent implements OnInit {
+    checked:boolean=false;
+    indeterminate:boolean=false;
+    goodsReceiptMessages:any;
+    goodsReceiptForm:FormGroup;
+    title:any;
+    checkedObjects:any;
+    createGRItems:any;
+    createGRForm:FormGroup;
+    orgId:any;
+    bpId:any;
+    accessObjectId:any;
+    grNum:any;
+    errorList:any;
+    dlvNum:any;
+    docDate;any;
+    posDate:any;
+    headerText:any;
+    grListdata:any;
+    errorLogs:any;
+     totalQty: any;
+     constructor(private http: Http, private formBuilder: FormBuilder,
+         private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+         private commonService: CommonService, private dateAdapter: DateAdapter<Date>, private activatedRoute: ActivatedRoute,
+         private environment: EnvConfigurationService) {
+         this.app.isActive = true;
+         this.dateAdapter.setLocale('en-gb');
+         this.createGRForm = formBuilder.group({
+             'docType': ['', Validators.required],
+             'dlvNumber': ['', Validators.required]
+         });
+         this.goodsReceiptForm = formBuilder.group({
+             'dlNUm': ['', Validators.required],
+             'docDate': ['', Validators.required],
+             'posDate': ['', Validators.required],
+             'dlNote': ['', Validators.required],
+             'dlText': ['', Validators.required]
+         });
+         this.checked = false;
+         this.indeterminate = false;
+         this.goodsReceiptMessages = this.messagesService.goods_receipt_details_msg;
+         this.checkedObjects = [];
+         this.createGRItems = [];
+         this.orgId = localStorage.getItem("orgId");
+         this.bpId = localStorage.getItem("bpId");
+         this.accessObjectId = localStorage.getItem("Goods Receipt");
+         this.grNum = "";
+         this.errorList = [];
+         this.dlvNum = "";
+         this.docDate = "";
+         this.posDate = "";
+         this.headerText = "";
+         this.grListdata = []; this.errorLogs = [];
+         this.totalQty = 0;
+     }
+ calculateTotals() {
+        let totalQty: any = 0;
+        let count: any = 0;
+        this.grListdata.forEach(currentItem => {
+            if (currentItem.material != '' && currentItem.entry_qnt != '') {
+                totalQty = parseFloat(totalQty) + parseFloat(currentItem.entry_qnt);
+            }
+            if (this.grListdata.length - 1 == count) {
+                this.totalQty = totalQty;
+            }
+            
+            count++;
+        });
+    }
+  ngOnInit() {
+      this.title="Goods Receipt / Display";
+       setTimeout(() => {
+           $( '.datepicker-init-sale' ).datetimepicker( {
+
+               widgetPositioning: {
+                   horizontal: 'left'
+               },
+               icons: {
+                   time: "fa fa-clock-o",
+                   date: "fa fa-calendar",
+                   up: "fa fa-arrow-up",
+                   down: "fa fa-arrow-down",
+                   previous: 'fa fa-arrow-left',
+                   next: 'fa fa-arrow-right'
+               },
+               format: 'DD/MM/YYYY',
+               
+           } );
+}, 500);
+      this.activatedRoute.queryParams.subscribe(params => {
+                console.log(this.router.url);
+                this.grNum = params["grNumber"];
+                this.getPGRDetails();
+        });
+  }
+redirectGRList(){
+    const path: any = 'goodsreceipt';
+    this.router.navigate([path]);
+}
+getPGRDetails(){
+    $('#loadingIcon').show();
+    $("#black-overlay").show();
+    let url = this.environment.getRequiredApi('get_pgr_details') + "?gr_num=" + this.grNum + "&org_id=" + this.orgId + "&bp_id=" + this.bpId + "&";
+        this.commonService.getData(url, 'GET', "", this.accessObjectId)
+            .subscribe((response) => {
+                if(response.status==0){
+                    if (response["data"].hasOwnProperty('ex_return')) {
+                            if (response["data"]['ex_return'].length > 0) {
+                                this.errorList = response["data"]['ex_return'];
+                                for (let elist of response["data"]['ex_return']) {
+                                    if (elist.type == 'E') {
+                                        //this.errorFlag = true;
+                                        $('#loadingIcon').hide();
+                                        $("#black-overlay").hide();
+                                        $("#displayErrorsModal").modal("show");
+                                        setTimeout(() => {
+                                            var width = $("#mainContent").css("width");
+                                            $(".outbound-footer").css("width", width);
+                                            $(".outbound-footer").show();
+                                        }, 50);
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    if(response.data.hasOwnProperty('ex_gr_header')){
+                           this.dlvNum=response["data"]['ex_gr_header'].deliv_no;
+                           this.docDate=response["data"]['ex_gr_header'].doc_date;
+                           this.posDate=response["data"]['ex_gr_header'].pstng_date;
+                           this.headerText=response["data"]['ex_gr_header'].header_txt;
+                    }
+                    if(response.data.hasOwnProperty('ex_gr_item')){
+                        this.grListdata=response.data['ex_gr_item'];
+                    }
+this.calculateTotals();
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                    setTimeout(() => {
+                                            var width = $("#mainContent").css("width");
+                                            $(".outbound-footer").css("width", width);
+                                            $(".outbound-footer").show();
+                                        }, 50);
+                }else{
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide(); 
+                    this.commonService.responseMessages("", response.message, "warning");    
+                }
+            });
+}
+closeModal(id){
+       this.createGRForm.reset();
+       this.createGRForm.controls['docType'].setValue("");
+       $("#"+id).modal("hide"); 
+    }
+createGoodsReceipt(id){
+      $("#"+id).modal('show');
+  } 
+createGRSubmit(id){
+      this.commonService.saleType='Create';
+      let orderType:any=$("#orderTypes").val();
+      let dlvNumber:any=$("#refNumber").val();
+      const path:any="goodsreceipt/createGR";
+      $("#createGRModal").modal('hide');
+      this.router.navigate([path], { queryParams: { "orderType": orderType, "dlvNumber": dlvNumber, "action": "C", frompage: "GR" } });
+}
+
+  cancelGoodsReceipt(){
+      
+      
+      swal( {
+            title: "Do you want to cancel goods receipt ?",
+            //type: "warning",
+            showCancelButton: true,
+            confirmButtonClass: "btn-default btn-primary-custom login-button-export",
+            cancelButtonClass: "btn-danger btn-danger-custom ",
+            
+            confirmButtonText: "Ok",
+            closeOnConfirm: true
+        },
+                () => {
+                    let cancelPayload = {};
+                    let grnum = [];
+                    grnum.push(this.grNum)
+                    cancelPayload["action"] = "CANPGR";
+                    cancelPayload["bp_id"] = this.bpId;
+                    cancelPayload["org_id"] = this.orgId;
+                  
+                    cancelPayload["im_gr_num"] = grnum;
+
+
+
+
+                    console.log(cancelPayload);
+                    let url: any = this.environment.getRequiredApi("get_simulate_GR_details") + "?";
+
+                    this.commonService.getData(url, "POST", cancelPayload, this.accessObjectId).subscribe(response => {
+
+                        console.log(response);
+                        this.errorLogs = [];
+                        if (response.status == 0) {
+
+                            if (response.data.hasOwnProperty("ex_return")) {
+
+                                for (let index of response.data["ex_return"]) {
+
+                                    if (index.type == "E") {
+
+                                        this.errorLogs.push(index);
+                                    }
+                                }
+                            }
+                            if (this.errorLogs.length == 0) {
+                                this.commonService.responseMessages("", "Goods Receipt ("+cancelPayload['im_gr_num']+") is cancelled", "success");
+                                this.indeterminate = false;
+                                this.checked = false;
+                                const path: any = 'goodsreceipt';
+                                this.router.navigate([path]);
+                                //  this.getGoodReceiptList();
+                            } else {
+
+                                $("#cancelErrorsModal").modal("show");
+                            }
+                        }else{
+                            this.commonService.responseMessages("", response.message, "warning");
+                        }
+
+                       
+
+
+                        $('#loadingIcon').hide();
+                        $("#black-overlay").hide();
+                    }); 
+                    
+                    
+            } );
+        
+     
+        
+        
+    }
+
+}

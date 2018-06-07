@@ -1,0 +1,78 @@
+import { Component, OnInit, Input } from '@angular/core';
+import { Http } from '@angular/http';
+import { AppComponent } from '../../app.component';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Observable } from "rxjs/Observable";
+import {CommonService} from '../../services/common.service';
+
+declare var $: any;
+declare var jQuery: any;
+
+@Component( {
+    selector: 'cat-top-bar',
+    templateUrl: './top-bar.component.html',
+    providers: []
+} )
+export class TopBarComponent implements OnInit {
+    logoFlag:boolean=true;
+    usersList:any;
+    rFlag:boolean=false;
+	constructor( private router: Router, private http: Http, private app: AppComponent,
+	        private commonService:CommonService
+    ) {
+        this.logoFlag=this.app.bussinessPartner;
+        this.usersList={};
+    }
+    ngOnInit() {
+        this.getUserDetailsList();
+        this.logoFlag=this.app.bussinessPartner;
+        console.log(this.logoFlag);
+        if ( $( ".cat__menu-left" ).is( ":visible" ) && $( 'body' ).hasClass( 'cat__menu-left--visible' ) ) {
+            $( "#bpTitle" ).removeAttr( 'style' );
+            $( "#bpTitle" ).toggleClass( 'cat_top_bar_title-left-visible' );
+        } else {
+            $( "#bpTitle" ).attr( 'style', 'margin-left:5%' );
+
+        }
+        $(document).on('click', function (e)  {
+            if (!$(e.target).hasClass('bellNot')) {
+                $(".not_box").hide();
+                
+            }
+        });
+    }
+    toggleProfile(){
+        this.rFlag=this.commonService.rmsFlag;
+        var x = document.getElementById( "not_box" );
+        if ( x.style.display === "none" ) {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+    logout() {
+        $( '#loadingIcon' ).show(); $( "#black-overlay" ).show();
+        const path: string = '/login';
+        this.commonService.invalidateLoginSession().subscribe(( data ) => {
+            if ( data == 200 || data.status == 200 ) {
+                clearInterval( parseInt( localStorage.getItem( "IntervalSetup" ) ) );
+                clearInterval( parseInt( localStorage.getItem( "RefreshSetup" ) ) );
+                localStorage.removeItem( 'token' );
+                localStorage.removeItem( 'refreshToken' );
+                localStorage.clear();
+                localStorage.setItem( 'LMflag', 'false' );
+                $( '#loadingIcon' ).hide(); $( "#black-overlay" ).hide();
+                this.router.navigate( [path] );
+            }
+            $( '#loadingIcon' ).hide(); $( "#black-overlay" ).hide();
+        } );
+
+    }
+    getUserDetailsList(){
+        this.commonService.getUserDetails().subscribe(response=>{
+            if(response.status==0){
+               this.usersList=response.data;
+            }
+        });
+    }
+}

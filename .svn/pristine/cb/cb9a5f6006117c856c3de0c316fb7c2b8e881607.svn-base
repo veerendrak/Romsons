@@ -1,0 +1,134 @@
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service';
+import { EnvConfigurationService } from '../../services/env-configuration.service';
+import { ExcelService } from '../../services/excel.service';
+declare var $: any;
+declare var jQuery: any;
+declare var swal: any;
+var exportIdlist: number;
+@Component({
+    selector: 'app-active-user-details',
+    templateUrl: './active-user-details.component.html',
+    styleUrls: ['./active-user-details.component.css']
+})
+export class ActiveUserDetailsComponent implements OnInit {
+    url: string;
+    bpId: string;
+    orgId: string;
+    accessObjectId: any;
+    activeuserlist: any;
+    constructor(private http: Http, private formBuilder: FormBuilder, private environment: EnvConfigurationService,
+        private router: Router, private ref: ChangeDetectorRef, private app: AppComponent, private messagesService: MessagePropertiesService,
+        private commonService: CommonService, private dateAdapter: DateAdapter<Date>, private excelService: ExcelService) {
+        this.app.isActive = true;
+        this.bpId = localStorage.getItem("bpId");
+        this.orgId = localStorage.getItem("orgId");
+        this.accessObjectId = localStorage.getItem("Active User");
+        this.activeuserlist = [];
+    }
+    ngOnInit() {
+
+        this.getactiveuserlist();
+        setTimeout(() => {
+            var width = $("#mainContent").css("width");
+            $(".outbound-footer").css("width", width);
+        }, 50);
+        this.applyDataTable();
+    }
+    getactiveuserlist() {
+        $('#loadingIcon').show();
+        $("#black-overlay").show();
+        this.url = this.environment.getRequiredApi('get_active_user_details') + "?bp_id=" + this.bpId + "&org_id=" + this.orgId + "&";
+        this.commonService.getData(this.url, 'GET', '', this.accessObjectId)
+            .subscribe((response) => {
+                if (response.status == '1') {
+                    this.commonService.responseMessages("", response.message, "warning");
+                    this.activeuserlist = [];
+                    this.applyDataTable();
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                } else {
+                    $("#cust-info-table").DataTable().destroy();
+                    this.activeuserlist = response.data.onlineUsers;
+                    this.applyDataTable();
+                    $('#loadingIcon').hide();
+                    $("#black-overlay").hide();
+                }
+            }, err => {
+                $('#loadingIcon').hide();
+                $("#black-overlay").hide();
+                console.log(err)
+            });
+    }
+    applyDataTable() {
+        setTimeout(() => {
+            $("#cust-info-table").DataTable({
+                retrieve: true,
+                "order": [0],
+                "language": {
+                    "emptyTable": "No data available",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoFiltered": "(filtered from _MAX_ total records)"
+                },
+                "fnDrawCallback": function(oSettings) {
+                    if (5 >= oSettings.fnRecordsDisplay()) {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').hide();
+                    } else {
+                        $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_filter').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_info').show();
+                        $(oSettings.nTableWrapper).find('.dataTables_length').show();
+                    }
+                },
+                "columnDefs": [{
+                    "targets": 'no-sort',
+                    "orderable": false,
+                }]
+            });
+        }, 500);
+
+        setTimeout(() => {
+            $(".dataTables_scrollHeadInner").css({ "width": "100%" });
+            $(".table ").css({ "width": "100%" });
+            //$("#cust-info-table_filter").append("<i class='fa fa-search searchStock' id='searchStock'></i>");
+        }, 1100);
+    }
+    exportExcel() {
+        let jsonArrrayData: any = [];
+        console.log(this.activeuserlist);
+        if (this.activeuserlist.length != 0) {
+            for (let index of this.activeuserlist) {
+                if (!index.hasOwnProperty('browserName')) {
+                    index.browserName = "  "
+                }
+                if (!index.hasOwnProperty('browserVersion')) {
+                    index.browserVersion = "  "
+                }
+                if (!index.hasOwnProperty('ipAddress')) {
+                    index.ipAddress = ' ';
+                }
+                if (!index.hasOwnProperty('logonId')) {
+                    index.logonId = ' ';
+                }
+                if (!index.hasOwnProperty('logonTs')) {
+                    index.logonTs = " ";
+                }
+                jsonArrrayData.push(index);
+            }
+            let columns: any = [ 'logonId', 'logonTs','browserName', 'browserVersion', 'ipAddress']
+            let columnHeaders: any = ['Logon ID', 'Logon Time','Browser Name', 'Browser Version', 'IP Address']
+            let jsonData: any = JSON.stringify(jsonArrrayData);
+            this.excelService.JSONToCSVConvertor(jsonArrrayData, "", "Active user list", columns, columnHeaders, 'Active User');
+        } else {
+            this.commonService.responseMessages("", "No Data Available To Export", "warning")
+        }
+
+    }
+}

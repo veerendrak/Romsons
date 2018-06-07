@@ -1,0 +1,418 @@
+<section class="card" id="mainContent" style="padding-left:0px; padding-right:0px; padding-bottom:0px;">
+
+<div class="createBlok" >
+<form  [formGroup]="customerDetailsForm">
+
+	<div class="card-block db-block mb-5" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" >
+				<div class="row cust-det-title">Customer Details</div>
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					
+					
+					 <div class="col-md-12 row pb-1">
+						<div class="col-md-3 text-align-sales">
+						   <label>Type<sup class="asterick">*</sup></label>
+						  <select  class="form-control"  formControlName="custType" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['custType']">
+						  <option value="">-- None --</option>
+						  <option value="Authorized">Authorized</option>
+						  </select> 
+						  <span
+							*ngIf="customerDetailsForm.controls['custType'].touched && !customerDetailsForm.controls['custType'].valid && customerDetailsForm.controls['custType'].dirty"
+									class="error">
+									 <small	*ngIf="customerDetailsForm.controls['custType'].errors.required">
+													{{customerDetailMsg.customer_type}} </small>
+
+											</span>
+						</div>
+					 </div>
+					 <div class="cust-form-block  col-md-12 row pb-1">
+						<div class="clear-fix"></div>
+						<div class="col-md-3 text-align-sales">
+							    <label>Name<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="custName" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['custName']">
+                               
+                              <span
+												*ngIf="customerDetailsForm.controls['custName'].touched && !customerDetailsForm.controls['custName'].valid && customerDetailsForm.controls['custName'].dirty"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['custName'].errors.required">
+													{{customerDetailMsg.name_req}} </small>
+
+											</span> 
+							  
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							  <label>Mobile<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="mobile" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['mobile']">
+                               <span
+													*ngIf="customerDetailsForm.controls['mobile'].touched && !customerDetailsForm.controls['mobile'].valid && customerDetailsForm.controls['mobile'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['mobile'].errors.required">
+														{{customerDetailMsg.mobile_req}}</small> <small
+													*ngIf="customerDetailsForm.controls['mobile'].errors.pattern">
+														{{customerDetailMsg.mobile_err_req}}</small>
+												</span>
+							  
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							<label>Email<sup class="asterick">*</sup></label>
+                               <input type="email" class="form-control" formControlName="email" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['email']"> 
+                               
+                              
+							<span
+												*ngIf="customerDetailsForm.controls['email'].touched && !customerDetailsForm.controls['email'].valid"
+												class="error"> <small
+												*ngIf="customerDetailsForm.controls['email'].errors.required">
+													{{customerDetailMsg.email_req}} </small> <small
+												*ngIf="customerDetailsForm.controls['email'].errors.pattern">
+													{{customerDetailMsg.email_req_error}} </small>
+											</span>				
+											
+						</div>
+						
+					<!-- 	<div class="col-md-3 text-align-sales">
+							  <label>Drug Licence<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control"> 
+						</div>
+						<div class="col-md-3 text-align-sales" style="padding-top:3%"> 
+				
+							<mat-checkbox  [checked]="true"><mat-label>Security Deposit</mat-label></mat-checkbox>
+							</div> -->
+						
+						<div class="col-md-3 text-align-sales">
+						 <label>Credit Limit<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="creditLimit" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['creditLimit']">
+                               <span
+													*ngIf="customerDetailsForm.controls['creditLimit'].touched && !customerDetailsForm.controls['creditLimit'].valid && customerDetailsForm.controls['creditLimit'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['creditLimit'].errors.required">
+														{{customerDetailMsg.creditLimit_req}}  </small>
+														<small
+												*ngIf="customerDetailsForm.controls['creditLimit'].errors.pattern">
+													{{customerDetailMsg.creditLimit_invalid_error}} </small>
+												</span>
+						</div>
+						<div class="col-md-3 text-align-sales">
+						  <label>Status<sup class="asterick">*</sup></label>
+						  <select  class="form-control" formControlName="status" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['status']">
+						  <option value="">-- None --</option>
+						  <option value="Yes">Yes</option>
+						  </select>
+						  
+						  <span
+													*ngIf="customerDetailsForm.controls['status'].touched && !customerDetailsForm.controls['status'].valid && customerDetailsForm.controls['status'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['status'].errors.required">
+														{{customerDetailMsg.status_req}}  </small>
+						</span>
+												
+						</div>
+					</div>
+					
+					</div>
+					
+					<!-- end changes -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+
+	<div class="card-block db-block mb-5" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" >
+				<div class="row cust-det-title">Address Details</div>
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					
+					 <div class="cust-form-block col-md-12 row pb-1">
+						<div class="col-md-3 text-align-sales">
+							   <label>Door Number<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="doorNumber" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['doorNumber']">
+                               <span
+													*ngIf="customerDetailsForm.controls['doorNumber'].touched && !customerDetailsForm.controls['doorNumber'].valid && customerDetailsForm.controls['doorNumber'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['doorNumber'].errors.required">
+														{{customerDetailMsg.doorNumber_req}}  </small>
+												</span>
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+						<label>Area<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="area" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['area']">
+                               <span
+													*ngIf="customerDetailsForm.controls['area'].touched && !customerDetailsForm.controls['area'].valid && customerDetailsForm.controls['area'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['area'].errors.required">
+														{{customerDetailMsg.area_req}}  </small>
+												</span>
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+						<label>Street<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="street" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['street']">
+                               <span
+													*ngIf="customerDetailsForm.controls['street'].touched && !customerDetailsForm.controls['street'].valid && customerDetailsForm.controls['street'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['street'].errors.required">
+														{{customerDetailMsg.street_req}}  </small>
+												</span>
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+						<label>City<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="city" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['city']">
+                               <span
+													*ngIf="customerDetailsForm.controls['city'].touched && !customerDetailsForm.controls['city'].valid && customerDetailsForm.controls['city'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['city'].errors.required">
+														{{customerDetailMsg.city_req}}  </small>
+												</span>
+						</div>
+						
+						
+						<div class="col-md-3 text-align-sales">
+						<label>Mandal<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="mandal" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['mandal']">
+                               <span
+													*ngIf="customerDetailsForm.controls['mandal'].touched && !customerDetailsForm.controls['mandal'].valid && customerDetailsForm.controls['mandal'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['mandal'].errors.required">
+														{{customerDetailMsg.mandal_req}}  </small>
+												</span>
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+						<label>District<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="district" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['district']">
+                               <span
+													*ngIf="customerDetailsForm.controls['district'].touched && !customerDetailsForm.controls['district'].valid && customerDetailsForm.controls['district'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['district'].errors.required">
+														{{customerDetailMsg.district_req}}  </small>
+												</span>
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							<label>State<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="state" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['state']">  
+                               <span
+													*ngIf="customerDetailsForm.controls['state'].touched && !customerDetailsForm.controls['state'].valid && customerDetailsForm.controls['state'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['state'].errors.required">
+														{{customerDetailMsg.state_req}}  </small>
+												</span>
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+						<label>PIN code<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="pincode" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['pincode']"> 
+                               <span
+													*ngIf="customerDetailsForm.controls['pincode'].touched && !customerDetailsForm.controls['pincode'].valid && customerDetailsForm.controls['pincode'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['pincode'].errors.required">
+														{{customerDetailMsg.pincode_req}}  </small>
+														<small
+												*ngIf="customerDetailsForm.controls['pincode'].errors.pattern">
+													{{customerDetailMsg.pincode_invalid_error}} </small>
+												</span>  
+						</div>
+						
+					</div>
+					</div>
+					
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+	
+	<div class="card-block db-block mb-5" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" >
+				<div class="row cust-det-title">Compliance Details</div>
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					
+					 <div class="cust-form-block col-md-12 row pb-1">
+						<div class="col-md-3 text-align-sales">
+							  <label>Registration Type<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="registrationType" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['registrationType']">
+                               <span
+													*ngIf="customerDetailsForm.controls['registrationType'].touched && !customerDetailsForm.controls['registrationType'].valid && customerDetailsForm.controls['registrationType'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['registrationType'].errors.required">
+														{{customerDetailMsg.registrationType_req}}  </small>
+												</span>
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							<label>GST Number<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="gstNum" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['gstNum']">  
+                               <span
+													*ngIf="customerDetailsForm.controls['gstNum'].touched && !customerDetailsForm.controls['gstNum'].valid && customerDetailsForm.controls['gstNum'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['gstNum'].errors.required">
+														{{customerDetailMsg.gstNumber_req}}  </small>
+												</span>
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							<label>PAN Number<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="panNum" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['panNum']">
+                               <span
+													*ngIf="customerDetailsForm.controls['panNum'].touched && !customerDetailsForm.controls['panNum'].valid && customerDetailsForm.controls['panNum'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['panNum'].errors.required">
+														{{customerDetailMsg.pan_req}}  </small>
+														<small
+												*ngIf="customerDetailsForm.controls['panNum'].errors.pattern">
+													{{customerDetailMsg.panNum_invalid_error}} </small>
+												</span>
+						</div>
+						<div class="col-md-3 text-align-sales">
+							<label>Drug Licence<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="drugLicence" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['drugLicence']">
+                               <span
+													*ngIf="customerDetailsForm.controls['drugLicence'].touched && !customerDetailsForm.controls['drugLicence'].valid && customerDetailsForm.controls['drugLicence'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['drugLicence'].errors.required">
+														{{customerDetailMsg.drugLicence_req}}  </small>
+												</span>
+						</div>
+						
+						
+						
+					</div>
+					</div>
+					
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+	
+	<div class="card-block db-block mb-5" style="padding:0px;padding-left:15px; padding-right:15px;">
+		<div class="row">
+			<div class="col-lg-12">
+			<div class="createSalesBlock" >
+				<div class="row cust-det-title">Bank Details</div>
+				<div class="row">
+					<!-- new changes -->
+					<div class="outbound-content col-md-12">
+					
+					 <div class=" col-md-12 row pb-1">
+						<div class="col-md-3 text-align-sales">
+							  <label>Bank Name<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="bankName" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['bankName']">
+                               <span
+													*ngIf="customerDetailsForm.controls['bankName'].touched && !customerDetailsForm.controls['bankName'].valid && customerDetailsForm.controls['bankName'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['bankName'].errors.required">
+														{{customerDetailMsg.bankName_req}}  </small>
+												</span>
+						</div>
+						
+						<div class="col-md-3 text-align-sales">
+							 <label>IFC Code<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control" formControlName="ifcCode" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['ifcCode']">
+                               <span
+													*ngIf="customerDetailsForm.controls['ifcCode'].touched && !customerDetailsForm.controls['ifcCode'].valid && customerDetailsForm.controls['ifcCode'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['ifcCode'].errors.required">
+														{{customerDetailMsg.ifcCode_req}}  </small>
+												</span>
+							  
+						</div>
+						
+						<div class="col-md-4 text-align-sales">
+							  <label>Account Number<sup class="asterick">*</sup></label>
+                               <input type="text" class="form-control"  formControlName="accountNum" validateOnBlur
+												[validateFormControl]="customerDetailsForm.controls['accountNum']">
+                               <span
+													*ngIf="customerDetailsForm.controls['accountNum'].touched && !customerDetailsForm.controls['accountNum'].valid && customerDetailsForm.controls['accountNum'].dirty"
+													class="error"> <small
+													*ngIf="customerDetailsForm.controls['accountNum'].errors.required">
+														{{customerDetailMsg.accountNum_req}}  </small>
+												</span>
+						</div>
+						
+						
+						
+					</div>
+					</div>
+					
+					<!-- end chnges -->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+
+
+</form>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+<div class="outbound-footer mt-1">
+		
+		<div class="right-block">
+			<div class="pull-left">
+			<button class="save-icon-btn" [disabled]="!customerDetailsForm.valid" (click)="saveCustomerDetails();">
+				<i class="fa save-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Save</div>
+				</i>
+			</button>
+			</div>
+			<div class="pull-left">
+			<button class="cancel-button-export" style="padding-left:0px;">
+				<i class="fa cancel-icon" style="margin-right:4px;padding-right:4px;">
+				<div class="icon-text" style="right:-4px;">Cancel</div>
+				</i>
+			</button>
+		</div>
+		</div>
+	</div>
+</div>
+
+</section>

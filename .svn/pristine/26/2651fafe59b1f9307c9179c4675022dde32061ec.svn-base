@@ -1,0 +1,110 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "project": {
+    "name": "my-angular5-app"
+  },
+  "apps": [
+    {
+      "root": "src",
+      "outDir": "dist",
+      "assets": [
+        "assets",
+        "favicon.ico"
+      ],
+      "index": "index.html",
+      "main": "main.ts",
+      "polyfills": "polyfills.ts",
+      "test": "test.ts",
+      "tsconfig": "tsconfig.app.json",
+      "testTsconfig": "tsconfig.spec.json",
+      "prefix": "app",
+      "styles": [
+        "styles.css",
+		"assets/preloader.css",
+		"assets/vendors/by_bower/bootstrap/dist/css/bootstrap.min.css",
+		"assets/vendors/by_bower/jscrollpane/style/jquery.jscrollpane.css",
+		"assets/vendors/by_bower/ladda/dist/ladda-themeless.min.css",
+		"assets/vendors/by_bower/bootstrap-select/dist/css/bootstrap-select.min.css",
+		"assets/vendors/by_bower/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css",
+		"assets/vendors/by_bower/bootstrap-sweetalert/dist/sweetalert.css",
+		"assets/vendors/by_hands/datatables/media/css/dataTables.bootstrap4.min.css",
+		"assets/vendors/by_bower/c3/c3.min.css",
+		"assets/vendors/by_bower/nprogress/nprogress.css",
+		"assets/vendors/by_hands/font-linearicons/style.css",
+		"assets/vendors/by_hands/font-icomoon/style.css",
+		"assets/vendors/by_hands/font-awesome/css/font-awesome.min.css",
+		"assets/vendors/by_hands/cleanhtmlaudioplayer/src/player.css",
+		"assets/vendors/by_hands/cleanhtmlvideoplayer/src/player.css",
+		"assets/modules/core/common/core.cleanui.css",
+		"assets/modules/vendors/common/vendors.cleanui.css",
+		"assets/modules/layouts/common/layouts-pack.cleanui.css",
+		"assets/modules/themes/common/themes.cleanui.css",
+		"assets/modules/menu-left/common/menu-left.cleanui.css",
+		"assets/modules/menu-right/common/menu-right.cleanui.css",
+		"assets/modules/top-bar/common/top-bar.cleanui.css",
+		"assets/modules/pages/common/pages.cleanui.css",
+		"assets/modules/apps/common/apps.cleanui.css"
+      ],
+      "scripts": [
+	  		"assets/vendors/by_bower/jquery/dist/jquery.js",
+			"assets/vendors/by_bower/tether/dist/js/tether.min.js",
+			"assets/vendors/by_bower/jquery-ui/jquery-ui.min.js",
+			"assets/vendors/by_bower/bootstrap/dist/js/bootstrap.min.js",
+			"assets/vendors/by_bower/jquery-mousewheel/jquery.mousewheel.min.js",
+			"assets/vendors/by_bower/jscrollpane/script/jquery.jscrollpane.min.js",
+			"assets/vendors/by_bower/spin.js/spin.js",
+			"assets/vendors/by_bower/ladda/dist/ladda.min.js",
+			"assets/vendors/by_bower/bootstrap-select/dist/js/bootstrap-select.min.js",
+			"assets/vendors/by_bower/html5-form-validation/dist/jquery.validation.min.js",
+			"assets/vendors/by_bower/jquery-typeahead/dist/jquery.typeahead.min.js",
+			"assets/vendors/by_bower/bootstrap-show-password/bootstrap-show-password.min.js",
+			"assets/vendors/by_bower/moment/min/moment.min.js",
+			"assets/vendors/by_bower/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js",
+			"assets/vendors/by_bower/bootstrap-sweetalert/dist/sweetalert.min.js",
+			"assets/vendors/by_bower/remarkable-bootstrap-notify/dist/bootstrap-notify.min.js",
+			"assets/vendors/by_hands/datatables/media/js/jquery.dataTables.min.js",
+			"assets/vendors/by_hands/datatables/media/js/dataTables.bootstrap4.min.js",
+			"assets/vendors/by_bower/datatables-fixedcolumns/js/dataTables.fixedColumns.js",
+			"assets/vendors/by_bower/datatables-responsive/js/dataTables.responsive.js",
+			"assets/vendors/by_hands/editable-table/mindmup-editabletable.js",
+			"assets/vendors/by_bower/c3/c3.min.js",
+			"assets/vendors/by_bower/nprogress/nprogress.js",
+			"assets/vendors/by_hands/cleanhtmlaudioplayer/src/jquery.cleanaudioplayer.js",
+			"assets/vendors/by_hands/cleanhtmlvideoplayer/src/jquery.cleanvideoplayer.js"
+	  ],
+      "environmentSource": "environments/environment.ts",
+      "environments": {
+        "dev": "environments/environment.ts",
+        "prod": "environments/environment.prod.ts"
+      }
+    }
+  ],
+  "e2e": {
+    "protractor": {
+      "config": "./protractor.conf.js"
+    }
+  },
+  "lint": [
+    {
+      "project": "src/tsconfig.app.json",
+      "exclude": "**/node_modules/**"
+    },
+    {
+      "project": "src/tsconfig.spec.json",
+      "exclude": "**/node_modules/**"
+    },
+    {
+      "project": "e2e/tsconfig.e2e.json",
+      "exclude": "**/node_modules/**"
+    }
+  ],
+  "test": {
+    "karma": {
+      "config": "./karma.conf.js"
+    }
+  },
+  "defaults": {
+    "styleExt": "css",
+    "component": {}
+  }
+}

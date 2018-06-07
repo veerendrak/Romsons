@@ -1,0 +1,469 @@
+import { Component, OnInit, Input,Output, EventEmitter,ChangeDetectorRef} from '@angular/core';
+import { Http , Headers, Response,RequestOptions } from '@angular/http';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Router,ActivatedRoute, Params} from '@angular/router';
+import { AppComponent } from '../../app.component';
+import {CommonService} from '../../services/common.service';
+import { DateAdapter } from '@angular/material';
+import { MessagePropertiesService } from '../../services/message-properties.service'; 
+import {EnvConfigurationService} from '../../services/env-configuration.service';
+
+declare var $: any; 
+declare var jQuery: any;
+declare var swal: any;
+
+@Component({
+  selector: 'app-outbound-delivery',
+  templateUrl: './outbound-delivery.component.html',
+  styleUrls: ['./outbound-delivery.component.css']
+})
+export class OutboundDeliveryComponent implements OnInit {
+    deliveryForm: FormGroup;
+    outboundDeliveryMsg:any;
+    bpId:any;
+    orgId:any;
+    accessObjectId:any;
+    customerNames:any;
+    orderNum:any;
+    fromDate:any;
+    fromItem:any;
+    toItem:any;
+    shName:any;
+    shId:any;
+    deliveryList:any;
+    indeterminate:boolean=false;
+    checked:boolean=false;
+    outboundDelievryItemsList:any;
+    headerList:any;
+    docDate:any;
+    giDate:any;
+    totalWeight:any;
+    weightType:any;
+    numPack:any;
+    createDeliveryForm:FormGroup;
+    shAddress:any;
+    shComplince:any;
+    dsFlag:boolean=true;
+    errorList:any;
+    errorFlag:boolean=false;
+    deliveryNum:any;
+    itemNumbers:any;
+    saveBtn:boolean=false;
+    reqSimPayload:any;
+  constructor(private http: Http, private formBuilder: FormBuilder,
+          private router: Router,private ref: ChangeDetectorRef,private app:AppComponent,private messagesService:MessagePropertiesService,
+          private commonService:CommonService,private dateAdapter: DateAdapter<Date>,private activatedRoute:ActivatedRoute,
+          private environment:EnvConfigurationService) { 
+      this.app.isActive=true;
+      this.deliveryForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+          'shippingPoint': ['', Validators.required],
+          'date': ['', Validators.required],
+          'orderNum': ['', Validators.required],
+          'DocDate': ['', Validators.required],
+          'PGiDate': [''],
+          'GiDate': [''],
+          'NoPackage': ['', Validators.required],
+          'totWeight': ['', Validators.required],
+        });
+      this.createDeliveryForm = formBuilder.group({
+          hideRequired: false,
+          floatLabel: 'auto',
+         'outboundDate': ['', Validators.required],
+         'outboundOrder':['', Validators.required],
+         'frmItem':[''],
+         'toItem':['']
+        });
+      this.bpId=localStorage.getItem("bpId");
+      this.orgId=localStorage.getItem("orgId");
+      this.accessObjectId=localStorage.getItem("Sales Order");
+      this.outboundDeliveryMsg = messagesService.outbound_delivery_msg;
+      this.customerNames=[];
+      this.orderNum=null;
+      this.deliveryList={};
+      this.shId="";
+      this.shName="";
+      this.fromItem=""
+      this.toItem="";
+      this.outboundDelievryItemsList=[];
+      this.headerList=[];
+      this.docDate="";
+      this.giDate="";
+      this.numPack="";
+      this.totalWeight="";
+      this.weightType="";
+      this.shName="";
+      this.shAddress={};
+      this.shComplince={};
+      this.dsFlag=true;
+      this.errorList=[];
+      this.itemNumbers=[];
+      this.saveBtn=false;
+      this.reqSimPayload={};
+  }
+
+  ngOnInit() {
+      $(()=>{
+          $(document).on("input", ".numbersOnly1", function() {
+              this.value = this.value.replace(/[^\d\.]/g,'');
+          });
+          $('.datepicker-init-sale').datetimepicker({
+              widgetPositioning: {
+                  horizontal: 'left'
+              },
+              icons: {
+                  time: "fa fa-clock-o",
+                  date: "fa fa-calendar",
+                  up: "fa fa-arrow-up",
+                  down: "fa fa-arrow-down",
+                  previous: 'fa fa-arrow-left',
+                  next: 'fa fa-arrow-right'
+              },
+              format: 'DD/MM/YYYY',
+          }); 
+      });
+      setTimeout(()=>{
+          var width=$("#mainContent").css("width");
+          $(".outbound-footer").css("width",width);
+      },50);
+      this.activatedRoute.queryParams.subscribe(params => {
+          console.log(this.router.url);
+          if(params['action']=="C" && this.router.url.includes('obd')){
+              this.orderNum=params['orderNum'];
+              this.fromDate=params["fromDate"];
+              this.fromItem=params["fromItem"];
+              this.toItem=params["toItem"];
+          }
+          
+      });
+      this.reqSimPayload['bp_id']=this.bpId;
+      this.reqSimPayload['org_id']=this.orgId;
+      this.reqSimPayload['im_action']="SD";
+      this.reqSimPayload['im_salesorder']=this.orderNum;
+      this.reqSimPayload['im_selection_date']=this.fromDate;
+      this.reqSimPayload['im_from_item']=this.fromItem;
+      this.reqSimPayload['im_to_item']=this.toItem;
+      this.getSimulationDetails();
+  }
+getSimulationDetails(){
+    $('#loadingIcon').show();
+    $("#black-overlay").show();
+    let url:any=this.environment.getRequiredApi("get_simulation_dlvr_details")+"?";
+    this.commonService.getData(url, "POST", this.reqSimPayload, this.accessObjectId).subscribe(response=>{
+       if(response.status==0){
+           this.deliveryList=response["data"];
+           if(this.deliveryList['e_created_deliveries']==0){
+               this.commonService.responseMessages("", "Invalid sales order to simulate", "warning");
+               $('#loadingIcon').hide();
+               $("#black-overlay").hide();
+               $("#outboundDeliveryModal").modal("show");
+               return false;
+           }
+           if(this.deliveryList.hasOwnProperty(['ex_address'])){
+               this.shAddress=this.deliveryList['ex_address'];
+               this.shName=this.shAddress['cust_name']
+           }
+           if(this.deliveryList.hasOwnProperty(['ex_compliance'])){
+               this.shComplince=this.deliveryList['ex_compliance'];
+           }
+           if(this.deliveryList.hasOwnProperty('ch_delivery_tables')){
+               if(this.deliveryList['ch_delivery_tables'].hasOwnProperty('likp')){
+                   if(this.deliveryList['ch_delivery_tables'].likp.length>0){
+                       this.headerList=this.deliveryList['ch_delivery_tables'].likp;
+                       if(this.headerList[0].bldat!='0000-00-00'){
+                           this.docDate=this.headerList[0].bldat;
+                       }
+                       if(this.headerList[0].wadat_ist!='0000-00-00'){
+                           this.giDate=this.headerList[0].wadat;
+                       }
+                       this.totalWeight=this.headerList[0].btgew;
+                       this.weightType=this.headerList[0].gewei;
+                       this.numPack=this.headerList[0].anzpk;
+                   }
+               }
+               let count:any=0;
+               if(this.deliveryList.hasOwnProperty('ex_open_quantity')){
+                  if(this.deliveryList['ch_delivery_tables'].hasOwnProperty('lips')){
+                      if(this.deliveryList['ch_delivery_tables'].lips.length>0){
+                          this.deliveryList['ex_open_quantity'].forEach(currentItem=>{
+                              if(currentItem.posnr==this.deliveryList['ch_delivery_tables'].lips[count].posnr){
+                                  this.deliveryList['ch_delivery_tables'].lips[count]['omeng']=currentItem.omeng;
+                              }
+                              count++;
+                          });
+                      }
+                   }
+               }
+               if(this.deliveryList['ch_delivery_tables'].hasOwnProperty('lips')){
+                   if(this.deliveryList['ch_delivery_tables'].lips.length>0){
+                       this.deliveryList['ch_delivery_tables']["lips"].forEach(currentItem=>{
+                           currentItem.updateFlag="U";
+                           if(this.itemNumbers.length==0){
+                               this.itemNumbers.push(currentItem.vgpos);
+                           }else{
+                               if(this.itemNumbers.indexOf(currentItem.vgpos)==-1){
+                                   this.itemNumbers.push(currentItem.vgpos);
+                               }
+                           }
+                       });
+                     let countItm:any=0;
+                     for(let index of this.itemNumbers){
+                         let commonIndex:any=null;
+                         this.deliveryList['ch_delivery_tables']["lips"].forEach(currentItem=>{
+                             if(currentItem.vgpos==index){
+                                 if(commonIndex==null){
+                                     commonIndex=index;
+                                     currentItem['batchNum']="";
+                                 }else{
+                                    if(commonIndex==currentItem.vgpos){
+                                    } currentItem['batchNum']="batch-"+currentItem.vgpos;
+                                 }
+                                 this.outboundDelievryItemsList.push(currentItem);
+                             }
+                         });
+                     }
+                     let vgPos:any=null;
+                     let delvQty:any=null;
+                     let batchLength:any=0;
+                     for(let index of this.itemNumbers){
+                         this.outboundDelievryItemsList.forEach(currentItem=>{
+                                 if(index==currentItem.vgpos && currentItem.batchNum!=""){
+                                     if(delvQty==null){
+                                         delvQty=parseFloat(currentItem.lfimg);
+                                     }else{
+                                         delvQty=delvQty+parseFloat(currentItem.lfimg);
+                                     }
+                                     this.outboundDelievryItemsList[countItm].lfimg=delvQty;
+                                     batchLength++;
+                                 }
+                         });
+                         countItm++;
+                         countItm=countItm+batchLength;
+                         delvQty=null;
+                     }
+                   }
+               }
+               
+              
+           }
+           $('#loadingIcon').hide();
+           $("#black-overlay").hide();
+       }else{
+           this.commonService.responseMessages("", response.message, "warning");
+           $('#loadingIcon').hide();
+           $("#black-overlay").hide();
+       } 
+    });
+}
+selectAll(event,checkAll,tableId){
+    setTimeout(()=>{
+        if($("#"+checkAll).is(":checked")){
+             this.commonService.selectAllCheckBoxes(checkAll,tableId);
+             let count:any=0;
+         }else{
+             this.commonService.selectAllCheckBoxes(checkAll,tableId);
+         }
+     },300);
+
+    }
+getReportList(event,tableId,i){
+    setTimeout(()=>{let flag:boolean=this.commonService.checkAction(tableId);
+    if(flag){
+        this.indeterminate=false;
+        this.checked=true;
+    }else{
+        this.indeterminate=true;
+    }
+    },400);
+    setTimeout(()=>{
+       if($("#checkbox-"+i+"-input").is(":checked")){
+           //this.checkedObjects.push(i);
+       }else{
+           setTimeout(()=>{let flag:boolean=this.commonService.continueAction(tableId);
+           if(flag){
+               this.indeterminate=false;
+               this.checked=false;
+           }else{
+               this.indeterminate=true;
+           }
+           },200);
+       }
+       
+    },300); 
+}
+expandChildRows(childrow,itemId,icon,index){
+    if($("#plus-"+index).is(":visible")){
+        $("#plus-"+index).hide();
+        $("#minus-"+index).show();
+        $("."+childrow+"-"+itemId).show();
+    }else{
+        if($("#minus-"+index).is(":visible")){
+            $("#plus-"+index).show();
+            $("#minus-"+index).hide();
+        }
+        $("."+childrow+"-"+itemId).hide(); 
+    }
+    
+}
+expandAllrows(){
+    if($(".child-row").is(":visible")){
+        $(".child-row").hide();
+        $(".plus-circle-icon").show();
+        $(".minus-circle-icon").hide();
+    }else{
+        $(".child-row").show();
+        $(".plus-circle-icon").hide();
+        $(".minus-circle-icon").show(); 
+    }
+}
+displayAddSalesModal(){
+    $("#outboundDeliveryModal").modal("show");
+}
+closeModal(id){
+    $("#"+id).modal("hide");
+    this.createDeliveryForm.reset();
+}
+addSalesOrder(id){
+    this.reqSimPayload['bp_id']=this.bpId;
+    this.reqSimPayload['org_id']=this.orgId;
+    this.reqSimPayload['im_action']="SD";
+    this.reqSimPayload['im_salesorder']=$("#orderNum").val();
+    this.reqSimPayload['im_selection_date']=$("#sFiterfromDate").val();
+    this.reqSimPayload['im_from_item']=$("#fromItem").val();
+    this.reqSimPayload['im_to_item']=$("#toItem").val();
+    $("#"+id).modal("hide"); 
+    this.getSimulationDetails();
+}
+changeQtyValidation(item,id){
+    this.changeDeleiveryQty();
+    let count:any=0;
+    for(let index of this.itemNumbers){
+        this.outboundDelievryItemsList.forEach(currentItem=>{
+            if(index==item.vgpos && currentItem.batchNum==""){
+                if(item.vgpos==currentItem.vgpos){
+                    if(parseFloat(currentItem.lfimg) > parseFloat(currentItem.omeng)){
+                        $(".batch-"+item.vgpos).attr('style','border:1px solid red');
+                        this.saveBtn=true;
+                    }else{
+                        if(parseFloat(currentItem.lfimg) <= parseFloat(currentItem.omeng)){
+                            $(".batch-"+item.vgpos).removeAttr('style');
+                            this.saveBtn=false;
+                        } 
+                }
+               } 
+            }
+            
+        });
+    }
+    /*for(let index of this.deliveryList['ex_open_quantity']){
+        if(item.vgpos==index.posnr){
+            if(parseFloat(item.lfimg) > parseFloat(index.omeng)){
+                $("#batch-qty-"+id).attr('style','border:1px solid red');
+            }else{
+                if(parseFloat(item.lfimg) <= parseFloat(index.omeng)){
+                    $("#batch-qty-"+id).removeAttr('style'); 
+                    
+                } 
+            }
+        }
+    }*/
+    
+}
+changeDeleiveryQty(){
+    let vgPos:any=null;
+let delvQty:any=null;
+let countItm:any=0;
+let batchLength:any=0;
+for(let index of this.itemNumbers){
+    this.outboundDelievryItemsList.forEach(currentItem=>{
+            if(index==currentItem.vgpos && currentItem.batchNum!=""){
+                if(delvQty==null){
+                    delvQty=parseFloat(currentItem.lfimg);
+                }else{
+                    delvQty=delvQty+parseFloat(currentItem.lfimg);
+                }
+                this.outboundDelievryItemsList[countItm].lfimg=delvQty;
+                batchLength++;
+            }
+    });
+    countItm++;
+    countItm=countItm+batchLength;
+    delvQty=null;
+}
+}
+createDelivery(){
+    $('#loadingIcon').show();
+    $("#black-overlay").show();
+    let requestPayload:any={};
+    requestPayload['bp_id']=this.bpId;
+    requestPayload['im_action']="CD";
+    requestPayload['org_id']=this.orgId;
+    requestPayload['ch_delivery_tables']={};
+    let docdate:any=$("#docDate").val();
+    docdate=docdate.split("-");
+    docdate=docdate[2]+""+docdate[1]+""+docdate[0];
+    let planedGidate:any=$("#plndGiDate").val();
+    planedGidate=planedGidate.split("-");
+    planedGidate=planedGidate[2]+""+planedGidate[1]+""+planedGidate[0];
+    let Gidate:any=$("#giDate").val();
+    Gidate=Gidate.split("-");
+    Gidate=Gidate[2]+""+Gidate[1]+""+Gidate[0];
+    let numPackages=$("#numPackVal").val();
+    this.deliveryList['ch_delivery_tables']['likp'][0].bldat=docdate;
+    this.deliveryList['ch_delivery_tables']['likp'][0].wadat=planedGidate;
+    this.deliveryList['ch_delivery_tables']['likp'][0].anzpk=numPackages;
+    requestPayload['ch_delivery_tables']['likp']=this.deliveryList['ch_delivery_tables'].likp;
+    requestPayload['ch_delivery_tables']['lips']=this.outboundDelievryItemsList;
+    requestPayload['im_delivery_tables_inx']=[];
+    requestPayload['im_dlvreftosalesorder']=[];
+    let dlvrQty:any=0; 
+    for(let item of this.outboundDelievryItemsList){
+        let dlxItem:any={};
+        if(item.batchNum==""){
+            dlvrQty=item.lfimg
+        }
+        if(item.batchNum!=""){
+            dlxItem['item_num']=item.posnr;
+            dlxItem['qty']=item.lfimg;
+            dlxItem['ref_item_num']=item.vgpos;
+            dlxItem['upd_flag']=item.updateFlag;
+            dlxItem['so_num']=item.vgbel;
+            requestPayload['im_delivery_tables_inx'].push(dlxItem);
+            let refDlvrytoSales:any={};
+            refDlvrytoSales['sales_unit']=item.meins;
+            refDlvrytoSales['ref_doc']=item.vgbel;
+            refDlvrytoSales['ref_item']=item.vgpos;
+            refDlvrytoSales['dlv_qty']=dlvrQty;
+            requestPayload['im_dlvreftosalesorder'].push(refDlvrytoSales);
+        }
+    }
+    let url:any=this.environment.getRequiredApi("get_simulation_dlvr_details")+"?";
+    this.commonService.getData(url, "POST", requestPayload, this.accessObjectId).subscribe(response=>{
+       if(response.status==0){
+           if(response["data"]['ex_return'].length>0){
+               this.errorList=response["data"]['ex_return'];
+               for(let elist of response["data"]['ex_return']){
+                   if(elist.type=='E'){
+                       this.errorFlag=true;
+                       $('#loadingIcon').hide();
+                       $("#black-overlay").hide();
+                       $("#displayDlvrErrorsModal").modal("show");
+                       return false;
+                   }
+               }
+           }
+           this.deliveryNum=response["Data"].ex_delivery;
+           this.commonService.deliveryNum=this.deliveryNum;
+           $('#loadingIcon').hide();
+           $("#black-overlay").hide();
+           this.commonService.responseMessages("", "Delievery "+this.deliveryNum+" created successfully", "success");
+       } 
+    });
+    
+}
+redirectDelievryList(){
+    const path:any='obd';
+    this.router.navigate([path]);
+}
+}
